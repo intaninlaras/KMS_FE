@@ -6,7 +6,7 @@ export default function Label({ title, data, forLabel }) {
           {title}
         </label>
         <br />
-        <span style={{ whiteSpace: "pre-wrap" }}>{data}</span>
+        {data}
       </div>
     </>
   );

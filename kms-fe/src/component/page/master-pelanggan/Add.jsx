@@ -79,87 +79,102 @@ export default function MasterPelangganAdd({ onChangePage }) {
     berkasLainPelanggan: string(),
   });
 
-  const fetchDataByEndpointAndParams = async (
-    endpoint,
-    params,
-    setter,
-    errorMessage
-  ) => {
-    setIsError((prevError) => ({ ...prevError, error: false }));
-    try {
-      const data = await UseFetch(endpoint, params);
-      if (data === "ERROR") {
-        throw new Error(errorMessage);
-      } else {
-        setter(data);
-      }
-    } catch (error) {
-      setIsError((prevError) => ({
-        ...prevError,
-        error: true,
-        message: error.message,
-      }));
-      setter({});
-    }
-  };
-
   // MENGAMBIL DAFTAR PROVINSI -- BEGIN
   useEffect(() => {
-    fetchDataByEndpointAndParams(
-      API_LINK + "Utilities/GetListProvinsi",
-      {},
-      setListProvinsi,
-      "Terjadi kesalahan: Gagal mengambil daftar provinsi."
-    );
+    setIsError((prevError) => {
+      return { ...prevError, error: false };
+    });
+    UseFetch(API_LINK + "Utilities/GetListProvinsi", {}).then((data) => {
+      if (data === "ERROR") {
+        setIsError((prevError) => {
+          return {
+            ...prevError,
+            error: true,
+            message: "Terjadi kesalahan: Gagal mengambil daftar provinsi.",
+          };
+        });
+        setListProvinsi({});
+      } else setListProvinsi(data);
+
+      setListKabupaten({});
+      setListKecamatan({});
+      setListKelurahan({});
+    });
   }, []);
   // MENGAMBIL DAFTAR PROVINSI -- END
 
   // MENGAMBIL DAFTAR KABUPATEN/KOTA -- BEGIN
   useEffect(() => {
-    if (formDataRef.current["provinsiPelanggan"]) {
-      fetchDataByEndpointAndParams(
-        API_LINK + "Utilities/GetListKabupaten",
-        { provinsi: formDataRef.current["provinsiPelanggan"] },
-        setListKabupaten,
-        "Terjadi kesalahan: Gagal mengambil daftar kabupaten/kota."
-      );
+    setIsError((prevError) => {
+      return { ...prevError, error: false };
+    });
+    UseFetch(API_LINK + "Utilities/GetListKabupaten", {
+      provinsi: formDataRef.current["provinsiPelanggan"],
+    }).then((data) => {
+      if (data === "ERROR") {
+        setIsError((prevError) => {
+          return {
+            ...prevError,
+            error: true,
+            message:
+              "Terjadi kesalahan: Gagal mengambil daftar kabupaten/kota.",
+          };
+        });
+        setListKabupaten({});
+      } else setListKabupaten(data);
+
       setListKecamatan({});
       setListKelurahan({});
-    }
+    });
   }, [formDataRef.current["provinsiPelanggan"]]);
   // MENGAMBIL DAFTAR KABUPATEN/KOTA -- END
 
   // MENGAMBIL DAFTAR KECAMATAN -- BEGIN
   useEffect(() => {
-    if (formDataRef.current["kabupatenPelanggan"]) {
-      fetchDataByEndpointAndParams(
-        API_LINK + "Utilities/GetListKecamatan",
-        {
-          provinsi: formDataRef.current["provinsiPelanggan"],
-          kabupaten: formDataRef.current["kabupatenPelanggan"],
-        },
-        setListKecamatan,
-        "Terjadi kesalahan: Gagal mengambil daftar kecamatan."
-      );
+    setIsError((prevError) => {
+      return { ...prevError, error: false };
+    });
+    UseFetch(API_LINK + "Utilities/GetListKecamatan", {
+      provinsi: formDataRef.current["provinsiPelanggan"],
+      kabupaten: formDataRef.current["kabupatenPelanggan"],
+    }).then((data) => {
+      if (data === "ERROR") {
+        setIsError((prevError) => {
+          return {
+            ...prevError,
+            error: true,
+            message: "Terjadi kesalahan: Gagal mengambil daftar kecamatan.",
+          };
+        });
+        setListKecamatan({});
+      } else setListKecamatan(data);
+
       setListKelurahan({});
-    }
+    });
   }, [formDataRef.current["kabupatenPelanggan"]]);
   // MENGAMBIL DAFTAR KECAMATAN -- END
 
   // MENGAMBIL DAFTAR KELURAHAN -- BEGIN
   useEffect(() => {
-    if (formDataRef.current["kecamatanPelanggan"]) {
-      fetchDataByEndpointAndParams(
-        API_LINK + "Utilities/GetListKelurahan",
-        {
-          provinsi: formDataRef.current["provinsiPelanggan"],
-          kabupaten: formDataRef.current["kabupatenPelanggan"],
-          kecamatan: formDataRef.current["kecamatanPelanggan"],
-        },
-        setListKelurahan,
-        "Terjadi kesalahan: Gagal mengambil daftar kelurahan."
-      );
-    }
+    setIsError((prevError) => {
+      return { ...prevError, error: false };
+    });
+    UseFetch(API_LINK + "Utilities/GetListKelurahan", {
+      provinsi: formDataRef.current["provinsiPelanggan"],
+      kabupaten: formDataRef.current["kabupatenPelanggan"],
+      kecamatan: formDataRef.current["kecamatanPelanggan"],
+    }).then((data) => {
+      if (data === "ERROR") {
+        setIsError((prevError) => {
+          return {
+            ...prevError,
+            error: true,
+            message: "Terjadi kesalahan: Gagal mengambil daftar kelurahan.",
+          };
+        });
+        setListKelurahan({});
+      } else setListKelurahan(data);
+    });
   }, [formDataRef.current["kecamatanPelanggan"]]);
   // MENGAMBIL DAFTAR KELURAHAN -- END
 
@@ -205,51 +220,67 @@ export default function MasterPelangganAdd({ onChangePage }) {
 
     if (Object.values(validationErrors).every((error) => !error)) {
       setIsLoading(true);
-      setIsError((prevError) => ({ ...prevError, error: false }));
+      setIsError((prevError) => {
+        return { ...prevError, error: false };
+      });
       setErrors({});
 
       const uploadPromises = [];
 
-      const fileInputs = [
-        { ref: fileNPWPRef, key: "berkasNPWPPelanggan" },
-        { ref: fileSPPKPRef, key: "berkasSPPKPPelanggan" },
-        { ref: fileSKTRef, key: "berkasSKTPelanggan" },
-        { ref: fileLainRef, key: "berkasLainPelanggan" },
-      ];
+      if (fileNPWPRef.current.files.length > 0) {
+        uploadPromises.push(
+          UploadFile(fileNPWPRef.current).then(
+            (data) => (formDataRef.current["berkasNPWPPelanggan"] = data.Hasil)
+          )
+        );
+      }
+      if (fileSPPKPRef.current.files.length > 0) {
+        uploadPromises.push(
+          UploadFile(fileSPPKPRef.current).then(
+            (data) => (formDataRef.current["berkasSPPKPPelanggan"] = data.Hasil)
+          )
+        );
+      }
+      if (fileSKTRef.current.files.length > 0) {
+        uploadPromises.push(
+          UploadFile(fileSKTRef.current).then(
+            (data) => (formDataRef.current["berkasSKTPelanggan"] = data.Hasil)
+          )
+        );
+      }
+      if (fileLainRef.current.files.length > 0) {
+        uploadPromises.push(
+          UploadFile(fileLainRef.current).then(
+            (data) => (formDataRef.current["berkasLainPelanggan"] = data.Hasil)
+          )
+        );
+      }
 
-      fileInputs.forEach((fileInput) => {
-        if (fileInput.ref.current.files.length > 0) {
-          uploadPromises.push(
-            UploadFile(fileInput.ref.current).then(
-              (data) => (formDataRef.current[fileInput.key] = data.Hasil)
-            )
-          );
-        }
-      });
-
-      try {
-        await Promise.all(uploadPromises);
-
-        const data = await UseFetch(
+      Promise.all(uploadPromises).then(() => {
+        UseFetch(
           API_LINK + "MasterPelanggan/CreatePelanggan",
           formDataRef.current
-        );
-
-        if (data === "ERROR") {
-          throw new Error("Terjadi kesalahan: Gagal menyimpan data pelanggan.");
-        } else {
-          SweetAlert("Sukses", "Data pelanggan berhasil disimpan", "success");
-          onChangePage("index");
-        }
-      } catch (error) {
-        setIsError((prevError) => ({
-          ...prevError,
-          error: true,
-          message: error.message,
-        }));
-      } finally {
-        setIsLoading(false);
-      }
+        )
+          .then((data) => {
+            if (data === "ERROR") {
+              setIsError((prevError) => {
+                return {
+                  ...prevError,
+                  error: true,
+                  message: "Terjadi kesalahan: Gagal menyimpan data pelanggan.",
+                };
+              });
+            } else {
+              SweetAlert(
+                "Sukses",
+                "Data pelanggan berhasil disimpan",
+                "success"
+              );
+              onChangePage("index");
+            }
+          })
+          .then(() => setIsLoading(false));
+      });
     }
   };
 

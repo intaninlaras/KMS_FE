@@ -45,34 +45,24 @@ export default function MasterAlatMesinEdit({ onChangePage, withID }) {
   });
 
   useEffect(() => {
-    const fetchData = async () => {
-      setIsError((prevError) => ({ ...prevError, error: false }));
-
-      try {
-        const data = await UseFetch(
-          API_LINK + "MasterAlatMesin/GetDataAlatMesinById",
-          { id: withID }
-        );
-
+    setIsError((prevError) => {
+      return { ...prevError, error: false };
+    });
+    UseFetch(API_LINK + "MasterAlatMesin/GetDataAlatMesinById", {
+      id: withID,
+    })
+      .then((data) => {
         if (data === "ERROR" || data.length === 0) {
-          throw new Error(
-            "Terjadi kesalahan: Gagal mengambil data alat/mesin."
-          );
-        } else {
-          formDataRef.current = { ...formDataRef.current, ...data[0] };
-        }
-      } catch (error) {
-        setIsError((prevError) => ({
-          ...prevError,
-          error: true,
-          message: error.message,
-        }));
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchData();
+          setIsError((prevError) => {
+            return {
+              ...prevError,
+              error: true,
+              message: "Terjadi kesalahan: Gagal mengambil data alat/mesin.",
+            };
+          });
+        } else formDataRef.current = { ...formDataRef.current, ...data[0] };
+      })
+      .then(() => setIsLoading(false));
   }, []);
 
   const handleInputChange = async (e) => {
@@ -117,7 +107,9 @@ export default function MasterAlatMesinEdit({ onChangePage, withID }) {
 
     if (Object.values(validationErrors).every((error) => !error)) {
       setIsLoading(true);
-      setIsError((prevError) => ({ ...prevError, error: false }));
+      setIsError((prevError) => {
+        return { ...prevError, error: false };
+      });
       setErrors({});
 
       const uploadPromises = [];
@@ -130,31 +122,32 @@ export default function MasterAlatMesinEdit({ onChangePage, withID }) {
         );
       }
 
-      try {
-        await Promise.all(uploadPromises);
-
-        const data = await UseFetch(
+      Promise.all(uploadPromises).then(() => {
+        UseFetch(
           API_LINK + "MasterAlatMesin/EditAlatMesin",
           formDataRef.current
-        );
-
-        if (data === "ERROR") {
-          throw new Error(
-            "Terjadi kesalahan: Gagal menyimpan data alat/mesin."
-          );
-        } else {
-          SweetAlert("Sukses", "Data alat/mesin berhasil disimpan", "success");
-          onChangePage("index");
-        }
-      } catch (error) {
-        setIsError((prevError) => ({
-          ...prevError,
-          error: true,
-          message: error.message,
-        }));
-      } finally {
-        setIsLoading(false);
-      }
+        )
+          .then((data) => {
+            if (data === "ERROR") {
+              setIsError((prevError) => {
+                return {
+                  ...prevError,
+                  error: true,
+                  message:
+                    "Terjadi kesalahan: Gagal menyimpan data alat/mesin.",
+                };
+              });
+            } else {
+              SweetAlert(
+                "Sukses",
+                "Data alat/mesin berhasil disimpan",
+                "success"
+              );
+              onChangePage("index");
+            }
+          })
+          .then(() => setIsLoading(false));
+      });
     }
   };
 
@@ -211,9 +204,9 @@ export default function MasterAlatMesinEdit({ onChangePage, withID }) {
               </div>
               <div className="col-lg-12">
                 <Input
-                  type="textarea"
+                  type="text"
                   forInput="deskripsi"
-                  label="Spesifikasi"
+                  label="Deskripsi"
                   value={formDataRef.current.deskripsi}
                   onChange={handleInputChange}
                   errorMessage={errors.deskripsi}

@@ -33,56 +33,35 @@ export default function MasterKursProsesAdd({ onChangePage }) {
 
   // MENGAMBIL DAFTAR PROSES -- BEGIN
   useEffect(() => {
-    const fetchData = async () => {
-      setIsError((prevError) => ({ ...prevError, error: false }));
-
-      try {
-        const data = await UseFetch(
-          API_LINK + "MasterProses/GetListProses",
-          {}
-        );
-
-        if (data === "ERROR") {
-          throw new Error("Terjadi kesalahan: Gagal mengambil daftar proses.");
-        } else {
-          setListProses(data);
-        }
-      } catch (error) {
-        setIsError((prevError) => ({
-          ...prevError,
-          error: true,
-          message: error.message,
-        }));
+    setIsError((prevError) => {
+      return { ...prevError, error: false };
+    });
+    UseFetch(API_LINK + "MasterProses/GetListProses", {}).then((data) => {
+      if (data === "ERROR") {
+        setIsError((prevError) => {
+          return {
+            ...prevError,
+            error: true,
+            message: "Terjadi kesalahan: Gagal mengambil daftar proses.",
+          };
+        });
         setListProses({});
-      }
-    };
-
-    fetchData();
+      } else setListProses(data);
+    });
   }, []);
   // MENGAMBIL DAFTAR PROSES -- END
 
   // MENGAMBIL HARGA LAMA BERDASARKAN PROSES YANG DIPILIH -- BEGIN
   useEffect(() => {
-    const fetchData = async () => {
-      setIsError((prevError) => ({ ...prevError, error: false }));
-
-      try {
-        const data = await UseFetch(
-          API_LINK + "MasterKursProses/GetHargaLamaByProses",
-          { namaProses: formDataRef.current["namaProses"] }
-        );
-
-        if (data === "ERROR" || data.length === 0) {
-          setHargaLama("-");
-        } else {
-          setHargaLama(separator(data[0].hargaLama));
-        }
-      } catch {
-        setHargaLama("-");
-      }
-    };
-
-    fetchData();
+    setIsError((prevError) => {
+      return { ...prevError, error: false };
+    });
+    UseFetch(API_LINK + "MasterKursProses/GetHargaLamaByProses", {
+      namaProses: formDataRef.current["namaProses"],
+    }).then((data) => {
+      if (data === "ERROR" || data.length === 0) setHargaLama("-");
+      else setHargaLama(separator(data[0].hargaLama));
+    });
   }, [formDataRef.current["namaProses"]]);
   // MENGAMBIL HARGA LAMA BERDASARKAN PROSES YANG DIPILIH -- END
 
@@ -109,32 +88,34 @@ export default function MasterKursProsesAdd({ onChangePage }) {
 
     if (Object.values(validationErrors).every((error) => !error)) {
       setIsLoading(true);
-      setIsError((prevError) => ({ ...prevError, error: false }));
+      setIsError((prevError) => {
+        return { ...prevError, error: false };
+      });
       setErrors({});
 
-      try {
-        const data = await UseFetch(
-          API_LINK + "MasterKursProses/CreateKursProses",
-          formDataRef.current
-        );
-
-        if (data === "ERROR") {
-          throw new Error(
-            "Terjadi kesalahan: Gagal menyimpan data kurs proses."
-          );
-        } else {
-          SweetAlert("Sukses", "Data kurs proses berhasil disimpan", "success");
-          onChangePage("index");
-        }
-      } catch (error) {
-        setIsError((prevError) => ({
-          ...prevError,
-          error: true,
-          message: error.message,
-        }));
-      } finally {
-        setIsLoading(false);
-      }
+      UseFetch(
+        API_LINK + "MasterKursProses/CreateKursProses",
+        formDataRef.current
+      )
+        .then((data) => {
+          if (data === "ERROR") {
+            setIsError((prevError) => {
+              return {
+                ...prevError,
+                error: true,
+                message: "Terjadi kesalahan: Gagal menyimpan data kurs proses.",
+              };
+            });
+          } else {
+            SweetAlert(
+              "Sukses",
+              "Data kurs proses berhasil disimpan",
+              "success"
+            );
+            onChangePage("index");
+          }
+        })
+        .then(() => setIsLoading(false));
     }
   };
 

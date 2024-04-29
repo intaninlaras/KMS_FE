@@ -85,7 +85,9 @@ export default function MasterProdukAdd({ onChangePage }) {
 
     if (Object.values(validationErrors).every((error) => !error)) {
       setIsLoading(true);
-      setIsError((prevError) => ({ ...prevError, error: false }));
+      setIsError((prevError) => {
+        return { ...prevError, error: false };
+      });
       setErrors({});
 
       const uploadPromises = [];
@@ -98,29 +100,24 @@ export default function MasterProdukAdd({ onChangePage }) {
         );
       }
 
-      try {
-        await Promise.all(uploadPromises);
-
-        const data = await UseFetch(
-          API_LINK + "MasterProduk/CreateProduk",
-          formDataRef.current
-        );
-
-        if (data === "ERROR") {
-          throw new Error("Terjadi kesalahan: Gagal menyimpan data produk.");
-        } else {
-          SweetAlert("Sukses", "Data produk berhasil disimpan", "success");
-          onChangePage("index");
-        }
-      } catch (error) {
-        setIsError((prevError) => ({
-          ...prevError,
-          error: true,
-          message: error.message,
-        }));
-      } finally {
-        setIsLoading(false);
-      }
+      Promise.all(uploadPromises).then(() => {
+        UseFetch(API_LINK + "MasterProduk/CreateProduk", formDataRef.current)
+          .then((data) => {
+            if (data === "ERROR") {
+              setIsError((prevError) => {
+                return {
+                  ...prevError,
+                  error: true,
+                  message: "Terjadi kesalahan: Gagal menyimpan data produk.",
+                };
+              });
+            } else {
+              SweetAlert("Sukses", "Data produk berhasil disimpan", "success");
+              onChangePage("index");
+            }
+          })
+          .then(() => setIsLoading(false));
+      });
     }
   };
 
@@ -176,7 +173,7 @@ export default function MasterProdukAdd({ onChangePage }) {
               </div>
               <div className="col-lg-12">
                 <Input
-                  type="textarea"
+                  type="text"
                   forInput="spesifikasi"
                   label="Spesifikasi"
                   value={formDataRef.current.spesifikasi}

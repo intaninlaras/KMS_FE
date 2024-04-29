@@ -35,32 +35,24 @@ export default function MasterProsesEdit({ onChangePage, withID }) {
   });
 
   useEffect(() => {
-    const fetchData = async () => {
-      setIsError((prevError) => ({ ...prevError, error: false }));
-
-      try {
-        const data = await UseFetch(
-          API_LINK + "MasterProses/GetDataProsesById",
-          { id: withID }
-        );
-
+    setIsError((prevError) => {
+      return { ...prevError, error: false };
+    });
+    UseFetch(API_LINK + "MasterProses/GetDataProsesById", {
+      id: withID,
+    })
+      .then((data) => {
         if (data === "ERROR" || data.length === 0) {
-          throw new Error("Terjadi kesalahan: Gagal mengambil data proses.");
-        } else {
-          formDataRef.current = { ...formDataRef.current, ...data[0] };
-        }
-      } catch (error) {
-        setIsError((prevError) => ({
-          ...prevError,
-          error: true,
-          message: error.message,
-        }));
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchData();
+          setIsError((prevError) => {
+            return {
+              ...prevError,
+              error: true,
+              message: "Terjadi kesalahan: Gagal mengambil data proses.",
+            };
+          });
+        } else formDataRef.current = { ...formDataRef.current, ...data[0] };
+      })
+      .then(() => setIsLoading(false));
   }, []);
 
   const handleInputChange = async (e) => {
@@ -105,7 +97,9 @@ export default function MasterProsesEdit({ onChangePage, withID }) {
 
     if (Object.values(validationErrors).every((error) => !error)) {
       setIsLoading(true);
-      setIsError((prevError) => ({ ...prevError, error: false }));
+      setIsError((prevError) => {
+        return { ...prevError, error: false };
+      });
       setErrors({});
 
       const uploadPromises = [];
@@ -118,29 +112,24 @@ export default function MasterProsesEdit({ onChangePage, withID }) {
         );
       }
 
-      try {
-        await Promise.all(uploadPromises);
-
-        const data = await UseFetch(
-          API_LINK + "MasterProses/EditProses",
-          formDataRef.current
-        );
-
-        if (data === "ERROR") {
-          throw new Error("Terjadi kesalahan: Gagal menyimpan data proses.");
-        } else {
-          SweetAlert("Sukses", "Data proses berhasil disimpan", "success");
-          onChangePage("index");
-        }
-      } catch (error) {
-        setIsError((prevError) => ({
-          ...prevError,
-          error: true,
-          message: error.message,
-        }));
-      } finally {
-        setIsLoading(false);
-      }
+      Promise.all(uploadPromises).then(() => {
+        UseFetch(API_LINK + "MasterProses/EditProses", formDataRef.current)
+          .then((data) => {
+            if (data === "ERROR") {
+              setIsError((prevError) => {
+                return {
+                  ...prevError,
+                  error: true,
+                  message: "Terjadi kesalahan: Gagal menyimpan data proses.",
+                };
+              });
+            } else {
+              SweetAlert("Sukses", "Data proses berhasil disimpan", "success");
+              onChangePage("index");
+            }
+          })
+          .then(() => setIsLoading(false));
+      });
     }
   };
 

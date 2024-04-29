@@ -20,31 +20,24 @@ export default function MasterProdukDetail({ onChangePage, withID }) {
   });
 
   useEffect(() => {
-    const fetchData = async () => {
-      setIsError((prevError) => ({ ...prevError, error: false }));
-
-      try {
-        const data = await UseFetch(API_LINK + "MasterProduk/DetailProduk", {
-          id: withID,
-        });
-
+    setIsError((prevError) => {
+      return { ...prevError, error: false };
+    });
+    UseFetch(API_LINK + "MasterProduk/DetailProduk", {
+      id: withID,
+    })
+      .then((data) => {
         if (data === "ERROR" || data.length === 0) {
-          throw new Error("Terjadi kesalahan: Gagal mengambil data produk.");
-        } else {
-          formDataRef.current = { ...formDataRef.current, ...data[0] };
-        }
-      } catch (error) {
-        setIsError((prevError) => ({
-          ...prevError,
-          error: true,
-          message: error.message,
-        }));
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchData();
+          setIsError((prevError) => {
+            return {
+              ...prevError,
+              error: true,
+              message: "Terjadi kesalahan: Gagal mengambil data produk.",
+            };
+          });
+        } else formDataRef.current = { ...formDataRef.current, ...data[0] };
+      })
+      .then(() => setIsLoading(false));
   }, []);
 
   if (isLoading) return <Loading />;

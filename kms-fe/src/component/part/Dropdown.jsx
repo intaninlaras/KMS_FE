@@ -8,7 +8,6 @@ const DropDown = forwardRef(function DropDown(
     forInput,
     isRequired = false,
     errorMessage,
-    showLabel = true,
     ...props
   },
   ref
@@ -29,17 +28,15 @@ const DropDown = forwardRef(function DropDown(
   return (
     <>
       <div className="mb-3">
-        {showLabel && (
-          <label htmlFor={forInput} className="form-label fw-bold">
-            {label}
-            {isRequired ? <span className="text-danger"> *</span> : ""}
-            {errorMessage ? (
-              <span className="fw-normal text-danger"> {errorMessage}</span>
-            ) : (
-              ""
-            )}
-          </label>
-        )}
+        <label htmlFor={forInput} className="form-label fw-bold">
+          {label}
+          {isRequired ? <span className="text-danger"> *</span> : ""}
+          {errorMessage ? (
+            <span className="fw-normal text-danger"> {errorMessage}</span>
+          ) : (
+            ""
+          )}
+        </label>
         <select
           className="form-select"
           id={forInput}

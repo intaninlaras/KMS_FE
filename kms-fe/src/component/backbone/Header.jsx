@@ -1,7 +1,7 @@
 import logo from "../../assets/IMG_Logo.png";
 import Icon from "../part/Icon";
 
-export default function Header({ displayName, roleName }) {
+export default function Header() {
   return (
     <div className="d-flex justify-content-between fixed-top border-bottom bg-white">
       <img
@@ -13,9 +13,7 @@ export default function Header({ displayName, roleName }) {
       <div className="pe-4 my-auto">
         <div className="d-flex justify-content-end">
           <div className="text-end">
-            <p className="fw-bold mx-0 my-0">
-              {displayName} ({roleName})
-            </p>
+            <p className="fw-bold mx-0 my-0">Yosep Setiawan (KARYAWAN)</p>
             <small className="text-body-secondary" style={{ fontSize: ".7em" }}>
               Login terakhir: 6 Maret 2024, 10:38 WIB
             </small>

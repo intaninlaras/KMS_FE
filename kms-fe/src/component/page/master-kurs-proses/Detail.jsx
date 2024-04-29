@@ -29,73 +29,57 @@ export default function MasterKursProsesDetail({ onChangePage, withID }) {
   });
 
   useEffect(() => {
-    const fetchData = async () => {
-      setIsError((prevError) => ({ ...prevError, error: false }));
-
-      try {
-        const data = await UseFetch(
-          API_LINK + "MasterKursProses/DetailKursProses",
-          { id: withID }
-        );
-
+    setIsError((prevError) => {
+      return { ...prevError, error: false };
+    });
+    UseFetch(API_LINK + "MasterKursProses/DetailKursProses", {
+      id: withID,
+    })
+      .then((data) => {
         if (data === "ERROR" || data.length === 0) {
-          throw new Error(
-            "Terjadi kesalahan: Gagal mengambil data kurs proses."
-          );
-        } else {
-          formDataRef.current = { ...formDataRef.current, ...data[0] };
-        }
-      } catch (error) {
-        setIsError((prevError) => ({
-          ...prevError,
-          error: true,
-          message: error.message,
-        }));
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchData();
+          setIsError((prevError) => {
+            return {
+              ...prevError,
+              error: true,
+              message: "Terjadi kesalahan: Gagal mengambil data kurs proses.",
+            };
+          });
+        } else formDataRef.current = { ...formDataRef.current, ...data[0] };
+      })
+      .then(() => setIsLoading(false));
   }, []);
 
   useEffect(() => {
-    const fetchData = async () => {
-      setIsError((prevError) => ({ ...prevError, error: false }));
-
-      try {
-        const data = await UseFetch(
-          API_LINK + "MasterKursProses/GetRiwayatKursProses",
-          { id: withID }
-        );
-
+    setIsError((prevError) => {
+      return { ...prevError, error: false };
+    });
+    UseFetch(API_LINK + "MasterKursProses/GetRiwayatKursProses", {
+      id: withID,
+    })
+      .then((data) => {
         if (data === "ERROR") {
-          throw new Error(
-            "Terjadi kesalahan: Gagal mengambil data riwayat kurs proses."
-          );
-        } else if (data.length === 0) {
-          setCurrentData(inisialisasiData);
-        } else {
-          const formattedData = data.map((value) => ({
-            ...value,
-            "Tanggal Berlaku": formatDate(value["Tanggal Berlaku"]),
-            "Riwayat Harga (Rp.)": separator(value["Riwayat Harga (Rp.)"]),
-            Alignment: ["center", "center"],
-          }));
+          setIsError((prevError) => {
+            return {
+              ...prevError,
+              error: true,
+              message:
+                "Terjadi kesalahan: Gagal mengambil data riwayat kurs proses.",
+            };
+          });
+        } else if (data.length === 0) setCurrentData(inisialisasiData);
+        else {
+          const formattedData = data.map((value) => {
+            return {
+              ...value,
+              "Tanggal Berlaku": formatDate(value["Tanggal Berlaku"]),
+              "Riwayat Harga (Rp.)": separator(value["Riwayat Harga (Rp.)"]),
+              Alignment: ["center", "center"],
+            };
+          });
           setCurrentData(formattedData);
         }
-      } catch (error) {
-        setIsError((prevError) => ({
-          ...prevError,
-          error: true,
-          message: error.message,
-        }));
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchData();
+      })
+      .then(() => setIsLoading(false));
   }, []);
 
   if (isLoading) return <Loading />;

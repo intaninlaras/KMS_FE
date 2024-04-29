@@ -63,7 +63,7 @@ export default function Table({
               type="Bold"
               cssClass="btn px-1 py-0 text-danger"
               title="Hapus"
-              onClick={() => onDelete(id)}
+              onClick={onDelete}
             />
           );
         case "Detail":
@@ -117,7 +117,7 @@ export default function Table({
               name="paper-plane"
               type="Bold"
               cssClass="btn px-1 py-0 text-primary"
-              title="Kirim"
+              title="Kirim Pengajuan"
               onClick={onSent}
             />
           );
@@ -155,14 +155,7 @@ export default function Table({
             data.map((value, rowIndex) => {
               colPosition = -1;
               return (
-                <tr
-                  key={value["Key"]}
-                  className={
-                    value["Status"] && value["Status"] === "Draft"
-                      ? "fw-bold"
-                      : undefined
-                  }
-                >
+                <tr key={value["Key"]}>
                   {Object.keys(value).map((column, colIndex) => {
                     if (
                       column !== "Key" &&

@@ -25,65 +25,27 @@ const Input = forwardRef(function Input(
               ""
             )}
           </label>
-          {type === "textarea" && (
-            <textarea
-              rows="5"
-              id={forInput}
-              name={forInput}
-              className="form-control"
-              placeholder={placeholder}
-              ref={ref}
-              {...props}
-            ></textarea>
-          )}
-          {type !== "textarea" && (
-            <input
-              id={forInput}
-              name={forInput}
-              type={type}
-              className="form-control"
-              placeholder={placeholder}
-              ref={ref}
-              {...props}
-            />
-          )}
+          <input
+            id={forInput}
+            name={forInput}
+            type={type}
+            className="form-control"
+            placeholder={placeholder}
+            ref={ref}
+            {...props}
+          />
         </div>
       )}
       {label === "" && (
-        <>
-          {type === "textarea" && (
-            <textarea
-              rows="5"
-              id={forInput}
-              name={forInput}
-              className="form-control"
-              placeholder={placeholder}
-              ref={ref}
-              {...props}
-            ></textarea>
-          )}
-          {type !== "textarea" && (
-            <input
-              id={forInput}
-              name={forInput}
-              type={type}
-              className="form-control"
-              placeholder={placeholder}
-              ref={ref}
-              {...props}
-            />
-          )}
-          {errorMessage ? (
-            <span className="small ms-1 text-danger">
-              {placeholder.charAt(0).toUpperCase() +
-                placeholder.substr(1).toLowerCase() +
-                " " +
-                errorMessage}
-            </span>
-          ) : (
-            ""
-          )}
-        </>
+        <input
+          id={forInput}
+          name={forInput}
+          type={type}
+          className="form-control"
+          placeholder={placeholder}
+          ref={ref}
+          {...props}
+        />
       )}
     </>
   );

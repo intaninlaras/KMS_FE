@@ -90,35 +90,23 @@ export default function MasterProsesIndex({ onChangePage }) {
   }
 
   useEffect(() => {
-    const fetchData = async () => {
-      setIsError(false);
-
-      try {
-        const data = await UseFetch(
-          API_LINK + "MasterProses/GetDataProses",
-          currentFilter
-        );
-
-        if (data === "ERROR") {
-          setIsError(true);
-        } else if (data.length === 0) {
-          setCurrentData(inisialisasiData);
-        } else {
-          const formattedData = data.map((value) => ({
-            ...value,
-            Aksi: ["Toggle", "Detail", "Edit"],
-            Alignment: ["center", "left", "center", "center"],
-          }));
+    setIsError(false);
+    UseFetch(API_LINK + "MasterProses/GetDataProses", currentFilter)
+      .then((data) => {
+        if (data === "ERROR") setIsError(true);
+        else if (data.length === 0) setCurrentData(inisialisasiData);
+        else {
+          const formattedData = data.map((value) => {
+            return {
+              ...value,
+              Aksi: ["Toggle", "Detail", "Edit"],
+              Alignment: ["center", "left", "center", "center"],
+            };
+          });
           setCurrentData(formattedData);
         }
-      } catch {
-        setIsError(true);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchData();
+      })
+      .then(() => setIsLoading(false));
   }, [currentFilter]);
 
   return (

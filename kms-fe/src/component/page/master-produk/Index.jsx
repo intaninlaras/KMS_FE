@@ -105,42 +105,30 @@ export default function MasterProdukIndex({ onChangePage }) {
   }
 
   useEffect(() => {
-    const fetchData = async () => {
-      setIsError(false);
-
-      try {
-        const data = await UseFetch(
-          API_LINK + "MasterProduk/GetDataProduk",
-          currentFilter
-        );
-
-        if (data === "ERROR") {
-          setIsError(true);
-        } else if (data.length === 0) {
-          setCurrentData(inisialisasiData);
-        } else {
-          const formattedData = data.map((value) => ({
-            ...value,
-            Aksi: ["Toggle", "Detail", "Edit"],
-            Alignment: [
-              "center",
-              "center",
-              "left",
-              "center",
-              "center",
-              "center",
-            ],
-          }));
+    setIsError(false);
+    UseFetch(API_LINK + "MasterProduk/GetDataProduk", currentFilter)
+      .then((data) => {
+        if (data === "ERROR") setIsError(true);
+        else if (data.length === 0) setCurrentData(inisialisasiData);
+        else {
+          const formattedData = data.map((value) => {
+            return {
+              ...value,
+              Aksi: ["Toggle", "Detail", "Edit"],
+              Alignment: [
+                "center",
+                "center",
+                "left",
+                "center",
+                "center",
+                "center",
+              ],
+            };
+          });
           setCurrentData(formattedData);
         }
-      } catch {
-        setIsError(true);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchData();
+      })
+      .then(() => setIsLoading(false));
   }, [currentFilter]);
 
   return (
