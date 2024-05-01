@@ -14,6 +14,7 @@ import MasterAlatMesin from "./component/page/master-alat-mesin/Root";
 import MasterOperator from "./component/page/master-operator/Root";
 import MasterTest from "./component/page/master-test/Root";
 import MasterTest_PostTest from "./component/page/master-test/PostTest";
+import MasterTest_Soal from "./component/page/master-test/Soal";
 
 export default function App() {
   const router = createBrowserRouter([
@@ -52,6 +53,10 @@ export default function App() {
     {
       path: "/master_test/post-test",
       element: <MasterTest_PostTest />,
+    },
+    {
+      path: "/master_test/soal-test",
+      element: <MasterTest_Soal />,
     },
   ]);
 

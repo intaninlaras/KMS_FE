@@ -1,5 +1,6 @@
 import { useState } from "react";
 import MasterTestIndex from "./PreTest";
+import MasterTest_Soal from "./Soal";
 
 export default function MasterTest() {
   const [pageMode, setPageMode] = useState("index");
@@ -9,8 +10,8 @@ export default function MasterTest() {
     switch (pageMode) {
       case "index":
         return <MasterTestIndex onChangePage={handleSetPageMode} />;
-      case "add":
-        return <MasterTestAdd onChangePage={handleSetPageMode} />;
+      case "soal_pretest":
+        return <MasterTest_Soal onChangePage={handleSetPageMode} />;
       case "detail":
         return (
           <MasterTestDetail

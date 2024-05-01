@@ -53,9 +53,9 @@ export default function MasterTestIndex({ onChangePage }) {
 
   function handleSetCurrentPage(newCurrentPage) {
     setIsLoading(true);
-    setCurrentFilter((prevFilter) => {
+    setCurrentFilter((PostvFilter) => {
       return {
-        ...prevFilter,
+        ...PostvFilter,
         page: newCurrentPage,
       };
     });
@@ -63,9 +63,9 @@ export default function MasterTestIndex({ onChangePage }) {
 
   function handleSearch() {
     setIsLoading(true);
-    setCurrentFilter((prevFilter) => {
+    setCurrentFilter((PostvFilter) => {
       return {
-        ...prevFilter,
+        ...PostvFilter,
         page: 1,
         query: searchQuery.current.value,
         sort: searchFilterSort.current.value,
@@ -94,8 +94,8 @@ export default function MasterTestIndex({ onChangePage }) {
       .then(() => setIsLoading(false));
   }
 
-  function onStartTest() {
-    window.location.href = ROOT_LINK + "/master_test/soal-test";
+  function handleDetailAction() {
+    window.location.href = ROOT_LINK + "/master_test";
   }
 
   useEffect(() => {
@@ -127,43 +127,21 @@ export default function MasterTestIndex({ onChangePage }) {
       .then(() => setIsLoading(false));
   }, [currentFilter]);
 
-  const circleStyle = {
-    width: '50px',
-    height: '50px',
-    backgroundColor: 'lightgray',
-    marginRight: '20px'
-  };
-
-  const dummyData = [
-    {
-      Key: 1,
-      No: 1,
-      TanggalUjian: '01-04-2024',
-      Persentase: '75%',
-      StatusTest: 'Tidak Lulus',
-      Aksi: ['Detail'],
-      Alignment: ['center', 'center', 'center', 'center', 'center'], 
-    },
-    {
-      Key: 2,
-      No: 2,
-      TanggalUjian: '02-04-2024',
-      Persentase: '90%',
-      StatusTest: 'Lulus',
-      Aksi: ['Detail'],
-      Alignment: [ 'center', 'center', 'center', 'center', 'center'], 
-    },
-    {
-      Key: 3,
-      No: 3,
-      TanggalUjian: '03-04-2024',
-      Persentase: '60%',
-      StatusTest: 'Tidak Lulus',
-      Aksi: ['Detail'],
-      Alignment: [ 'center', 'center', 'center', 'center', 'center'], 
-    },
+  const dummyQuestions = [
+    { id: 1, question: 'Pertanyaan 1' },
+    { id: 2, question: 'Pertanyaan 2' },
+    { id: 3, question: 'Pertanyaan 3' }
   ];
-  
+
+  const dummyAnswers = [
+    { id: 1, idSoal:1, answer: 'Jawaban 1 Soal 1' },
+    { id: 2, idSoal:1, answer: 'Jawaban 2 Soal 1' },
+    { id: 3, idSoal:1, answer: 'Jawaban 3 Soal 1' },
+    { id: 4, idSoal:2, answer: 'Jawaban 1 Soal 2' },
+    { id: 5, idSoal:2, answer: 'Jawaban 2 Soal 2' },
+    { id: 6, idSoal:2, answer: 'Jawaban 3 Soal 2' }
+  ];
+
   return (
     <>
       <div className="d-flex flex-column">
@@ -183,30 +161,28 @@ export default function MasterTestIndex({ onChangePage }) {
             <Loading />
           ) : (
             <>
-            <div className="d-flex align-items-center mb-5">
-              <div className="rounded-circle overflow-hidden d-flex justify-content-center align-items-center" style={circleStyle}>
-                <img 
-                  src={profilePicture}
-                  alt="Profile Picture"
-                  className="align-self-start" 
-                  style={{ width: '450%', height: 'auto', position: 'relative', right: '30px', bottom:'40px'}}
-                />  
-              </div> 
-              <h6 className="mb-0">Fahriel Dwifaldi - 03 Agustus 2022</h6>
-            </div>
-            <div className="text-center" style={{marginBottom: '100px'}}>
-              <h2 className="font-weight-bold mb-4 primary">Pre Test - Pemrograman 1</h2>
-              <p className="mb-5" style={{ maxWidth: '600px', margin: '0 auto', marginBottom: '60px' }}>
-                Test ini terdiri dari 10 soal, minimal score kelulusan untuk mendapatkan sertifikat adalah 80%, dan anda hanya memiliki waktu 30 menit untuk mengerjakan seluruh soal yang ada, dimulai ketika klik tombol “Mulai Pre Test” di bawah ini.
-              </p>
-              <Button
-                classType="primary ms-2 px-4 py-2"
-                label="MULAI PRE-TEST"
-                onClick={() => onChangePage("soal_pretest")}
-              /><div>
-            </div>
-            </div>
-          </>
+              {/* Start Here! */}
+              <div className="">
+                      {dummyQuestions.map(question => (
+                <div key={question.id}>
+                  <p>{question.question}</p>
+                  {dummyAnswers
+                    .filter(answer => answer.idSoal === question.id)
+                    .map(answer => (
+                      <label key={answer.id}>
+                        <input
+                          type="radio"
+                          name={`question${question.id}`}
+                          value={answer.id}
+                          onChange={() => handleAnswerChange(question.id, answer.id)}
+                        />
+                        {answer.answer}
+                      </label>
+                    ))}
+                </div>
+              ))}
+              </div>
+            </>
           )}
         </div>
       </div>
