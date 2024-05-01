@@ -1,5 +1,7 @@
 import { useState } from "react";
-import MasterTestIndex from "./PreTest";
+import MasterTestIndex from "./PostTest";
+import MasterTestIndex2 from "./PreTest";
+import PengerjaanTest from "./Test";
 
 export default function MasterTest() {
   const [pageMode, setPageMode] = useState("index");
@@ -9,8 +11,10 @@ export default function MasterTest() {
     switch (pageMode) {
       case "index":
         return <MasterTestIndex onChangePage={handleSetPageMode} />;
-      case "add":
-        return <MasterTestAdd onChangePage={handleSetPageMode} />;
+        case "index2":
+        return <MasterTestIndex2 onChangePage={handleSetPageMode} />;
+      case "test":
+        return <PengerjaanTest onChangePage={handleSetPageMode} />;
       case "detail":
         return (
           <MasterTestDetail

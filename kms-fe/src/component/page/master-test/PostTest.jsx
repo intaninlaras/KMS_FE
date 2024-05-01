@@ -36,7 +36,7 @@ const dataFilterStatus = [
   { Value: "Tidak Aktif", Text: "Tidak Aktif" },
 ];
 
-export default function MasterTestIndex({ onChangePage }) {
+export default function MasterTestIndex2({ onChangePage }) {
   const [isError, setIsError] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [currentData, setCurrentData] = useState(inisialisasiData);
@@ -203,6 +203,7 @@ export default function MasterTestIndex({ onChangePage }) {
                 classType="primary ms-2 px-4 py-2"
                 type="submit"
                 label="MULAI POST-TEST"
+                onClick={() => onChangePage("test")}
               /><div>
             </div>
             </div>

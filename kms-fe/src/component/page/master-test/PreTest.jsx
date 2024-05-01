@@ -203,6 +203,7 @@ export default function MasterTestIndex({ onChangePage }) {
                 classType="primary ms-2 px-4 py-2"
                 type="submit"
                 label="MULAI PRE-TEST"
+                onClick={() => onChangePage("test")}
               /><div>
             </div>
             </div>
