@@ -203,42 +203,9 @@ export default function MasterTestIndex({ onChangePage }) {
                 classType="primary ms-2 px-4 py-2"
                 type="submit"
                 label="MULAI PRE-TEST"
-              />
+              /><div>
             </div>
-
-             {/*Post Test*/}
-             <hr />
-              <div>
-                <h3 className="font-weight-bold">Riwayat</h3>
-                {/* <table className="table">
-                  <thead>
-                    <tr>
-                      <th scope="col" style={{ textAlign: 'center', width: 'auto' }}>No</th>
-                      <th scope="col" style={{ textAlign: 'center', width: 'auto' }}>Tanggal Ujian</th>
-                      <th scope="col" style={{ textAlign: 'center', width: 'auto' }}>Persentase</th>
-                      <th scope="col" style={{ textAlign: 'center', width: 'auto' }}>Status</th>
-                      <th scope="col" style={{ textAlign: 'center', width: 'auto' }}>Aksi</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {dummyData.map((data, index) => (
-                      <tr key={index}>
-                        <td style={{ textAlign: 'center' }}>{data.No}</td>
-                        <td style={{ textAlign: 'center' }}>{data.TanggalUjian}</td>
-                        <td style={{ textAlign: 'center' }}>{data.Persentase}</td>
-                        <td style={{ textAlign: 'center' }}>{data.Status}</td>
-                        <td style={{ textAlign: 'center' }}>{data.Aksi}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table> */}
-                <Table
-                  data={dummyData}
-                  onToggle={handleSetStatus}
-                  onDetail={handleDetailAction}
-                  onEdit={onChangePage}
-                />
-              </div>
+            </div>
           </>
           )}
         </div>

@@ -66,7 +66,7 @@ const arrMenu = [
       },
       {
         title: "Pengerjaan Post-Test",
-        link: ROOT_LINK + "/rencana_anggaran_kerja",
+        link: ROOT_LINK + "/master_test/post-test",
       },
     ],
   },

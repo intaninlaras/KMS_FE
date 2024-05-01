@@ -1,8 +1,5 @@
 import { useState } from "react";
-import MasterTestIndex from "./Index";
-import MasterTestAdd from "./Add";
-import MasterTestDetail from "./Detail";
-import MasterTestEdit from "./Edit";
+import MasterTestIndex from "./PreTest";
 
 export default function MasterTest() {
   const [pageMode, setPageMode] = useState("index");
