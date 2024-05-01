@@ -55,6 +55,21 @@ const arrMenu = [
       },
     ],
   },
+  {
+    head: "KMS",
+    headkey: 3,
+    link: "#",
+    sub: [
+      {
+        title: "Pengerjaan Pre-Test",
+        link: ROOT_LINK + "/master_test",
+      },
+      {
+        title: "Pengerjaan Post-Test",
+        link: ROOT_LINK + "/rencana_anggaran_kerja",
+      },
+    ],
+  },
 ];
 // INI SEMENTARA --- END
 

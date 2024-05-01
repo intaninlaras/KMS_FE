@@ -12,6 +12,7 @@ import MasterProses from "./component/page/master-proses/Root";
 import MasterKursProses from "./component/page/master-kurs-proses/Root";
 import MasterAlatMesin from "./component/page/master-alat-mesin/Root";
 import MasterOperator from "./component/page/master-operator/Root";
+import MasterTest from "./component/page/master-test/Root";
 
 export default function App() {
   const router = createBrowserRouter([
@@ -42,6 +43,10 @@ export default function App() {
     {
       path: "/master_operator",
       element: <MasterOperator />,
+    },
+    {
+      path: "/master_test",
+      element: <MasterTest />,
     },
   ]);
 
