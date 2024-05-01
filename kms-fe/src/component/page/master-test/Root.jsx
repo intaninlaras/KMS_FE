@@ -1,5 +1,7 @@
 import { useState } from "react";
-import MasterTestIndex from "./PreTest";
+import MasterTestIndex from "./PostTest";
+import MasterTestIndex2 from "./PreTest";
+import PengerjaanTest from "./Test";
 import MasterTest_Soal from "./Soal";
 
 export default function MasterTest() {
@@ -10,8 +12,12 @@ export default function MasterTest() {
     switch (pageMode) {
       case "index":
         return <MasterTestIndex onChangePage={handleSetPageMode} />;
-      case "soal_pretest":
-        return <MasterTest_Soal onChangePage={handleSetPageMode} />;
+        case "soal_pretest":
+          return <MasterTest_Soal onChangePage={handleSetPageMode} />;
+        case "index2":
+        return <MasterTestIndex2 onChangePage={handleSetPageMode} />;
+      case "test":
+        return <PengerjaanTest onChangePage={handleSetPageMode} />;
       case "detail":
         return (
           <MasterTestDetail
