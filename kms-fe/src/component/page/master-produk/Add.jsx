@@ -11,10 +11,7 @@ import Input from "../../part/Input";
 import FileUpload from "../../part/FileUpload";
 import Loading from "../../part/Loading";
 import Alert from "../../part/Alert";
-import { BiSolidTrash } from "react-icons/bi";
-import { BiSolidDuplicate } from "react-icons/bi";
-import { BiDotsVertical } from "react-icons/bi";
-import { BiToggleLeft } from "react-icons/bi";
+
 
 const listJenisProduk = [
   { Value: "Part", Text: "Part" },
@@ -28,6 +25,20 @@ export default function MasterProdukAdd({ onChangePage }) {
   const [errors, setErrors] = useState({});
   const [isError, setIsError] = useState({ error: false, message: "" });
   const [isLoading, setIsLoading] = useState(false);
+  const [formContent, setFormContent] = useState([]);
+  const [onEdit, setOnEdit] = useState(false);
+  const [textField, setTextField] = useState("");
+  const [editedField, setEditedField] = useState("");
+
+  const addQuestion = () => {
+    const field = {
+      "name": `question_${formContent.length}`,
+      "label": "Untitled question",
+      "question_type": "short_answer", // "paragraph", "multichoice",
+      "list": []
+    }
+    setFormContent([...formContent, field]);
+  }
 
   const formDataRef = useRef({
     namaProduk: "",
@@ -36,7 +47,6 @@ export default function MasterProdukAdd({ onChangePage }) {
     spesifikasi: "",
   });
 
-  const fileGambarRef = useRef(null);
 
   const userSchema = object({
     namaProduk: string()
@@ -57,26 +67,7 @@ export default function MasterProdukAdd({ onChangePage }) {
     }));
   };
 
-  const handleFileChange = async (ref, extAllowed) => {
-    const { name, value } = ref.current;
-    const file = ref.current.files[0];
-    const fileName = file.name;
-    const fileSize = file.size;
-    const fileExt = fileName.split(".").pop();
-    const validationError = await validateInput(name, value, userSchema);
-    let error = "";
 
-    if (fileSize / 1024576 > 10) error = "berkas terlalu besar";
-    else if (!extAllowed.split(",").includes(fileExt))
-      error = "format berkas tidak valid";
-
-    if (error) ref.current.value = "";
-
-    setErrors((prevErrors) => ({
-      ...prevErrors,
-      [validationError.name]: error,
-    }));
-  };
 
   const handleAdd = async (e) => {
     e.preventDefault();
@@ -164,8 +155,8 @@ export default function MasterProdukAdd({ onChangePage }) {
                 />
               </div>
               <div className="float-end my-4 mx-1">
-              <Button
-              iconName="add"
+                 <Button onClick={() => addQuestion()}
+              iconName="plus"
               classType="primary btn-sm ms-2 px-3 py-1"             
             />
             <Button
@@ -174,8 +165,72 @@ export default function MasterProdukAdd({ onChangePage }) {
             />
               </div>
               <div className="card">
-              <div className="card-header bg-white fw-medium text-black">
-            Pertanyaan
+              <div className="card-header bg-white fw-medium text-black d-flex justify-content-between align-items-center" >
+                <span>Pertanyaan</span>
+                <div className="col-lg-2">
+                  <select className="form-select" aria-label="Default select example">
+                    <option selected>Pilih kategori...</option>
+                    <option value="1">Essay</option>
+                    <option value="2">Pilihan Ganda</option>
+                  </select>
+                      </div>
+                      </div>
+                      <div className="card-body p-4">
+                        <div className="row">
+                          <div className="col-lg-12">
+                            <Input
+                              type="text"
+                              forInput="namaProduk"
+                              value="Pertanyaan"
+
+                            />
+                
+              </div>
+              <div className="col-lg-12">
+                <div className="form-check">
+                  <input type="radio" id="profile1" name="profile" value="profile1" />
+                  <label className="form-check-label mt-2 mb-2" htmlFor="profile1"> Opsi 1</label>
+                </div>
+                <div className="form-check">
+                  <input type="radio" id="profile2" name="profile" value="profile2" />
+                  <label className="form-check-label mb-2" htmlFor="profile2"> Opsi 2</label>
+                </div>
+                <div className="form-check">
+                  <input type="radio" id="profile3" name="profile" value="profile3" />
+                  <label className="form-check-label mb-2" htmlFor="profile3"> Opsi 3</label>
+                </div>
+              </div>
+              <div className="d-flex justify-content-end my-2 mx-1">
+              <Button
+              iconName="trash"
+              classType="btn-sm ms-2 px-3 py-1"             
+            />
+                          <Button
+              iconName="duplicate"
+              classType="btn-sm ms-2 px-3 py-1"             
+            />
+                                      <Button
+              iconName="menu-dots-vertical"
+              classType="btn-sm ms-2 px-3 py-1"             
+            />
+                                                  
+    </div>
+              </div>
+              </div>
+            </div>
+            </div>
+          </div>
+        </div>
+        <div className="card my-4">
+              <div className="card-header bg-white fw-medium text-black d-flex justify-content-between align-items-center" >
+    <span>Pertanyaan</span>
+    <div className="col-lg-2">
+      <select className="form-select" aria-label="Default select example">
+        <option selected>Pilih kategori...</option>
+        <option value="1">Essay</option>
+        <option value="2">Pilihan Ganda</option>
+       </select>
+          </div>
           </div>
           <div className="card-body p-4">
             <div className="row">
@@ -188,21 +243,7 @@ export default function MasterProdukAdd({ onChangePage }) {
                 />
                 
               </div>
-              <div>
-                <div>
-                  <input type="radio" id="profile1" name="profile" value="profile1" />
-                  <label htmlFor="profile1">Opsi 1</label>
-                </div>
-                <div>
-                  <input type="radio" id="profile2" name="profile" value="profile2" />
-                  <label htmlFor="profile2">Opsi 2</label>
-                </div>
-                <div>
-                  <input type="radio" id="profile3" name="profile" value="profile3" />
-                  <label htmlFor="profile3">Opsi 3</label>
-                </div>
-              </div>
-              <div className="d-flex justify-content-end my-4 mx-1">
+                  <div className="d-flex justify-content-end my-2 mx-1">
               <Button
               iconName="trash"
               classType="btn-sm ms-2 px-3 py-1"             
@@ -212,20 +253,13 @@ export default function MasterProdukAdd({ onChangePage }) {
               classType="btn-sm ms-2 px-3 py-1"             
             />
                                       <Button
-              iconName="duplicate"
+              iconName="menu-dots-vertical"
               classType="btn-sm ms-2 px-3 py-1"             
             />
-                                                  <Button
-              iconName="duplicate"
-              classType="btn-sm ms-2 px-3 py-1"             
-            />
-    </div>
-              </div>
-              </div>
             </div>
             </div>
-          </div>
-        </div>
+            </div>
+            </div>
         <div className="float-end my-4 mx-1">
           <Button
             classType="secondary me-2 px-4 py-2"
