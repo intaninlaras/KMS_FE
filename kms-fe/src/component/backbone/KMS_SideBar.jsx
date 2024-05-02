@@ -1,10 +1,27 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 export default function KMS_Sidebar({ questionNumbers, selectedQuestion, setSelectedQuestion }) {
+  const [remainingTime, setRemainingTime] = useState(1800);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setRemainingTime(prevTime => prevTime - 1);
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, []);
+
+  const formatTime = (time) => {
+    const hours = Math.floor(time / 3600);
+    const minutes = Math.floor((time % 3600) / 60);
+    const seconds = time % 60;
+    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+  };
+
   return (
     <div className="border-end h-100 pt-2 overflow-y-auto">
       <div className="card mb-3 p-3 mx-auto" style={{ backgroundColor: "rgba(255, 255, 255, 0.8)", width: "fit-content" }}>
-        <p className="m-0">Waktu Tersisa: 00:29:29</p>
+          <p className="m-0">Waktu Tersisa: {formatTime(remainingTime)}</p>
       </div>
       <div className="d-flex flex-column">
         <div className="d-flex">

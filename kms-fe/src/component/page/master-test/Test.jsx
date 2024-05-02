@@ -264,7 +264,6 @@ export default function PengerjaanTest({ onChangePage }) {
     }
   };
 
-  // Fungsi untuk memilih soal berikutnya
   const selectNextQuestion = () => {
     if (selectedQuestion < dummyData.length) {
       setSelectedQuestion(selectedQuestion + 1);

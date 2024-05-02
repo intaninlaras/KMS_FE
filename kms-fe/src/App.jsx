@@ -53,6 +53,7 @@ export default function App() {
       path: "/master_test",
       element: <MasterTest />,
     },
+    {
     path: "/master_test/post-test",
       element: <MasterTest_PostTest />,
     },
