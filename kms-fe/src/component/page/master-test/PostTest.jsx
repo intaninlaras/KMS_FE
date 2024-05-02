@@ -36,7 +36,7 @@ const dataFilterStatus = [
   { Value: "Tidak Aktif", Text: "Tidak Aktif" },
 ];
 
-export default function MasterTestIndex2({ onChangePage }) {
+export default function MasterTestIndex({ onChangePage }) {
   const [isError, setIsError] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [currentData, setCurrentData] = useState(inisialisasiData);
@@ -92,6 +92,10 @@ export default function MasterTestIndex2({ onChangePage }) {
         }
       })
       .then(() => setIsLoading(false));
+  }
+
+  function handleStartPostTest() {
+    window.location.href = ROOT_LINK + "/master_test/soal-postTest";
   }
 
   function handleDetailAction() {
@@ -201,9 +205,8 @@ export default function MasterTestIndex2({ onChangePage }) {
               </p>
               <Button
                 classType="primary ms-2 px-4 py-2"
-                type="submit"
                 label="MULAI POST-TEST"
-                onClick={() => onChangePage("test")}
+                onClick={() => handleStartPostTest()}
               /><div>
             </div>
             </div>

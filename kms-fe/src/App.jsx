@@ -1,4 +1,5 @@
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { useState } from "react";
 
 import Container from "./component/backbone/Container";
 import Header from "./component/backbone/Header";
@@ -14,9 +15,10 @@ import MasterAlatMesin from "./component/page/master-alat-mesin/Root";
 import MasterOperator from "./component/page/master-operator/Root";
 import MasterTest from "./component/page/master-test/Root";
 import MasterTest_PostTest from "./component/page/master-test/PostTest";
-import MasterTest_Soal from "./component/page/master-test/Soal";
+import MasterTest_Test from "./component/page/master-test/Test";
 
 export default function App() {
+  const [showDefaultSidebar, setShowDefaultSidebar] = useState(true);
   const router = createBrowserRouter([
     {
       path: "/",
@@ -55,9 +57,9 @@ export default function App() {
       element: <MasterTest_PostTest />,
     },
     {
-      path: "/master_test/soal-test",
-      element: <MasterTest_Soal />,
-    },
+      path: "/master_test/soal-postTest",
+      element: <MasterTest_Test />,
+    }
   ]);
 
   return (
@@ -65,7 +67,7 @@ export default function App() {
       <Header />
       <div style={{ marginTop: "70px" }}></div>
       <div className="d-flex flex-row">
-        <SideBar />
+        {<SideBar />} 
         <Container>
           <RouterProvider router={router} />
         </Container>

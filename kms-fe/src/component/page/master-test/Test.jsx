@@ -11,6 +11,7 @@ import Input from "../../part/Input";
 import FileUpload from "../../part/FileUpload";
 import Loading from "../../part/Loading";
 import Alert from "../../part/Alert";
+import KMS_Sidebar from '../../backbone/KMS_SideBar';
 
 export default function PengerjaanTest({ onChangePage }) {
   const [errors, setErrors] = useState({});
@@ -20,6 +21,7 @@ export default function PengerjaanTest({ onChangePage }) {
   const [listKabupaten, setListKabupaten] = useState({});
   const [listKecamatan, setListKecamatan] = useState({});
   const [listKelurahan, setListKelurahan] = useState({});
+
 
   const handleInputChange = async (e) => {
     const { name, value } = e.target;
@@ -273,46 +275,21 @@ export default function PengerjaanTest({ onChangePage }) {
   const handleSelectAnswer = (answer) => {
     setSelectedAnswer(answer);
   };
+
+  const testStyle = {
+    sidebarMenu: {
+      display: 'none'
+    }
+  };
+
   return (
     <>
-      <div className="d-flex">
-        <div className="border-end h-100 pt-2 overflow-y-auto">
-            <div className="card mb-3 p-3 mx-auto" style={{ backgroundColor: "rgba(255, 255, 255, 0.8)", width: "fit-content" }}>
-              <p className="m-0">Waktu Tersisa: 00:29:29</p>
-            </div>
-            <div className="d-flex flex-column">
-              <div className="d-flex">
-                {questionNumbers.slice(0, 5).map((number) => (
-                  <button
-                    key={number}
-                    className={`btn btn-outline-secondary mb-2 me-2 ${
-                      number + 1 === selectedQuestion ? "active" : ""
-                    }`}
-                    style={{ width: "40px", height: "40px", marginRight: "30px" }}
-                    onClick={() => setSelectedQuestion(number + 1)}
-                  >
-                    {number + 1}
-                  </button>
-                ))}
-              </div>
-              {Array.from({ length: 5 }, (_, row) => (
-                <div key={row} className="d-flex">
-                  {questionNumbers.slice(row * 5 + 5, row * 5 + 10).map((number) => (
-                    <button
-                      key={number}
-                      className={`btn btn-outline-secondary mb-2 me-2 ${
-                        number + 1 === selectedQuestion ? "active" : ""
-                      }`}
-                      style={{ width: "40px", height: "40px", marginRight: "30px" }}
-                      onClick={() => setSelectedQuestion(number + 1)}
-                    >
-                      {number + 1}
-                    </button>
-                  ))}
-                </div>
-              ))}
-            </div>
-          </div>
+      <div className="d-flex" style={testStyle.sidebarMenu}>
+      <KMS_Sidebar
+        questionNumbers={questionNumbers}
+        selectedQuestion={selectedQuestion}
+        setSelectedQuestion={setSelectedQuestion}
+      />
           <div className="flex-fill p-3 d-flex flex-column">
               {dummyData.map((data, index) => {
                 if (index + 1 !== selectedQuestion) return null;
