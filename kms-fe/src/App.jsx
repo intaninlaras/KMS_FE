@@ -14,6 +14,7 @@ import MasterKursProses from "./component/page/master-kurs-proses/Root";
 import MasterAlatMesin from "./component/page/master-alat-mesin/Root";
 import MasterOperator from "./component/page/master-operator/Root";
 import MasterTest from "./component/page/master-test/Root";
+import MasterPostTest from "./component/page/master-posttest/Root";
 import MasterTest_PostTest from "./component/page/master-test/PostTest";
 import MasterTest_Test from "./component/page/master-test/Test";
 
@@ -52,13 +53,16 @@ export default function App() {
       path: "/master_test",
       element: <MasterTest />,
     },
-    {
-      path: "/master_test/post-test",
+    path: "/master_test/post-test",
       element: <MasterTest_PostTest />,
     },
     {
       path: "/master_test/soal-postTest",
       element: <MasterTest_Test />,
+    },
+    {
+      path: "/master_posttest",
+      element: <MasterPostTest />,
     }
   ]);
 

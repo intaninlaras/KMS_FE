@@ -11,6 +11,10 @@ import Input from "../../part/Input";
 import FileUpload from "../../part/FileUpload";
 import Loading from "../../part/Loading";
 import Alert from "../../part/Alert";
+import { BiSolidTrash } from "react-icons/bi";
+import { BiSolidDuplicate } from "react-icons/bi";
+import { BiDotsVertical } from "react-icons/bi";
+import { BiToggleLeft } from "react-icons/bi";
 
 const listJenisProduk = [
   { Value: "Part", Text: "Part" },
@@ -133,25 +137,25 @@ export default function MasterProdukAdd({ onChangePage }) {
       <form onSubmit={handleAdd}>
         <div className="card">
           <div className="card-header bg-primary fw-medium text-white">
-            Tambah Data Produk Baru
+            Tambah Post Test Baru
           </div>
           <div className="card-body p-4">
             <div className="row">
-              <div className="col-lg-4">
+              <div className="col-lg-6">
                 <Input
-                  type="text"
+                  type="number"
                   forInput="namaProduk"
-                  label="Nama Produk"
+                  label="Durasi Pengerjaan Post Test"
                   isRequired
                   value={formDataRef.current.namaProduk}
                   onChange={handleInputChange}
                   errorMessage={errors.namaProduk}
                 />
               </div>
-              <div className="col-lg-4">
-                <DropDown
-                  forInput="jenisProduk"
-                  label="Jenis Produk"
+              <div className="col-lg-6">
+                <Input
+                  type="number"
+                  label="Nilai Minimum Post Test"
                   arrData={listJenisProduk}
                   isRequired
                   value={formDataRef.current.jenisProduk}
@@ -159,28 +163,66 @@ export default function MasterProdukAdd({ onChangePage }) {
                   errorMessage={errors.jenisProduk}
                 />
               </div>
-              <div className="col-lg-4">
-                <FileUpload
-                  forInput="gambarProduk"
-                  label="Gambar Produk (.pdf, .jpg, .png)"
-                  formatFile=".pdf,.jpg,.png"
-                  ref={fileGambarRef}
-                  onChange={() =>
-                    handleFileChange(fileGambarRef, "pdf,jpg,png")
-                  }
-                  errorMessage={errors.gambarProduk}
-                />
+              <div className="float-end my-4 mx-1">
+              <Button
+              iconName="add"
+              classType="primary btn-sm ms-2 px-3 py-1"             
+            />
+            <Button
+              iconName="arrow-down"
+              classType="primary btn-sm ms-2 px-3 py-1"             
+            />
               </div>
+              <div className="card">
+              <div className="card-header bg-white fw-medium text-black">
+            Pertanyaan
+          </div>
+          <div className="card-body p-4">
+            <div className="row">
               <div className="col-lg-12">
                 <Input
                   type="text"
-                  forInput="spesifikasi"
-                  label="Spesifikasi"
-                  value={formDataRef.current.spesifikasi}
-                  onChange={handleInputChange}
-                  errorMessage={errors.spesifikasi}
+                  forInput="namaProduk"
+                  value="Pertanyaan"
+
                 />
+                
               </div>
+              <div>
+                <div>
+                  <input type="radio" id="profile1" name="profile" value="profile1" />
+                  <label htmlFor="profile1">Opsi 1</label>
+                </div>
+                <div>
+                  <input type="radio" id="profile2" name="profile" value="profile2" />
+                  <label htmlFor="profile2">Opsi 2</label>
+                </div>
+                <div>
+                  <input type="radio" id="profile3" name="profile" value="profile3" />
+                  <label htmlFor="profile3">Opsi 3</label>
+                </div>
+              </div>
+              <div className="d-flex justify-content-end my-4 mx-1">
+              <Button
+              iconName="trash"
+              classType="btn-sm ms-2 px-3 py-1"             
+            />
+                          <Button
+              iconName="duplicate"
+              classType="btn-sm ms-2 px-3 py-1"             
+            />
+                                      <Button
+              iconName="duplicate"
+              classType="btn-sm ms-2 px-3 py-1"             
+            />
+                                                  <Button
+              iconName="duplicate"
+              classType="btn-sm ms-2 px-3 py-1"             
+            />
+    </div>
+              </div>
+              </div>
+            </div>
             </div>
           </div>
         </div>

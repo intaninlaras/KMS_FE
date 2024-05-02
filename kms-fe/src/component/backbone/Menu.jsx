@@ -61,6 +61,10 @@ const arrMenu = [
     link: "#",
     sub: [
       {
+        title: "Post-Test",
+        link: ROOT_LINK + "/master_produk",
+      },
+      {
         title: "Pengerjaan Pre-Test",
         link: ROOT_LINK + "/master_test",
       },
