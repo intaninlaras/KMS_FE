@@ -53,9 +53,9 @@ export default function MasterTestIndex({ onChangePage }) {
 
   function handleSetCurrentPage(newCurrentPage) {
     setIsLoading(true);
-    setCurrentFilter((prevFilter) => {
+    setCurrentFilter((PostvFilter) => {
       return {
-        ...prevFilter,
+        ...PostvFilter,
         page: newCurrentPage,
       };
     });
@@ -63,9 +63,9 @@ export default function MasterTestIndex({ onChangePage }) {
 
   function handleSearch() {
     setIsLoading(true);
-    setCurrentFilter((prevFilter) => {
+    setCurrentFilter((PostvFilter) => {
       return {
-        ...prevFilter,
+        ...PostvFilter,
         page: 1,
         query: searchQuery.current.value,
         sort: searchFilterSort.current.value,
@@ -92,6 +92,10 @@ export default function MasterTestIndex({ onChangePage }) {
         }
       })
       .then(() => setIsLoading(false));
+  }
+
+  function handleStartPostTest() {
+    window.location.href = ROOT_LINK + "/master_test/soal-postTest";
   }
 
   function handleDetailAction() {
@@ -195,43 +199,22 @@ export default function MasterTestIndex({ onChangePage }) {
               <h6 className="mb-0">Fahriel Dwifaldi - 03 Agustus 2022</h6>
             </div>
             <div className="text-center" style={{marginBottom: '100px'}}>
-              <h2 className="font-weight-bold mb-4 primary">Pre Test - Pemrograman 1</h2>
+              <h2 className="font-weight-bold mb-4 primary">Post Test - Pemrograman 1</h2>
               <p className="mb-5" style={{ maxWidth: '600px', margin: '0 auto', marginBottom: '60px' }}>
-                Test ini terdiri dari 10 soal, minimal score kelulusan untuk mendapatkan sertifikat adalah 80%, dan anda hanya memiliki waktu 30 menit untuk mengerjakan seluruh soal yang ada, dimulai ketika klik tombol “Mulai Pre Test” di bawah ini.
+                Test ini terdiri dari 10 soal, minimal score kelulusan untuk mendapatkan sertifikat adalah 80%, dan anda hanya memiliki waktu 30 menit untuk mengerjakan seluruh soal yang ada, dimulai ketika klik tombol “Mulai Post Test” di bawah ini.
               </p>
               <Button
                 classType="primary ms-2 px-4 py-2"
-                type="submit"
-                label="MULAI PRE-TEST"
-              />
+                label="MULAI POST-TEST"
+                onClick={() => handleStartPostTest()}
+              /><div>
+            </div>
             </div>
 
              {/*Post Test*/}
              <hr />
               <div>
                 <h3 className="font-weight-bold">Riwayat</h3>
-                {/* <table className="table">
-                  <thead>
-                    <tr>
-                      <th scope="col" style={{ textAlign: 'center', width: 'auto' }}>No</th>
-                      <th scope="col" style={{ textAlign: 'center', width: 'auto' }}>Tanggal Ujian</th>
-                      <th scope="col" style={{ textAlign: 'center', width: 'auto' }}>Persentase</th>
-                      <th scope="col" style={{ textAlign: 'center', width: 'auto' }}>Status</th>
-                      <th scope="col" style={{ textAlign: 'center', width: 'auto' }}>Aksi</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {dummyData.map((data, index) => (
-                      <tr key={index}>
-                        <td style={{ textAlign: 'center' }}>{data.No}</td>
-                        <td style={{ textAlign: 'center' }}>{data.TanggalUjian}</td>
-                        <td style={{ textAlign: 'center' }}>{data.Persentase}</td>
-                        <td style={{ textAlign: 'center' }}>{data.Status}</td>
-                        <td style={{ textAlign: 'center' }}>{data.Aksi}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table> */}
                 <Table
                   data={dummyData}
                   onToggle={handleSetStatus}
