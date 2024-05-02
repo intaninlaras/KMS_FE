@@ -6,30 +6,41 @@ import SweetAlert from "../../util/SweetAlert";
 import UseFetch from "../../util/UseFetch";
 import UploadFile from "../../util/UploadFile";
 import Button from "../../part/Button";
+import DropDown from "../../part/Dropdown";
 import Input from "../../part/Input";
 import FileUpload from "../../part/FileUpload";
 import Loading from "../../part/Loading";
 import Alert from "../../part/Alert";
 
-export default function MasterProsesAdd({ onChangePage }) {
+const listJenisProduk = [
+  { Value: "Part", Text: "Part" },
+  { Value: "Unit", Text: "Unit" },
+  { Value: "Konstruksi", Text: "Konstruksi" },
+  { Value: "Mass Production", Text: "Mass Production" },
+  { Value: "Lainnya", Text: "Lainnya" },
+];
+
+export default function MasterProdukAdd({ onChangePage }) {
   const [errors, setErrors] = useState({});
   const [isError, setIsError] = useState({ error: false, message: "" });
   const [isLoading, setIsLoading] = useState(false);
 
   const formDataRef = useRef({
-    namaProses: "",
-    modul: "",
-    deskripsi: "",
+    namaProduk: "",
+    jenisProduk: "",
+    gambarProduk: "",
+    spesifikasi: "",
   });
 
-  const fileModulRef = useRef(null);
+  const fileGambarRef = useRef(null);
 
   const userSchema = object({
-    namaProses: string()
+    namaProduk: string()
       .max(100, "maksimum 100 karakter")
       .required("harus diisi"),
-    modul: string(),
-    deskripsi: string(),
+    jenisProduk: string().required("harus dipilih"),
+    gambarProduk: string(),
+    spesifikasi: string(),
   });
 
   const handleInputChange = async (e) => {
@@ -81,27 +92,27 @@ export default function MasterProsesAdd({ onChangePage }) {
 
       const uploadPromises = [];
 
-      if (fileModulRef.current.files.length > 0) {
+      if (fileGambarRef.current.files.length > 0) {
         uploadPromises.push(
-          UploadFile(fileModulRef.current).then(
-            (data) => (formDataRef.current["modul"] = data.Hasil)
+          UploadFile(fileGambarRef.current).then(
+            (data) => (formDataRef.current["gambarProduk"] = data.Hasil)
           )
         );
       }
 
       Promise.all(uploadPromises).then(() => {
-        UseFetch(API_LINK + "MasterProses/CreateProses", formDataRef.current)
+        UseFetch(API_LINK + "MasterProduk/CreateProduk", formDataRef.current)
           .then((data) => {
             if (data === "ERROR") {
               setIsError((prevError) => {
                 return {
                   ...prevError,
                   error: true,
-                  message: "Terjadi kesalahan: Gagal menyimpan data proses.",
+                  message: "Terjadi kesalahan: Gagal menyimpan data produk.",
                 };
               });
             } else {
-              SweetAlert("Sukses", "Data proses berhasil disimpan", "success");
+              SweetAlert("Sukses", "Data produk berhasil disimpan", "success");
               onChangePage("index");
             }
           })
@@ -121,55 +132,123 @@ export default function MasterProsesAdd({ onChangePage }) {
       )}
       <form onSubmit={handleAdd}>
         <div className="card">
-          <div className="card-header bg-primary fw-medium text-white">
-            Tambah Data Proses Baru
+          <div className="card-header bg-outline-primary fw-medium text-black">
+            Tambah Materi
           </div>
           <div className="card-body p-4">
             <div className="row">
-              <div className="col-lg-3">
+              <div className="col-lg-6">
                 <Input
                   type="text"
-                  forInput="namaProses"
-                  label="Nama Proses"
-                  isRequired
-                  value={formDataRef.current.namaProses}
+                  forInput="namaProduk"
+                  label="Kelompok Keahlian"
+                  //isRequired
+                  value={formDataRef.current.namaProduk}
                   onChange={handleInputChange}
-                  errorMessage={errors.namaProses}
+                  errorMessage={errors.namaProduk}
                 />
               </div>
-              <div className="col-lg-3">
-                <FileUpload
-                  forInput="modul"
-                  label="Modul (.pdf, .zip)"
-                  formatFile=".pdf,.zip"
-                  ref={fileModulRef}
-                  onChange={() => handleFileChange(fileModulRef, "pdf,zip")}
-                  errorMessage={errors.modul}
+              <div className="col-lg-6">
+                <DropDown
+                  forInput="jenisProduk"
+                  label="Kategori"
+                  arrData={listJenisProduk}
+                  value={formDataRef.current.jenisProduk}
+                  onChange={handleInputChange}
+                  errorMessage={errors.jenisProduk}
                 />
               </div>
               <div className="col-lg-6">
                 <Input
                   type="text"
-                  forInput="deskripsi"
-                  label="Deskripsi"
-                  value={formDataRef.current.deskripsi}
+                  forInput="namaProduk"
+                  label="Nama Materi"
+                  isRequired
+                  value={formDataRef.current.namaProduk}
                   onChange={handleInputChange}
-                  errorMessage={errors.deskripsi}
+                  errorMessage={errors.namaProduk}
+                />
+              </div>
+              <div className="col-lg-6">
+                <Input
+                  type="text"
+                  forInput="namaProduk"
+                  label="Pengenalan Materi"
+                  isRequired
+                  value={formDataRef.current.namaProduk}
+                  onChange={handleInputChange}
+                  errorMessage={errors.namaProduk}
+                />
+              </div>
+              <div className="col-lg-12">
+                <div className="form-group">
+                  <label htmlFor="deskripsiMateri" className="form-label fw-bold">
+                    Deskripsi Materi <span className="text-danger">*</span>
+                  </label>
+                  <textarea
+                    id="deskripsiMateri"
+                    name="deskripsiMateri"
+                    className={`form-control ${errors.deskripsiMateri ? 'is-invalid' : ''}`}
+                    value={formDataRef.current.deskripsiMateri}
+                    onChange={handleInputChange}
+                    required
+                  />
+                  {errors.deskripsiMateri && (
+                    <div className="invalid-feedback">{errors.deskripsiMateri}</div>
+                  )}
+                </div>
+              </div>
+              <div className="col-lg-6">
+                <FileUpload
+                  forInput="materiPdf"
+                  label="Materi (PDF)"
+                  isRequired
+                  formatFile=".pdf,.jpg,.png"
+                  ref={fileGambarRef}
+                  onChange={() =>
+                    handleFileChange(fileGambarRef, "pdf,jpg,png")
+                  }
+                  errorMessage={errors.materiPdf}
+                />
+              </div>
+              <div className="col-lg-6">
+                <FileUpload
+                  forInput="materiPdf"
+                  label="Materi (Video)"
+                  isRequired
+                  formatFile=".pdf,.jpg,.png"
+                  ref={fileGambarRef}
+                  onChange={() =>
+                    handleFileChange(fileGambarRef, "pdf,jpg,png")
+                  }
+                  errorMessage={errors.materiPdf}
+                />
+              </div>
+              <div className="col-lg-6">
+                <FileUpload
+                  forInput="gambarProduk"
+                  label="Sharing Expert"
+                  formatFile=".pdf,.jpg,.png"
+                  ref={fileGambarRef}
+                  onChange={() =>
+                    handleFileChange(fileGambarRef, "pdf,jpg,png")
+                  }
+                  errorMessage={errors.gambarProduk}
                 />
               </div>
             </div>
           </div>
         </div>
-        <div className="float-end my-4 mx-1">
+        <div className="float my-4 mx-1">
           <Button
-            classType="secondary me-2 px-4 py-2"
-            label="BATAL"
+            classType="outline-secondary me-2 px-4 py-2"
+            label="Batal"
             onClick={() => onChangePage("index")}
           />
           <Button
             classType="primary ms-2 px-4 py-2"
             type="submit"
-            label="SIMPAN"
+            label="Simpan"
           />
         </div>
       </form>

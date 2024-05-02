@@ -1,183 +1,242 @@
-import { useEffect, useRef, useState } from "react";
-import { PAGE_SIZE, API_LINK } from "../../util/Constants";
-import SweetAlert from "../../util/SweetAlert";
-import UseFetch from "../../util/UseFetch";
+import React, { useEffect, useRef, useState } from "react";
+import { PAGE_SIZE } from "../../util/Constants";
 import Button from "../../part/Button";
 import Input from "../../part/Input";
-import Table from "../../part/Table";
 import Paging from "../../part/Paging";
 import Filter from "../../part/Filter";
 import DropDown from "../../part/Dropdown";
 import Alert from "../../part/Alert";
 import Loading from "../../part/Loading";
+import '@fortawesome/fontawesome-free/css/all.css';
 
-const inisialisasiData = [
+// Definisikan beberapa data contoh untuk tabel
+const sampleData = [
   {
-    Key: null,
-    No: null,
-    "Nama Proses": null,
-    Status: null,
-    Count: 0,
+    Key: 1,
+    "Nama Materi": "Pemrograman 5",
+    "Kelompok Keahlian": "Pemrograman",
+    "Deskripsi Materi": "Pengenalan Bahasa Pemrograman PHP dan Framework Laravel",
+    "Status Materi": "Aktif",
   },
+  {
+    Key: 2,
+    "Nama Materi": "DDL & DML",
+    "Kelompok Keahlian": "Basis Data",
+    "Deskripsi Materi": "Pengenalan Query DDL dan DML pada DBMS SQL Server",
+    "Status Materi": "Tidak Aktif",
+  },
+  {
+    Key: 3,
+    "Nama Materi": "Pengantar Informatika",
+    "Kelompok Keahlian": "Informatika",
+    "Deskripsi Materi": "Pengenalan Fitur dan Formula Dasar Pada Microsoft Excel",
+    "Status Materi": "Aktif",
+  },
+  {
+    Key: 4,
+    "Nama Materi": "Router",
+    "Kelompok Keahlian": "Jaringan Komputer",
+    "Deskripsi Materi": "Dasar Pengenalan Router dan Cara Konfigurasi Router",
+    "Status Materi": "Tidak Aktif",
+  },
+  // Tambahkan data contoh lebih banyak jika dibutuhkan
 ];
 
 const dataFilterSort = [
-  { Value: "[Nama Proses] asc", Text: "Nama Proses [↑]" },
-  { Value: "[Nama Proses] desc", Text: "Nama Proses [↓]" },
+  { Value: "[Key] asc", Text: "Key [↑]" },
+  { Value: "[Key] desc", Text: "Key [↓]" },
+  { Value: "[Nama Materi] asc", Text: "Nama Materi [↑]" },
+  { Value: "[Nama Materi] desc", Text: "Nama Materi [↓]" },
+  { Value: "[Kelompok Keahlian] asc", Text: "Kelompok Keahlian [↑]" },
+  { Value: "[Kelompok Keahlian] desc", Text: "Kelompok Keahlian [↓]" },
 ];
 
-const dataFilterStatus = [
-  { Value: "Aktif", Text: "Aktif" },
-  { Value: "Tidak Aktif", Text: "Tidak Aktif" },
+const dataFilterJenis = [
+  { Value: "Pemrograman", Text: "Pemrograman" },
+  { Value: "Basis Data", Text: "Basis Data" },
+  { Value: "Jaringan Komputer", Text: "Jaringan Komputer" },
+  // Tambahkan jenis lainnya jika diperlukan
 ];
 
 export default function MasterProsesIndex({ onChangePage }) {
   const [isError, setIsError] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
-  const [currentData, setCurrentData] = useState(inisialisasiData);
+  const [isLoading, setIsLoading] = useState(false);
+  const [currentData, setCurrentData] = useState([]);
+  const [filteredData, setFilteredData] = useState([]); // Gunakan state data yang difilter
   const [currentFilter, setCurrentFilter] = useState({
     page: 1,
     query: "",
-    sort: "[Nama Proses] asc",
-    status: "Aktif",
+    sort: "[Key] asc",
+    jenis: "",
   });
 
   const searchQuery = useRef();
   const searchFilterSort = useRef();
-  const searchFilterStatus = useRef();
+  const searchFilterJenis = useRef();
 
   function handleSetCurrentPage(newCurrentPage) {
     setIsLoading(true);
-    setCurrentFilter((prevFilter) => {
-      return {
-        ...prevFilter,
-        page: newCurrentPage,
-      };
-    });
+    setCurrentFilter((prevFilter) => ({
+      ...prevFilter,
+      page: newCurrentPage,
+    }));
   }
 
   function handleSearch() {
     setIsLoading(true);
-    setCurrentFilter((prevFilter) => {
-      return {
-        ...prevFilter,
-        page: 1,
-        query: searchQuery.current.value,
-        sort: searchFilterSort.current.value,
-        status: searchFilterStatus.current.value,
-      };
+    setCurrentFilter({
+      page: 1,
+      query: searchQuery.current.value,
+      sort: searchFilterSort.current.value,
+      jenis: searchFilterJenis.current.value,
     });
   }
 
-  function handleSetStatus(id) {
-    setIsLoading(true);
-    setIsError(false);
-    UseFetch(API_LINK + "MasterProses/SetStatusProses", {
-      idProses: id,
-    })
-      .then((data) => {
-        if (data === "ERROR" || data.length === 0) setIsError(true);
-        else {
-          SweetAlert(
-            "Sukses",
-            "Status data proses berhasil diubah menjadi " + data[0].Status,
-            "success"
-          );
-          handleSetCurrentPage(currentFilter.page);
-        }
-      })
-      .then(() => setIsLoading(false));
+  function toggleTampilkan(key) {
+    const newData = currentData.map((item) => {
+      if (item.Key === key) {
+        return {
+          ...item,
+          Tampilkan: !item.Tampilkan,
+          "Status Materi": item["Status Materi"] === "Aktif" ? "Tidak Aktif" : "Aktif",
+        };
+      }
+      return item;
+    });
+    setCurrentData(newData);
   }
 
   useEffect(() => {
     setIsError(false);
-    UseFetch(API_LINK + "MasterProses/GetDataProses", currentFilter)
-      .then((data) => {
-        if (data === "ERROR") setIsError(true);
-        else if (data.length === 0) setCurrentData(inisialisasiData);
-        else {
-          const formattedData = data.map((value) => {
-            return {
-              ...value,
-              Aksi: ["Toggle", "Detail", "Edit"],
-              Alignment: ["center", "left", "center", "center"],
-            };
-          });
-          setCurrentData(formattedData);
+    // Meniru panggilan API dengan timeout
+    setTimeout(() => {
+      // Filter data berdasarkan filter saat ini
+      let filteredData = sampleData.filter((item) => {
+        return (
+          item["Nama Materi"].toLowerCase().includes(currentFilter.query.toLowerCase()) &&
+          (currentFilter.jenis === "" || item["Kelompok Keahlian"] === currentFilter.jenis)
+        );
+      });
+      // Urutkan data berdasarkan urutan saat ini
+      filteredData.sort((a, b) => {
+        if (currentFilter.sort === "[Key] asc") {
+          return a.Key - b.Key;
+        } else if (currentFilter.sort === "[Key] desc") {
+          return b.Key - a.Key;
+        } else if (currentFilter.sort === "[Nama Materi] asc") {
+          return a["Nama Materi"].localeCompare(b["Nama Materi"]);
+        } else if (currentFilter.sort === "[Nama Materi] desc") {
+          return b["Nama Materi"].localeCompare(a["Nama Materi"]);
+        } else if (currentFilter.sort === "[Kelompok Keahlian] asc") {
+          return a["Kelompok Keahlian"].localeCompare(b["Kelompok Keahlian"]);
+        } else if (currentFilter.sort === "[Kelompok Keahlian] desc") {
+          return b["Kelompok Keahlian"].localeCompare(a["Kelompok Keahlian"]);
         }
-      })
-      .then(() => setIsLoading(false));
+      });
+
+      setCurrentData(sampleData); // Simpan semua data
+      setFilteredData(filteredData); // Simpan data yang difilter
+      setIsLoading(false);
+    }, 500); // Meniru penundaan pemuatan
   }, [currentFilter]);
 
   return (
     <>
-      <div className="d-flex flex-column">
-        {isError && (
-          <div className="flex-fill">
-            <Alert
-              type="warning"
-              message="Terjadi kesalahan: Gagal mengambil data proses."
-            />
-          </div>
-        )}
-        <div className="flex-fill">
-          <div className="input-group">
-            <Button
-              iconName="add"
-              classType="success"
-              label="Tambah"
-              onClick={() => onChangePage("add")}
-            />
-            <Input
-              ref={searchQuery}
-              forInput="pencarianProses"
-              placeholder="Cari"
-            />
-            <Button
-              iconName="search"
-              classType="primary px-4"
-              title="Cari"
-              onClick={handleSearch}
-            />
-            <Filter>
-              <DropDown
-                ref={searchFilterSort}
-                forInput="ddUrut"
-                label="Urut Berdasarkan"
-                type="none"
-                arrData={dataFilterSort}
-                defaultValue="[Nama Proses] asc"
+      <div className="container">
+        <div className="row">
+          <div className="col-lg-12">
+            {isError && (
+              <div className="flex-fill">
+                <Alert
+                  type="warning"
+                  message="Terjadi kesalahan: Gagal mengambil data produk."
+                />
+              </div>
+            )}
+            <div className="flex-fill">
+              <Button
+                iconName="add"
+                classType="primary"
+                label="Tambah"
+                onClick={() => onChangePage("add")}
               />
-              <DropDown
-                ref={searchFilterStatus}
-                forInput="ddStatus"
-                label="Status"
-                type="none"
-                arrData={dataFilterStatus}
-                defaultValue="Aktif"
-              />
-            </Filter>
-          </div>
-        </div>
-        <div className="mt-3">
-          {isLoading ? (
-            <Loading />
-          ) : (
-            <div className="d-flex flex-column">
-              <Table
-                data={currentData}
-                onToggle={handleSetStatus}
-                onDetail={onChangePage}
-                onEdit={onChangePage}
-              />
+            </div><br></br>
+            <div className="flex-fill">
+              <div className="input-group">
+                <Input
+                  ref={searchQuery}
+                  forInput="pencarianProduk"
+                  placeholder="Pencarian"
+                />
+                <Button
+                  iconName="search"
+                  classType="primary px-4"
+                  title="Cari"
+                  onClick={handleSearch}
+                />
+                <Filter>
+                  <DropDown
+                    ref={searchFilterSort}
+                    forInput="ddUrut"
+                    label="Urut Berdasarkan"
+                    type="none"
+                    arrData={dataFilterSort}
+                    defaultValue="[Key] asc"
+                  />
+                  <DropDown
+                    ref={searchFilterJenis}
+                    forInput="ddJenis"
+                    label="Kelompok Keahlian"
+                    type="semua"
+                    arrData={dataFilterJenis}
+                    defaultValue=""
+                  />
+                </Filter>
+              </div>
+            </div>
+            <div className="mt-3">
+              {isLoading ? (
+                <Loading />
+              ) : (
+                <div className="row">
+                  {filteredData.map((item) => (
+                    <div key={item.Key} className="col-lg-4 mb-4">
+                    <div className="card">
+                    <div className={`card-header d-flex justify-content-between align-items-center`} style={{ backgroundColor: item["Status Materi"] === "Aktif" ? '#67ACE9' : '#A6A6A6', color: 'white' }}>
+
+                        <span>{item["Kelompok Keahlian"]}</span>
+                        <button 
+                          className="btn btn-circle"
+                          onClick={() => toggleTampilkan(item.Key)} // Menggunakan fungsi toggleTampilkan untuk mengubah status materi
+                        >
+                          {item["Status Materi"] === "Aktif" ? <i className="fas fa-toggle-on text-white" style={{ fontSize: '20px' }}></i> : <i className="fas fa-toggle-off text-white" style={{ fontSize: '20px' }}></i>}
+                        </button>
+                      </div>
+                      <div className="card-body bg-white">
+                        <h5 className="card-title">{item["Nama Materi"]}</h5>
+                        <hr style={{ opacity: "0.1" }} />
+                        <p className="card-text">{item["Deskripsi Materi"]}</p>
+                      </div>
+                      <div className="card-footer d-flex justify-content-end bg-white">
+                        <button className="btn btn-sm text-primary" onClick={() => console.log("Edit clicked for ID:", item.Key)}><i className="fas fa-edit"></i></button>
+                        <button className="btn btn-sm text-primary" onClick={() => console.log("Detail clicked for ID:", item.Key)}><i className="fas fa-list"></i></button>
+                      </div>
+                    </div>
+                  </div>
+                               
+                  ))}
+                </div>
+              )}
+            </div>
+            {!isLoading && (
               <Paging
                 pageSize={PAGE_SIZE}
                 pageCurrent={currentFilter.page}
-                totalData={currentData[0]["Count"]}
+                totalData={sampleData.length}
                 navigation={handleSetCurrentPage}
               />
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </div>
     </>
