@@ -3,9 +3,10 @@ import MasterProsesIndex from "./Index";
 import MasterProsesAdd from "./Add";
 import MasterProsesDetail from "./Detail";
 import MasterProsesEdit from "./Edit";
+import PilihKelompokKeahlian from "./Kelompok_Keahlian"
 
 export default function MasterProses() {
-  const [pageMode, setPageMode] = useState("index");
+  const [pageMode, setPageMode] = useState("kk");
   const [dataID, setDataID] = useState();
 
   function getPageMode() {
@@ -14,12 +15,11 @@ export default function MasterProses() {
         return <MasterProsesIndex onChangePage={handleSetPageMode} />;
       case "add":
         return <MasterProsesAdd onChangePage={handleSetPageMode} />;
+        case "kk":
+        return <PilihKelompokKeahlian onChangePage={handleSetPageMode} />;
       case "detail":
         return (
-          <MasterProsesDetail
-            onChangePage={handleSetPageMode}
-            withID={dataID}
-          />
+          <MasterProsesDetail onChangePage={handleSetPageMode} withID={dataID}/>
         );
       case "edit":
         return (
