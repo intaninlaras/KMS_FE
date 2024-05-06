@@ -218,10 +218,7 @@ export default function MasterProdukAdd({ onChangePage }) {
               </div>
               </div>
             </div>
-            </div>
-          </div>
-        </div>
-        <div className="card my-4">
+            <div className="card my-4">
               <div className="card-header bg-white fw-medium text-black d-flex justify-content-between align-items-center" >
     <span>Pertanyaan</span>
     <div className="col-lg-2">
@@ -260,6 +257,12 @@ export default function MasterProdukAdd({ onChangePage }) {
             </div>
             </div>
             </div>
+            </div>
+            
+          </div>
+          
+        </div>
+
         <div className="float-end my-4 mx-1">
           <Button
             classType="secondary me-2 px-4 py-2"
