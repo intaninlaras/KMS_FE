@@ -154,15 +154,13 @@ export default function MasterProsesIndex({ onChangePage }) {
               </div>
             )}
             <div className="flex-fill">
-              <Button
-                iconName="add"
-                classType="primary"
-                label="Tambah"
-                onClick={() => onChangePage("add")}
-              />
-            </div><br></br>
-            <div className="flex-fill">
               <div className="input-group">
+                <Button
+                  iconName="add"
+                  classType="success"
+                  label="Tambah"
+                  onClick={() => onChangePage("add")}
+                />
                 <Input
                   ref={searchQuery}
                   forInput="pencarianProduk"
@@ -218,8 +216,8 @@ export default function MasterProsesIndex({ onChangePage }) {
                         <p className="card-text">{item["Deskripsi Materi"]}</p>
                       </div>
                       <div className="card-footer d-flex justify-content-end bg-white">
-                        <button className="btn btn-sm text-primary" onClick={() => console.log("Edit clicked for ID:", item.Key)}><i className="fas fa-edit"></i></button>
-                        <button className="btn btn-sm text-primary" onClick={() => console.log("Detail clicked for ID:", item.Key)}><i className="fas fa-list"></i></button>
+                        <button className="btn btn-sm text-primary" onClick={() => onChangePage("edit")}><i className="fas fa-edit"></i></button>
+                        <button className="btn btn-sm text-primary" onClick={() => onChangePage("detail")}><i className="fas fa-list"></i></button>
                       </div>
                     </div>
                   </div>
