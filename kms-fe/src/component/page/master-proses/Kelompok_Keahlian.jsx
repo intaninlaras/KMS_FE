@@ -13,31 +13,31 @@ import '@fortawesome/fontawesome-free/css/all.css';
 const sampleData = [
   {
     Key: 1,
-    "Nama Materi": "Pemrograman 5",
-    "Kelompok Keahlian": "Pemrograman",
-    "Deskripsi Materi": "Pengenalan Bahasa Pemrograman PHP dan Framework Laravel",
-    "Status Materi": "Aktif",
+    "Nama KK": "Human Resource Management",
+    "Prodi": "Manajemen Informatika",
+    "Deskripsi KK": "Proses inspeksi, pembersihan dan pemodelan data dengan tujuan menemukan informasi yang berguna, menginformasikan kesimpulan dan mendukung pengam...",
+    "Status KK": "Aktif",
   },
   {
     Key: 2,
-    "Nama Materi": "DDL & DML",
-    "Kelompok Keahlian": "Basis Data",
-    "Deskripsi Materi": "Pengenalan Query DDL dan DML pada DBMS SQL Server",
-    "Status Materi": "Tidak Aktif",
+    "Nama KK": "[Kelompok Keahlian]",
+    "Prodi": "[Program Studi]",
+    "Deskripsi KK": "[Deskripsi Kelompok Keahlian]",
+    "Status KK": "Aktif",
   },
   {
     Key: 3,
-    "Nama Materi": "Pengantar Informatika",
-    "Kelompok Keahlian": "Informatika",
-    "Deskripsi Materi": "Pengenalan Fitur dan Formula Dasar Pada Microsoft Excel",
-    "Status Materi": "Aktif",
+    "Nama KK": "[Kelompok Keahlian]",
+    "Prodi": "[Program Studi]",
+    "Deskripsi KK": "[Deskripsi Kelompok Keahlian]",
+    "Status KK": "Aktif",
   },
   {
     Key: 4,
-    "Nama Materi": "Router",
-    "Kelompok Keahlian": "Jaringan Komputer",
-    "Deskripsi Materi": "Dasar Pengenalan Router dan Cara Konfigurasi Router",
-    "Status Materi": "Tidak Aktif",
+    "Nama KK": "[Kelompok Keahlian]",
+    "Prodi": "[Program Studi]",
+    "Deskripsi KK": "[Deskripsi Kelompok Keahlian]",
+    "Status KK": "Aktif",
   },
   // Tambahkan data contoh lebih banyak jika dibutuhkan
 ];
@@ -45,16 +45,16 @@ const sampleData = [
 const dataFilterSort = [
   { Value: "[Key] asc", Text: "Key [↑]" },
   { Value: "[Key] desc", Text: "Key [↓]" },
-  { Value: "[Nama Materi] asc", Text: "Nama Materi [↑]" },
-  { Value: "[Nama Materi] desc", Text: "Nama Materi [↓]" },
-  { Value: "[Kelompok Keahlian] asc", Text: "Kelompok Keahlian [↑]" },
-  { Value: "[Kelompok Keahlian] desc", Text: "Kelompok Keahlian [↓]" },
+  { Value: "[Nama KK] asc", Text: "Nama KK [↑]" },
+  { Value: "[Nama KK] desc", Text: "Nama KK [↓]" },
+  { Value: "[Prodi] asc", Text: "Prodi [↑]" },
+  { Value: "[Prodi] desc", Text: "Prodi [↓]" },
 ];
 
 const dataFilterJenis = [
-  { Value: "Pemrograman", Text: "Pemrograman" },
-  { Value: "Basis Data", Text: "Basis Data" },
-  { Value: "Jaringan Komputer", Text: "Jaringan Komputer" },
+  { Value: "Manajemen Informatika", Text: "Manajemen Informatika" },
+  { Value: "Teknologi Rekayasa Logistik", Text: "Teknologi Rekayasa Logistik" },
+  { Value: "Teknik Konstruksi Bangunan dan Gedung", Text: "Teknik Konstruksi Bangunan dan Gedung" },
   // Tambahkan jenis lainnya jika diperlukan
 ];
 
@@ -97,8 +97,7 @@ export default function MasterProsesIndex({ onChangePage }) {
       if (item.Key === key) {
         return {
           ...item,
-          Tampilkan: !item.Tampilkan,
-          "Status Materi": item["Status Materi"] === "Aktif" ? "Tidak Aktif" : "Aktif",
+          "Status KK": item["Status KK"] === "Aktif" ? "Tidak Aktif" : "Aktif",
         };
       }
       return item;
@@ -113,8 +112,8 @@ export default function MasterProsesIndex({ onChangePage }) {
       // Filter data berdasarkan filter saat ini
       let filteredData = sampleData.filter((item) => {
         return (
-          item["Nama Materi"].toLowerCase().includes(currentFilter.query.toLowerCase()) &&
-          (currentFilter.jenis === "" || item["Kelompok Keahlian"] === currentFilter.jenis)
+          item["Nama KK"].toLowerCase().includes(currentFilter.query.toLowerCase()) &&
+          (currentFilter.jenis === "" || item["Prodi"] === currentFilter.jenis)
         );
       });
       // Urutkan data berdasarkan urutan saat ini
@@ -123,14 +122,14 @@ export default function MasterProsesIndex({ onChangePage }) {
           return a.Key - b.Key;
         } else if (currentFilter.sort === "[Key] desc") {
           return b.Key - a.Key;
-        } else if (currentFilter.sort === "[Nama Materi] asc") {
-          return a["Nama Materi"].localeCompare(b["Nama Materi"]);
-        } else if (currentFilter.sort === "[Nama Materi] desc") {
-          return b["Nama Materi"].localeCompare(a["Nama Materi"]);
-        } else if (currentFilter.sort === "[Kelompok Keahlian] asc") {
-          return a["Kelompok Keahlian"].localeCompare(b["Kelompok Keahlian"]);
-        } else if (currentFilter.sort === "[Kelompok Keahlian] desc") {
-          return b["Kelompok Keahlian"].localeCompare(a["Kelompok Keahlian"]);
+        } else if (currentFilter.sort === "[Nama KK] asc") {
+          return a["Nama KK"].localeCompare(b["Nama KK"]);
+        } else if (currentFilter.sort === "[Nama KK] desc") {
+          return b["Nama KK"].localeCompare(a["Nama KK"]);
+        } else if (currentFilter.sort === "Prodi] asc") {
+          return a["Prodi"].localeCompare(b["Prodi"]);
+        } else if (currentFilter.sort === "[Prodi] desc") {
+          return b["Prodi"].localeCompare(a["Prodi"]);
         }
       });
 
@@ -153,14 +152,6 @@ export default function MasterProsesIndex({ onChangePage }) {
                 />
               </div>
             )}
-            <div className="flex-fill">
-              <Button
-                iconName="add"
-                classType="primary"
-                label="Tambah"
-                onClick={() => onChangePage("add")}
-              />
-            </div><br></br>
             <div className="flex-fill">
               <div className="input-group">
                 <Input
@@ -200,30 +191,25 @@ export default function MasterProsesIndex({ onChangePage }) {
               ) : (
                 <div className="row">
                   {filteredData.map((item) => (
-                    <div key={item.Key} className="col-lg-4 mb-4">
-                    <div className="card">
-                    <div className={`card-header d-flex justify-content-between align-items-center`} style={{ backgroundColor: item["Status Materi"] === "Aktif" ? '#67ACE9' : '#A6A6A6', color: 'white' }}>
-
-                        <span>{item["Kelompok Keahlian"]}</span>
-                        <button 
-                          className="btn btn-circle"
-                          onClick={() => toggleTampilkan(item.Key)} // Menggunakan fungsi toggleTampilkan untuk mengubah status materi
-                        >
-                          {item["Status Materi"] === "Aktif" ? <i className="fas fa-toggle-on text-white" style={{ fontSize: '20px' }}></i> : <i className="fas fa-toggle-off text-white" style={{ fontSize: '20px' }}></i>}
-                        </button>
+                    item["Status KK"] === "Aktif" && (
+                      <div key={item.Key} className="col-lg-4 mb-4">
+                        <div className="card">
+                          <div className={`card-header d-flex justify-content-between align-items-center`} style={{ backgroundColor: '#67ACE9', color: 'white' }}>
+                            <span>{item["Nama KK"]}</span>
+                          </div>
+                          <div className="card-body bg-white">
+                            <h5 className="card-title">{item["Prodi"]}</h5>
+                            <hr style={{ opacity: "0.1" }} />
+                            <p className="card-text">{item["Deskripsi KK"]}</p>
+                          </div>
+                          <div className="card-footer d-flex justify-content-end bg-white">
+                            <button className="btn btn-sm text-primary" onClick={() => onChangePage("index")}>
+                              <i className="fas fa-paper-plane"></i>
+                            </button>
+                          </div>
+                        </div>
                       </div>
-                      <div className="card-body bg-white">
-                        <h5 className="card-title">{item["Nama Materi"]}</h5>
-                        <hr style={{ opacity: "0.1" }} />
-                        <p className="card-text">{item["Deskripsi Materi"]}</p>
-                      </div>
-                      <div className="card-footer d-flex justify-content-end bg-white">
-                        <button className="btn btn-sm text-primary" onClick={() => console.log("Edit clicked for ID:", item.Key)}><i className="fas fa-edit"></i></button>
-                        <button className="btn btn-sm text-primary" onClick={() => console.log("Detail clicked for ID:", item.Key)}><i className="fas fa-list"></i></button>
-                      </div>
-                    </div>
-                  </div>
-                               
+                    )
                   ))}
                 </div>
               )}
@@ -232,18 +218,11 @@ export default function MasterProsesIndex({ onChangePage }) {
               <Paging
                 pageSize={PAGE_SIZE}
                 pageCurrent={currentFilter.page}
-                totalData={sampleData.length}
+                totalData={sampleData.filter(item => item["Status KK"] === "Aktif").length}
                 navigation={handleSetCurrentPage}
               />
             )}
           </div>
-        </div>
-        <div className="float my-4 mx-1">
-          <Button
-            classType="outline-secondary me-2 px-4 py-2"
-            label="Kembali"
-            onClick={() => onChangePage("kk")}
-          />
         </div>
       </div>
     </>
