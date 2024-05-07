@@ -1,17 +1,9 @@
-import { useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 import { object, string } from "yup";
-import { API_LINK } from "../../util/Constants";
-import { validateAllInputs, validateInput } from "../../util/ValidateForm";
-import SweetAlert from "../../util/SweetAlert";
-import UseFetch from "../../util/UseFetch";
-import UploadFile from "../../util/UploadFile";
 import Button from "../../part/Button";
-import DropDown from "../../part/Dropdown";
 import Input from "../../part/Input";
-import FileUpload from "../../part/FileUpload";
 import Loading from "../../part/Loading";
 import Alert from "../../part/Alert";
-
 
 const listJenisProduk = [
   { Value: "Part", Text: "Part" },
@@ -23,30 +15,17 @@ const listJenisProduk = [
 
 export default function MasterProdukAdd({ onChangePage }) {
   const [errors, setErrors] = useState({});
-  const [isError, setIsError] = useState({ error: false, message: "" });
   const [isLoading, setIsLoading] = useState(false);
   const [formContent, setFormContent] = useState([]);
-  const [onEdit, setOnEdit] = useState(false);
-  const [textField, setTextField] = useState("");
-  const [editedField, setEditedField] = useState("");
-
-  const addQuestion = () => {
-    const field = {
-      "name": `question_${formContent.length}`,
-      "label": "Untitled question",
-      "question_type": "short_answer", // "paragraph", "multichoice",
-      "list": []
-    }
-    setFormContent([...formContent, field]);
-  }
-
+  const [selectedOptions, setSelectedOptions] = useState([]);
+  const [customOptionLabels, setCustomOptionLabels] = useState([]); // State untuk menyimpan label kustom untuk setiap radiobutton
   const formDataRef = useRef({
     namaProduk: "",
     jenisProduk: "",
     gambarProduk: "",
     spesifikasi: "",
+    jenisPertanyaan: ""
   });
-
 
   const userSchema = object({
     namaProduk: string()
@@ -59,208 +38,169 @@ export default function MasterProdukAdd({ onChangePage }) {
 
   const handleInputChange = async (e) => {
     const { name, value } = e.target;
-    const validationError = await validateInput(name, value, userSchema);
     formDataRef.current[name] = value;
-    setErrors((prevErrors) => ({
-      ...prevErrors,
-      [validationError.name]: validationError.error,
-    }));
+    setErrors({});
   };
 
+  const addQuestion = (questionType) => {
+    const newQuestion = {
+      type: questionType,
+      text: `Pertanyaan ${formContent.length + 1}`,
+    };
+    setFormContent([...formContent, newQuestion]);
+    
+  };
 
+  const handleQuestionTypeChange = (e, index) => {
+    const { value } = e.target;
+    const updatedFormContent = [...formContent];
+    updatedFormContent[index].type = value;
+    setFormContent(updatedFormContent);
+  };
+
+  const handleOptionChange = (e, index) => {
+    const { value } = e.target;
+    const updatedSelectedOptions = [...selectedOptions];
+    updatedSelectedOptions[index] = value;
+    setSelectedOptions(updatedSelectedOptions);
+  };
+
+  const handleCustomOptionLabelChange = (e, index) => {
+    const { value } = e.target;
+    const updatedCustomOptionLabels = [...customOptionLabels];
+    updatedCustomOptionLabels[index] = value;
+    setCustomOptionLabels(updatedCustomOptionLabels);
+  };
+
+  const handleDeleteQuestion = (index) => {
+    const updatedFormContent = [...formContent];
+    updatedFormContent.splice(index, 1); // Hapus pertanyaan dari daftar
+    setFormContent(updatedFormContent);
+  };
+
+  const handleDuplicateQuestion = (index) => {
+    const duplicatedQuestion = { ...formContent[index] }; // Salin pertanyaan yang dipilih
+    setFormContent((prevFormContent) => {
+      const updatedFormContent = [...prevFormContent]; // Salin daftar pertanyaan yang ada
+      updatedFormContent.splice(index + 1, 0, duplicatedQuestion); // Sisipkan pertanyaan yang disalin setelah pertanyaan asli
+      return updatedFormContent;
+    });
+  };
 
   const handleAdd = async (e) => {
     e.preventDefault();
-
-    const validationErrors = await validateAllInputs(
-      formDataRef.current,
-      userSchema,
-      setErrors
-    );
-
-    if (Object.values(validationErrors).every((error) => !error)) {
-      setIsLoading(true);
-      setIsError((prevError) => {
-        return { ...prevError, error: false };
-      });
-      setErrors({});
-
-      const uploadPromises = [];
-
-      if (fileGambarRef.current.files.length > 0) {
-        uploadPromises.push(
-          UploadFile(fileGambarRef.current).then(
-            (data) => (formDataRef.current["gambarProduk"] = data.Hasil)
-          )
-        );
-      }
-
-      Promise.all(uploadPromises).then(() => {
-        UseFetch(API_LINK + "MasterProduk/CreateProduk", formDataRef.current)
-          .then((data) => {
-            if (data === "ERROR") {
-              setIsError((prevError) => {
-                return {
-                  ...prevError,
-                  error: true,
-                  message: "Terjadi kesalahan: Gagal menyimpan data produk.",
-                };
-              });
-            } else {
-              SweetAlert("Sukses", "Data produk berhasil disimpan", "success");
-              onChangePage("index");
-            }
-          })
-          .then(() => setIsLoading(false));
-      });
-    }
+    setIsLoading(true);
+    setErrors({});
+    // Logika untuk pengiriman data ke server
   };
 
   if (isLoading) return <Loading />;
 
   return (
     <>
-      {isError.error && (
-        <div className="flex-fill">
-          <Alert type="danger" message={isError.message} />
-        </div>
-      )}
       <form onSubmit={handleAdd}>
         <div className="card">
           <div className="card-header bg-primary fw-medium text-white">
             Tambah Post Test Baru
           </div>
           <div className="card-body p-4">
-            <div className="row">
+            <div className="row mb-4">
               <div className="col-lg-6">
                 <Input
                   type="number"
                   forInput="namaProduk"
                   label="Durasi Pengerjaan Post Test"
                   isRequired
-                  value={formDataRef.current.namaProduk}
-                  onChange={handleInputChange}
-                  errorMessage={errors.namaProduk}
                 />
               </div>
               <div className="col-lg-6">
                 <Input
                   type="number"
                   label="Nilai Minimum Post Test"
-                  arrData={listJenisProduk}
                   isRequired
-                  value={formDataRef.current.jenisProduk}
-                  onChange={handleInputChange}
-                  errorMessage={errors.jenisProduk}
                 />
               </div>
-              <div className="float-end my-4 mx-1">
-                 <Button onClick={() => addQuestion()}
-              iconName="plus"
-              classType="primary btn-sm ms-2 px-3 py-1"             
-            />
-            <Button
-              iconName="arrow-down"
-              classType="primary btn-sm ms-2 px-3 py-1"             
-            />
-              </div>
-              <div className="card">
-              <div className="card-header bg-white fw-medium text-black d-flex justify-content-between align-items-center" >
-                <span>Pertanyaan</span>
-                <div className="col-lg-2">
-                  <select className="form-select" aria-label="Default select example">
-                    <option selected>Pilih kategori...</option>
-                    <option value="1">Essay</option>
-                    <option value="2">Pilihan Ganda</option>
-                  </select>
-                      </div>
-                      </div>
-                      <div className="card-body p-4">
-                        <div className="row">
-                          <div className="col-lg-12">
-                            <Input
-                              type="text"
-                              forInput="namaProduk"
-                              value="Pertanyaan"
-
-                            />
-                
-              </div>
-              <div className="col-lg-12">
-                <div className="form-check">
-                  <input type="radio" id="profile1" name="profile" value="profile1" />
-                  <label className="form-check-label mt-2 mb-2" htmlFor="profile1"> Opsi 1</label>
-                </div>
-                <div className="form-check">
-                  <input type="radio" id="profile2" name="profile" value="profile2" />
-                  <label className="form-check-label mb-2" htmlFor="profile2"> Opsi 2</label>
-                </div>
-                <div className="form-check">
-                  <input type="radio" id="profile3" name="profile" value="profile3" />
-                  <label className="form-check-label mb-2" htmlFor="profile3"> Opsi 3</label>
-                </div>
-              </div>
-              <div className="d-flex justify-content-end my-2 mx-1">
-              <Button
-              iconName="trash"
-              classType="btn-sm ms-2 px-3 py-1"             
-            />
-                          <Button
-              iconName="duplicate"
-              classType="btn-sm ms-2 px-3 py-1"             
-            />
-                                      <Button
-              iconName="menu-dots-vertical"
-              classType="btn-sm ms-2 px-3 py-1"             
-            />
-                                                  
-    </div>
-              </div>
-              </div>
             </div>
-            <div className="card my-4">
-              <div className="card-header bg-white fw-medium text-black d-flex justify-content-between align-items-center" >
-    <span>Pertanyaan</span>
-    <div className="col-lg-2">
-      <select className="form-select" aria-label="Default select example">
-        <option selected>Pilih kategori...</option>
-        <option value="1">Essay</option>
-        <option value="2">Pilihan Ganda</option>
-       </select>
-          </div>
-          </div>
-          <div className="card-body p-4">
-            <div className="row">
-              <div className="col-lg-12">
-                <Input
-                  type="text"
-                  forInput="namaProduk"
-                  value="Pertanyaan"
-
+            <div className="row mb-4">
+              <div className="col-lg-2">
+                <Button
+                  onClick={() => addQuestion("essay")}
+                  iconName="plus"
+                  classType="primary btn-sm px-3 py-1"
                 />
-                
+                <Button
+                  
+                  iconName="upload"
+                  classType="primary btn-sm mx-2 px-3 py-1"
+                />
               </div>
-                  <div className="d-flex justify-content-end my-2 mx-1">
-              <Button
-              iconName="trash"
-              classType="btn-sm ms-2 px-3 py-1"             
-            />
-                          <Button
-              iconName="duplicate"
-              classType="btn-sm ms-2 px-3 py-1"             
-            />
-                                      <Button
-              iconName="menu-dots-vertical"
-              classType="btn-sm ms-2 px-3 py-1"             
-            />
+
             </div>
-            </div>
-            </div>
-            </div>
-            </div>
-            
+            {formContent.map((question, index) => (
+              <div key={index} className="card mb-4">
+                <div className="card-header bg-white fw-medium text-black d-flex justify-content-between align-items-center">
+                  <span>Pertanyaan</span>
+                  <div className="col-lg-2">
+                    <select className="form-select" aria-label="Default select example" onChange={(e) => handleQuestionTypeChange(e, index)}>
+                      <option selected disabled>Pilih jenis pertanyaan...</option>
+                      <option value="essay">Essay</option>
+                      <option value="multiple_choice">Pilihan Ganda</option>
+                    </select>
+                  </div>
+                </div>
+                <div className="card-body p-4">
+                  <div className="row">
+                    <div className="col-lg-12">
+                      <Input
+                        type="text"
+                        forInput={`pertanyaan_${index}`}
+                        value={question.text}
+                      />
+                    </div>
+                    {question.type === "essay" && (
+          <div className="col-lg-2">
+            <button className="btn btn-sm text-primary"><i class="fa-solid fa-image"></i></button>
+            <button className="btn btn-sm text-primary"><i class="fa-solid fa-file-pdf"></i></button>
           </div>
-          
+        )}
+                    {question.type === "multiple_choice" && (
+                      <div className="col-lg-12">
+                        <div className="form-check">
+                          <input type="radio" id={`profile1_${index}`} name={`profile_${index}`} value="profile1" checked={selectedOptions[index] === "profile1"} onChange={(e) => handleOptionChange(e, index)} />
+                          <input type="text" value={customOptionLabels[index] || ''} onChange={(e) => handleCustomOptionLabelChange(e, index)} /> {/* Input teks untuk label kustom */}
+                        </div>
+                        <div className="form-check">
+                          <input type="radio" id={`profile2_${index}`} name={`profile_${index}`} value="profile2" checked={selectedOptions[index] === "profile2"} onChange={(e) => handleOptionChange(e, index)} />
+                          <input type="text" value={customOptionLabels[index] || ''} onChange={(e) => handleCustomOptionLabelChange(e, index)} /> {/* Input teks untuk label kustom */}
+                        </div>
+                        <div className="form-check">
+                          <input type="radio" id={`profile3_${index}`} name={`profile_${index}`} value="profile3" checked={selectedOptions[index] === "profile3"} onChange={(e) => handleOptionChange(e, index)} />
+                          <input type="text" value={customOptionLabels[index] || ''} onChange={(e) => handleCustomOptionLabelChange(e, index)} /> {/* Input teks untuk label kustom */}
+                        </div>
+                      </div>
+                    )}
+                    <div className="d-flex justify-content-end my-2 mx-1">
+                      <Button
+                        iconName="trash"
+                        classType="btn-sm ms-2 px-3 py-1"
+                        onClick={() => handleDeleteQuestion(index)} // Menghapus pertanyaan saat tombol trash diklik
+
+                      />
+                      <Button
+                        iconName="duplicate"
+                        classType="btn-sm ms-2 px-3 py-1"
+                        onClick={() => handleDuplicateQuestion(index)}
+                      />
+                      <Button
+                        iconName="menu-dots-vertical"
+                        classType="btn-sm ms-2 px-3 py-1"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
 
         <div className="float-end my-4 mx-1">
