@@ -4,6 +4,8 @@ import Button from "../../part/Button";
 import Input from "../../part/Input";
 import Loading from "../../part/Loading";
 import Alert from "../../part/Alert";
+import TimePicker from 'react-time-picker';
+
 
 export default function MasterProdukAdd({ onChangePage }) {
   const [errors, setErrors] = useState({});
@@ -83,6 +85,11 @@ export default function MasterProdukAdd({ onChangePage }) {
     updatedCustomOptionLabels.splice(index + 1, 0, customOptionLabels[index]);
     setCustomOptionLabels(updatedCustomOptionLabels);
   };
+  const [time, setTime] = useState('10:00');
+    
+  const onChange = (value) => {
+    setTime(value);
+  };
 
   const handleAdd = async (e) => {
     e.preventDefault();
@@ -118,8 +125,9 @@ export default function MasterProdukAdd({ onChangePage }) {
           <div className="card-body p-4">
             <div className="row mb-4">
               <div className="col-lg-6">
+              
                 <Input
-                  type="number"
+                  type="time"
                   forInput="namaProduk"
                   label="Durasi Pengerjaan Post Test"
                   isRequired
