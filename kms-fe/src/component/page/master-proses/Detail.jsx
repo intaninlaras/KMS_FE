@@ -89,6 +89,20 @@ export default function MasterProsesDetail({ onChangePage, withID }) {
           <div className="row">
             <div className="col-lg-3">
               <Label
+                forLabel="kelompokKeahlian"
+                title="Kelompok Keahlian"
+                data={formDataRef.current["Kelompok Keahlian"]}
+              />
+            </div>
+            <div className="col-lg-3">
+              <Label
+                forLabel="statusMateri"
+                title="Kategori"
+                data="Lorem Ipsum"
+              />
+            </div>
+            <div className="col-lg-3">
+              <Label
                 forLabel="namaMateri"
                 title="Nama Materi"
                 data={formDataRef.current["Nama Materi"]}
@@ -96,9 +110,9 @@ export default function MasterProsesDetail({ onChangePage, withID }) {
             </div>
             <div className="col-lg-3">
               <Label
-                forLabel="kelompokKeahlian"
-                title="Kelompok Keahlian"
-                data={formDataRef.current["Kelompok Keahlian"]}
+                forLabel="statusMateri"
+                title="Pengenalan Materi"
+                data="Berisi Materi Pemrograman"
               />
             </div>
             <div className="col-lg-6">
@@ -111,8 +125,22 @@ export default function MasterProsesDetail({ onChangePage, withID }) {
             <div className="col-lg-3">
               <Label
                 forLabel="statusMateri"
-                title="Status"
-                data={formDataRef.current["Status Materi"]}
+                title="Materi (PDF)"
+                data={<a href="#">Unduh Berkas</a>}
+              />
+            </div>
+            <div className="col-lg-3">
+              <Label
+                forLabel="statusMateri"
+                title="Materi (Video)"
+                data={<a href="#">Unduh Berkas</a>}
+              />
+            </div>
+            <div className="col-lg-3">
+              <Label
+                forLabel="statusMateri"
+                title="Sharing Expert"
+                data={<a href="#">Unduh Berkas</a>}
               />
             </div>
           </div>

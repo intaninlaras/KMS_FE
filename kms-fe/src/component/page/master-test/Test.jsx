@@ -299,7 +299,7 @@ export default function PengerjaanTest({ onChangePage }) {
                       <h4>Soal {index + 1}</h4>
                       <p>{data.question}</p>
                     </div>
-                    <h5 className="font-weight-bold">Jawaban Anda:</h5>
+                  
                     {/* Jawaban */}
                     <div className="d-flex flex-column">
                       {/* Opsi jawaban */}

@@ -69,6 +69,7 @@ export default function MasterProsesIndex({ onChangePage }) {
     sort: "[Key] asc",
     jenis: "",
   });
+  const [toggleStatus, setToggleStatus] = useState({});
 
   const searchQuery = useRef();
   const searchFilterSort = useRef();
@@ -93,17 +94,10 @@ export default function MasterProsesIndex({ onChangePage }) {
   }
 
   function toggleTampilkan(key) {
-    const newData = currentData.map((item) => {
-      if (item.Key === key) {
-        return {
-          ...item,
-          Tampilkan: !item.Tampilkan,
-          "Status Materi": item["Status Materi"] === "Aktif" ? "Tidak Aktif" : "Aktif",
-        };
-      }
-      return item;
-    });
-    setCurrentData(newData);
+    setToggleStatus((prevStatus) => ({
+      ...prevStatus,
+      [key]: !prevStatus[key], // Mengubah status toggle saat tombol di klik
+    }));
   }
 
   useEffect(() => {
@@ -158,6 +152,7 @@ export default function MasterProsesIndex({ onChangePage }) {
                 <Button
                   iconName="add"
                   classType="success"
+                  title="Tambah Materi"
                   label="Tambah"
                   onClick={() => onChangePage("add")}
                 />
@@ -199,29 +194,28 @@ export default function MasterProsesIndex({ onChangePage }) {
                 <div className="row">
                   {filteredData.map((item) => (
                     <div key={item.Key} className="col-lg-4 mb-4">
-                    <div className="card">
-                    <div className={`card-header d-flex justify-content-between align-items-center`} style={{ backgroundColor: item["Status Materi"] === "Aktif" ? '#67ACE9' : '#A6A6A6', color: 'white' }}>
+                      <div className="card">
+                        <div className={`card-header d-flex justify-content-between align-items-center`} style={{ backgroundColor: item["Status Materi"] === "Aktif" ? '#67ACE9' : '#A6A6A6', color: 'white' }}>
 
-                        <span>{item["Kelompok Keahlian"]}</span>
-                        <button 
-                          className="btn btn-circle"
-                          onClick={() => toggleTampilkan(item.Key)} // Menggunakan fungsi toggleTampilkan untuk mengubah status materi
-                        >
-                          {item["Status Materi"] === "Aktif" ? <i className="fas fa-toggle-on text-white" style={{ fontSize: '20px' }}></i> : <i className="fas fa-toggle-off text-white" style={{ fontSize: '20px' }}></i>}
-                        </button>
-                      </div>
-                      <div className="card-body bg-white">
-                        <h5 className="card-title">{item["Nama Materi"]}</h5>
-                        <hr style={{ opacity: "0.1" }} />
-                        <p className="card-text">{item["Deskripsi Materi"]}</p>
-                      </div>
-                      <div className="card-footer d-flex justify-content-end bg-white">
-                        <button className="btn btn-sm text-primary" onClick={() => onChangePage("edit")}><i className="fas fa-edit"></i></button>
-                        <button className="btn btn-sm text-primary" onClick={() => onChangePage("detail")}><i className="fas fa-list"></i></button>
+                          <span>{item["Kelompok Keahlian"]}</span>
+                          <button 
+                            className="btn btn-circle"
+                            onClick={() => toggleTampilkan(item.Key)} // Menggunakan fungsi toggleTampilkan untuk mengubah status materi
+                          >
+                            {toggleStatus[item.Key] ? <i className="fas fa-toggle-on text-white" style={{ fontSize: '20px' }}></i> : <i className="fas fa-toggle-off text-white" style={{ fontSize: '20px' }}></i>}
+                          </button>
+                        </div>
+                        <div className="card-body bg-white">
+                          <h5 className="card-title">{item["Nama Materi"]}</h5>
+                          <hr style={{ opacity: "0.1" }} />
+                          <p className="card-text">{item["Deskripsi Materi"]}</p>
+                        </div>
+                        <div className="card-footer d-flex justify-content-end bg-white">
+                          <button className="btn btn-sm text-primary" title="Edit Materi" onClick={() => onChangePage("edit")}><i className="fas fa-edit"></i></button>
+                          <button className="btn btn-sm text-primary" title="Detail Materi" onClick={() => onChangePage("detail")}><i className="fas fa-list"></i></button>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                               
                   ))}
                 </div>
               )}
