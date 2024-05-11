@@ -203,18 +203,29 @@ export default function MasterProdukAdd({ onChangePage }) {
                         <Button
                           onClick={() => handleAddOption(index)}
                           iconName="add"
-                          classType="primary btn-sm px-2 py-1"
+                          classType="primary btn-sm ms-2 px-3 py-1"
                           label="Tambahkan Opsi"
                         />
                       </div>
                     )}
-                    <div className="d-flex justify-content-end my-2 mx-1">
+<div className="d-flex justify-content-between my-2 mx-1">
+                    <div>
+                      <Button
+                        iconName="check"
+                        classType="primary btn-sm ms-2 px-3 py-1"
+                        label="Kunci Jawaban"
+                        onClick={() => handleDeleteQuestion(index)}
+                      />
+
+                      
+                    </div>
+                    <div >
                       <Button
                         iconName="trash"
                         classType="btn-sm ms-2 px-3 py-1"
                         onClick={() => handleDeleteQuestion(index)}
                       />
-                      <Button
+                                            <Button
                         iconName="duplicate"
                         classType="btn-sm ms-2 px-3 py-1"
                         onClick={() => handleDuplicateQuestion(index)}
@@ -223,6 +234,8 @@ export default function MasterProdukAdd({ onChangePage }) {
                         iconName="menu-dots-vertical"
                         classType="btn-sm ms-2 px-3 py-1"
                       />
+             
+             </div>
                     </div>
                   </div>
                 </div>
