@@ -4,6 +4,7 @@ import MasterProsesAdd from "./Add";
 import MasterProsesDetail from "./Detail";
 import MasterProsesEdit from "./Edit";
 import PilihKelompokKeahlian from "./Kelompok_Keahlian";
+import MasterPostTestAdd from "../master-produk/Add";
 
 export default function MasterProses() {
   const [pageMode, setPageMode] = useState("kk");
@@ -17,6 +18,8 @@ export default function MasterProses() {
         return <MasterProsesAdd onChangePage={handleSetPageMode} />;
       case "kk":
         return <PilihKelompokKeahlian onChangePage={handleSetPageMode} />;
+        case "posttest":
+        return <MasterPostTestAdd onChangePage={handleSetPageMode} />;
       case "detail":
         return (
           <MasterProsesDetail onChangePage={handleSetPageMode} withID={dataID}/>
