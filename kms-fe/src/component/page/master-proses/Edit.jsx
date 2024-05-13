@@ -97,7 +97,7 @@ export default function MasterProsesEdit({ onChangePage, withID }) {
       <form onSubmit={handleAdd}>
         <div className="card">
           <div className="card-header bg-primary fw-medium text-white">
-            Ubah Data Proses
+            Ubah Data Materi
           </div>
           <div className="card-body p-4">
             <div className="row">
@@ -182,9 +182,9 @@ export default function MasterProsesEdit({ onChangePage, withID }) {
             </div>
           </div>
         </div>
-        <div className="float-end my-4 mx-1">
+        <div className="float my-4 mx-1">
           <Button
-            classType="secondary me-2 px-4 py-2"
+            classType="outline-secondary me-2 px-4 py-2"
             label="BATAL"
             onClick={() => onChangePage("index")}
           />

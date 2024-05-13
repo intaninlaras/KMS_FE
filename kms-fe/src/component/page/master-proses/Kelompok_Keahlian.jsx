@@ -1,227 +1,165 @@
-import React, { useEffect, useRef, useState } from "react";
-import { PAGE_SIZE } from "../../util/Constants";
+import { useEffect, useRef, useState } from "react";
+import SweetAlert from "../../util/SweetAlert";
+import UseFetch from "../../util/UseFetch";
 import Button from "../../part/Button";
 import Input from "../../part/Input";
+import Table from "../../part/Table";
 import Paging from "../../part/Paging";
 import Filter from "../../part/Filter";
 import DropDown from "../../part/Dropdown";
 import Alert from "../../part/Alert";
 import Loading from "../../part/Loading";
-import '@fortawesome/fontawesome-free/css/all.css';
+import Icon from "../../part/Icon";
+import CardProgram from "../../part/CardProgram";
 
-// Definisikan beberapa data contoh untuk tabel
-const sampleData = [
-  {
-    Key: 1,
-    "Nama KK": "Human Resource Management",
-    "Prodi": "Manajemen Informatika",
-    "Deskripsi KK": "Proses inspeksi, pembersihan dan pemodelan data dengan tujuan menemukan informasi yang berguna, menginformasikan kesimpulan dan mendukung pengam...",
-    "Status KK": "Aktif",
-  },
-  {
-    Key: 2,
-    "Nama KK": "[Kelompok Keahlian]",
-    "Prodi": "[Program Studi]",
-    "Deskripsi KK": "[Deskripsi Kelompok Keahlian]",
-    "Status KK": "Aktif",
-  },
-  {
-    Key: 3,
-    "Nama KK": "[Kelompok Keahlian]",
-    "Prodi": "[Program Studi]",
-    "Deskripsi KK": "[Deskripsi Kelompok Keahlian]",
-    "Status KK": "Aktif",
-  },
-  {
-    Key: 4,
-    "Nama KK": "[Kelompok Keahlian]",
-    "Prodi": "[Program Studi]",
-    "Deskripsi KK": "[Deskripsi Kelompok Keahlian]",
-    "Status KK": "Aktif",
-  },
-  // Tambahkan data contoh lebih banyak jika dibutuhkan
-];
+export default function SubKKIndex({ onChangePage }) {
+  const [isOpen, setIsOpen] = useState(false);
+  const [isContentVisible, setIsContentVisible] = useState(false);
 
-const dataFilterSort = [
-  { Value: "[Key] asc", Text: "Key [↑]" },
-  { Value: "[Key] desc", Text: "Key [↓]" },
-  { Value: "[Nama KK] asc", Text: "Nama KK [↑]" },
-  { Value: "[Nama KK] desc", Text: "Nama KK [↓]" },
-  { Value: "[Prodi] asc", Text: "Prodi [↑]" },
-  { Value: "[Prodi] desc", Text: "Prodi [↓]" },
-];
-
-const dataFilterJenis = [
-  { Value: "Manajemen Informatika", Text: "Manajemen Informatika" },
-  { Value: "Teknologi Rekayasa Logistik", Text: "Teknologi Rekayasa Logistik" },
-  { Value: "Teknik Konstruksi Bangunan dan Gedung", Text: "Teknik Konstruksi Bangunan dan Gedung" },
-  // Tambahkan jenis lainnya jika diperlukan
-];
-
-export default function MasterProsesIndex({ onChangePage }) {
-  const [isError, setIsError] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [currentData, setCurrentData] = useState([]);
-  const [filteredData, setFilteredData] = useState([]); // Gunakan state data yang difilter
-  const [currentFilter, setCurrentFilter] = useState({
-    page: 1,
-    query: "",
-    sort: "[Key] asc",
-    jenis: "",
-  });
-
-  const searchQuery = useRef();
-  const searchFilterSort = useRef();
-  const searchFilterJenis = useRef();
-
-  function handleSetCurrentPage(newCurrentPage) {
-    setIsLoading(true);
-    setCurrentFilter((prevFilter) => ({
-      ...prevFilter,
-      page: newCurrentPage,
-    }));
-  }
-
-  function handleSearch() {
-    setIsLoading(true);
-    setCurrentFilter({
-      page: 1,
-      query: searchQuery.current.value,
-      sort: searchFilterSort.current.value,
-      jenis: searchFilterJenis.current.value,
-    });
-  }
-
-  function toggleTampilkan(key) {
-    const newData = currentData.map((item) => {
-      if (item.Key === key) {
-        return {
-          ...item,
-          "Status KK": item["Status KK"] === "Aktif" ? "Tidak Aktif" : "Aktif",
-        };
-      }
-      return item;
-    });
-    setCurrentData(newData);
-  }
-
-  useEffect(() => {
-    setIsError(false);
-    // Meniru panggilan API dengan timeout
-    setTimeout(() => {
-      // Filter data berdasarkan filter saat ini
-      let filteredData = sampleData.filter((item) => {
-        return (
-          item["Nama KK"].toLowerCase().includes(currentFilter.query.toLowerCase()) &&
-          (currentFilter.jenis === "" || item["Prodi"] === currentFilter.jenis)
-        );
-      });
-      // Urutkan data berdasarkan urutan saat ini
-      filteredData.sort((a, b) => {
-        if (currentFilter.sort === "[Key] asc") {
-          return a.Key - b.Key;
-        } else if (currentFilter.sort === "[Key] desc") {
-          return b.Key - a.Key;
-        } else if (currentFilter.sort === "[Nama KK] asc") {
-          return a["Nama KK"].localeCompare(b["Nama KK"]);
-        } else if (currentFilter.sort === "[Nama KK] desc") {
-          return b["Nama KK"].localeCompare(a["Nama KK"]);
-        } else if (currentFilter.sort === "Prodi] asc") {
-          return a["Prodi"].localeCompare(b["Prodi"]);
-        } else if (currentFilter.sort === "[Prodi] desc") {
-          return b["Prodi"].localeCompare(a["Prodi"]);
-        }
-      });
-
-      setCurrentData(sampleData); // Simpan semua data
-      setFilteredData(filteredData); // Simpan data yang difilter
-      setIsLoading(false);
-    }, 500); // Meniru penundaan pemuatan
-  }, [currentFilter]);
+  const toggleContentVisibility = () => {
+    setIsContentVisible(!isContentVisible);
+    setIsOpen(!isOpen);
+  };
 
   return (
     <>
-      <div className="container">
-        <div className="row">
-          <div className="col-lg-12">
-            {isError && (
-              <div className="flex-fill">
-                <Alert
-                  type="warning"
-                  message="Terjadi kesalahan: Gagal mengambil data produk."
-                />
-              </div>
-            )}
-            <div className="flex-fill">
-              <div className="input-group">
-                <Input
-                  ref={searchQuery}
-                  forInput="pencarianProduk"
-                  placeholder="Pencarian"
-                />
-                <Button
-                  iconName="search"
-                  classType="primary px-4"
-                  title="Cari"
-                  onClick={handleSearch}
-                />
-                <Filter>
-                  <DropDown
-                    ref={searchFilterSort}
-                    forInput="ddUrut"
-                    label="Urut Berdasarkan"
-                    type="none"
-                    arrData={dataFilterSort}
-                    defaultValue="[Key] asc"
-                  />
-                  <DropDown
-                    ref={searchFilterJenis}
-                    forInput="ddJenis"
-                    label="Kelompok Keahlian"
-                    type="semua"
-                    arrData={dataFilterJenis}
-                    defaultValue=""
-                  />
-                </Filter>
-              </div>
-            </div>
-            <div className="mt-3">
-              {isLoading ? (
-                <Loading />
-              ) : (
-                <div className="row">
-                  {filteredData.map((item) => (
-                    item["Status KK"] === "Aktif" && (
-                      <div key={item.Key} className="col-lg-4 mb-4">
-                        <div className="card">
-                          <div className={`card-header d-flex justify-content-between align-items-center`} style={{ backgroundColor: '#67ACE9', color: 'white' }}>
-                            <span>{item["Nama KK"]}</span>
-                          </div>
-                          <div className="card-body bg-white">
-                            <h5 className="card-title">{item["Prodi"]}</h5>
-                            <hr style={{ opacity: "0.1" }} />
-                            <p className="card-text">{item["Deskripsi KK"]}</p>
-                          </div>
-                          <div className="card-footer d-flex justify-content-end bg-white">
-                            <button className="btn btn-sm text-primary" onClick={() => onChangePage("index")}>
-                              <i className="fas fa-paper-plane"></i>
-                            </button>
-                          </div>
+      <div className="d-flex flex-column">
+        <div className="flex-fill">
+          <div className="input-group"> 
+            <Input
+              //   ref={searchQuery}
+              forInput="pencarianProduk"
+              placeholder="Cari"
+            />
+            <Button
+              iconName="search"
+              classType="primary px-4"
+              title="Cari"
+              //   onClick={handleSearch}
+            />
+            <Filter>
+              <DropDown
+                // ref={searchFilterSort}
+                forInput="ddUrut"
+                label="Urut Berdasarkan"
+                type="none"
+                // arrData={dataFilterSort}
+                defaultValue="[Kode Produk] asc"
+              />
+              <DropDown
+                // ref={searchFilterJenis}
+                forInput="ddJenis"
+                label="Jenis Produk"
+                type="semua"
+                // arrData={dataFilterJenis}
+                defaultValue=""
+              />
+              <DropDown
+                // ref={searchFilterStatus}
+                forInput="ddStatus"
+                label="Status"
+                type="none"
+                // arrData={dataFilterStatus}
+                defaultValue="Aktif"
+              />
+            </Filter>
+          </div>
+          <div className="container">
+            <div className="row mt-3 gx-4">
+              {/* <CardProgram isOpen={isOpen} isOpenProgram={isOpenProgram} /> */}
+              <div className="col-md-12">
+                <div
+                  className="card p-0 mb-3"
+                  style={{
+                    border: "",
+                    borderRadius: "10px",
+                  }}
+                >
+                  <div className="card-body p-0">
+                    <h5
+                      className="card-title text-white px-3 py-2"
+                      style={{
+                        borderTopRightRadius: "10px",
+                        borderTopLeftRadius: "10px",
+                        backgroundColor: "#67ACE9",
+                      }}
+                    >
+                      Kelompok Keahlian
+                    </h5>
+                    <div className="card-body px-3">
+                      <div className="d-flex justify-content-between align-items-center">
+                        <h6 className="card-programtitle mb-0">
+                          <Icon
+                            name="align-left"
+                            type="Bold"
+                            cssClass="btn px-2 py-0 text-primary"
+                            title="Program"
+                          />
+                          <span>
+                            <a
+                              href=""
+                              className="text-decoration-underline text-dark"
+                            >
+                              3 Program
+                            </a>
+                          </span>
+                          <Icon
+                            name="users"
+                            type="Bold"
+                            cssClass="btn px-2 py-0 text-primary ms-3"
+                            title="Anggota Kelompok Keahlian"
+                          />
+                          <span>
+                            <a
+                              href=""
+                              className="text-decoration-underline text-dark"
+                            >
+                              5 Anggota
+                            </a>
+                          </span>
+                        </h6>
+                        <div className="action d-flex">
+                          {/* <Button
+                            iconName="list"
+                            classType="outline-primary btn-sm px-3 me-2"
+                            title="Detail Kelompok Keahlian"
+                            onClick={() => onChangePage("detail")}
+                          /> */}
+                          <Button
+                            iconName={
+                              isContentVisible ? "caret-up" : "caret-down"
+                            }
+                            classType="outline-primary btn-sm px-3"
+                            onClick={toggleContentVisibility}
+                            title="Detail Kelompok Keahlian"
+                          />
                         </div>
                       </div>
-                    )
-                  ))}
+                      <hr style={{ opacity: "0.1" }} />
+                      <p
+                        className="lh-sm"
+                        style={{
+                          display: isContentVisible ? "block" : "-webkit-box",
+                          WebkitLineClamp: 2,
+                          WebkitBoxOrient: "vertical",
+                          overflow: "hidden",
+                        }}
+                      >
+                        Lorem ipsum dolor sit amet consectetur adipisicing elit.
+                        Tenetur in omnis aspernatur velit harum amet ipsam
+                        necessitatibus voluptatem quam aperiam debitis, sequi
+                        error sed id inventore. Ad id aliquid, expedita, ratione
+                        optio repellendus rem rerum esse sapiente excepturi
+                        earum. Sit fugit voluptatibus eligendi fugiat sint
+                        obcaecati ab. Dignissimos, ab ut?
+                      </p>
+                      <CardProgram isOpen={isOpen} onChangePage={onChangePage} />
+                      <CardProgram isOpen={isOpen} onChangePage={onChangePage} />
+                    </div>
+                  </div>
                 </div>
-              )}
+              </div>
             </div>
-            {!isLoading && (
-              <Paging
-                pageSize={PAGE_SIZE}
-                pageCurrent={currentFilter.page}
-                totalData={sampleData.filter(item => item["Status KK"] === "Aktif").length}
-                navigation={handleSetCurrentPage}
-              />
-            )}
           </div>
         </div>
       </div>
