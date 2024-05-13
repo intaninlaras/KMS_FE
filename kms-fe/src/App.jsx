@@ -1,12 +1,13 @@
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import React from 'react';
+import { createBrowserRouter, RouterProvider, BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { useState } from "react";
 
 import Container from "./component/backbone/Container";
 import Header from "./component/backbone/Header";
 import SideBar from "./component/backbone/SideBar";
+import Show_SideBar from "./component/backbone/Show_SideBar";
 
 import Beranda from "./component/page/beranda/Root";
-
 import MasterPelanggan from "./component/page/master-pelanggan/Root";
 import MasterProduk from "./component/page/master-produk/Root";
 import MasterProses from "./component/page/master-proses/Root";
@@ -19,7 +20,14 @@ import MasterTest_PostTest from "./component/page/master-test/PostTest";
 import MasterTest_Test from "./component/page/master-test/Test";
 
 export default function App() {
-  const [showDefaultSidebar, setShowDefaultSidebar] = useState(true);
+  const Show_SideBar = ({ children, routes, currentPath }) => {
+      const isSidebarVisible = !routes.find(route => route.path === currentPath)?.hideSideBar;
+
+      return (
+          <div>{isSidebarVisible && children}</div>
+      );
+  };
+
   const router = createBrowserRouter([
     {
       path: "/",
@@ -54,25 +62,36 @@ export default function App() {
       element: <MasterTest />,
     },
     {
-    path: "/master_test/post-test",
+      path: "/master_test/post-test",
       element: <MasterTest_PostTest />,
     },
     {
       path: "/master_test/soal-postTest",
       element: <MasterTest_Test />,
+      hideSideBar: true ,
     },
     {
       path: "/master_posttest",
       element: <MasterPostTest />,
+    },
+    {
+      path: "/soal_pretest",
+      element: <MasterTest_Test />,
+      hideSideBar: true ,
     }
   ]);
+
+  const currentPath = window.location.pathname;
+  const isSidebarVisible = !router.routes.find(route => route.path === currentPath)?.hideSideBar;
 
   return (
     <>
       <Header />
-      <div style={{ marginTop: "70px" }}></div>
+      <div style={{ marginTop: '70px' }}></div>
       <div className="d-flex flex-row">
-        {<SideBar />} 
+        <Show_SideBar routes={router.routes} currentPath={currentPath}>
+          <SideBar />
+        </Show_SideBar>
         <Container>
           <RouterProvider router={router} />
         </Container>
