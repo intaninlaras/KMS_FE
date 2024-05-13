@@ -232,8 +232,8 @@ export default function MasterProdukAdd({ onChangePage }) {
           />
         </div>
         <div className="card">
-          <div className="card-header bg-primary fw-medium text-white">
-            Tambah Post Test Baru
+          <div className="card-header bg-outline-primary fw-medium text-black">
+            Add New Post Test
           </div>
           <div className="card-body p-4">
             <div className="row mb-4">
@@ -241,14 +241,14 @@ export default function MasterProdukAdd({ onChangePage }) {
                 <Input
                   type="time"
                   forInput="namaProduk"
-                  label="Durasi Pengerjaan Post Test"
+                  label="Timer"
                   isRequired
                 />
               </div>
               <div className="col-lg-6">
                 <Input
                   type="number"
-                  label="Nilai Minimum Post Test"
+                  label="Minimum score"
                   isRequired
                 />
               </div>
@@ -259,6 +259,7 @@ export default function MasterProdukAdd({ onChangePage }) {
                   onClick={() => addQuestion("essay")}
                   iconName="plus"
                   classType="primary btn-sm px-3 py-1"
+                  
                 />
                 <Button
                   iconName="upload"
@@ -333,7 +334,7 @@ export default function MasterProdukAdd({ onChangePage }) {
                         />
                         <Button
                           classType="primary btn-sm ms-2 px-3 py-1"
-                          label="Selesai"
+                          label="Done"
                           onClick={() => handleChangeQuestion(index)}
                         />
                       </div>
@@ -396,9 +397,9 @@ export default function MasterProdukAdd({ onChangePage }) {
     onClick={() => handleAddOption(index)}
     iconName="add"
     classType="primary btn-sm ms-2 px-3 py-1"
-    label="Tambahkan Opsi"
+    label="New Option"
   />
-)}
+)}  
 
                         </div>
                       )}
@@ -406,7 +407,7 @@ export default function MasterProdukAdd({ onChangePage }) {
                         <div>
                           <Button
                             iconName="check"
-                            classType="primary btn-sm ms-2 px-3 py-1"
+                            classType="primary btn-sm ms-1 px-2 py-1"
                             label="Answer Key"
                             onClick={() => handleChangeQuestion(index)}
                           />
@@ -435,16 +436,17 @@ export default function MasterProdukAdd({ onChangePage }) {
             ))}
           </div>
         </div>
-        <div className="float-end my-4 mx-1">
+        <div className="float my-4 mx-1">
           <Button
-            classType="secondary me-2 px-4 py-2"
-            label="BATAL"
+            classType="outline-secondary me-2 px-4 py-2"
+            label="Back"
             onClick={() => onChangePage("index")}
           />
           <Button
             classType="primary ms-2 px-4 py-2"
             type="submit"
-            label="SIMPAN"
+            label="Save"
+            
           />
         </div>
       </form>
