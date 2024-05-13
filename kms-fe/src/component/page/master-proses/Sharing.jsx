@@ -169,72 +169,15 @@ export default function MasterProdukAdd({ onChangePage }) {
 
         <div className="card">
           <div className="card-header bg-outline-primary fw-medium text-black">
-            Tambah Materi
+            Tambah Sharing Expert
           </div>
           <div className="card-body p-4">
             <div className="row">
-              <div className="col-lg-6">
-                <Input
-                  type="text"
-                  forInput="namaProduk"
-                  label="Kelompok Keahlian"
-                  //isRequired
-                  value={formDataRef.current.namaProduk}
-                  onChange={handleInputChange}
-                  errorMessage={errors.namaProduk}
-                />
-              </div>
-              <div className="col-lg-6">
-                <DropDown
-                  forInput="jenisProduk"
-                  label="Kategori"
-                  arrData={listJenisProduk}
-                  value={formDataRef.current.jenisProduk}
-                  onChange={handleInputChange}
-                  errorMessage={errors.jenisProduk}
-                />
-              </div>
-              <div className="col-lg-6">
-                <Input
-                  type="text"
-                  forInput="namaProduk"
-                  label="Nama Materi"
-                  value={formDataRef.current.namaProduk}
-                  onChange={handleInputChange}
-                  errorMessage={errors.namaProduk}
-                />
-              </div>
-              <div className="col-lg-6">
-                <Input
-                  type="text"
-                  forInput="namaProduk"
-                  label="Pengenalan Materi"
-                  value={formDataRef.current.namaProduk}
-                  onChange={handleInputChange}
-                  errorMessage={errors.namaProduk}
-                />
-              </div>
-              <div className="col-lg-12">
-                <div className="form-group">
-                  <label htmlFor="deskripsiMateri" className="form-label fw-bold">
-                    Deskripsi Materi
-                  </label>
-                  <textarea
-                    id="deskripsiMateri"
-                    name="deskripsiMateri"
-                    className={`form-control ${errors.deskripsiMateri ? 'is-invalid' : ''}`}
-                    value={formDataRef.current.deskripsiMateri}
-                    onChange={handleInputChange}
-                  />
-                  {errors.deskripsiMateri && (
-                    <div className="invalid-feedback">{errors.deskripsiMateri}</div>
-                  )}
-                </div>
-              </div>
+              
               <div className="col-lg-6">
                 <FileUpload
                   forInput="materiPdf"
-                  label="Materi (PDF)"
+                  label="Sharing Expert (PDF)"
                   formatFile=".pdf,.jpg,.png"
                   ref={fileGambarRef}
                   onChange={() =>
@@ -246,7 +189,7 @@ export default function MasterProdukAdd({ onChangePage }) {
               <div className="col-lg-6">
                 <FileUpload
                   forInput="materiPdf"
-                  label="Materi (Video)"
+                  label="Sharing Expert (Video)"
                   formatFile=".pdf,.jpg,.png"
                   ref={fileGambarRef}
                   onChange={() =>
@@ -262,13 +205,13 @@ export default function MasterProdukAdd({ onChangePage }) {
           <Button
             classType="outline-secondary me-2 px-4 py-2"
             label="Batal"
-            onClick={() => onChangePage("index")}
+            onClick={() => onChangePage("posttest")}
           />
           <Button
             classType="primary ms-2 px-4 py-2"
             type="submit"
             label="Simpan"
-            onClick={() => onChangePage("posttest")}
+            onClick={() => onChangePage("index")}
           />
         </div>
       </form>

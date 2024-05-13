@@ -167,7 +167,7 @@ export default function MasterProsesEdit({ onChangePage, withID }) {
                   errorMessage={errors.materiPdf}
                 />
               </div>
-              <div className="col-lg-6">
+              {/* <div className="col-lg-6">
                 <FileUpload
                   forInput="gambarProduk"
                   label="Sharing Expert"
@@ -178,7 +178,7 @@ export default function MasterProsesEdit({ onChangePage, withID }) {
                   }
                   errorMessage={errors.gambarProduk}
                 />
-              </div>
+              </div> */}
             </div>
           </div>
         </div>

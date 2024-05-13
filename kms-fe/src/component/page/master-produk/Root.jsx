@@ -15,7 +15,7 @@ export default function MasterProduk() {
         return <MasterProdukIndex onChangePage={handleSetPageMode} />;
       case "add":
         return <MasterProdukAdd onChangePage={handleSetPageMode} />;
-      case "materi":
+      case "addmateri":
         return <MasterProsesAdd onChangePage={handleSetPageMode} />;
       case "detail":
         return (
