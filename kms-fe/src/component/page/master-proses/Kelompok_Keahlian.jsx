@@ -145,13 +145,15 @@ export default function SubKKIndex({ onChangePage }) {
                           overflow: "hidden",
                         }}
                       >
-                        Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                        Tenetur in omnis aspernatur velit harum amet ipsam
-                        necessitatibus voluptatem quam aperiam debitis, sequi
-                        error sed id inventore. Ad id aliquid, expedita, ratione
-                        optio repellendus rem rerum esse sapiente excepturi
-                        earum. Sit fugit voluptatibus eligendi fugiat sint
-                        obcaecati ab. Dignissimos, ab ut?
+                        Manajemen Sumber Daya Manusia (HRM) adalah suatu pendekatan 
+                        strategis untuk mengelola orang-orang di sebuah organisasi agar 
+                        mencapai tujuan organisasi dengan efektif. Ini melibatkan 
+                        perencanaan, pengorganisasian, pengarahan, dan pengendalian 
+                        sumber daya manusia organisasi untuk mencapai tujuan yang ditetapkan. 
+                        Manajemen Sumber Daya Manusia memainkan peran penting dalam 
+                        kesuksesan jangka panjang suatu organisasi dengan memastikan 
+                        bahwa organisasi memiliki karyawan yang berkualitas, termotivasi, 
+                        dan berkinerja tinggi.
                       </p>
                       <CardProgram isOpen={isOpen} onChangePage={onChangePage} />
                       <CardProgram isOpen={isOpen} onChangePage={onChangePage} />

@@ -93,8 +93,8 @@ const CardProgram = ({ isOpen, onChangePage }) => {
                 <div className="d-flex mt-2">
                   <div className="me-2 bg-primary ps-1"></div>
                   <p className="card-subtitle">
-                    Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                    Inventore, quae!
+                    Berisi dasar-dasar fundamental tentang ilmu Manajemen 
+                    Sumber Daya Manusia.
                   </p>
                 </div>
                 <div className="d-flex justify-content-end mt-3">
@@ -104,21 +104,6 @@ const CardProgram = ({ isOpen, onChangePage }) => {
                     cssClass="btn px-2 py-0 text-primary"
                     title="Detail"
                   />
-                  <div
-                    className="form-check form-switch py-0 ms-2"
-                    style={{ width: "fit-content" }}
-                  >
-                    <Input
-                      type="checkbox"
-                      forInput=""
-                      label=""
-                      className="form-check-input"
-                    />
-                    <label
-                      className="form-check-label"
-                      htmlFor="flexSwitchCheckDefault"
-                    ></label>
-                  </div>
                   <Icon
                       name="paper-plane"
                       type="Bold"
@@ -134,7 +119,7 @@ const CardProgram = ({ isOpen, onChangePage }) => {
             <div className="card card-kategori-program mt-3">
               <div className="card-body">
                 <div className="d-flex justify-content-between">
-                  <h6 className="card-title">HR Generalist Fundamental</h6>
+                  <h6 className="card-title">Manajemen Pengembangan SDM</h6>
                   <div>
                     <Icon
                       name="file"
@@ -147,9 +132,9 @@ const CardProgram = ({ isOpen, onChangePage }) => {
                 </div>
                 <div className="d-flex mt-2">
                   <div className="me-2 bg-primary ps-1"></div>
-                  <p className="card-subtitle">
-                    Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                    Inventore, quae!
+                  <p className="card-subtitle"> 
+                    Berisi perencanaan pengembangan karyawan, mulai dari 
+                    pelatihan hingga evaluasi.
                   </p>
                 </div>
                 <div className="d-flex justify-content-end mt-3">
@@ -159,21 +144,7 @@ const CardProgram = ({ isOpen, onChangePage }) => {
                     cssClass="btn px-2 py-0 text-primary"
                     title="Detail"
                   />
-                  <div
-                    className="form-check form-switch py-0 ms-2"
-                    style={{ width: "fit-content" }}
-                  >
-                    <Input
-                      type="checkbox"
-                      forInput=""
-                      label=""
-                      className="form-check-input"
-                    />
-                    <label
-                      className="form-check-label"
-                      htmlFor="flexSwitchCheckDefault"
-                    ></label>
-                  </div>
+                  
                   <Icon
                       name="paper-plane"
                       type="Bold"
@@ -189,7 +160,7 @@ const CardProgram = ({ isOpen, onChangePage }) => {
             <div className="card card-kategori-program mt-3">
               <div className="card-body">
                 <div className="d-flex justify-content-between">
-                  <h6 className="card-title">HR Generalist Fundamental</h6>
+                  <h6 className="card-title">Proses Perekrutan dan Seleksi</h6>
                   <div>
                     <Icon
                       name="file"
@@ -203,8 +174,8 @@ const CardProgram = ({ isOpen, onChangePage }) => {
                 <div className="d-flex mt-2">
                   <div className="me-2 bg-primary ps-1"></div>
                   <p className="card-subtitle">
-                    Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                    Inventore, quae!
+                    Berisi metode perekrutan, teknik seleksi, dan 
+                    etika dalam perekrutan dan seleksi.
                   </p>
                 </div>
                 <div className="d-flex justify-content-end mt-3 align-items-center">

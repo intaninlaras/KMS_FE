@@ -11,6 +11,7 @@ import Input from "../../part/Input";
 import FileUpload from "../../part/FileUpload";
 import Loading from "../../part/Loading";
 import Alert from "../../part/Alert";
+import { Stepper } from 'react-form-stepper';
 
 const listJenisProduk = [
   { Value: "Part", Text: "Part" },
@@ -131,6 +132,16 @@ export default function MasterProdukAdd({ onChangePage }) {
         </div>
       )}
       <form onSubmit={handleAdd}>
+      <Stepper
+            steps={[
+              { label: 'Materi' },
+              { label: 'Pretest' },
+              { label: 'Post Test' },
+              { label: 'Sharing Expert'},
+              { label: 'Forum'  }
+            ]}
+            activeStep={5} 
+          />
         <div className="card">
           <div className="card-header bg-outline-primary fw-medium text-black">
             Tambah Materi
@@ -163,7 +174,6 @@ export default function MasterProdukAdd({ onChangePage }) {
                   type="text"
                   forInput="namaProduk"
                   label="Nama Materi"
-                  isRequired
                   value={formDataRef.current.namaProduk}
                   onChange={handleInputChange}
                   errorMessage={errors.namaProduk}
@@ -174,7 +184,6 @@ export default function MasterProdukAdd({ onChangePage }) {
                   type="text"
                   forInput="namaProduk"
                   label="Pengenalan Materi"
-                  isRequired
                   value={formDataRef.current.namaProduk}
                   onChange={handleInputChange}
                   errorMessage={errors.namaProduk}
@@ -183,7 +192,7 @@ export default function MasterProdukAdd({ onChangePage }) {
               <div className="col-lg-12">
                 <div className="form-group">
                   <label htmlFor="deskripsiMateri" className="form-label fw-bold">
-                    Deskripsi Materi <span className="text-danger">*</span>
+                    Deskripsi Materi
                   </label>
                   <textarea
                     id="deskripsiMateri"
@@ -191,7 +200,6 @@ export default function MasterProdukAdd({ onChangePage }) {
                     className={`form-control ${errors.deskripsiMateri ? 'is-invalid' : ''}`}
                     value={formDataRef.current.deskripsiMateri}
                     onChange={handleInputChange}
-                    required
                   />
                   {errors.deskripsiMateri && (
                     <div className="invalid-feedback">{errors.deskripsiMateri}</div>
@@ -202,7 +210,6 @@ export default function MasterProdukAdd({ onChangePage }) {
                 <FileUpload
                   forInput="materiPdf"
                   label="Materi (PDF)"
-                  isRequired
                   formatFile=".pdf,.jpg,.png"
                   ref={fileGambarRef}
                   onChange={() =>
@@ -215,7 +222,6 @@ export default function MasterProdukAdd({ onChangePage }) {
                 <FileUpload
                   forInput="materiPdf"
                   label="Materi (Video)"
-                  isRequired
                   formatFile=".pdf,.jpg,.png"
                   ref={fileGambarRef}
                   onChange={() =>
@@ -249,6 +255,7 @@ export default function MasterProdukAdd({ onChangePage }) {
             classType="primary ms-2 px-4 py-2"
             type="submit"
             label="Simpan"
+            onClick={() => onChangePage("posttest")}
           />
         </div>
       </form>

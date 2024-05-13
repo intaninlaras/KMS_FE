@@ -18,7 +18,7 @@ export default function MasterProses() {
         return <MasterProsesAdd onChangePage={handleSetPageMode} />;
       case "kk":
         return <PilihKelompokKeahlian onChangePage={handleSetPageMode} />;
-        case "posttest":
+      case "posttest":
         return <MasterPostTestAdd onChangePage={handleSetPageMode} />;
       case "detail":
         return (
