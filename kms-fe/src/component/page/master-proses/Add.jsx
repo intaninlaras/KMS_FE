@@ -132,7 +132,9 @@ export default function MasterProdukAdd({ onChangePage }) {
         </div>
       )}
       <form onSubmit={handleAdd}>
-      <Stepper
+        <div>
+        <Stepper
+                    
             steps={[
               { label: 'Materi' },
               { label: 'Pretest' },
@@ -141,7 +143,30 @@ export default function MasterProdukAdd({ onChangePage }) {
               { label: 'Forum'  }
             ]}
             activeStep={5} 
+            styleConfig={{
+              activeBgColor: '#67ACE9', // Warna latar belakang langkah aktif
+              activeTextColor: '#FFFFFF', // Warna teks langkah aktif
+              completedBgColor: '#67ACE9', // Warna latar belakang langkah selesai
+              completedTextColor: '#FFFFFF', // Warna teks langkah selesai
+              inactiveBgColor: '#E0E0E0', // Warna latar belakang langkah non-aktif
+              inactiveTextColor: '#000000', // Warna teks langkah non-aktif
+              size: '2em', // Ukuran langkah
+              circleFontSize: '1rem', // Ukuran font label langkah
+              labelFontSize: '0.875rem', // Ukuran font label langkah
+              borderRadius: '50%', // Radius sudut langkah
+              fontWeight: 500 // Ketebalan font label langkah
+            }}
+            connectorStyleConfig={{
+              completedColor: '#67ACE9', // Warna penghubung selesai
+              activeColor: '#67ACE9', // Warna penghubung aktif
+              disabledColor: '#BDBDBD', // Warna penghubung non-aktif
+              size: 1, // Ketebalan penghubung
+              stepSize: '2em', // Ukuran langkah, digunakan untuk menghitung ruang yang dipadatkan antara langkah dan awal penghubung
+              style: 'solid' // Gaya penghubung
+            }}
           />
+        </div>
+
         <div className="card">
           <div className="card-header bg-outline-primary fw-medium text-black">
             Tambah Materi

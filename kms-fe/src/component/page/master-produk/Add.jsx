@@ -12,11 +12,10 @@ export default function MasterProdukAdd({ onChangePage }) {
   const [isLoading, setIsLoading] = useState(false);
   const [correctAnswers, setCorrectAnswers] = useState({});
 
-
   const addQuestion = (questionType) => {
     const newQuestion = {
       type: questionType,
-      text: `Pertanyaan ${formContent.length + 1}`,
+      text: `Question ${formContent.length + 1}`,
       options: [],
       point: 0,
     };
@@ -89,8 +88,6 @@ export default function MasterProdukAdd({ onChangePage }) {
     }
   };
   
-  
-
   const handleChangeQuestion = (index) => {
     const updatedFormContent = [...formContent];
     const question = updatedFormContent[index];
@@ -134,7 +131,6 @@ export default function MasterProdukAdd({ onChangePage }) {
     setSelectedOptions(updatedSelectedOptions);
     setCustomOptionLabels(updatedCustomOptionLabels);
   };
-  
 
   const handleDuplicateQuestion = (index) => {
     const duplicatedQuestion = { ...formContent[index] };
@@ -202,16 +198,39 @@ export default function MasterProdukAdd({ onChangePage }) {
         `}
       </style>
       <form onSubmit={handleAdd}>
-        <Stepper
-          steps={[
-            { label: 'Materi' },
-            { label: 'Pretest' },
-            { label: 'Post Test' },
-            { label: 'Sharing Expert'},
-            { label: 'Forum'  }
-          ]}
-          activeStep={5} 
-        />
+        <div>
+          <Stepper
+            steps={[
+              { label: 'Materi' },
+              { label: 'Pretest' },
+              { label: 'Post Test' },
+              { label: 'Sharing Expert'},
+              { label: 'Forum'  }
+            ]}
+            activeStep={5} 
+            styleConfig={{
+              activeBgColor: '#67ACE9',
+              activeTextColor: '#FFFFFF',
+              completedBgColor: '#67ACE9',
+              completedTextColor: '#FFFFFF',
+              inactiveBgColor: '#E0E0E0',
+              inactiveTextColor: '#000000',
+              size: '2em',
+              circleFontSize: '1rem',
+              labelFontSize: '0.875rem',
+              borderRadius: '50%',
+              fontWeight: 500
+            }}
+            connectorStyleConfig={{
+              completedColor: '#67ACE9',
+              activeColor: '#67ACE9',
+              disabledColor: '#BDBDBD',
+              size: 1,
+              stepSize: '2em',
+              style: 'solid'
+            }}
+          />
+        </div>
         <div className="card">
           <div className="card-header bg-primary fw-medium text-white">
             Tambah Post Test Baru
@@ -254,7 +273,7 @@ export default function MasterProdukAdd({ onChangePage }) {
                   <span>Point: {question.point}</span> {/* Tampilkan point di sini */}
                   <div className="col-lg-2">
                     <select className="form-select" aria-label="Default select example" onChange={(e) => handleQuestionTypeChange(e, index)}>
-                      <option selected disabled>Pilih jenis pertanyaan...</option>
+                     
                       <option value="essay">Essay</option>
                       <option value="multiple_choice">Multiple Choice</option>
                     </select>
@@ -294,7 +313,7 @@ export default function MasterProdukAdd({ onChangePage }) {
                         </div>
                         <Input
     type="text"
-    label="Jawaban Benar"
+    label="Correct Answer"
     value={question.correctAnswer || ""}
     onChange={(e) => {
       const updatedFormContent = [...formContent];
@@ -372,13 +391,15 @@ export default function MasterProdukAdd({ onChangePage }) {
                               />
                             </div>
                           ))}
-                          <Button
-                            onClick={() => handleAddOption(index)}
-                            iconName="add"
-                            classType="primary btn-sm ms-2 px-3 py-1"
-                            label="Tambahkan Opsi"
-                            disabled={question.type === "answer"|| question.type === "essay"}
-                          />
+                          {question.type === "multiple_choice" && (
+  <Button
+    onClick={() => handleAddOption(index)}
+    iconName="add"
+    classType="primary btn-sm ms-2 px-3 py-1"
+    label="Tambahkan Opsi"
+  />
+)}
+
                         </div>
                       )}
                       <div className="d-flex justify-content-between my-2 mx-1">
@@ -386,7 +407,7 @@ export default function MasterProdukAdd({ onChangePage }) {
                           <Button
                             iconName="check"
                             classType="primary btn-sm ms-2 px-3 py-1"
-                            label="Kunci Jawaban"
+                            label="Answer Key"
                             onClick={() => handleChangeQuestion(index)}
                           />
                         </div>
