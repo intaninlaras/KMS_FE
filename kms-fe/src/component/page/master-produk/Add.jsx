@@ -259,7 +259,6 @@ export default function MasterProdukAdd({ onChangePage }) {
                   onClick={() => addQuestion("essay")}
                   iconName="plus"
                   classType="primary btn-sm px-3 py-1"
-                  
                 />
                 <Button
                   iconName="upload"
@@ -274,7 +273,6 @@ export default function MasterProdukAdd({ onChangePage }) {
                   <span>Point: {question.point}</span> {/* Tampilkan point di sini */}
                   <div className="col-lg-2">
                     <select className="form-select" aria-label="Default select example" onChange={(e) => handleQuestionTypeChange(e, index)}>
-                     
                       <option value="essay">Essay</option>
                       <option value="multiple_choice">Multiple Choice</option>
                     </select>
@@ -313,15 +311,15 @@ export default function MasterProdukAdd({ onChangePage }) {
                           ))}
                         </div>
                         <Input
-    type="text"
-    label="Correct Answer"
-    value={question.correctAnswer || ""}
-    onChange={(e) => {
-      const updatedFormContent = [...formContent];
-      updatedFormContent[index].correctAnswer = e.target.value;
-      setFormContent(updatedFormContent);
-    }}
-  />
+                          type="text"
+                          label="Correct Answer"
+                          value={question.correctAnswer || ""}
+                          onChange={(e) => {
+                            const updatedFormContent = [...formContent];
+                            updatedFormContent[index].correctAnswer = e.target.value;
+                            setFormContent(updatedFormContent);
+                          }}
+                        />
                         <Input
                           type="number"
                           label="Point"
@@ -393,14 +391,13 @@ export default function MasterProdukAdd({ onChangePage }) {
                             </div>
                           ))}
                           {question.type === "multiple_choice" && (
-  <Button
-    onClick={() => handleAddOption(index)}
-    iconName="add"
-    classType="primary btn-sm ms-2 px-3 py-1"
-    label="New Option"
-  />
-)}  
-
+                            <Button
+                              onClick={() => handleAddOption(index)}
+                              iconName="add"
+                              classType="primary btn-sm ms-2 px-3 py-1"
+                              label="New Option"
+                            />
+                          )}  
                         </div>
                       )}
                       <div className="d-flex justify-content-between my-2 mx-1">
@@ -439,13 +436,13 @@ export default function MasterProdukAdd({ onChangePage }) {
         <div className="float my-4 mx-1">
           <Button
             classType="outline-secondary me-2 px-4 py-2"
-            label="BATAL"
+            label="Back"
             onClick={() => onChangePage("add")}
           />
           <Button
             classType="primary ms-2 px-4 py-2"
             type="submit"
-            label="SIMPAN"
+            label="Save"
             onClick={() => onChangePage("sharingexpert")}
           />
         </div>
