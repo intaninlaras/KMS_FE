@@ -99,12 +99,6 @@ const CardProgram = ({ isOpen, onChangePage }) => {
                 </div>
                 <div className="d-flex justify-content-end mt-3">
                   <Icon
-                    name="list"
-                    type="Bold"
-                    cssClass="btn px-2 py-0 text-primary"
-                    title="Detail"
-                  />
-                  <Icon
                       name="paper-plane"
                       type="Bold"
                       cssClass="btn px-2 py-0 text-primary"
@@ -138,13 +132,6 @@ const CardProgram = ({ isOpen, onChangePage }) => {
                   </p>
                 </div>
                 <div className="d-flex justify-content-end mt-3">
-                  <Icon
-                    name="list"
-                    type="Bold"
-                    cssClass="btn px-2 py-0 text-primary"
-                    title="Detail"
-                  />
-                  
                   <Icon
                       name="paper-plane"
                       type="Bold"
@@ -180,12 +167,12 @@ const CardProgram = ({ isOpen, onChangePage }) => {
                 </div>
                 <div className="d-flex justify-content-end mt-3 align-items-center">
                   <div className="d-flex justify-content-end">
-                    <Icon
+                    {/* <Icon
                       name="list"
                       type="Bold"
                       cssClass="btn px-2 py-0 text-primary"
                       title="Detail"
-                    />
+                    /> */}
                     <Icon
                       name="paper-plane"
                       type="Bold"
