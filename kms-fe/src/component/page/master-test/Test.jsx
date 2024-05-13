@@ -12,8 +12,16 @@ import FileUpload from "../../part/FileUpload";
 import Loading from "../../part/Loading";
 import Alert from "../../part/Alert";
 import KMS_Sidebar from '../../backbone/KMS_SideBar';
+import Sidebar from '../../backbone/SideBar';
+import styled from 'styled-components';
+import KMS_Uploader from "../../part/KMS_Uploader";
+
+const responsiveContainer = styled.div`
+  margin-left: 0;
+`;
 
 export default function PengerjaanTest({ onChangePage }) {
+  const [showSidebar, setShowSidebar] = useState(true);
   const [errors, setErrors] = useState({});
   const [isError, setIsError] = useState({ error: false, message: "" });
   const [isLoading, setIsLoading] = useState(false);
@@ -113,11 +121,13 @@ export default function PengerjaanTest({ onChangePage }) {
   const questionNumbers = Array.from(Array(30).keys());
   const dummyData = [
     {
+      type: "pilgan",
       question: "Apa warna langit?",
       options: ["Merah", "Kuning", "Biru", "Hijau"],
       correctAnswer: "Biru",
     },
     {
+      type: "essay",
       question: "Berapakah hasil dari 2 + 2?",
       options: ["3", "4", "5", "6"],
       correctAnswer: "4",
@@ -275,36 +285,32 @@ export default function PengerjaanTest({ onChangePage }) {
     setSelectedAnswer(answer);
   };
 
-  const testStyle = {
-    sidebarMenu: {
-      display: 'none'
-    }
-  };
 
   return (
     <>
-      <div className="d-flex" style={testStyle.sidebarMenu}>
+      <div className="d-flex">
       <KMS_Sidebar
         questionNumbers={questionNumbers}
         selectedQuestion={selectedQuestion}
         setSelectedQuestion={setSelectedQuestion}
       />
           <div className="flex-fill p-3 d-flex flex-column">
-              {dummyData.map((data, index) => {
-                if (index + 1 !== selectedQuestion) return null;
-                return (
-                  <div key={index} className="mb-3">
-                    {/* Soal */}
-                    <div className="mb-3">
-                      <h4>Soal {index + 1}</h4>
-                      <p>{data.question}</p>
-                    </div>
-                    <h5 className="font-weight-bold">Jawaban Anda:</h5>
-                    {/* Jawaban */}
+          <responsiveContainer className="mb-3">
+            {dummyData.map((data, index) => {
+              if (index + 1 !== selectedQuestion) return null;
+              return (
+                <div key={index} className="mb-3">
+                  {/* Soal */}
+                  <div className="mb-3">
+                    <h4>{data.question}</h4>
+                  </div>
+                  {/* Jawaban */}
+                  {data.type === "essay" ? (
+                    <KMS_Uploader />
+                  ) : (
                     <div className="d-flex flex-column">
-                      {/* Opsi jawaban */}
                       {data.options.map((option, index) => (
-                        <div key={option} className="mb-2">
+                        <div key={option} className="mt-4 mb-2">
                           <button
                             className="btn btn-outline-primary"
                             style={{ width: "40px", height: "40px" }}
@@ -315,13 +321,16 @@ export default function PengerjaanTest({ onChangePage }) {
                         </div>
                       ))}
                     </div>
-                  </div>
-                );
-              })}
+                  )}
+                </div>
+              );
+            })}
+          </responsiveContainer>
         </div>
+
       </div>
       <form onSubmit={handleAdd}>
-        <div className="float-end my-4 mx-1">
+        <div className="float-end my-4 mx-1 " > 
           <Button classType="secondary me-2 px-4 py-2" label="Sebelumnya" onClick={selectPreviousQuestion} />
           <Button classType="primary ms-2 px-4 py-2" label="Berikutnya" onClick={selectNextQuestion} />
         </div>
