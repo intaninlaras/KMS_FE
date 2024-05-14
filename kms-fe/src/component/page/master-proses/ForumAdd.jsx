@@ -162,14 +162,14 @@ export default function MasterPelangganAdd({ onChangePage }) {
                 <Input
                   type="text"
                   forInput="namaProduk"
-                  label="Judul Forum"
+                  label="Forum Title"
           
                 />
               </div>
               <div className="col-lg-12">
                 <div className="form-group">
                   <label htmlFor="deskripsiMateri" className="form-label fw-bold">
-                    Isi Forum
+                  Forum Contents
                   </label>
                   <textarea
                     id="deskripsiMateri"
