@@ -211,7 +211,7 @@ export default function MasterProdukAdd({ onChangePage }) {
             classType="primary ms-2 px-4 py-2"
             type="submit"
             label="Save"
-            onClick={() => onChangePage("index")}
+            onClick={() => onChangePage("forum")}
           />
         </div>
       </form>

@@ -6,6 +6,7 @@ import MasterProsesEdit from "./Edit";
 import PilihKelompokKeahlian from "./Kelompok_Keahlian";
 import MasterPostTestAdd from "../master-produk/Add";
 import SharingExpert from "./Sharing";
+import MasterForumAdd from "../master-pelanggan/Add";
 
 export default function MasterProses() {
   const [pageMode, setPageMode] = useState("kk");
@@ -23,6 +24,8 @@ export default function MasterProses() {
         return <MasterPostTestAdd onChangePage={handleSetPageMode} />;
         case "sharingexpert":
           return <SharingExpert onChangePage={handleSetPageMode} />;
+          case "forum":
+          return <MasterForumAdd onChangePage={handleSetPageMode} />;
       case "detail":
         return (
           <MasterProsesDetail onChangePage={handleSetPageMode} withID={dataID}/>
