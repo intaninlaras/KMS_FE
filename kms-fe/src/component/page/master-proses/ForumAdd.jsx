@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { object, string } from "yup";
 import { API_LINK } from "../../util/Constants";
 import { validateAllInputs, validateInput } from "../../util/ValidateForm";
@@ -13,15 +13,7 @@ import Loading from "../../part/Loading";
 import Alert from "../../part/Alert";
 import { Stepper } from 'react-form-stepper';
 
-const listJenisProduk = [
-  { Value: "Part", Text: "Part" },
-  { Value: "Unit", Text: "Unit" },
-  { Value: "Konstruksi", Text: "Konstruksi" },
-  { Value: "Mass Production", Text: "Mass Production" },
-  { Value: "Lainnya", Text: "Lainnya" },
-];
-
-export default function MasterProdukAdd({ onChangePage }) {
+export default function MasterPelangganAdd({ onChangePage }) {
   const [errors, setErrors] = useState({});
   const [isError, setIsError] = useState({ error: false, message: "" });
   const [isLoading, setIsLoading] = useState(false);
@@ -35,14 +27,7 @@ export default function MasterProdukAdd({ onChangePage }) {
 
   const fileGambarRef = useRef(null);
 
-  const userSchema = object({
-    namaProduk: string()
-      .max(100, "maksimum 100 karakter")
-      .required("harus diisi"),
-    jenisProduk: string().required("harus dipilih"),
-    gambarProduk: string(),
-    spesifikasi: string(),
-  });
+
 
   const handleInputChange = async (e) => {
     const { name, value } = e.target;
@@ -134,15 +119,14 @@ export default function MasterProdukAdd({ onChangePage }) {
       <form onSubmit={handleAdd}>
         <div>
         <Stepper
-                    
-            steps={[
-              { label: 'Course' },
-              { label: 'Pretest' },
-              { label: 'Post Test' },
-              { label: 'Sharing Expert'},
-              { label: 'Forum'  }
+             steps={[
+              { label: 'Pretest', onClick:() => onChangePage("pretestAdd")},
+              { label: 'Course' ,onClick:() => onChangePage("courseAdd")},
+              { label: 'Forum' ,onClick:() => onChangePage("forumAdd") },
+              { label: 'Sharing Expert',onClick:() => onChangePage("sharingAdd")},
+              { label: 'Post Test',onClick:() => onChangePage("posttestAdd") }
             ]}
-            activeStep={5} 
+            activeStep={2} 
             styleConfig={{
               activeBgColor: '#67ACE9', // Warna latar belakang langkah aktif
               activeTextColor: '#FFFFFF', // Warna teks langkah aktif
@@ -169,55 +153,23 @@ export default function MasterProdukAdd({ onChangePage }) {
 
         <div className="card">
           <div className="card-header bg-outline-primary fw-medium text-black">
-            Add Course
+            Add Forum
           </div>
           <div className="card-body p-4">
             <div className="row">
-              <div className="col-lg-6">
+              
+            <div className="col-lg-12">
                 <Input
                   type="text"
                   forInput="namaProduk"
-                  label="Kelompok Keahlian"
-                  //isRequired
-                  value={formDataRef.current.namaProduk}
-                  onChange={handleInputChange}
-                  errorMessage={errors.namaProduk}
-                />
-              </div>
-              <div className="col-lg-6">
-                <DropDown
-                  forInput="jenisProduk"
-                  label="Kategori"
-                  arrData={listJenisProduk}
-                  value={formDataRef.current.jenisProduk}
-                  onChange={handleInputChange}
-                  errorMessage={errors.jenisProduk}
-                />
-              </div>
-              <div className="col-lg-6">
-                <Input
-                  type="text"
-                  forInput="namaProduk"
-                  label="Nama Materi"
-                  value={formDataRef.current.namaProduk}
-                  onChange={handleInputChange}
-                  errorMessage={errors.namaProduk}
-                />
-              </div>
-              <div className="col-lg-6">
-                <Input
-                  type="text"
-                  forInput="namaProduk"
-                  label="Pengenalan Materi"
-                  value={formDataRef.current.namaProduk}
-                  onChange={handleInputChange}
-                  errorMessage={errors.namaProduk}
+                  label="Judul Forum"
+          
                 />
               </div>
               <div className="col-lg-12">
                 <div className="form-group">
                   <label htmlFor="deskripsiMateri" className="form-label fw-bold">
-                    Deskripsi Materi
+                    Isi Forum
                   </label>
                   <textarea
                     id="deskripsiMateri"
@@ -231,30 +183,6 @@ export default function MasterProdukAdd({ onChangePage }) {
                   )}
                 </div>
               </div>
-              <div className="col-lg-6">
-                <FileUpload
-                  forInput="materiPdf"
-                  label="Materi (PDF)"
-                  formatFile=".pdf,.jpg,.png"
-                  ref={fileGambarRef}
-                  onChange={() =>
-                    handleFileChange(fileGambarRef, "pdf,jpg,png")
-                  }
-                  errorMessage={errors.materiPdf}
-                />
-              </div>
-              <div className="col-lg-6">
-                <FileUpload
-                  forInput="materiPdf"
-                  label="Materi (Video)"
-                  formatFile=".pdf,.jpg,.png"
-                  ref={fileGambarRef}
-                  onChange={() =>
-                    handleFileChange(fileGambarRef, "pdf,jpg,png")
-                  }
-                  errorMessage={errors.materiPdf}
-                />
-              </div>
             </div>
           </div>
         </div>
@@ -262,13 +190,13 @@ export default function MasterProdukAdd({ onChangePage }) {
           <Button
             classType="outline-secondary me-2 px-4 py-2"
             label="Back"
-            onClick={() => onChangePage("index")}
+            onClick={() => onChangePage("courseAdd")}
           />
           <Button
             classType="primary ms-2 px-4 py-2"
             type="submit"
             label="Save"
-            onClick={() => onChangePage("posttest")}
+            onClick={() => onChangePage("sharingAdd")}
           />
         </div>
       </form>

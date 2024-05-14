@@ -154,7 +154,7 @@ export default function MasterProsesIndex({ onChangePage }) {
                   classType="success"
                   title="Tambah Materi"
                   label="Add Course"
-                  onClick={() => onChangePage("add")}
+                  onClick={() => onChangePage("pretestAdd")}
                 />
                 <Input
                   ref={searchQuery}
