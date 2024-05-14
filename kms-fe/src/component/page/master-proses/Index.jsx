@@ -153,13 +153,13 @@ export default function MasterProsesIndex({ onChangePage }) {
                   iconName="add"
                   classType="success"
                   title="Tambah Materi"
-                  label="Tambah"
+                  label="Add Course"
                   onClick={() => onChangePage("add")}
                 />
                 <Input
                   ref={searchQuery}
                   forInput="pencarianProduk"
-                  placeholder="Pencarian"
+                  placeholder="Search"
                 />
                 <Button
                   iconName="search"
@@ -233,7 +233,7 @@ export default function MasterProsesIndex({ onChangePage }) {
         <div className="float my-4 mx-1">
           <Button
             classType="outline-secondary me-2 px-4 py-2"
-            label="Kembali"
+            label="Back"
             onClick={() => onChangePage("kk")}
           />
         </div>

@@ -169,7 +169,7 @@ export default function MasterProdukAdd({ onChangePage }) {
 
         <div className="card">
           <div className="card-header bg-outline-primary fw-medium text-black">
-            Tambah Sharing Expert
+            Add Sharing Expert
           </div>
           <div className="card-body p-4">
             <div className="row">

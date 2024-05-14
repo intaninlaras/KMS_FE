@@ -136,7 +136,7 @@ export default function MasterProdukAdd({ onChangePage }) {
         <Stepper
                     
             steps={[
-              { label: 'Materi' },
+              { label: 'Course' },
               { label: 'Pretest' },
               { label: 'Post Test' },
               { label: 'Sharing Expert'},
@@ -169,7 +169,7 @@ export default function MasterProdukAdd({ onChangePage }) {
 
         <div className="card">
           <div className="card-header bg-outline-primary fw-medium text-black">
-            Tambah Materi
+            Add Course
           </div>
           <div className="card-body p-4">
             <div className="row">
