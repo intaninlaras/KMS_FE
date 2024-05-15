@@ -16,6 +16,9 @@ function checkIcon(menu) {
     case "Beranda":
       menuIcon = "home";
       break;
+      case "Daftar Pustaka":
+      menuIcon = "book";
+      break;
   }
 
   return menuIcon;
@@ -45,7 +48,7 @@ export default function Menu({ listMenu }) {
         return (
           <div key={"#menucollapse" + menu["headkey"]}>
             <a
-              className="text-decoration-none text-black fw-bold"
+              className="text-decoration-none text-black "
               data-bs-toggle={menu["link"] === "#" ? "collapse" : ""}
               href={
                 menu["link"] === "#"
