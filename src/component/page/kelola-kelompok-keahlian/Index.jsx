@@ -108,10 +108,11 @@ export default function KKIndex({ onChangePage }) {
               data: {
                 id: value.Key,
                 title: value["Nama Kelompok Keahlian"],
-                prodi: value.Prodi,
+                prodi: { key: value["Kode Prodi"], nama: value.Prodi },
+                pic: { key: value["Kode Karyawan"], nama: value.PIC },
                 desc: value.Deskripsi,
-                members: value.Members || [], // pastikan members selalu berupa array
-                memberCount: value.Count || 0, // pastikan memberCount selalu ada
+                members: value.Members || [],
+                memberCount: value.Count || 0,
               },
             };
           });
@@ -168,14 +169,30 @@ export default function KKIndex({ onChangePage }) {
           </div>
           <div className="container">
             <div className="row mt-3 gx-4">
-              {currentData.map((value) => (
-                <CardKK
-                  key={value.data.id}
-                  config={value.config}
-                  data={value.data}
-                  onChangePage={onChangePage}
-                />
-              ))}
+              {currentData
+                .filter((value) => {
+                  return value.config.footer === "Draft";
+                })
+                .map((value) => (
+                  <CardKK
+                    key={value.data.id}
+                    config={value.config}
+                    data={value.data}
+                    onChangePage={onChangePage}
+                  />
+                ))}
+              {currentData
+                .filter((value) => {
+                  return value.config.footer != "Draft";
+                })
+                .map((value) => (
+                  <CardKK
+                    key={value.data.id}
+                    config={value.config}
+                    data={value.data}
+                    onChangePage={onChangePage}
+                  />
+                ))}
             </div>
           </div>
         </div>

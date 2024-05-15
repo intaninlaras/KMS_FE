@@ -16,57 +16,55 @@ export default function KKEdit({ onChangePage, withID }) {
   const [listKaryawan, setListKaryawan] = useState({});
 
   const formDataRef = useRef({
-    Key: "",
-    ["Nama Kelompok Keahlian"]: "",
-    Prodi: "",
-    PIC: "",
-    Deskripsi: "",
+    key: "",
+    nama: "",
+    programStudi: "",
+    personInCharge: "",
+    deskripsi: "",
   });
 
   const userSchema = object({
-    ["Nama Kelompok Keahlian"]: string()
-      .max(100, "maksimum 100 karakter")
-      .required("harus diisi"),
-    Prodi: string().required("harus dipilih"),
-    PIC: string().required("harus dipilih"),
-    Deskripsi: string(),
+    nama: string().max(100, "maksimum 100 karakter").required("harus diisi"),
+    deskripsi: string(),
+    programStudi: string().required("harus dipilih"),
+    personInCharge: string(),
   });
 
   useEffect(() => {
-    const fetchData = async () => {
-      setIsError((prevError) => ({ ...prevError, error: false }));
-      setIsLoading(true);
-
-      try {
-        const data = await UseFetch(API_LINK + "KKs/GetDataKKByID", {
-          id: withID,
-        });
-
-        if (data === "ERROR" || data.length === 0) {
-          throw new Error(
-            "Terjadi kesalahan: Gagal mengambil data kelompok keahlian."
-          );
-        } else {
-          formDataRef.current = { ...formDataRef.current, ...data[0] };
-        }
-      } catch (error) {
-        setIsError({ error: true, message: error.message });
-      } finally {
-        setIsLoading(false);
-      }
+    formDataRef.current = {
+      key: withID.id,
+      nama: withID.title,
+      programStudi: withID.prodi.key,
+      personInCharge: withID.pic.key,
+      deskripsi: withID.desc,
     };
-
-    fetchData();
   }, [withID]);
 
+  const handleInputChange = async (e) => {
+    const { name, value } = e.target;
+
+    try {
+      if (name === "personInCharge" && value === "") {
+        setErrors((prevErrors) => ({ ...prevErrors, [name]: "" }));
+      } else {
+        await userSchema.validateAt(name, { [name]: value });
+        setErrors((prevErrors) => ({ ...prevErrors, [name]: "" }));
+      }
+    } catch (error) {
+      setErrors((prevErrors) => ({ ...prevErrors, [name]: error.message }));
+    }
+
+    formDataRef.current[name] = value;
+  };
+
   useEffect(() => {
-    const fetchProdi = async () => {
+    const fetchDataProdi = async () => {
       setIsError((prevError) => ({ ...prevError, error: false }));
 
       try {
         const data = await UseFetch(API_LINK + "KKs/GetListProdi", {});
 
-        if (data === "ERROR" || !Array.isArray(data)) {
+        if (data === "ERROR") {
           throw new Error("Terjadi kesalahan: Gagal mengambil daftar prodi.");
         } else {
           setListProdi(data);
@@ -77,21 +75,24 @@ export default function KKEdit({ onChangePage, withID }) {
           error: true,
           message: error.message,
         }));
-        setListProdi([]);
+        setListProdi({});
       }
     };
 
-    fetchProdi();
-  }, []);
+    fetchDataProdi();
+  }, [formDataRef.current]);
 
   useEffect(() => {
-    const fetchKaryawan = async () => {
+    const fetchDataKaryawan = async () => {
       setIsError((prevError) => ({ ...prevError, error: false }));
 
       try {
-        const data = await UseFetch(API_LINK + "KKs/GetListKaryawan", {});
+        const data = await UseFetch(
+          API_LINK + "KKs/GetListKaryawan",
+          formDataRef.current.programStudi
+        );
 
-        if (data === "ERROR" || !Array.isArray(data)) {
+        if (data === "ERROR") {
           throw new Error(
             "Terjadi kesalahan: Gagal mengambil daftar karyawan."
           );
@@ -104,28 +105,60 @@ export default function KKEdit({ onChangePage, withID }) {
           error: true,
           message: error.message,
         }));
-        setListKaryawan([]);
+        setListKaryawan({});
       }
     };
 
-    fetchKaryawan();
-  }, []);
+    fetchDataKaryawan();
+  }, [formDataRef.current.programStudi]);
 
   useEffect(() => {
     console.log(formDataRef.current);
   }, []);
 
-  const handleInputChange = async (e) => {
-    const { name, value } = e.target;
-    const validationError = await validateInput(name, value, userSchema);
-    formDataRef.current[name] = value;
-    setErrors((prevErrors) => ({
-      ...prevErrors,
-      [validationError.name]: validationError.error,
-    }));
-  };
+  const handleAdd = async (e) => {
+    e.preventDefault();
 
-  const handleAdd = async (e) => {};
+    const validationErrors = await validateAllInputs(
+      formDataRef.current,
+      userSchema,
+      setErrors
+    );
+
+    if (Object.values(validationErrors).every((error) => !error)) {
+      setIsLoading(true);
+      setIsError((prevError) => {
+        return { ...prevError, error: false };
+      });
+      setErrors({});
+
+      const dataToSend = { ...formDataRef.current };
+      if (!dataToSend.personInCharge) {
+        dataToSend.personInCharge = "";
+      }
+
+      UseFetch(API_LINK + "KKs/CreateKK", dataToSend)
+        .then((data) => {
+          if (data === "ERROR") {
+            setIsError((prevError) => {
+              return {
+                ...prevError,
+                error: true,
+                message: "Terjadi kesalahan: Gagal menyimpan data produk.",
+              };
+            });
+          } else {
+            SweetAlert(
+              "Sukses",
+              "Data kelompok keahlian berhasil disimpan",
+              "success"
+            );
+            onChangePage("index");
+          }
+        })
+        .then(() => setIsLoading(false));
+    }
+  };
 
   if (isLoading) return <Loading />;
 
@@ -151,9 +184,9 @@ export default function KKEdit({ onChangePage, withID }) {
                   label="Nama Kelompok Keahlian"
                   isRequired
                   placeholder="Nama Kelompok Keahlian"
-                  value={formDataRef.current["Nama Kelompok Keahlian"]}
+                  value={formDataRef.current.nama}
                   onChange={handleInputChange}
-                  errorMessage={errors["Nama Kelompok Keahlian"]}
+                  errorMessage={errors.nama}
                 />
               </div>
               <div className="col-lg-12">
@@ -167,7 +200,7 @@ export default function KKEdit({ onChangePage, withID }) {
                   }}
                   id="Deskripsi"
                   name="Deskripsi"
-                  value={formDataRef.current.Deskripsi}
+                  value={formDataRef.current.deskripsi}
                   onChange={handleInputChange}
                   placeholder="Deskripsi"
                   required
@@ -179,7 +212,7 @@ export default function KKEdit({ onChangePage, withID }) {
                   label="Program Studi"
                   arrData={listProdi}
                   isRequired
-                  value={formDataRef.current.Prodi}
+                  value={formDataRef.current.programStudi}
                   onChange={handleInputChange}
                   errorMessage={errors.jenisProduk}
                 />
@@ -189,7 +222,7 @@ export default function KKEdit({ onChangePage, withID }) {
                   forInput="PIC"
                   label="PIC Kelompok Keahlian"
                   arrData={listKaryawan}
-                  value={formDataRef.current.PIC || ""}
+                  value={formDataRef.current.personInCharge || ""}
                   onChange={handleInputChange}
                   errorMessage={errors.jenisProduk}
                 />

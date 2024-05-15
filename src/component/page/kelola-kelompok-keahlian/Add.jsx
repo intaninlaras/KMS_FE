@@ -28,15 +28,20 @@ export default function KKAdd({ onChangePage }) {
     nama: string().max(100, "maksimum 100 karakter").required("harus diisi"),
     deskripsi: string(),
     programStudi: string().required("harus dipilih"),
-    personInCharge: string().required("harus dipilih"),
+    personInCharge: string(),
   });
 
   const handleInputChange = async (e) => {
     const { name, value } = e.target;
 
     try {
-      await userSchema.validateAt(name, { [name]: value });
-      setErrors((prevErrors) => ({ ...prevErrors, [name]: "" }));
+      // Validasi hanya dilakukan jika personInCharge tidak kosong
+      if (name === "personInCharge" && value === "") {
+        setErrors((prevErrors) => ({ ...prevErrors, [name]: "" }));
+      } else {
+        await userSchema.validateAt(name, { [name]: value });
+        setErrors((prevErrors) => ({ ...prevErrors, [name]: "" }));
+      }
     } catch (error) {
       setErrors((prevErrors) => ({ ...prevErrors, [name]: error.message }));
     }
@@ -74,7 +79,10 @@ export default function KKAdd({ onChangePage }) {
       setIsError((prevError) => ({ ...prevError, error: false }));
 
       try {
-        const data = await UseFetch(API_LINK + "KKs/GetListKaryawan", {});
+        const data = await UseFetch(
+          API_LINK + "KKs/GetListKaryawan",
+          formDataRef.current.programStudi
+        );
 
         if (data === "ERROR") {
           throw new Error(
@@ -94,7 +102,7 @@ export default function KKAdd({ onChangePage }) {
     };
 
     fetchDataKaryawan();
-  }, []);
+  }, [formDataRef.current.programStudi]);
 
   useEffect(() => {
     console.log(formDataRef.current);
@@ -116,7 +124,12 @@ export default function KKAdd({ onChangePage }) {
       });
       setErrors({});
 
-      UseFetch(API_LINK + "KKs/CreateKK", formDataRef.current)
+      const dataToSend = { ...formDataRef.current };
+      if (!dataToSend.personInCharge) {
+        dataToSend.personInCharge = "";
+      }
+
+      UseFetch(API_LINK + "KKs/CreateKK", dataToSend)
         .then((data) => {
           if (data === "ERROR") {
             setIsError((prevError) => {
@@ -160,9 +173,9 @@ export default function KKAdd({ onChangePage }) {
                 <Input
                   type="text"
                   forInput="nama"
-                  label="Nama"
+                  label="Nama Kelompok Keahlian"
                   isRequired
-                  placeholder="Nama"
+                  placeholder="Nama Kelompok Keahlian"
                   value={formDataRef.current.nama}
                   onChange={handleInputChange}
                   errorMessage={errors.nama}
@@ -170,7 +183,8 @@ export default function KKAdd({ onChangePage }) {
               </div>
               <div className="col-lg-12">
                 <label style={{ paddingBottom: "5px", fontWeight: "bold" }}>
-                  Deskripsi <span style={{ color: "red" }}> *</span>
+                  Deskripsi/Ringkasan Mengenai Kelompok Keahlian{" "}
+                  <span style={{ color: "red" }}> *</span>
                 </label>
                 <textarea
                   className="form-control mb-3"
@@ -182,7 +196,7 @@ export default function KKAdd({ onChangePage }) {
                   forInput="deskripsi"
                   value={formDataRef.current.deskripsi}
                   onChange={handleInputChange}
-                  placeholder="Deskripsi"
+                  placeholder="Deskripsi/Ringkasan Mengenai Kelompok Keahlian"
                   required
                 />
               </div>
