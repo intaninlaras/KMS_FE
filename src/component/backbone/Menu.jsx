@@ -16,6 +16,9 @@ function checkIcon(menu) {
     case "Beranda":
       menuIcon = "home";
       break;
+      case "Daftar Pustaka":
+      menuIcon = "book";
+      break;
   }
 
   return menuIcon;
