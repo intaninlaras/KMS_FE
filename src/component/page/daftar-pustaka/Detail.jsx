@@ -7,7 +7,7 @@ import Button from "../../part/Button";
 export default function MasterDaftarPustakaDetail({ onChangePage, withID }) {
     const [isError, setIsError] = useState({ error: false, message: "" });
     const [isLoading, setIsLoading] = useState(true);
-    // console.log(withID);
+    console.log(withID);
 
     return (
         <>
@@ -17,12 +17,12 @@ export default function MasterDaftarPustakaDetail({ onChangePage, withID }) {
                 <div className="card-header fw-medium text-white"
                     style={{ backgroundColor: "#67ACE9" }}
                 >
-                    <h3 className="card-title">{withID.pus_file}</h3>
+                    {/* <h3 className="card-title">{withID.Judul}</h3> */}
                 </div>
                 <div className="card-body">
                     <div className="row">
                         <div className="col-md-3">
-                            <img src={Image}
+                            <img src={withID.Gambar}
                                 alt="gambar"
                                 className="img-fluid"
                                 style={{ width: "300px", height: "400px", borderRight: "2px solid #ccc", paddingRight: "15px" }}
@@ -32,19 +32,19 @@ export default function MasterDaftarPustakaDetail({ onChangePage, withID }) {
                         <div className="mt-0 col-lg-9 mb-2">
                             {/* <h4 className="mb-3">Pratinjau PDF</h4> */}
                             {/* Ganti "file.pdf" dengan sumber PDF yang sesuai */}
-                            <object data={File} type="application/pdf" width="100%" height="400">
-                                <p>Maaf, browser Anda tidak mendukung Preview File. Silakan <a href={Video}>unduh File</a> untuk melihatnya.</p>
+                            <object data={withID.File} type="application/pdf" width="100%" height="400">
+                                {/* <p>Maaf, browser Anda tidak mendukung Preview File. Silakan <a href={Video}>unduh File</a> untuk melihatnya.</p> */}
                             </object>
                         </div>
                         <hr />
                         <div className="col-md-9">
                             <h4 className="mb-3 mt-0">Deskripsi</h4>
-                            <p className="pb-3">{withID.pus_keterangan}</p>
+                            <p className="pb-3">{withID.Keterangan}</p>
                             <p className="text-dark fw-medium mb-0">[ Kata kunci ] </p>
                             <span>
-                                {Array.isArray(withID.pus_kata_kunci)
-                                    ? withID.pus_kata_kunci.join(", ")
-                                    : withID.pus_kata_kunci}
+                                {Array.isArray(withID["Kata Kunci"])
+                                    ? withID["Kata Kunci"].join(", ")
+                                    : withID["Kata Kunci"]}
                             </span>
                         </div>
                     </div>

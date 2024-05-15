@@ -141,7 +141,7 @@ export default function MasterDaftarPustakaAdd({ onChangePage, withID }) {
                 "Data Pustaka berhasil disimpan",
                 "success"
               );
-              navigate("/daftar_pustaka");
+              window.location.reload();
             }
           })
           .then(() => setIsLoading(false));

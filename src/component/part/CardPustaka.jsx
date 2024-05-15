@@ -10,9 +10,9 @@ function CardPustaka({
     filter,
     keahlian,
     menu,
-    onEdit = () => {},
+    onEdit = () => { },
     onDetail = () => { },
-    MAX_DESCRIPTION_LENGTH = 250,
+    MAX_DESCRIPTION_LENGTH = 150,
 }) {
 
     const [expandDeskripsi, setExpandDeskripsi] = useState({});
@@ -30,12 +30,13 @@ function CardPustaka({
                 // if (book["Kelompok Keahlian"] !== filter) {
                 //     return null;
                 // }
-                if(book.Key == null){
+                if (book.Key == null) {
                     return null;
                 }
 
                 return (
-                    <div className="mt-4" key={book.Key}>
+
+                    <div className="mt-4 col-lg-6" key={book.Key}>
                         <div className="card" style={{ borderColor: "#67ACE9", height: "auto" }}>
                             <div className="card-body d-flex align-items-center">
                                 {/* Gambar */}
@@ -47,17 +48,19 @@ function CardPustaka({
 
                                 <div>
                                     {/* Judul Buku */}
-                                    <button className="btn btn-link p-0 text-decoration-none" onClick={() => onDetail("detail", book, keahlian)}>
+                                    <button className="btn btn-link p-0 text-decoration-none" onClick={() => onDetail("detail", "", book)}>
                                         <h5 className="card-title mb-1">{book.Judul}</h5>
                                     </button>
                                     {/* Nama Pengarang */}
                                     <div className="mb-1">
                                         <FontAwesomeIcon icon={faUser} style={{ marginRight: "10px", color: "gray" }} />
-                                        <span>  {uploader}</span>
+                                        <span style={{ fontSize: "12px" }}>  {uploader}</span>
                                     </div>
                                     {/* Deskripsi Buku */}
                                     <div>
-                                        <p className="card-text p-0 m-0">
+                                        <p className="card-text p-0 m-0" style={{
+                                            fontSize: "12px"
+                                        }}>
                                             {book.Keterangan.length > MAX_DESCRIPTION_LENGTH && !expandDeskripsi[book.Key] ? (
                                                 <>
                                                     {book.Keterangan.slice(0, MAX_DESCRIPTION_LENGTH) + " ..."}
