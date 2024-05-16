@@ -186,40 +186,49 @@ function CardKelompokKeahlian({
   } else {
     cardContent = (
       <div className="d-flex justify-content-between">
-        <div className="img-container" style={{ width: "28%" }}>
-          {members.map((person, index) => (
-            <a key={index} href={person.link}>
-              <img
-                src={person.imgSource}
-                alt={person.name}
-                className="img-fluid rounded-circle"
-                width="45"
-                style={{
-                  position: "relative",
-                  left: `${-15 * index}px`,
-                  zIndex: `${3 - index}`,
-                  border: "solid black 1px",
-                }}
-              />
-            </a>
-          ))}
-        </div>
-        <div style={{ width: "55%", marginLeft: "-10px" }}>
-          <p className="lh-sm mb-0">
+        {data.members ? (
+          <div className="img-container" style={{ width: "28%" }}>
             {members.map((person, index) => (
-              <span key={index}>
-                <a
-                  href={person.link}
-                  className="fw-bold text-dark text-decoration-none"
-                >
-                  {person.name}
-                  {", "}
-                </a>
-              </span>
+              <a key={index} href={person.link}>
+                <img
+                  src={person.imgSource}
+                  alt={person.name}
+                  className="img-fluid rounded-circle"
+                  width="45"
+                  style={{
+                    position: "relative",
+                    left: `${-15 * index}px`,
+                    zIndex: `${3 - index}`,
+                    border: "solid black 1px",
+                  }}
+                />
+              </a>
             ))}
-            dan {data.memberCount} Lainnya sudah bergabung!
-          </p>
-        </div>
+          </div>) : (
+            ""
+        )}
+        {data.members ? (<div className="img-container" style={{ width: "28%" }}>
+          {members.map((person, index) => (
+            <div style={{ width: "55%", marginLeft: "-10px" }}>
+              <p className="lh-sm mb-0">
+                {members.map((person, index) => (
+                  <span key={index}>
+                    <a
+                      href={person.link}
+                      className="fw-bold text-dark text-decoration-none"
+                    >
+                      {person.name}
+                      {", "}
+                    </a>
+                  </span>
+                ))}
+                dan {data.memberCount} Lainnya sudah bergabung!
+              </p>
+            </div>
+          ))}
+        </div>) : (
+          ""
+        )}
         <div className="d-flex" style={{ width: "20%" }}>
           <Icon
             name="edit"
