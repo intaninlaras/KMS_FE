@@ -76,7 +76,7 @@ const CardProgram = ({ isOpen, onChangePage }) => {
         <div className="row row-cols-3">
           {/* Card Kategori Program */}
           <div className="col">
-            <div className="card card-kategori-program mt-3">
+            <div className="card card-kategori-program mt-3" onClick={() => onChangePage("index")}>
               <div className="card-body">
                 <div className="d-flex justify-content-between">
                   <h6 className="card-title">HR Generalist Fundamental</h6>
@@ -98,19 +98,12 @@ const CardProgram = ({ isOpen, onChangePage }) => {
                   </p>
                 </div>
                 <div className="d-flex justify-content-end mt-3">
-                  <Icon
-                      name="paper-plane"
-                      type="Bold"
-                      cssClass="btn px-2 py-0 text-primary"
-                      title="Pilih"
-                      onClick={() => onChangePage("index")}
-                    />
                 </div>
               </div>
             </div>
           </div>
           <div className="col">
-            <div className="card card-kategori-program mt-3">
+            <div className="card card-kategori-program mt-3" onClick={() => onChangePage("index")}>
               <div className="card-body">
                 <div className="d-flex justify-content-between">
                   <h6 className="card-title">Manajemen Pengembangan SDM</h6>
@@ -132,19 +125,12 @@ const CardProgram = ({ isOpen, onChangePage }) => {
                   </p>
                 </div>
                 <div className="d-flex justify-content-end mt-3">
-                  <Icon
-                      name="paper-plane"
-                      type="Bold"
-                      cssClass="btn px-2 py-0 text-primary"
-                      title="Pilih"
-                      onClick={() => onChangePage("index")}
-                    />
                 </div>
               </div>
             </div>
           </div>
           <div className="col">
-            <div className="card card-kategori-program mt-3">
+            <div className="card card-kategori-program mt-3" onClick={() => onChangePage("index")}>
               <div className="card-body">
                 <div className="d-flex justify-content-between">
                   <h6 className="card-title">Proses Perekrutan dan Seleksi</h6>
@@ -173,13 +159,6 @@ const CardProgram = ({ isOpen, onChangePage }) => {
                       cssClass="btn px-2 py-0 text-primary"
                       title="Detail"
                     /> */}
-                    <Icon
-                      name="paper-plane"
-                      type="Bold"
-                      cssClass="btn px-2 py-0 text-primary"
-                      title="Pilih"
-                      onClick={() => onChangePage("index")}
-                    />
                   </div>
                 </div>
               </div>
