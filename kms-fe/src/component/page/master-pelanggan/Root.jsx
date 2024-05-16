@@ -3,6 +3,7 @@ import MasterPelangganIndex from "./Index";
 import MasterPelangganAdd from "./Add";
 import MasterPelangganDetail from "./Detail";
 import MasterPelangganEdit from "./Edit";
+import MasterProsesIndex from "../master-proses/Index";
 
 export default function MasterPelanggan() {
   const [pageMode, setPageMode] = useState("index");
@@ -14,6 +15,9 @@ export default function MasterPelanggan() {
         return <MasterPelangganIndex onChangePage={handleSetPageMode} />;
       case "add":
         return <MasterPelangganAdd onChangePage={handleSetPageMode} />;
+        case "indexproses":
+        return <MasterProsesIndex onChangePage={handleSetPageMode} />;
+        
       case "detail":
         return (
           <MasterPelangganDetail

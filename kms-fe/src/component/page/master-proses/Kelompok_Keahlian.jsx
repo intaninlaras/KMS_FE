@@ -114,7 +114,7 @@ export default function SubKKIndex({ onChangePage }) {
                               href=""
                               className="text-decoration-underline text-dark"
                             >
-                              5 Anggota
+                              5 Members
                             </a>
                           </span>
                         </h6>

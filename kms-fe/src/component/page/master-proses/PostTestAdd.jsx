@@ -7,7 +7,6 @@ import { Stepper } from 'react-form-stepper';
 export default function MasterProdukAdd({ onChangePage }) {
   const [formContent, setFormContent] = useState([]);
   const [selectedOptions, setSelectedOptions] = useState([]);
-  const [customOptionLabels, setCustomOptionLabels] = useState([]);
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
   const [correctAnswers, setCorrectAnswers] = useState({});
@@ -18,42 +17,20 @@ export default function MasterProdukAdd({ onChangePage }) {
       text: `Question ${formContent.length + 1}`,
       options: [],
       point: 0,
+      correctAnswer: "", // Inisialisasi correctAnswer sebagai string kosong
     };
     setFormContent([...formContent, newQuestion]);
     setSelectedOptions([...selectedOptions, ""]);
-    setCustomOptionLabels([...customOptionLabels, ""]);
   };
 
   const handleQuestionTypeChange = (e, index) => {
     const { value } = e.target;
     const updatedFormContent = [...formContent];
-    const question = updatedFormContent[index];
-
-    if (value === "essay") {
-      // Mengubah pertanyaan menjadi tipe essay
-      updatedFormContent[index] = {
-        ...question,
-        type: "essay",
-        options: [], // Hapus opsi jika pertanyaan adalah essay
-      };
-      setSelectedOptions((prevSelectedOptions) => {
-        const updatedOptions = [...prevSelectedOptions];
-        updatedOptions[index] = ""; // Reset opsi yang dipilih
-        return updatedOptions;
-      });
-      setCustomOptionLabels((prevCustomOptionLabels) => {
-        const updatedLabels = [...prevCustomOptionLabels];
-        updatedLabels[index] = ""; // Reset label khusus
-        return updatedLabels;
-      });
-    } else if (value === "multiple_choice") {
-      // Mengubah pertanyaan menjadi tipe multiple_choice
-      updatedFormContent[index] = {
-        ...question,
-        type: "multiple_choice",
-      };
-    }
-
+    updatedFormContent[index] = {
+      ...updatedFormContent[index],
+      type: value,
+      options: value === "essay" ? [] : updatedFormContent[index].options,
+    };
     setFormContent(updatedFormContent);
   };
 
@@ -62,13 +39,6 @@ export default function MasterProdukAdd({ onChangePage }) {
     const updatedSelectedOptions = [...selectedOptions];
     updatedSelectedOptions[index] = value;
     setSelectedOptions(updatedSelectedOptions);
-  };
-
-  const handleCustomOptionLabelChange = (e, index) => {
-    const { value } = e.target;
-    const updatedCustomOptionLabels = [...customOptionLabels];
-    updatedCustomOptionLabels[index] = value;
-    setCustomOptionLabels(updatedCustomOptionLabels);
   };
 
   const handleOptionLabelChange = (e, questionIndex, optionIndex) => {
@@ -80,56 +50,39 @@ export default function MasterProdukAdd({ onChangePage }) {
 
   const handleAddOption = (index) => {
     const updatedFormContent = [...formContent];
-  
-    // Tambahkan pengecekan apakah tipe pertanyaan adalah "multiple_choice"
     if (updatedFormContent[index].type === "multiple_choice") {
       updatedFormContent[index].options.push({ label: "", value: "" });
       setFormContent(updatedFormContent);
     }
   };
-  
+
   const handleChangeQuestion = (index) => {
     const updatedFormContent = [...formContent];
     const question = updatedFormContent[index];
-    const updatedSelectedOptions = [...selectedOptions];
-    const updatedCustomOptionLabels = [...customOptionLabels];
-  
+
     if (question.type === "essay") {
-      // Menambahkan jawaban benar untuk pertanyaan essay ke dalam state
+      // Simpan jawaban benar untuk pertanyaan essay ke state
       setCorrectAnswers((prevCorrectAnswers) => ({
         ...prevCorrectAnswers,
-        [index]: question.correctAnswer || "", // default value untuk jawaban benar
+        [index]: question.correctAnswer,
       }));
-    }
-  
-    if (question.type !== "answer") {
-      const answerQuestion = {
-        type: "answer",
-        text: question.text,
-        options: question.options,
-        point: question.point,
-        correctAnswer: question.correctAnswer || "", // Menyimpan jawaban benar jika ada
-      };
-      updatedFormContent.splice(index, 1, answerQuestion);
-      updatedSelectedOptions.splice(index, 1, "");
-      updatedCustomOptionLabels.splice(index, 1, "");
-    } else {
-      const questionType = question.options ? "multiple_choice" : "essay";
-      const questionItem = {
-        type: questionType,
-        text: question.text,
-        options: question.options || [],
-        point: question.point,
-        correctAnswer: question.correctAnswer || "", // Menyimpan jawaban benar jika ada
-      };
-      updatedFormContent.splice(index, 1, questionItem);
-      updatedSelectedOptions.splice(index, 1, "");
-      updatedCustomOptionLabels.splice(index, 1, "");
-    }
-  
+    } 
+
+    const newType =
+      question.type !== "answer"
+        ? question.options.length > 0
+          ? "answer"
+          : "answer"
+        : question.options.length > 0
+        ? "multiple_choice"
+        : "essay";
+
+    updatedFormContent[index] = {
+      ...question,
+      type: newType,
+    };
+
     setFormContent(updatedFormContent);
-    setSelectedOptions(updatedSelectedOptions);
-    setCustomOptionLabels(updatedCustomOptionLabels);
   };
 
   const handleDuplicateQuestion = (index) => {
@@ -139,12 +92,11 @@ export default function MasterProdukAdd({ onChangePage }) {
       updatedFormContent.splice(index + 1, 0, duplicatedQuestion);
       return updatedFormContent;
     });
-    const updatedSelectedOptions = [...selectedOptions];
-    updatedSelectedOptions.splice(index + 1, 0, selectedOptions[index]);
-    setSelectedOptions(updatedSelectedOptions);
-    const updatedCustomOptionLabels = [...customOptionLabels];
-    updatedCustomOptionLabels.splice(index + 1, 0, customOptionLabels[index]);
-    setCustomOptionLabels(updatedCustomOptionLabels);
+    setSelectedOptions((prevSelectedOptions) => {
+      const updatedSelectedOptions = [...prevSelectedOptions];
+      updatedSelectedOptions.splice(index + 1, 0, selectedOptions[index]);
+      return updatedSelectedOptions;
+    });
   };
 
   const handleDeleteOption = (questionIndex, optionIndex) => {
@@ -160,9 +112,10 @@ export default function MasterProdukAdd({ onChangePage }) {
     const updatedSelectedOptions = [...selectedOptions];
     updatedSelectedOptions.splice(index, 1);
     setSelectedOptions(updatedSelectedOptions);
-    const updatedCustomOptionLabels = [...customOptionLabels];
-    updatedCustomOptionLabels.splice(index, 1);
-    setCustomOptionLabels(updatedCustomOptionLabels);
+    // Hapus correctAnswer dari state saat pertanyaan dihapus
+    const updatedCorrectAnswers = { ...correctAnswers };
+    delete updatedCorrectAnswers[index];
+    setCorrectAnswers(updatedCorrectAnswers);
   };
 
   const handleAdd = async (e) => {
@@ -201,13 +154,13 @@ export default function MasterProdukAdd({ onChangePage }) {
         <div>
           <Stepper
             steps={[
-              { label: 'Materi' },
-              { label: 'Pretest' },
-              { label: 'Post Test' },
-              { label: 'Sharing Expert'},
-              { label: 'Forum'  }
+              { label: 'Pretest', onClick:() => onChangePage("pretestAdd")},
+              { label: 'Course' ,onClick:() => onChangePage("courseAdd")},
+              { label: 'Forum' ,onClick:() => onChangePage("forumAdd") },
+              { label: 'Sharing Expert',onClick:() => onChangePage("sharingAdd")},
+              { label: 'Post Test',onClick:() => onChangePage("posttestAdd") }
             ]}
-            activeStep={5} 
+            activeStep={4} 
             styleConfig={{
               activeBgColor: '#67ACE9',
               activeTextColor: '#FFFFFF',
@@ -270,7 +223,7 @@ export default function MasterProdukAdd({ onChangePage }) {
               <div key={index} className="card mb-4">
                 <div className="card-header bg-white fw-medium text-black d-flex justify-content-between align-items-center">
                   <span>Question</span>
-                  <span>Point: {question.point}</span> {/* Tampilkan point di sini */}
+                  <span>Point: {question.point}</span> 
                   <div className="col-lg-2">
                     <select className="form-select" aria-label="Default select example" onChange={(e) => handleQuestionTypeChange(e, index)}>
                       <option value="essay">Essay</option>
@@ -310,16 +263,25 @@ export default function MasterProdukAdd({ onChangePage }) {
                             </div>
                           ))}
                         </div>
-                        <Input
-                          type="text"
-                          label="Correct Answer"
-                          value={question.correctAnswer || ""}
-                          onChange={(e) => {
-                            const updatedFormContent = [...formContent];
-                            updatedFormContent[index].correctAnswer = e.target.value;
-                            setFormContent(updatedFormContent);
-                          }}
-                        />
+
+                        {/* Tampilkan input Correct Answer hanya jika tipe pertanyaan adalah essay */}
+                        {question.options.length === 0 && (
+                          <Input
+                            type="text"
+                            label="Correct Answer"
+                            value={correctAnswers[index] || ""} 
+                            onChange={(e) => {
+                              const updatedCorrectAnswers = { ...correctAnswers };
+                              updatedCorrectAnswers[index] = e.target.value;
+                              setCorrectAnswers(updatedCorrectAnswers);
+                              // Update juga correctAnswer pada formContent
+                              const updatedFormContent = [...formContent];
+                              updatedFormContent[index].correctAnswer = e.target.value;
+                              setFormContent(updatedFormContent);
+                            }}
+                          />
+                        )}
+
                         <Input
                           type="number"
                           label="Point"
@@ -351,6 +313,8 @@ export default function MasterProdukAdd({ onChangePage }) {
                           }}
                         />
                       </div>
+
+                      {/* Tampilkan tombol gambar dan PDF hanya jika type = essay */}
                       {question.type === "essay" && (
                         <div className="col-lg-2">
                           <Button
@@ -394,7 +358,7 @@ export default function MasterProdukAdd({ onChangePage }) {
                             <Button
                               onClick={() => handleAddOption(index)}
                               iconName="add"
-                              classType="primary btn-sm ms-2 px-3 py-1"
+                              classType="success btn-sm ms-2 px-3 py-1"
                               label="New Option"
                             />
                           )}  
@@ -437,13 +401,13 @@ export default function MasterProdukAdd({ onChangePage }) {
           <Button
             classType="outline-secondary me-2 px-4 py-2"
             label="Back"
-            onClick={() => onChangePage("add")}
+            onClick={() => onChangePage("sharingAdd")}
           />
           <Button
             classType="primary ms-2 px-4 py-2"
             type="submit"
             label="Save"
-            onClick={() => onChangePage("sharingexpert")}
+            onClick={() => onChangePage("index")}
           />
         </div>
       </form>

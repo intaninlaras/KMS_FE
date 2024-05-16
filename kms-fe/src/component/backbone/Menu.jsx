@@ -15,67 +15,67 @@ const activeURL = (
 const arrMenu = [
   { head: "Logout", headkey: "logout", link: ROOT_LINK + "/logout", sub: [] },
   { head: "Beranda", headkey: "beranda", link: ROOT_LINK, sub: [] },
-  {
-    head: "Master Data",
-    headkey: 1,
-    link: "#",
-    sub: [
-      { title: "Master Pelanggan", link: ROOT_LINK + "/master_pelanggan" },
-      { title: "Master Produk", link: ROOT_LINK + "/master_produk" },
-      { title: "Master Proses", link: ROOT_LINK + "/master_proses" },
-      {
-        title: "Master Kurs Proses",
-        link: ROOT_LINK + "/master_kurs_proses",
-      },
-      {
-        title: "Master Alat/Mesin",
-        link: ROOT_LINK + "/master_alat_mesin",
-      },
-      { title: "Master Operator", link: ROOT_LINK + "/master_operator" },
-    ],
-  },
-  {
-    head: "Transaksi",
-    headkey: 2,
-    link: "#",
-    sub: [
-      {
-        title: "Permintaan Pelanggan",
-        link: ROOT_LINK + "/permintaan_pelanggan",
-      },
-      {
-        title: "Rencana Anggaran Kerja",
-        link: ROOT_LINK + "/rencana_anggaran_kerja",
-      },
-      { title: "Surat Penawaran", link: ROOT_LINK + "/surat_penawaran" },
-      { title: "Purchase Order", link: ROOT_LINK + "/purchase_order" },
-      {
-        title: "Surat Perintah Kerja",
-        link: ROOT_LINK + "/surat_perintah_kerja",
-      },
-    ],
-  },
+  // {
+  //   head: "Master Data",
+  //   headkey: 1,
+  //   link: "#",
+  //   sub: [
+  //     { title: "Master Pelanggan", link: ROOT_LINK + "/master_pelanggan" },
+  //     { title: "Master Produk", link: ROOT_LINK + "/master_produk" },
+  //     { title: "Master Proses", link: ROOT_LINK + "/master_proses" },
+  //     {
+  //       title: "Master Kurs Proses",
+  //       link: ROOT_LINK + "/master_kurs_proses",
+  //     },
+  //     {
+  //       title: "Master Alat/Mesin",
+  //       link: ROOT_LINK + "/master_alat_mesin",
+  //     },
+  //     { title: "Master Operator", link: ROOT_LINK + "/master_operator" },
+  //   ],
+  // },
+  // {
+  //   head: "Transaksi",
+  //   headkey: 2,
+  //   link: "#",
+  //   sub: [
+  //     {
+  //       title: "Permintaan Pelanggan",
+  //       link: ROOT_LINK + "/permintaan_pelanggan",
+  //     },
+  //     {
+  //       title: "Rencana Anggaran Kerja",
+  //       link: ROOT_LINK + "/rencana_anggaran_kerja",
+  //     },
+  //     { title: "Surat Penawaran", link: ROOT_LINK + "/surat_penawaran" },
+  //     { title: "Purchase Order", link: ROOT_LINK + "/purchase_order" },
+  //     {
+  //       title: "Surat Perintah Kerja",
+  //       link: ROOT_LINK + "/surat_perintah_kerja",
+  //     },
+  //   ],
+  // },
   {
     head: "KMS",
     headkey: 3,
     link: "#",
     sub: [
       {
-        title: "Materi",
+        title: "Course",
         link: ROOT_LINK + "/master_proses",
       },
-      {
-        title: "Post-Test",
-        link: ROOT_LINK + "/master_produk",
-      },
-      {
-        title: "Pengerjaan Pre-Test",
-        link: ROOT_LINK + "/master_test",
-      },
-      {
-        title: "Pengerjaan Post-Test",
-        link: ROOT_LINK + "/master_test/post-test",
-      },
+      // {
+      //   title: "Post-Test",
+      //   link: ROOT_LINK + "/master_produk",
+      // },
+      // {
+      //   title: "Pengerjaan Pre-Test",
+      //   link: ROOT_LINK + "/master_test",
+      // },
+      // {
+      //   title: "Pengerjaan Post-Test",
+      //   link: ROOT_LINK + "/master_test/post-test",
+      // },
     ],
   },
 ];

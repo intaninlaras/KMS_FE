@@ -3,7 +3,6 @@ import MasterProdukIndex from "./Index";
 import MasterProdukAdd from "./Add";
 import MasterProdukDetail from "./Detail";
 import MasterProdukEdit from "./Edit";
-import MasterProsesAdd from "../master-proses/Add";
 
 export default function MasterProduk() {
   const [pageMode, setPageMode] = useState("index");
@@ -15,8 +14,7 @@ export default function MasterProduk() {
         return <MasterProdukIndex onChangePage={handleSetPageMode} />;
       case "add":
         return <MasterProdukAdd onChangePage={handleSetPageMode} />;
-      case "materi":
-        return <MasterProsesAdd onChangePage={handleSetPageMode} />;
+     
       case "detail":
         return (
           <MasterProdukDetail

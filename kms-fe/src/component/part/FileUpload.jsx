@@ -37,11 +37,11 @@ const FileUpload = forwardRef(function FileUpload(
           ref={ref}
           {...props}
         />
-        <sub>Maksimum ukuran berkas adalah 10 MB</sub>
+        <sub>Maximum file size is 10 MB</sub>
         {hasExisting && (
           <sub>
             <br />
-            Berkas saat ini:{" "}
+            Current file:{" "}
             <a
               href={FILE_LINK + hasExisting}
               className="text-decoration-none"
@@ -50,7 +50,7 @@ const FileUpload = forwardRef(function FileUpload(
               [Unduh Berkas]
             </a>
             <br />
-            Unggah ulang jika ingin mengganti berkas yang sudah ada
+            Re-upload to replace the existing file
           </sub>
         )}
       </div>
