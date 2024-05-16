@@ -63,12 +63,7 @@ export default function MasterProsesIndex({ onChangePage }) {
   const [isLoading, setIsLoading] = useState(false);
   const [currentData, setCurrentData] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
-  const [currentFilter, setCurrentFilter] = useState({
-    page: 1,
-    query: "",
-    sort: "key,asc",
-    jenis: "",
-  });
+
 
   const searchQuery = useRef(null);
   const searchFilterSort = useRef(null);
@@ -92,7 +87,12 @@ export default function MasterProsesIndex({ onChangePage }) {
       sort: 'ASC',
     });
   }
-
+  const [currentFilter, setCurrentFilter] = useState({
+    page: 1,
+    query: "",
+    sort: "key,asc",
+    jenis: "",
+  });
   useEffect(() => {
     const fetchData = async () => {
       setIsError(false);
@@ -186,7 +186,7 @@ export default function MasterProsesIndex({ onChangePage }) {
                   {filteredData.map((item) => (
                     <div key={item.Key} className="col-lg-4 mb-4">
                       <div className="card">
-                        <div className={`card-header d-flex justify-content-between align-items-center`} style={{ backgroundColor: item["Status Materi"] === "Aktif" ? '#67ACE9' : '#A6A6A6', color: 'white' }}>
+                        <div className={`card-header d-flex justify-content-between align-items-center`} style={{ backgroundColor: item.Status === "Aktif" ? '#67ACE9' : '#A6A6A6', color: 'white' }}>
 
                           <span>{item.Kategori}</span>
                           <button 

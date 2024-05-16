@@ -13,6 +13,7 @@ import Loading from "../../part/Loading";
 import Alert from "../../part/Alert";
 import { Stepper } from 'react-form-stepper';
 
+import axios from "axios";
 const listJenisProduk = [
   { Value: "Part", Text: "Part" },
   { Value: "Unit", Text: "Unit" },
@@ -27,10 +28,16 @@ export default function MasterProdukAdd({ onChangePage }) {
   const [isLoading, setIsLoading] = useState(false);
 
   const formDataRef = useRef({
-    namaProduk: "",
-    jenisProduk: "",
-    gambarProduk: "",
-    spesifikasi: "",
+    materiId:"1",
+    kategoriId:"1",
+    namaProduk: "", //Materi Judul
+    materiFile: "",
+    materiKeterangan: "",
+    karyawanId: "1",
+    materiKataKunci: "",
+    materiGambar: "",
+    materiStatus: "Aktif",
+    createdBy: "",
   });
 
   const fileGambarRef = useRef(null);
@@ -120,6 +127,9 @@ export default function MasterProdukAdd({ onChangePage }) {
           .then(() => setIsLoading(false));
       });
     }
+    console.log("Data yang dikirim ke backend:", formDataRef.current);
+    const response = await axios.post("http://localhost:8080/Materis/SaveDataMateri", formDataRef.current);
+    console.log(response);
   };
 
   if (isLoading) return <Loading />;
@@ -267,6 +277,10 @@ export default function MasterProdukAdd({ onChangePage }) {
             classType="primary ms-2 px-4 py-2"
             type="submit"
             label="Save"
+          />
+          <Button
+            classType="warning ms-3 px-4 py-2"
+            label="Next"
             onClick={() => onChangePage("forumAdd")}
           />
         </div>

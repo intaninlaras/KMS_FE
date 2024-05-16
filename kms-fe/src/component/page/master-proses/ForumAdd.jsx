@@ -198,6 +198,11 @@ export default function MasterPelangganAdd({ onChangePage }) {
             label="Save"
             onClick={() => onChangePage("sharingAdd")}
           />
+          <Button
+            classType="warning ms-3 px-4 py-2"
+            label="Next"
+            onClick={() => onChangePage("sharingAdd")}
+          />
         </div>
       </form>
     </>
