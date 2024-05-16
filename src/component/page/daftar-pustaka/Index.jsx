@@ -36,7 +36,7 @@ const inisialisasiData = [
   },
 ];
 
-export default function MasterDaftarPustakaIndex({ onChangePage, withID}) {
+export default function MasterDaftarPustakaIndex({ onChangePage, withID }) {
   let activeUser = "";
   const cookie = Cookies.get("activeUser");
   if (cookie) activeUser = JSON.parse(decryptId(cookie)).username;
@@ -54,6 +54,10 @@ export default function MasterDaftarPustakaIndex({ onChangePage, withID}) {
     sort: "Judul ASC",
     kk: "",
   });
+
+  useEffect(() => {
+    console.log("filter : "+JSON.stringify(currentFilter));
+  })
 
   const searchQuery = useRef();
   const searchFilterSort = useRef();
@@ -102,24 +106,35 @@ export default function MasterDaftarPustakaIndex({ onChangePage, withID}) {
   }
 
   function handleSetStatus(id) {
-    setIsLoading(true);
     setIsError(false);
-    console.log("Index ID: "+id);
-    UseFetch(API_LINK + "Pustakas/SetStatusPustaka", {
-      idPustaka: id,
-    })
-      .then((data) => {
-        if (data === "ERROR" || data.length === 0) setIsError(true);
-        else {
-          SweetAlert(
-            "Sukses",
-            "Status data Pustaka berhasil diubah menjadi " + data[0].Status,
-            "success"
-          );
-          handleSetCurrentPage(currentFilter.page);
-        }
-      })
-      .then(() => setIsLoading(false));
+    console.log("Index ID: " + id);
+
+    SweetAlert(
+      "Konfirmasi",
+      "Apakah Anda yakin ingin mengubah status data Pustaka?",
+      "warning",
+      "Ya",
+    ).then((confirmed) => {
+      if (confirmed) {
+        UseFetch(API_LINK + "Pustakas/SetStatusPustaka", {
+          idPustaka: id,
+        })
+          .then((data) => {
+            if (data === "ERROR" || data.length === 0) setIsError(true);
+            else {
+              SweetAlert(
+                "Sukses",
+                "Status data Pustaka berhasil diubah menjadi " + data[0].Status,
+                "success"
+              );
+              handleSetCurrentPage(currentFilter.page);
+            }
+          })
+          .then(() => setIsLoading(false));
+      } else {
+        console.log("Operasi dibatalkan.");
+      }
+    });
   }
 
   useEffect(() => {

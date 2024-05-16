@@ -53,7 +53,7 @@ function CardPustaka({
                                         height: "120px",
                                         minWidth: "120px",
                                         marginRight: "0px",
-                                        paddingRight:"15px"
+                                        paddingRight: "15px"
                                     }}
                                 />
 
@@ -124,12 +124,12 @@ function CardPustaka({
                                         onClick={() => onEdit("edit", book)}
                                     />
                                     <div className="form-check form-switch py-0 ms-2" style={{ width: "fit-content" }}>
-                                        <input 
-                                        className="form-check-input" 
-                                        type="checkbox" 
-                                        id="flexSwitchCheckDefault" 
-                                        checked={book.Status === "Aktif"}
-                                        onChange={() => handleStatusChange(book)}
+                                        <input
+                                            className="form-check-input"
+                                            type="checkbox"
+                                            id="flexSwitchCheckDefault"
+                                            checked={book.Status === "Aktif"}
+                                            onChange={() => handleStatusChange(book)}
                                         />
                                     </div>
                                 </div>

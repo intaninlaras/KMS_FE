@@ -21,7 +21,7 @@ export default function MasterDaftarPustakaDetail({ onChangePage, withID }) {
                 </div>
                 <div className="card-body">
                     <div className="row">
-                        <div className="col-md-3 d-flex align-items-center justify-content-center">
+                        <div className="col-lg-3 d-flex align-items-center justify-content-center">
                             <img
                                 src={withID.Gambar}
                                 alt="gambar"
@@ -38,7 +38,7 @@ export default function MasterDaftarPustakaDetail({ onChangePage, withID }) {
                             </object>
                         </div>
                         <hr />
-                        <div className="col-md-9">
+                        <div className="col-md-12">
                             <h1 className="mb-3 mt-0">{withID.Judul}</h1>
                             <h4 className="mb-3 mt-0">Deskripsi</h4>
                             <p className="pb-3">{withID.Keterangan}</p>
