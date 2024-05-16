@@ -188,18 +188,18 @@ export default function MasterProsesIndex({ onChangePage }) {
                       <div className="card">
                         <div className={`card-header d-flex justify-content-between align-items-center`} style={{ backgroundColor: item["Status Materi"] === "Aktif" ? '#67ACE9' : '#A6A6A6', color: 'white' }}>
 
-                          <span>{item["Kelompok Keahlian"]}</span>
+                          <span>{item.Kategori}</span>
                           <button 
                             className="btn btn-circle"
                             onClick={() => toggleTampilkan(item.Key)} // Menggunakan fungsi toggleTampilkan untuk mengubah status materi
                           >
-                            {toggleStatus[item.Key] ? <i className="fas fa-toggle-on text-white" style={{ fontSize: '20px' }}></i> : <i className="fas fa-toggle-off text-white" style={{ fontSize: '20px' }}></i>}
+                            {filteredData[item.Key] ? <i className="fas fa-toggle-on text-white" style={{ fontSize: '20px' }}></i> : <i className="fas fa-toggle-off text-white" style={{ fontSize: '20px' }}></i>}
                           </button>
                         </div>
                         <div className="card-body bg-white">
-                          <h5 className="card-title">{item["Nama Materi"]}</h5>
+                          <h5 className="card-title">{item.Judul}</h5>
                           <hr style={{ opacity: "0.1" }} />
-                          <p className="card-text">{item["Deskripsi Materi"]}</p>
+                          <p className="card-text">{item.Keterangan}</p>
                         </div>
                         <div className="card-footer d-flex justify-content-end bg-white">
                           <button className="btn btn-sm text-primary" title="Edit Materi" onClick={() => onChangePage("edit")}><i className="fas fa-edit"></i></button>
