@@ -16,8 +16,14 @@ import MasterAlatMesin from "./component/page/master-alat-mesin/Root";
 import MasterOperator from "./component/page/master-operator/Root";
 import MasterTest from "./component/page/master-test/Root";
 import MasterPostTest from "./component/page/master-posttest/Root";
+import MasterTest_PreTest from "./component/page/master-test/PreTest";
 import MasterTest_PostTest from "./component/page/master-test/PostTest";
 import MasterTest_Test from "./component/page/master-test/Test";
+import MasterTest_HasilTest from "./component/page/master-test/HasilTest";
+import MasterTest_DetailTest from "./component/page/master-test/DetailTest";
+import MasterTest_Materi from "./component/page/master-test/Materi";
+import MasterTest_MateriPDF from "./component/page/master-test/MateriPDF";
+import MasterTest_MateriVideo from "./component/page/master-test/MateriVideo";
 
 export default function App() {
   const Show_SideBar = ({ children, routes, currentPath }) => {
@@ -71,6 +77,11 @@ export default function App() {
       hideSideBar: true ,
     },
     {
+      path: "/master_test/soal-preTest",
+      element: <MasterTest_PreTest />,
+      hideSideBar: true ,
+    },
+    {
       path: "/master_posttest",
       element: <MasterPostTest />,
     },
@@ -78,6 +89,26 @@ export default function App() {
       path: "/soal_pretest",
       element: <MasterTest_Test />,
       hideSideBar: true ,
+    },
+    {
+      path: "/hasil_test",
+      element: <MasterTest_HasilTest />,
+    },
+    {
+      path: "/detail_test",
+      element: <MasterTest_DetailTest />,
+    },
+    {
+      path: "/master_test/sub_materi1",
+      element: <MasterTest_Materi />,
+    },
+    {
+      path: "/sharing_expert/materi_pdf",
+      element: <MasterTest_MateriPDF />,
+    },
+    {
+      path: "/sharing_expert/materi_video",
+      element: <MasterTest_MateriVideo />,
     }
   ]);
 
@@ -89,9 +120,7 @@ export default function App() {
       <Header />
       <div style={{ marginTop: '70px' }}></div>
       <div className="d-flex flex-row">
-        <Show_SideBar routes={router.routes} currentPath={currentPath}>
-          <SideBar />
-        </Show_SideBar>
+        
         <Container>
           <RouterProvider router={router} />
         </Container>

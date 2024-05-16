@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from "react";
+import Button from "../part/Button";
+import { ROOT_LINK } from "../util/Constants";
 
-export default function KMS_Sidebar({ questionNumbers, selectedQuestion, setSelectedQuestion }) {
+export default function KMS_Sidebar({ questionNumbers, selectedQuestion, setSelectedQuestion, answerStatus, checkMainContent}) {
   const [remainingTime, setRemainingTime] = useState(1800);
 
   useEffect(() => {
     const timer = setInterval(() => {
       setRemainingTime(prevTime => prevTime - 1);
     }, 1000);
-
     return () => clearInterval(timer);
   }, []);
 
@@ -18,43 +19,78 @@ export default function KMS_Sidebar({ questionNumbers, selectedQuestion, setSele
     return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
   };
 
+  function exitReview() {
+    window.location.href = ROOT_LINK + "/hasil_test";
+  }
+
   return (
-    <div className="border-end h-100 pt-2 overflow-y-auto">
-      <div className="card mb-3 p-3 mx-auto" style={{ backgroundColor: "rgba(255, 255, 255, 0.8)", width: "fit-content" }}>
-          <p className="m-0">Waktu Tersisa: {formatTime(remainingTime)}</p>
+    <div className="border-end h-100 pt-2 overflow-y-auto position-fixed" >
+      {checkMainContent === 'test' &&(
+      <div
+        className="card mb-3 p-3 mx-auto"
+        style={{ backgroundColor: "rgba(255, 255, 255, 0.8)", width: "fit-content" }}
+      >
+        <p className="m-0">Time Remaining: {formatTime(remainingTime)}</p>
       </div>
-      <div className="d-flex flex-column">
-        <div className="d-flex">
-          {questionNumbers.slice(0, 5).map((number) => (
-            <button
-              key={number}
-              className={`btn btn-outline-secondary mb-2 me-2 ${
-                number + 1 === selectedQuestion ? "active" : ""
-              }`}
-              style={{ width: "40px", height: "40px", marginRight: "30px" }}
-              onClick={() => setSelectedQuestion(number + 1)}
-            >
-              {number + 1}
-            </button>
-          ))}
-        </div>
-        {Array.from({ length: 5 }, (_, row) => (
-          <div key={row} className="d-flex">
-            {questionNumbers.slice(row * 5 + 5, row * 5 + 10).map((number) => (
-              <button
-                key={number}
-                className={`btn btn-outline-secondary mb-2 me-2 ${
-                  number + 1 === selectedQuestion ? "active" : ""
-                }`}
-                style={{ width: "40px", height: "40px", marginRight: "30px" }}
-                onClick={() => setSelectedQuestion(number + 1)}
-              >
-                {number + 1}
-              </button>
-            ))}
-          </div>
+      )}
+
+      <div 
+        className="grid"
+        style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '20px', padding: '20px' }}
+      >
+        {[...Array(30)].map((_, index) => (
+          <button
+            key={index}
+            className={`box ${index + 1 === selectedQuestion ? "active" : ""}`}
+            style={{
+              border: '1px solid #ccc',
+              padding: '10px',
+              textAlign: 'center',
+              fontSize: '14px',
+              cursor: 'pointer',
+              color: index + 1 === selectedQuestion ? 'white' : 'black',
+              
+              backgroundColor: index + 1 === selectedQuestion 
+                  ? "#2196F3" 
+                  : answerStatus[index] 
+                      ? answerStatus[index] === "correct" 
+                          ? "#e9f7eb" 
+                          : answerStatus[index] === "incorrect" 
+                              ? "#ffe3e6" 
+                              : answerStatus[index] === "none" 
+                                  ? "white"
+                                  : "white"
+                      : "white", 
+              borderColor: index + 1 === selectedQuestion 
+                  ? "#2196F3" 
+                  : answerStatus[index] 
+                      ? answerStatus[index] === "correct" 
+                          ? "#28a745" 
+                          : answerStatus[index] === "incorrect" 
+                              ? "#dc3545" 
+                              : answerStatus[index] === "none" 
+                                  ? "lightgray"
+                                  : "lightgray"
+                      : "lightgray", 
+            }}
+            onClick={() => setSelectedQuestion(index + 1)}
+          >
+            {index + 1}
+          </button>
         ))}
       </div>
+      {checkMainContent === 'detail_test' &&(
+      <div
+        className="card mb-0 p-0 mx-auto"
+        style={{ width: "90%" }}
+      >
+        <Button 
+          classType="light py-2" 
+          label="Exit Review" 
+          onClick={exitReview} 
+        />
+      </div>
+      )}
     </div>
   );
 }

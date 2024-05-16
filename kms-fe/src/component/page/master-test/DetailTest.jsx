@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { object, string } from "yup";
-import { API_LINK, ROOT_LINK } from "../../util/Constants";
+import { API_LINK } from "../../util/Constants";
 import { validateAllInputs, validateInput } from "../../util/ValidateForm";
 import SweetAlert from "../../util/SweetAlert";
 import UseFetch from "../../util/UseFetch";
@@ -40,18 +40,6 @@ export default function PengerjaanTest({ onChangePage }) {
       [validationError.name]: validationError.error,
     }));
   };
-
-  const ButtonContainer = styled.div`
-    position: fixed;
-    bottom: 35px;
-    left: 30%;
-    transform: translateX(-50%);
-    z-index: 999;
-  `;
-
-  function handleSubmitAction() {
-    window.location.href = ROOT_LINK + "/hasil_test";
-  }
 
   const handleFileChange = async (ref, extAllowed) => {
     const { name, value } = ref.current;
@@ -136,158 +124,181 @@ export default function PengerjaanTest({ onChangePage }) {
       type: "pilgan",
       question: "Berapa jumlah provinsi di Indonesia?",
       options: ["30", "32", "34", "36"],
-      correctAnswer: "32",
-      answerStatus: "none",
+      correctAnswer: "34",
+      answeredOption: "34",
+      answerStatus: "correct",
     },
     {
       type: "essay",
       question: "Siapakah penemu relativitas umum?",
       options: ["Isaac Newton", "Galileo Galilei", "Albert Einstein", "Stephen Hawking"],
       correctAnswer: "Albert Einstein",
-      answerStatus: "none",
     },
     {
       question: "Apa warna bendera Indonesia?",
       options: ["Merah-Putih", "Hijau-Kuning", "Biru-Putih", "Hitam-Kuning"],
       correctAnswer: "Merah-Putih",
-      answerStatus: "none",
+      answeredOption: "Merah-Putih",
+      answerStatus: "incorrect",
     },
     {
       question: "Apa ibukota Amerika Serikat?",
       options: ["Washington D.C.", "New York City", "Los Angeles", "Chicago"],
       correctAnswer: "Washington D.C.",
-      answerStatus: "none",
+      answeredOption: "New York City",
+      answerStatus: "incorrect",
     },
     {
       question: "Berapa jumlah planet dalam tata surya?",
       options: ["7", "8", "9", "10"],
       correctAnswer: "8",
-      answerStatus: "none",
+      answeredOption: "8",
+      answerStatus: "incorrect",
     },
     {
       question: "Siapakah penemu relativitas umum?",
       options: ["Isaac Newton", "Galileo Galilei", "Albert Einstein", "Stephen Hawking"],
       correctAnswer: "Albert Einstein",
-      answerStatus: "none",
+      answeredOption: "Albert Einstein",
+      answerStatus: "incorrect",
     },
     {
       question: "Berapa banyak huruf dalam alfabet Inggris?",
       options: ["24", "25", "26", "27"],
       correctAnswer: "26",
-      answerStatus: "none",
+      answeredOption: "26",
+      answerStatus: "incorrect",
     },
     {
       question: "Siapakah penulis 'Pride and Prejudice'?",
       options: ["Jane Austen", "Emily Brontë", "Charlotte Brontë", "Virginia Woolf"],
       correctAnswer: "Jane Austen",
-      answerStatus: "none",
+      answeredOption: "Charlotte Brontë",
+      answerStatus: "incorrect",
     },
     {
       question: "Berapa banyak warna dalam pelangi?",
       options: ["6", "7", "8", "9"],
       correctAnswer: "7",
-      answerStatus: "none",
+      answeredOption: "7",
+      answerStatus: "incorrect",
     },
     {
       question: "Apa nama ilmuwan yang menemukan hukum gravitasi?",
       options: ["Isaac Newton", "Albert Einstein", "Galileo Galilei", "Nikola Tesla"],
       correctAnswer: "Isaac Newton",
-      answerStatus: "none",
+      answeredOption: "Galileo Galilei",
+      answerStatus: "incorrect",
     },
     {
       question: "Berapa banyak gigi manusia dewasa?",
       options: ["28", "30", "32", "34"],
       correctAnswer: "32",
-      answerStatus: "none",
+      answeredOption: "32",
+      answerStatus: "incorrect",
     },
     {
       question: "Siapakah penulis '1984'?",
       options: ["George Orwell", "Aldous Huxley", "Ray Bradbury", "F. Scott Fitzgerald"],
       correctAnswer: "George Orwell",
-      answerStatus: "none",
+      answeredOption: "George Orwell"
     },
     {
       question: "Berapa banyak benua di dunia?",
       options: ["5", "6", "7", "8"],
       correctAnswer: "7",
-      answerStatus: "none",
+      answeredOption: "7",
+      answerStatus: "incorrect",
     },
     {
       question: "Apa nama senjata tradisional Jepang?",
       options: ["Katana", "Wakizashi", "Naginata", "Tanto"],
       correctAnswer: "Katana",
-      answerStatus: "none",
+      answeredOption: "Katana",
+      answerStatus: "incorrect",
     },
     {
       question: "Berapa banyak musim di sebagian besar belahan bumi?",
       options: ["2", "3", "4", "5"],
       correctAnswer: "4",
-      answerStatus: "none",
+      answeredOption: "4",
+      answerStatus: "incorrect",
     },
     {
       question: "Siapakah presiden pertama Amerika Serikat?",
       options: ["George Washington", "Thomas Jefferson", "John Adams", "Abraham Lincoln"],
       correctAnswer: "George Washington",
-      answerStatus: "none",
+      answeredOption: "George Washington",
+      answerStatus: "incorrect",
     },
     {
       question: "Berapa banyak mata uang yang beredar di dunia?",
       options: ["100", "150", "180", "200"],
       correctAnswer: "180",
-      answerStatus: "none",
+      answeredOption: "180",
+      answerStatus: "incorrect",
     },
     {
       question: "Apa nama sungai terpanjang di dunia?",
       options: ["Nil", "Amazon", "Yangtze", "Mississippi"],
       correctAnswer: "Nil",
-      answerStatus: "none",
+      answeredOption: "Nil",
+      answerStatus: "incorrect",
     },
     {
       question: "Berapa banyak hari dalam satu tahun kabisat?",
       options: ["365", "366", "367", "368"],
       correctAnswer: "366",
-      answerStatus: "none",
+      answeredOption: "366",
+      answerStatus: "incorrect",
     },
     {
       question: "Siapakah penulis 'Hamlet'?",
       options: ["William Shakespeare", "Charles Dickens", "Jane Austen", "Mark Twain"],
       correctAnswer: "William Shakespeare",
-      answerStatus: "none",
+      answeredOption: "William Shakespeare",
+      answerStatus: "incorrect",
     },
     {
       question: "Berapa umur alam semesta?",
       options: ["13.7 Miliar tahun", "15 Miliar tahun", "20 Miliar tahun", "25 Miliar tahun"],
       correctAnswer: "13.7 Miliar tahun",
-      answerStatus: "none",
+      answeredOption: "13.7 Miliar tahun",
+      answerStatus: "incorrect",
     },
     {
       question: "Apa nama benua terbesar di dunia?",
       options: ["Asia", "Afrika", "Amerika", "Eropa"],
       correctAnswer: "Asia",
-      answerStatus: "none",
+      answeredOption: "Asia",
+      answerStatus: "incorrect",
     },
     {
       question: "Berapa jumlah gigi pada anak-anak?",
       options: ["20", "22", "24", "26"],
       correctAnswer: "20",
-      answerStatus: "none",
+      answeredOption: "20",
+      answerStatus: "incorrect",
     },
     {
       question: "Siapakah penulis 'To Kill a Mockingbird'?",
       options: ["Harper Lee", "F. Scott Fitzgerald", "Ernest Hemingway", "J.D. Salinger"],
       correctAnswer: "Harper Lee",
-      answerStatus: "none",
+      answeredOption: "Harper Lee",
+      answerStatus: "incorrect",
     },
     {
       question: "Berapa banyak negara di dunia?",
       options: ["190", "195", "200", "205"],
       correctAnswer: "195",
-      answerStatus: "none",
+      answeredOption: "195",
+      answerStatus: "incorrect",
     },
     {
       question: "Apa nama ilmuwan yang menemukan radioaktivitas?",
       options: ["Marie Curie", "Albert Einstein", "Isaac Newton", "Galileo Galilei"],
       correctAnswer: "Marie Curie",
+      answeredOption: "Marie Curie",
       answerStatus: "none",
     },
     {
@@ -295,6 +306,7 @@ export default function PengerjaanTest({ onChangePage }) {
       question: "Apa nama tokoh fiksi terkenal dalam novel 'The Lord of the Rings'?",
       options: ["Frodo Baggins", "Gandalf", "Aragorn", "Legolas"],
       correctAnswer: "Frodo Baggins",
+      answeredOption: "Frodo Baggins",
       answerStatus: "none",
     },
     {
@@ -302,18 +314,21 @@ export default function PengerjaanTest({ onChangePage }) {
       question: "Siapakah penemu telepon?",
       options: ["Alexander Graham Bell", "Thomas Edison", "Nikola Tesla", "Albert Einstein"],
       correctAnswer: "Alexander Graham Bell",
+      answeredOption: "Thomas Edison",
       answerStatus: "none",
     },
     {
       question: "Apa nama ibukota Jepang?",
       options: ["Tokyo", "Osaka", "Kyoto", "Hiroshima"],
       correctAnswer: "Tokyo",
+      answeredOption: "Hiroshima",
       answerStatus: "none",
     },
     {
       question: "Berapa jumlah surat dalam alfabet Arab?",
       options: ["26", "28", "30", "32"],
       correctAnswer: "28",
+      answeredOption: "28",
       answerStatus: "none",
     },
   ];
@@ -321,17 +336,18 @@ export default function PengerjaanTest({ onChangePage }) {
   const selectPreviousQuestion = () => {
     if (selectedQuestion > 1) {
       setSelectedQuestion(selectedQuestion - 1);
+    } else {
+      setSelectedQuestion(selectedQuestion + dummyData.length - 1);
     }
   };
 
-  const selectNextQuestionOrSubmit = () => {
+  const selectNextQuestion = () => {
     if (selectedQuestion < dummyData.length) {
       setSelectedQuestion(selectedQuestion + 1);
     } else {
-      handleSubmitAction();
+      setSelectedQuestion(selectedQuestion - dummyData.length + 1);
     }
   };
-
   const [selectedQuestion, setSelectedQuestion] = useState(1);
   const [selectedAnswer, setSelectedAnswer] = useState("");
   const handleSelectAnswer = (answer) => {
@@ -347,21 +363,21 @@ export default function PengerjaanTest({ onChangePage }) {
     );
   };
 
-  const [answerStatus, setAnswerStatus] = useState(
-    dummyData.map(() => "none")
+  const answerStatus = dummyData.map((item) =>
+    item.answeredOption === item.correctAnswer ? "correct" : "incorrect"
   );
   
   return (
     <>
       <div className="d-flex">
-        <KMS_Sidebar
+      <KMS_Sidebar
           questionNumbers={questionNumbers}
           selectedQuestion={selectedQuestion}
           setSelectedQuestion={setSelectedQuestion}
           answerStatus={answerStatus} 
-          checkMainContent="test"
+          checkMainContent="detail_test"
         />
-        <div className="flex-fill p-3 d-flex flex-column" style={{marginLeft:"21vw"}}>
+        <div className="flex-fill p-3 d-flex flex-column"  style={{marginLeft:"21vw"}}>
           <div className="mb-3" style={{ overflowX: 'auto', whiteSpace: 'nowrap' }}> 
             {dummyData.map((data, index) => {
               if (index + 1 !== selectedQuestion) return null;
@@ -375,20 +391,20 @@ export default function PengerjaanTest({ onChangePage }) {
 
                   {/* Jawaban */}
                   {data.type === "essay" ? (
-                    <KMS_Uploader />
+                    <FileCard fileName="Jawaban.docx" />
                   ) : (
                     
                     <div className="d-flex flex-column">
                       {data.options.map((option, index) => {
                         const isCorrect = option === data.correctAnswer;
-                        const isSelected = data.answeredOption ? option === data.answeredOption : false;
-                        let borderColor1 = '';
-                        let backgroundColor1 = '';
+                        const isSelected = data.answeredOption ? option === data.answeredOption : false; 
+                        let borderColor1 = 'lightgray';
+                        let backgroundColor1 = 'white';
                         
                         if (isSelected) {
                           borderColor1 = isCorrect ? '#28a745' : '#dc3545';
                           backgroundColor1 = isCorrect ? '#e9f7eb' : '#ffe3e6';
-                        } else if (isCorrect && isSelected) {
+                        } else if (isCorrect) {
                           borderColor1 = '#28a745';
                           backgroundColor1 = '#e9f7eb';
                         }
@@ -417,7 +433,7 @@ export default function PengerjaanTest({ onChangePage }) {
           </div>
 
           <form onSubmit={handleAdd}>
-            <ButtonContainer >
+            <div className="float-start my-4 mx-1 " >
               <Button 
                 classType="secondary me-2 px-4 py-2" 
                 label="Previous" 
@@ -425,10 +441,10 @@ export default function PengerjaanTest({ onChangePage }) {
               />
               <Button 
                 classType="primary ms-2 px-4 py-2" 
-                label={selectedQuestion < dummyData.length ? "Next" : "Submit"} 
-                onClick={selectNextQuestionOrSubmit} 
+                label="Next" 
+                onClick={selectNextQuestion} 
               />
-              </ButtonContainer>
+            </div>
           </form>
         </div>
       </div>

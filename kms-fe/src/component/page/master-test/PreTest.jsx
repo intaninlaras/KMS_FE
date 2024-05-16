@@ -11,6 +11,9 @@ import DropDown from "../../part/Dropdown";
 import Alert from "../../part/Alert";
 import Loading from "../../part/Loading";
 import profilePicture from "../../../assets/tes.jpg";
+import KMS_Rightbar from "../../backbone/KMS_RightBar";
+import SideBar from "../../backbone/SideBar";
+// import KMS_SB_RightBar from '../../backbone/KMS_SB_RightBar';
 
 const inisialisasiData = [
   {
@@ -46,6 +49,16 @@ export default function MasterTestIndex({ onChangePage }) {
     sort: "[Kode Test] asc",
     status: "Aktif",
   });
+  const [marginRight, setMarginRight] = useState("40vh");
+
+  function handlePreTestClick_close() {
+    setMarginRight("0vh");
+  }
+
+  function handlePreTestClick_open() {
+    setMarginRight("40vh");
+  }
+
 
   const searchQuery = useRef();
   const searchFilterSort = useRef();
@@ -93,18 +106,17 @@ export default function MasterTestIndex({ onChangePage }) {
       })
       .then(() => setIsLoading(false));
   }
-
   function onStartTest() {
-    window.location.href = ROOT_LINK + "/master_test/soal-test";
+    window.location.href = ROOT_LINK + "/soal_pretest";
   }
 
   useEffect(() => {
     setIsError(false);
     UseFetch(API_LINK + "MasterTest/GetDataTest", currentFilter)
       .then((data) => {
-        if (data === "ERROR") 
-        //Harusnya true
-        setIsError(false);
+        if (data === "ERROR")
+          //Harusnya true
+          setIsError(false);
         else if (data.length === 0) setCurrentData(inisialisasiData);
         else {
           const formattedData = data.map((value) => {
@@ -128,45 +140,46 @@ export default function MasterTestIndex({ onChangePage }) {
   }, [currentFilter]);
 
   const circleStyle = {
-    width: '50px',
-    height: '50px',
-    backgroundColor: 'lightgray',
-    marginRight: '20px'
+    width: "50px",
+    height: "50px",
+    backgroundColor: "lightgray",
+    marginRight: "20px",
   };
 
   const dummyData = [
     {
       Key: 1,
       No: 1,
-      TanggalUjian: '01-04-2024',
-      Persentase: '75%',
-      StatusTest: 'Tidak Lulus',
-      Aksi: ['Detail'],
-      Alignment: ['center', 'center', 'center', 'center', 'center'], 
+      TanggalUjian: "01-04-2024",
+      Persentase: "75%",
+      StatusTest: "Tidak Lulus",
+      Aksi: ["Detail"],
+      Alignment: ["center", "center", "center", "center", "center"],
     },
     {
       Key: 2,
       No: 2,
-      TanggalUjian: '02-04-2024',
-      Persentase: '90%',
-      StatusTest: 'Lulus',
-      Aksi: ['Detail'],
-      Alignment: [ 'center', 'center', 'center', 'center', 'center'], 
+      TanggalUjian: "02-04-2024",
+      Persentase: "90%",
+      StatusTest: "Lulus",
+      Aksi: ["Detail"],
+      Alignment: ["center", "center", "center", "center", "center"],
     },
     {
       Key: 3,
       No: 3,
-      TanggalUjian: '03-04-2024',
-      Persentase: '60%',
-      StatusTest: 'Tidak Lulus',
-      Aksi: ['Detail'],
-      Alignment: [ 'center', 'center', 'center', 'center', 'center'], 
+      TanggalUjian: "03-04-2024",
+      Persentase: "60%",
+      StatusTest: "Tidak Lulus",
+      Aksi: ["Detail"],
+      Alignment: ["center", "center", "center", "center", "center"],
     },
   ];
-  
+
   return (
     <>
       <div className="d-flex flex-column">
+        <KMS_Rightbar handlePreTestClick_close={handlePreTestClick_close} handlePreTestClick_open={handlePreTestClick_open}/>
         {isError && (
           <div className="flex-fill">
             <Alert
@@ -175,39 +188,62 @@ export default function MasterTestIndex({ onChangePage }) {
             />
           </div>
         )}
-        <div className="flex-fill">
-          
-        </div>
+        <div className="flex-fill"></div>
         <div className="mt-3">
-          {isLoading ? (
+          {/* {isLoading ? (
             <Loading />
-          ) : (
+          ) : ( */}
             <>
-            <div className="d-flex align-items-center mb-5">
-              <div className="rounded-circle overflow-hidden d-flex justify-content-center align-items-center" style={circleStyle}>
-                <img 
-                  src={profilePicture}
-                  alt="Profile Picture"
-                  className="align-self-start" 
-                  style={{ width: '450%', height: 'auto', position: 'relative', right: '30px', bottom:'40px'}}
-                />  
-              </div> 
-              <h6 className="mb-0">Fahriel Dwifaldi - 03 Agustus 2022</h6>
-            </div>
-            <div className="text-center" style={{marginBottom: '100px'}}>
-              <h2 className="font-weight-bold mb-4 primary">Pre Test - Pemrograman 1</h2>
-              <p className="mb-5" style={{ maxWidth: '600px', margin: '0 auto', marginBottom: '60px' }}>
-                Test ini terdiri dari 10 soal, minimal score kelulusan untuk mendapatkan sertifikat adalah 80%, dan anda hanya memiliki waktu 30 menit untuk mengerjakan seluruh soal yang ada, dimulai ketika klik tombol “Mulai Pre Test” di bawah ini.
-              </p>
-              <Button
-                classType="primary ms-2 px-4 py-2"
-                label="MULAI PRE-TEST"
-                onClick={() => onChangePage("soal_pretest")}
-              /><div>
-            </div>
-            </div>
-          </>
-          )}
+              <div style={{ marginRight: marginRight }}>
+                <div
+                  className="d-flex align-items-center mb-5"
+                  >
+                  <div
+                    className="rounded-circle overflow-hidden d-flex justify-content-center align-items-center"
+                    style={circleStyle}
+                  >
+                    <img
+                      src={profilePicture}
+                      alt="Profile Picture"
+                      className="align-self-start"
+                      style={{
+                        width: "450%",
+                        height: "auto",
+                        position: "relative",
+                        right: "30px",
+                        bottom: "40px",
+                      }}
+                    />
+                  </div>
+                  <h6 className="mb-0">Fahriel Dwifaldi - 03 Agustus 2022</h6>
+                </div>
+                <div className="text-center" style={{ marginBottom: "100px" }}>
+                  <h2 className="font-weight-bold mb-4 primary">
+                    Pre Test - Pemrograman 1
+                  </h2>
+                  <p
+                    className="mb-5"
+                    style={{
+                      maxWidth: "600px",
+                      margin: "0 auto",
+                      marginBottom: "60px",
+                    }}
+                  >
+                    This test consists of 10 questions, the minimum passing
+                    score to get a certificate is 80%, and you only have 30
+                    minutes to do all the questions, starting when you click the
+                    “Start Pre Test” button below.
+                  </p>
+                  <Button
+                    classType="primary ms-2 px-4 py-2"
+                    label="Start Pre-Test"
+                    onClick={onStartTest}
+                  />
+                  <div></div>
+                </div>
+              </div>
+            </>
+          {/* )} */}
         </div>
       </div>
     </>
