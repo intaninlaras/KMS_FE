@@ -25,8 +25,6 @@ export default function MasterDaftarPustaka() {
         return <MasterDaftarPustakaEdit onChangePage={handleSetPageMode} />;
       case "list":
         return <KelolaPustakaIndex onChangePage={handleSetPageMode} />;
-      case "add":
-        return <MasterDaftarPustakaAdd onChangePage={handleSetPageMode} />;
       case "index":
         return (
           <MasterDaftarPustakaIndex
@@ -43,9 +41,7 @@ export default function MasterDaftarPustaka() {
           />
         );
       default:
-        return (
-          "Tidak ditemukan"
-        );
+        return "Tidak ditemukan";
     }
   }
 

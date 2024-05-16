@@ -11,15 +11,26 @@ function CardKelompokKeahlian({
     prodi: { key: "", nama: "" },
     pic: { key: "", nama: "" },
     desc: "",
+    status: "",
     members: [],
     memberCount: 0,
   },
   onChangePage,
+  onChangeStatus,
+  onDelete,
 }) {
+  const handleStatusChange = (data, status) => {
+    onChangeStatus(data, status);
+  };
+
+  const handleDeleteClick = (data) => {
+    onDelete(data.id);
+  };
+
   const members = data.members || []; // memastikan members selalu berupa array
 
   let personInCharge;
-  if (config.footer === "Draft" && !data.pic) {
+  if (data.status === "Draft" && !data.pic.key) {
     personInCharge = (
       <div className="pt-2 ps-2">
         <Icon
@@ -30,7 +41,7 @@ function CardKelompokKeahlian({
         <span>PIC : -</span>
       </div>
     );
-  } else if (config.footer === "Menunggu" && !data.pic) {
+  } else {
     personInCharge = (
       <div className="pt-2 ps-2">
         <Icon
@@ -40,7 +51,7 @@ function CardKelompokKeahlian({
         />{" "}
         <span>
           PIC :{" "}
-          {data.pic ? (
+          {data.pic.key ? (
             data.pic.nama
           ) : (
             <span className="text-danger-emphasis fw-bold">
@@ -49,6 +60,21 @@ function CardKelompokKeahlian({
           )}
         </span>
       </div>
+    );
+  }
+
+  let footerStatus;
+  if (data.status === "Draft" && !data.pic.key) {
+    footerStatus = (
+      <p className="mb-0 text-secondary">Draft - Belum dikirimkan ke Prodi</p>
+    );
+  } else if (data.status === "Draft" && data.pic.key) {
+    footerStatus = (
+      <p className="mb-0 text-secondary">Draft - Belum dipublikasi</p>
+    );
+  } else if (data.status === "Menunggu" && !data.pic.key) {
+    footerStatus = (
+      <p className="mb-0 text-secondary">Menunggu PIC dari Prodi</p>
     );
   }
 
@@ -69,14 +95,60 @@ function CardKelompokKeahlian({
           iconName={config.icon}
           classType={config.className}
           label={config.label}
-          onClick={() => onChangePage(config.page, data.id)}
+          onClick={() => onChangePage(config.page, data)}
         />
       </div>
     );
   } else if (config.footer === "Draft") {
     cardContent = (
       <div className="d-flex justify-content-between">
-        <p className="mb-0 text-secondary">Draft - Belum dikirimkan ke Prodi</p>
+        {footerStatus}
+        <div className="d-flex justify-content-end">
+          <Icon
+            name="edit"
+            type="Bold"
+            cssClass="btn px-2 py-0 text-primary"
+            title="Ubah data"
+            onClick={() => onChangePage("edit", data)}
+          />
+          <Icon
+            name="trash"
+            type="Bold"
+            cssClass="btn px-2 py-0 text-primary"
+            title="Hapus data permanen"
+            onClick={() => handleDeleteClick(data)}
+          />
+          <Icon
+            name="list"
+            type="Bold"
+            cssClass="btn px-2 py-0 text-primary"
+            title="Lihat detail Kelompok Keahlian"
+            onClick={() => onChangePage("detailDraft", data)}
+          />
+          {data.pic.key ? (
+            <Icon
+              name="paper-plane"
+              type="Bold"
+              cssClass="btn px-1 py-0 text-primary"
+              title="Publikasi Kelompok Keahlian"
+              onClick={() => handleStatusChange(data, "Aktif")}
+            />
+          ) : (
+            <Icon
+              name="paper-plane"
+              type="Bold"
+              cssClass="btn px-1 py-0 text-primary"
+              title="Kirim ke Prodi bersangkutan untuk menentukan PIC"
+              onClick={() => handleStatusChange(data, "Menunggu")}
+            />
+          )}
+        </div>
+      </div>
+    );
+  } else if (config.footer === "Menunggu") {
+    cardContent = (
+      <div className="d-flex justify-content-between">
+        {footerStatus}
         <div className="d-flex justify-content-end">
           <Icon
             name="edit"
@@ -96,42 +168,18 @@ function CardKelompokKeahlian({
             type="Bold"
             cssClass="btn px-2 py-0 text-primary"
             title="Lihat detail Kelompok Keahlian"
-            onClick={() => onChangePage("detailDraft", data.id)}
+            onClick={() => onChangePage("detailDraft", data)}
           />
-          <Icon
-            name="paper-plane"
-            type="Bold"
-            cssClass="btn px-1 py-0 text-primary"
-            title="Kirim ke Prodi bersangkutan untuk menentukan PIC"
-          />
-        </div>
-      </div>
-    );
-  } else if (config.footer === "Menunggu") {
-    cardContent = (
-      <div className="d-flex justify-content-between">
-        <p className="mb-0 text-secondary">Menunggu PIC dari Prodi</p>
-        <div className="d-flex justify-content-end">
-          <Icon
-            name="edit"
-            type="Bold"
-            cssClass="btn px-2 py-0 text-primary"
-            title="Ubah data"
-            onClick={() => onChangePage("edit", data.id)}
-          />
-          <Icon
-            name="trash"
-            type="Bold"
-            cssClass="btn px-2 py-0 text-primary"
-            title="Hapus data permanen"
-          />
-          <Icon
-            name="list"
-            type="Bold"
-            cssClass="btn px-2 py-0 text-primary"
-            title="Lihat detail Kelompok Keahlian"
-            onClick={() => onChangePage("detailDraft", data.id)}
-          />
+          {data.pic.key ? (
+            <Icon
+              name="paper-plane"
+              type="Bold"
+              cssClass="btn px-1 py-0 text-primary"
+              title="Kirim ke Prodi bersangkutan untuk menentukan PIC"
+            />
+          ) : (
+            ""
+          )}
         </div>
       </div>
     );
@@ -177,15 +225,15 @@ function CardKelompokKeahlian({
             name="edit"
             type="Bold"
             cssClass="btn px-2 py-0 text-primary"
-            title="Edit"
-            onClick={() => onChangePage("edit", data.id)}
+            title="Ubah data"
+            onClick={() => onChangePage("edit", data)}
           />
           <Icon
             name="list"
             type="Bold"
             cssClass="btn px-2 py-0 text-primary"
-            title="List"
-            onClick={() => onChangePage("detailPublish", data.id)}
+            title="Lihat detail Kelompok Keahlian"
+            onClick={() => onChangePage("detailPublish", data)}
           />
           <div
             className="form-check form-switch py-0 ms-2"
@@ -193,9 +241,15 @@ function CardKelompokKeahlian({
           >
             <Input
               type="checkbox"
-              forInput=""
-              label=""
+              title="Aktif / Nonaktif"
               className="form-check-input"
+              checked={data.status === "Aktif"}
+              onChange={() =>
+                handleStatusChange(
+                  data,
+                  data.status === "Aktif" ? "Tidak Aktif" : "Aktif"
+                )
+              }
             />
             <label
               className="form-check-label"
@@ -226,7 +280,7 @@ function CardKelompokKeahlian({
               borderTopLeftRadius: "10px",
               backgroundColor:
                 config.footer === "Draft" || config.footer === "Menunggu"
-                  ? "#A6A6A6"
+                  ? "#6c757d"
                   : "#67ACE9",
             }}
           >

@@ -1,5 +1,4 @@
-import { useRef, useState } from "react";
-import { object, string } from "yup";
+import { useState, useEffect } from "react";
 import SweetAlert from "../../util/SweetAlert";
 import UseFetch from "../../util/UseFetch";
 import UploadFile from "../../util/UploadFile";
@@ -15,35 +14,28 @@ export default function KKDetailDraft({ onChangePage, withID }) {
   const [errors, setErrors] = useState({});
   const [isError, setIsError] = useState({ error: false, message: "" });
   const [isLoading, setIsLoading] = useState(false);
-  const data = ListKelompokKeahlian.find((item) => item.data.id === withID);
 
-  const formDataRef = useRef({
-    namaProduk: "",
-    jenisProduk: "",
-    gambarProduk: "",
-    spesifikasi: "",
+  const [formData, setFormData] = useState({
+    key: "",
+    nama: "",
+    programStudi: "",
+    personInCharge: "",
+    deskripsi: "",
+    status: "",
   });
 
-  const userSchema = object({
-    namaProduk: string()
-      .max(100, "maksimum 100 karakter")
-      .required("harus diisi"),
-    jenisProduk: string().required("harus dipilih"),
-    gambarProduk: string(),
-    spesifikasi: string(),
-  });
-
-  const handleInputChange = async (e) => {
-    const { name, value } = e.target;
-    const validationError = await validateInput(name, value, userSchema);
-    formDataRef.current[name] = value;
-    setErrors((prevErrors) => ({
-      ...prevErrors,
-      [validationError.name]: validationError.error,
-    }));
-  };
-
-  const handleAdd = async (e) => {};
+  useEffect(() => {
+    if (withID) {
+      setFormData({
+        key: withID.id,
+        nama: withID.title,
+        programStudi: withID.prodi.nama,
+        personInCharge: withID.pic.nama,
+        deskripsi: withID.desc,
+        status: withID.status,
+      });
+    }
+  }, [withID]);
 
   if (isLoading) return <Loading />;
 
@@ -54,7 +46,7 @@ export default function KKDetailDraft({ onChangePage, withID }) {
           <Alert type="danger" message={isError.message} />
         </div>
       )}
-      <form onSubmit={handleAdd}>
+      <form>
         <div className="card">
           <div className="card-header bg-primary fw-medium text-white">
             Lihat Kelompok Keahlian{" "}
@@ -65,53 +57,41 @@ export default function KKDetailDraft({ onChangePage, withID }) {
               <div className="col-lg-12">
                 <Input
                   type="text"
-                  forInput="namaProduk"
-                  label="Nama"
-                  isRequired
-                  placeholder="Nama"
-                  value={data?.data.title || ""}
-                  onChange={handleInputChange}
-                  errorMessage={errors.namaProduk}
+                  forInput="nama"
+                  label="Nama Kelompok Keahlian"
+                  value={formData.nama}
+                  readOnly
                 />
               </div>
               <div className="col-lg-12">
                 <label style={{ paddingBottom: "5px", fontWeight: "bold" }}>
-                  Deskripsi <span style={{ color: "red" }}> *</span>
+                  Deskripsi/Ringkasan Mengenai Kelompok Keahlian
                 </label>
                 <textarea
                   className="form-control mb-3"
-                  style={{
-                    height: "200px",
-                  }}
+                  style={{ height: "200px" }}
                   id="deskripsi"
                   name="deskripsi"
-                  value={data?.data.desc || ""}
-                  onChange={handleInputChange}
-                  placeholder="Deskripsi"
-                  required
+                  value={formData.deskripsi}
+                  readOnly
                 />
               </div>
               <div className="col-lg-6">
-                <DropDown
-                  forInput="jenisProduk"
+                <Input
+                  type="text"
+                  forInput="programStudi"
                   label="Program Studi"
-                  arrData={ListProdi}
-                  isRequired
-                  value={data?.data.prodi || ""}
-                  onChange={handleInputChange}
-                  errorMessage={errors.jenisProduk}
-                  readonly
+                  value={formData.programStudi}
+                  readOnly
                 />
               </div>
               <div className="col-lg-6">
-                <DropDown
-                  forInput="jenisProduk"
+                <Input
+                  type="text"
+                  forInput="personInCharge"
                   label="PIC Kelompok Keahlian"
-                  arrData={ListProdi}
-                  value={formDataRef.current.jenisProduk}
-                  onChange={handleInputChange}
-                  errorMessage={errors.jenisProduk}
-                  readonly
+                  value={formData.personInCharge || "-"}
+                  readOnly
                 />
               </div>
             </div>
