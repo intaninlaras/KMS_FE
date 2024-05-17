@@ -13,7 +13,7 @@ export default function Header() {
       <div className="pe-4 my-auto">
         <div className="d-flex justify-content-end">
           <div className="text-end">
-            <p className="fw-bold mx-0 my-0">Intan Larasati (Tenaga Pendidik)</p>
+            <p className="fw-bold mx-0 my-0">Intan Larasati (TENAGA PENDIDIK)</p>
             <small className="text-body-secondary" style={{ fontSize: ".7em" }}>
               Login terakhir: 6 Maret 2024, 10:38 WIB
             </small>

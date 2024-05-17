@@ -15,11 +15,9 @@ import { Stepper } from 'react-form-stepper';
 
 import axios from "axios";
 const listJenisProduk = [
-  { Value: "Part", Text: "Part" },
-  { Value: "Unit", Text: "Unit" },
-  { Value: "Konstruksi", Text: "Konstruksi" },
-  { Value: "Mass Production", Text: "Mass Production" },
-  { Value: "Lainnya", Text: "Lainnya" },
+  { Value: "HR Generalist Fundamental", Text: "HR Generalist Fundamental" },
+  { Value: "Manajemen Pengembangan SDM", Text: "Manajemen Pengembangan SDM" },
+  { Value: "Proses Perekrutan dan Seleksi", Text: "Proses Perekrutan dan Seleksi" },
 ];
 
 export default function MasterProdukAdd({ onChangePage }) {
@@ -28,14 +26,14 @@ export default function MasterProdukAdd({ onChangePage }) {
   const [isLoading, setIsLoading] = useState(false);
 
   const formDataRef = useRef({
-    materiId:"1",
     kategoriId:"1",
-    namaProduk: "", //Materi Judul
+    namaMateri: "", //Materi Judul
     materiFile: "",
-    materiKeterangan: "",
+    deskripsiMateri: "",
     karyawanId: "1",
     materiKataKunci: "",
     materiGambar: "",
+    materiSharingExpert: "",
     materiStatus: "Aktif",
     createdBy: "",
   });
@@ -43,12 +41,13 @@ export default function MasterProdukAdd({ onChangePage }) {
   const fileGambarRef = useRef(null);
 
   const userSchema = object({
-    namaProduk: string()
+    namaMateri: string()
       .max(100, "maksimum 100 karakter")
       .required("harus diisi"),
     jenisProduk: string().required("harus dipilih"),
     gambarProduk: string(),
     spesifikasi: string(),
+    deskripsiMateri: string(),
   });
 
   const handleInputChange = async (e) => {
@@ -185,12 +184,12 @@ export default function MasterProdukAdd({ onChangePage }) {
               <div className="col-lg-6">
                 <Input
                   type="text"
-                  forInput="namaProduk"
+                  forInput="namaMateri"
                   label="Expertise Group"
                   //isRequired
-                  value={formDataRef.current.namaProduk}
+                  value={formDataRef.current.namaMateri}
                   onChange={handleInputChange}
-                  errorMessage={errors.namaProduk}
+                  errorMessage={errors.namaMateri}
                 />
               </div>
               <div className="col-lg-6">
@@ -206,21 +205,21 @@ export default function MasterProdukAdd({ onChangePage }) {
               <div className="col-lg-6">
                 <Input
                   type="text"
-                  forInput="namaProduk"
+                  forInput="namaMateri"
                   label="Course Name"
-                  value={formDataRef.current.namaProduk}
+                  value={formDataRef.current.namaMateri}
                   onChange={handleInputChange}
-                  errorMessage={errors.namaProduk}
+                  errorMessage={errors.namaMateri}
                 />
               </div>
               <div className="col-lg-6">
                 <Input
                   type="text"
-                  forInput="namaProduk"
+                  forInput="namaMateri"
                   label="Course Introduction"
-                  value={formDataRef.current.namaProduk}
+                  value={formDataRef.current.namaMateri}
                   onChange={handleInputChange}
-                  errorMessage={errors.namaProduk}
+                  errorMessage={errors.namaMateri}
                 />
               </div>
               <div className="col-lg-12">
@@ -279,7 +278,7 @@ export default function MasterProdukAdd({ onChangePage }) {
             label="Save"
           />
           <Button
-            classType="warning ms-3 px-4 py-2"
+            classType="dark ms-3 px-4 py-2"
             label="Next"
             onClick={() => onChangePage("forumAdd")}
           />
