@@ -120,7 +120,7 @@ export default function App() {
       <Header />
       <div style={{ marginTop: '70px' }}></div>
       <div className="d-flex flex-row">
-        <SideBar />
+        {/* <SideBar /> */}
         <Container>
           <RouterProvider router={router} />
         </Container>
