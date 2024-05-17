@@ -142,6 +142,11 @@ export default function KMS_Rightbar({ handlePreTestClick_close, handlePreTestCl
     handlePreTestClick_close();
   }
 
+  function onClick_forum() {
+    window.location.href = ROOT_LINK + "/master_test/forum";
+  }
+
+
   function onClick_postTest() {
     window.location.href = ROOT_LINK + "/master_test/post-test";
   }
@@ -233,7 +238,7 @@ export default function KMS_Rightbar({ handlePreTestClick_close, handlePreTestCl
               ))}
             </div>
             <div style={styles.sidebarItem}>
-              <a href="#" style={styles.link}>Forum</a>
+              <a href="#" style={styles.link} onClick={onClick_forum}>Forum</a>
             </div>
             <div style={styles.sidebarItem}>
               <a href="#" style={styles.link} onClick={onClick_postTest}>Post-Test</a>
