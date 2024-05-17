@@ -8,7 +8,7 @@ import DropDown from "../../part/Dropdown";
 import Alert from "../../part/Alert";
 import Loading from "../../part/Loading";
 import '@fortawesome/fontawesome-free/css/all.css';
-
+import axios from "axios";
 // Definisikan beberapa data contoh untuk tabel
 const sampleData = [
   {
@@ -17,7 +17,6 @@ const sampleData = [
     "Kelompok Keahlian": "Pemrograman",
     "Deskripsi Materi": "Pengenalan Bahasa Pemrograman PHP dan Framework Laravel",
     "Status Materi": "Aktif",
-    "ImageUrl": "/php-logo.png" // URL contoh gambar
   },
   {
     Key: 2,
@@ -25,7 +24,6 @@ const sampleData = [
     "Kelompok Keahlian": "Basis Data",
     "Deskripsi Materi": "Pengenalan Query DDL dan DML pada DBMS SQL Server",
     "Status Materi": "Tidak Aktif",
-    "ImageUrl": "/DDL.png"
   },
   {
     Key: 3,
@@ -33,7 +31,6 @@ const sampleData = [
     "Kelompok Keahlian": "Informatika",
     "Deskripsi Materi": "Pengenalan Fitur dan Formula Dasar Pada Microsoft Excel",
     "Status Materi": "Aktif",
-    "ImageUrl": "/excel.png"
   },
   {
     Key: 4,
@@ -41,18 +38,17 @@ const sampleData = [
     "Kelompok Keahlian": "Jaringan Komputer",
     "Deskripsi Materi": "Dasar Pengenalan Router dan Cara Konfigurasi Router",
     "Status Materi": "Tidak Aktif",
-    "ImageUrl": "/router.jpg"
   },
   // Tambahkan data contoh lebih banyak jika dibutuhkan
 ];
 
 const dataFilterSort = [
-  { Value: "[Key] asc", Text: "Key [↑]" },
-  { Value: "[Key] desc", Text: "Key [↓]" },
-  { Value: "[Nama Materi] asc", Text: "Nama Materi [↑]" },
-  { Value: "[Nama Materi] desc", Text: "Nama Materi [↓]" },
-  { Value: "[Kelompok Keahlian] asc", Text: "Kelompok Keahlian [↑]" },
-  { Value: "[Kelompok Keahlian] desc", Text: "Kelompok Keahlian [↓]" },
+  { Value: "key,asc", Text: "Key [↑]" },
+  { Value: "key,desc", Text: "Key [↓]" },
+  { Value: "namaMateri,asc", Text: "Nama Materi [↑]" },
+  { Value: "namaMateri,desc", Text: "Nama Materi [↓]" },
+  { Value: "kelompokKeahlian,asc", Text: "Kelompok Keahlian [↑]" },
+  { Value: "kelompokKeahlian,desc", Text: "Kelompok Keahlian [↓]" },
 ];
 
 const dataFilterJenis = [
@@ -66,18 +62,12 @@ export default function MasterProsesIndex({ onChangePage }) {
   const [isError, setIsError] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [currentData, setCurrentData] = useState([]);
-  const [filteredData, setFilteredData] = useState([]); // Gunakan state data yang difilter
-  const [currentFilter, setCurrentFilter] = useState({
-    page: 1,
-    query: "",
-    sort: "[Key] asc",
-    jenis: "",
-  });
-  const [toggleStatus, setToggleStatus] = useState({});
+  const [filteredData, setFilteredData] = useState([]);
 
-  const searchQuery = useRef();
-  const searchFilterSort = useRef();
-  const searchFilterJenis = useRef();
+
+  const searchQuery = useRef(null);
+  const searchFilterSort = useRef(null);
+  const searchFilterJenis = useRef(null);
 
   function handleSetCurrentPage(newCurrentPage) {
     setIsLoading(true);
@@ -94,48 +84,45 @@ export default function MasterProsesIndex({ onChangePage }) {
       query: searchQuery.current.value,
       sort: searchFilterSort.current.value,
       jenis: searchFilterJenis.current.value,
+      sort: 'ASC',
     });
   }
-
-  function toggleTampilkan(key) {
-    setToggleStatus((prevStatus) => ({
-      ...prevStatus,
-      [key]: !prevStatus[key], // Mengubah status toggle saat tombol di klik
-    }));
-  }
-
+  const [currentFilter, setCurrentFilter] = useState({
+    page: 1,
+    query: "",
+    sort: "key,asc",
+    jenis: "",
+  });
   useEffect(() => {
-    setIsError(false);
-    // Meniru panggilan API dengan timeout
-    setTimeout(() => {
-      // Filter data berdasarkan filter saat ini
-      let filteredData = sampleData.filter((item) => {
-        return (
-          item["Nama Materi"].toLowerCase().includes(currentFilter.query.toLowerCase()) &&
-          (currentFilter.jenis === "" || item["Kelompok Keahlian"] === currentFilter.jenis)
-        );
-      });
-      // Urutkan data berdasarkan urutan saat ini
-      filteredData.sort((a, b) => {
-        if (currentFilter.sort === "[Key] asc") {
-          return a.Key - b.Key;
-        } else if (currentFilter.sort === "[Key] desc") {
-          return b.Key - a.Key;
-        } else if (currentFilter.sort === "[Nama Materi] asc") {
-          return a["Nama Materi"].localeCompare(b["Nama Materi"]);
-        } else if (currentFilter.sort === "[Nama Materi] desc") {
-          return b["Nama Materi"].localeCompare(a["Nama Materi"]);
-        } else if (currentFilter.sort === "[Kelompok Keahlian] asc") {
-          return a["Kelompok Keahlian"].localeCompare(b["Kelompok Keahlian"]);
-        } else if (currentFilter.sort === "[Kelompok Keahlian] desc") {
-          return b["Kelompok Keahlian"].localeCompare(a["Kelompok Keahlian"]);
-        }
-      });
+    const fetchData = async () => {
+      setIsError(false);
+      setIsLoading(true);
 
-      setCurrentData(sampleData); // Simpan semua data
-      setFilteredData(filteredData); // Simpan data yang difilter
-      setIsLoading(false);
-    }, 500); // Meniru penundaan pemuatan
+      try {
+        const response = await axios.post("http://localhost:8080/Materis/GetDataMateri", {
+          page: '1',
+          status: 'Aktif',
+          query: '',
+          orderby:'Judul',
+          sort: 'asc',
+        });
+
+        if (response.data && Array.isArray(response.data)) {
+          console.log(JSON.stringify(response.data));
+          setCurrentData(response.data);
+          setFilteredData(response.data);
+        } else {
+          throw new Error("Data format is incorrect");
+        }
+      } catch (error) {
+        setIsError(true);
+        console.error("Fetch error:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchData();
   }, [currentFilter]);
 
   return (
@@ -147,7 +134,7 @@ export default function MasterProsesIndex({ onChangePage }) {
               <div className="flex-fill">
                 <Alert
                   type="warning"
-                  message="Terjadi kesalahan: Gagal mengambil data produk."
+                  message="Terjadi kesalahan: Gagal mengambil data materi."
                 />
               </div>
             )}
@@ -157,13 +144,13 @@ export default function MasterProsesIndex({ onChangePage }) {
                   iconName="add"
                   classType="success"
                   title="Tambah Materi"
-                  label="Tambah"
+                  label="Add Course"
                   onClick={() => onChangePage("pretestAdd")}
                 />
                 <Input
                   ref={searchQuery}
                   forInput="pencarianProduk"
-                  placeholder="Cari"
+                  placeholder="Search"
                 />
                 <Button
                   iconName="search"
@@ -197,31 +184,26 @@ export default function MasterProsesIndex({ onChangePage }) {
               ) : (
                 <div className="row">
                   {filteredData.map((item) => (
-                    <div key={item.Key} className="col-lg-6 mb-4">
+                    <div key={item.Key} className="col-lg-4 mb-4">
                       <div className="card">
-                        <div className={`card-header d-flex justify-content-between align-items-center`} style={{ backgroundColor: toggleStatus[item.Key] ? '#67ACE9' : '#A6A6A6', color: 'white' }}>
+                        <div className={`card-header d-flex justify-content-between align-items-center`} style={{ backgroundColor: item.Status === "Aktif" ? '#67ACE9' : '#A6A6A6', color: 'white' }}>
 
-                          <span>{item["Kelompok Keahlian"]}</span>
-
-                        </div>
-                        <div className="card-body bg-white d-flex">
-                          <img src={item.ImageUrl} alt={item["Nama Materi"]} className="img-thumbnail me-3" style={{ width: '150px', height: '100px' }} />
-                          <div>
-                            <h5 className="card-title">{item["Nama Materi"]}</h5>
-                            <hr style={{ opacity: "0.1" }} />
-                            <p className="card-text">{item["Deskripsi Materi"]}</p>
-                          </div>
-                        </div>
-                        <div className="card-footer d-flex justify-content-end bg-white">
-                        
-                          <button className="btn btn-sm text-primary" title="Edit Materi" onClick={() => onChangePage("edit")}><i className="fas fa-edit"></i></button>
-                          <button className="btn btn-sm text-primary" title="Detail Materi" onClick={() => onChangePage("detail")}><i className="fas fa-list"></i></button>
+                          <span>{item.Kategori}</span>
                           <button 
                             className="btn btn-circle"
                             onClick={() => toggleTampilkan(item.Key)} // Menggunakan fungsi toggleTampilkan untuk mengubah status materi
                           >
-                            {toggleStatus[item.Key] ? <i className="fas fa-toggle-on text-primary" style={{ fontSize: '20px' }}></i> : <i className="fas fa-toggle-off text-grey" style={{ fontSize: '20px' }}></i>}
+                            {filteredData[item.Key] ? <i className="fas fa-toggle-on text-white" style={{ fontSize: '20px' }}></i> : <i className="fas fa-toggle-off text-white" style={{ fontSize: '20px' }}></i>}
                           </button>
+                        </div>
+                        <div className="card-body bg-white">
+                          <h5 className="card-title">{item.Judul}</h5>
+                          <hr style={{ opacity: "0.1" }} />
+                          <p className="card-text">{item.Keterangan}</p>
+                        </div>
+                        <div className="card-footer d-flex justify-content-end bg-white">
+                          <button className="btn btn-sm text-primary" title="Edit Materi" onClick={() => onChangePage("edit")}><i className="fas fa-edit"></i></button>
+                          <button className="btn btn-sm text-primary" title="Detail Materi" onClick={() => onChangePage("detail")}><i className="fas fa-list"></i></button>
                         </div>
                       </div>
                     </div>
@@ -242,7 +224,7 @@ export default function MasterProsesIndex({ onChangePage }) {
         <div className="float my-4 mx-1">
           <Button
             classType="outline-secondary me-2 px-4 py-2"
-            label="Kembali"
+            label="Back"
             onClick={() => onChangePage("kk")}
           />
         </div>

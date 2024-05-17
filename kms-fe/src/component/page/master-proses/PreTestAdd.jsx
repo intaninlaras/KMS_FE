@@ -438,6 +438,11 @@ export default function MasterProdukAdd({ onChangePage }) {
             label="Save"
             onClick={() => onChangePage("courseAdd")}
           />
+          <Button
+            classType="warning ms-3 px-4 py-2"
+            label="Next"
+            onClick={() => onChangePage("courseAdd")}
+          />
         </div>
       </form>
     </>
