@@ -41,7 +41,7 @@ export default function MasterDaftarPustakaAdd({ onChangePage, withID }) {
   });
 
   const userSchema = object({
-    kke_id:string(),
+    kke_id: string(),
     pus_file: string(),
     pus_judul: string(),
     pus_kata_kunci: string().required("harus dipilih"),
@@ -99,7 +99,7 @@ export default function MasterDaftarPustakaAdd({ onChangePage, withID }) {
 
       const uploadPromises = [];
 
-      console.log(fileInputRef.current.files[0])
+      console.log(fileInputRef.current.files[0]);
       if (fileInputRef.current.files.length > 0) {
         uploadPromises.push(
           uploadFile(fileInputRef.current).then((data) => {
@@ -108,7 +108,7 @@ export default function MasterDaftarPustakaAdd({ onChangePage, withID }) {
           })
         );
       }
-      
+
       if (gambarInputRef.current.files.length > 0) {
         uploadPromises.push(
           uploadFile(gambarInputRef.current).then((data) => {
@@ -122,10 +122,7 @@ export default function MasterDaftarPustakaAdd({ onChangePage, withID }) {
         console.log(formDataRef.current.pus_gambar);
         console.log(formDataRef.current.pus_file);
         // console.log("Final formDataRef:", JSON.stringify(formDataRef.current));
-        UseFetch(
-          API_LINK + "Pustakas/SaveDataPustaka",
-          formDataRef.current
-        )
+        UseFetch(API_LINK + "Pustakas/SaveDataPustaka", formDataRef.current)
           .then((data) => {
             if (data === "ERROR") {
               setIsError((prevError) => {
@@ -136,11 +133,7 @@ export default function MasterDaftarPustakaAdd({ onChangePage, withID }) {
                 };
               });
             } else {
-              SweetAlert(
-                "Sukses",
-                "Data Pustaka berhasil disimpan",
-                "success"
-              );
+              SweetAlert("Sukses", "Data Pustaka berhasil disimpan", "success");
               window.location.reload();
             }
           })
@@ -194,9 +187,7 @@ export default function MasterDaftarPustakaAdd({ onChangePage, withID }) {
                   forInput="pus_file"
                   label="File Pustaka (.pdf, .mp4)"
                   formatFile=".pdf,.mp4"
-                  onChange={() =>
-                    handleFileChange(fileInputRef, "pdf,mp4")
-                  }
+                  onChange={() => handleFileChange(fileInputRef, "pdf,mp4")}
                   errorMessage={errors.pus_file}
                 />
               </div>
@@ -206,23 +197,21 @@ export default function MasterDaftarPustakaAdd({ onChangePage, withID }) {
                   forInput="pus_gambar"
                   label="Gambar Cover (.jpg, .png)"
                   formatFile=".pdf,.jpg,.png"
-                  onChange={() =>
-                    handleFileChange(gambarInputRef, "jpg,png")
-                  }
+                  onChange={() => handleFileChange(gambarInputRef, "jpg,png")}
                   errorMessage={errors.pus_gambar}
                 />
               </div>
               <div className="col-lg-12">
-                  <Input
-                    type="textarea"
-                    forInput="pus_keterangan"
-                    label="Keterangan Pustaka"
-                    isRequired
-                    value={formDataRef.current.pus_keterangan}
-                    onChange={handleInputChange}
-                    errorMessage={errors.pus_keterangan}
-                  />
-                </div>
+                <Input
+                  type="textarea"
+                  forInput="pus_keterangan"
+                  label="Keterangan Pustaka"
+                  isRequired
+                  value={formDataRef.current.pus_keterangan}
+                  onChange={handleInputChange}
+                  errorMessage={errors.pus_keterangan}
+                />
+              </div>
             </div>
           </div>
         </div>
