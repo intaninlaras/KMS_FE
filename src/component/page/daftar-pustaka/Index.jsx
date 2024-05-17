@@ -211,7 +211,7 @@ export default function MasterDaftarPustakaIndex({ onChangePage, withID }) {
 
             return Promise.all(filePromises).then((results) => {
               // console.log("Contents of filePromises:", filePromises);
-              // console.log("Results of fetching files:", results);
+              console.log("Results of fetching files:", results);
               const updatedValue = results.reduce((acc, curr) => ({ ...acc, ...curr }), value);
               // console.log("Updated value with blobs:", updatedValue);
               return updatedValue;

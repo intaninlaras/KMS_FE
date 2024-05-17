@@ -10,7 +10,7 @@ function CardPustaka({
     onStatus,
     onEdit = () => { },
     onDetail = () => { },
-    MAX_DESCRIPTION_LENGTH = 140,
+    MAX_DESCRIPTION_LENGTH = 80,
 }) {
 
     const [expandDeskripsi, setExpandDeskripsi] = useState({});
@@ -69,14 +69,24 @@ function CardPustaka({
                                     }}
                                 ></div>
 
+
                                 <div style={{ paddingLeft: "25px" }}> {/* paddingLeft disesuaikan dengan lebar garis vertikal + marginRight gambar */}
                                     {/* Judul Buku */}
                                     <button className="btn btn-link p-0 text-decoration-none" onClick={() => onDetail("detail", book)}>
                                         <h5 className="card-title mb-1">{book.Judul}</h5>
                                     </button>
                                     {/* Nama Pengarang */}
+                                    <div className="mb-1" style={{
+                                        fontSize:"12px"
+                                    }}>
+                                        <span
+                                            className="bg-primary me-2"
+                                            style={{ padding: "2px" }}
+                                        ></span>
+                                        <span>{book["Kelompok Keahlian"]}</span>
+                                    </div>
                                     <div className="mb-1">
-                                        <FontAwesomeIcon icon={faUser} style={{ marginRight: "10px", color: "gray" }} />
+                                        <FontAwesomeIcon icon={faUser} style={{ marginRight: "10px", color: "gray", fontSize:"14px" }} />
                                         <span style={{ fontSize: "12px" }}>{book.Uploader} • {book.Creadate.slice(0, 10)}</span>
                                     </div>
                                     {/* Deskripsi Buku */}

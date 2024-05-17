@@ -13,7 +13,11 @@ export default function PengajuanKKs() {
         return <PengajuanIndex onChangePage={handleSetPageMode} />;
       case "add":
         return (
-          <PengajuanAdd onChangePage={handleSetPageMode} withID={dataID} />
+          <
+            PengajuanAdd
+            onChangePage={handleSetPageMode}
+            withID={dataID}
+          />
         );
       case "detail":
         return <PengajuanDetail onChangePage={handleSetPageMode} />;
