@@ -83,13 +83,13 @@ function CardKelompokKeahlian({
     cardContent = (
       <div className="d-flex justify-content-between">
         <div>
-          <Icon
+          {/* <Icon
             name="users"
             type="Bold"
             cssClass="btn px-2 py-0 text-primary"
             title="Anggota Kelompok Keahlian"
           />{" "}
-          <span className="fw-semibold">{data.memberCount} Anggota</span>
+          <span className="fw-semibold">{data.memberCount} Anggota</span> */}
         </div>
         <Button
           iconName={config.icon}
@@ -204,29 +204,32 @@ function CardKelompokKeahlian({
                 />
               </a>
             ))}
-          </div>) : (
-            ""
+          </div>
+        ) : (
+          ""
         )}
-        {data.members ? (<div className="img-container" style={{ width: "28%" }}>
-          {members.map((person, index) => (
-            <div style={{ width: "55%", marginLeft: "-10px" }}>
-              <p className="lh-sm mb-0">
-                {members.map((person, index) => (
-                  <span key={index}>
-                    <a
-                      href={person.link}
-                      className="fw-bold text-dark text-decoration-none"
-                    >
-                      {person.name}
-                      {", "}
-                    </a>
-                  </span>
-                ))}
-                dan {data.memberCount} Lainnya sudah bergabung!
-              </p>
-            </div>
-          ))}
-        </div>) : (
+        {data.members ? (
+          <div className="img-container" style={{ width: "28%" }}>
+            {members.map((person, index) => (
+              <div style={{ width: "55%", marginLeft: "-10px" }}>
+                <p className="lh-sm mb-0">
+                  {members.map((person, index) => (
+                    <span key={index}>
+                      <a
+                        href={person.link}
+                        className="fw-bold text-dark text-decoration-none"
+                      >
+                        {person.name}
+                        {", "}
+                      </a>
+                    </span>
+                  ))}
+                  dan {data.memberCount} Lainnya sudah bergabung!
+                </p>
+              </div>
+            ))}
+          </div>
+        ) : (
           ""
         )}
         <div className="d-flex" style={{ width: "20%" }}>

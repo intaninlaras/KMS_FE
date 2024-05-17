@@ -31,7 +31,7 @@ const dataFilterSort = [
 ];
 
 const dataFilterStatus = [
-  { Value: "", Text: "No Filter" },
+  { Value: "", Text: "Semua" },
   { Value: "Draft", Text: "Draft" },
   { Value: "Aktif", Text: "Aktif" },
   { Value: "Tidak Aktif", Text: "Tidak Aktif" },

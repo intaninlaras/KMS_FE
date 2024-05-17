@@ -74,7 +74,7 @@ export default function KKDetailPublish({ onChangePage, withID }) {
               <p className="py-3">{formData.deskripsi}</p>
             </div>
             <div className="col-lg-5">
-              <p>3 orang baru saja bergabung!</p>
+              {/* <p>3 orang baru saja bergabung!</p> */}
               {formData.members?.map((pr) => (
                 <div className="card-profile mb-2 d-flex shadow-sm">
                   <div className="bg-primary" style={{ width: "1.5%" }}></div>
@@ -94,7 +94,7 @@ export default function KKDetailPublish({ onChangePage, withID }) {
                   </div>
                 </div>
               ))}
-              <div className="text-end">
+              {/* <div className="text-end">
                 <Button
                   classType="light btn-sm text-primary text-decoration-underline px-3 mt-2"
                   type="submit"
@@ -102,7 +102,7 @@ export default function KKDetailPublish({ onChangePage, withID }) {
                   data-bs-toggle="modal"
                   data-bs-target="#modalAnggota"
                 />
-              </div>
+              </div> */}
             </div>
           </div>
         </div>

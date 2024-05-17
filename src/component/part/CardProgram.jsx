@@ -13,14 +13,14 @@ const CardProgram = ({ isOpen }) => {
   return (
     <div
       className={`card card-program mt-3 ${
-        isContentVisible ? "border-primary" : ""
+        isContentVisible ? "border-secondary" : ""
       }`}
       style={{ display: isOpen ? "block" : "none" }}
     >
       <div
         className={`card-body d-flex justify-content-between ${
           isContentVisible
-            ? "align-items-center border-bottom border-primary"
+            ? "align-items-center border-bottom border-secondary"
             : ""
         }`}
       >

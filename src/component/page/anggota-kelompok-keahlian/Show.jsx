@@ -9,15 +9,14 @@ import Alert from "../../part/Alert";
 import Filter from "../../part/Filter";
 import Icon from "../../part/Icon";
 import SweetAlert from "../../util/SweetAlert";
-import { ListKelompokKeahlian, ListProdi } from "../../util/Dummy";
 
 export default function AnggotaDetail({ onChangePage, withID }) {
   const [errors, setErrors] = useState({});
   const [isError, setIsError] = useState({ error: false, message: "" });
   const [isLoading, setIsLoading] = useState(false);
-  const data = ListKelompokKeahlian.find((item) => item.data.id === withID);
   const [listAnggota, setListAnggota] = useState([]);
   const [listDosen, setListDosen] = useState([]);
+  const [listProdi, setListProdi] = useState({});
   const [currentFilter, setCurrentFilter] = useState({
     page: 1,
     query: "",
@@ -27,7 +26,7 @@ export default function AnggotaDetail({ onChangePage, withID }) {
   });
 
   const [currentDosenFilter, setCurrentDosenFilter] = useState({
-    kke_id: ""
+    prodi: "",
   });
 
   const searchAnggotaQuery = useRef();
@@ -56,7 +55,10 @@ export default function AnggotaDetail({ onChangePage, withID }) {
     const dataToSend = { ...currentFilter, kke_id: idKK };
 
     try {
-      const data = await UseFetch(API_LINK + "AnggotaKK/GetAnggotaKK", dataToSend);
+      const data = await UseFetch(
+        API_LINK + "AnggotaKK/GetAnggotaKK",
+        dataToSend
+      );
 
       if (data === "ERROR") {
         throw new Error("Terjadi kesalahan: Gagal mengambil daftar karyawan.");
@@ -68,6 +70,49 @@ export default function AnggotaDetail({ onChangePage, withID }) {
       setListAnggota([]);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const fetchListDosen = async (idKK) => {
+    setIsError({ error: false, message: "" });
+    setIsLoading(true);
+
+    try {
+      const data = await UseFetch(API_LINK + "AnggotaKK/GetListDosen", {
+        idKK: idKK,
+      });
+
+      if (data === "ERROR") {
+        throw new Error("Terjadi kesalahan: Gagal mengambil daftar dosen.");
+      } else {
+        setListDosen(data);
+      }
+    } catch (error) {
+      setIsError({ error: true, message: error.message });
+      setListDosen([]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const fetchDataProdi = async () => {
+    setIsError((prevError) => ({ ...prevError, error: false }));
+
+    try {
+      const data = await UseFetch(API_LINK + "KKs/GetListProdi", {});
+
+      if (data === "ERROR") {
+        throw new Error("Terjadi kesalahan: Gagal mengambil daftar prodi.");
+      } else {
+        setListProdi(data);
+      }
+    } catch (error) {
+      setIsError((prevError) => ({
+        ...prevError,
+        error: true,
+        message: error.message,
+      }));
+      setListProdi({});
     }
   };
 
@@ -90,31 +135,17 @@ export default function AnggotaDetail({ onChangePage, withID }) {
 
   useEffect(() => {
     if (withID) {
-      fetchDataAnggota(withID.id);
+      const loadData = async () => {
+        await fetchDataAnggota(withID.id);
+        await fetchListDosen(withID.id);
+        await fetchDataProdi();
+      };
+
+      loadData();
     }
   }, [withID, currentFilter]);
 
-  useEffect(() => {
-    setIsError(false);
-    
-    if (formDataRef.current.key) { // Periksa apakah formDataRef.key memiliki nilai sebelum memanggil API
-      UseFetch(API_LINK + "AnggotaKK/GetListDosen", { idKK: formDataRef.current.key })
-        .then((data) => {
-          if (data === "ERROR") setIsError(true);
-          else {
-            setListDosen(data);
-          }
-        })
-        .then(() => setIsLoading(false))
-        .catch((error) => {
-          setIsError(true);
-          console.error("Error fetching list of dosen:", error);
-        });
-    }
-  }, [formDataRef.current.key]); // Gunakan formDataRef.current.key sebagai dependency useEffect
-  
-
-  function handleSetCurrentPage(newCurrentPage) {
+  const handleSetCurrentPage = (newCurrentPage) => {
     setIsLoading(true);
     setCurrentFilter((prevFilter) => {
       return {
@@ -122,7 +153,7 @@ export default function AnggotaDetail({ onChangePage, withID }) {
         page: newCurrentPage,
       };
     });
-  }
+  };
 
   const handleDelete = (id) => () => {
     setIsLoading(true);
@@ -136,12 +167,17 @@ export default function AnggotaDetail({ onChangePage, withID }) {
     ).then((confirm) => {
       if (confirm) {
         UseFetch(API_LINK + "AnggotaKK/SetStatusAnggotaKK", {
-          idAkk: id, status: "Tidak Aktif"
+          idAkk: id,
+          status: "Tidak Aktif",
         })
           .then((data) => {
             if (data === "ERROR" || data.length === 0) setIsError(true);
             else {
-              SweetAlert("Berhasil", "Karyawan telah dihapus dari Anggota Keahlian.", "success");
+              SweetAlert(
+                "Berhasil",
+                "Karyawan telah dihapus dari Anggota Keahlian.",
+                "success"
+              );
               handleSetCurrentPage(currentFilter.page);
             }
           })
@@ -158,17 +194,35 @@ export default function AnggotaDetail({ onChangePage, withID }) {
     setIsError(false);
 
     UseFetch(API_LINK + "AnggotaKK/TambahAnggotaByPIC", {
-      idAkk: formDataRef.current.key, kry: id
+      idAkk: formDataRef.current.key,
+      kry: id,
     })
       .then((data) => {
         if (data === "ERROR" || data.length === 0) setIsError(true);
         else {
-          SweetAlert("Berhasil", "Karyawan telah ditambahkan ke Anggota Keahlian.", "success");
+          SweetAlert(
+            "Berhasil",
+            "Karyawan telah ditambahkan ke Anggota Keahlian.",
+            "success"
+          );
           handleSetCurrentPage(currentFilter.page);
         }
       })
       .finally(() => setIsLoading(false));
   };
+
+  const handleProdiChange = (e) => {
+    const selectedProdiText = e.target.options[e.target.selectedIndex].text;
+    console.log(selectedProdiText);
+    setCurrentDosenFilter({
+      ...currentDosenFilter,
+      prodi: selectedProdiText,
+    });
+  };
+
+  const filteredDosen = listDosen.filter((dosen) =>
+    currentDosenFilter.prodi ? dosen.Prodi === currentDosenFilter.prodi : true
+  );
 
   if (isLoading) return <Loading />;
 
@@ -189,7 +243,9 @@ export default function AnggotaDetail({ onChangePage, withID }) {
                     Anggota Kelompok Keahlian
                   </div>
                   <div className="card-body">
-                    <h3 className="mb-2 fw-semibold">{formDataRef.current.nama}</h3>
+                    <h3 className="mb-2 fw-semibold">
+                      {formDataRef.current.nama}
+                    </h3>
                     <h6 className="fw-semibold">
                       <span
                         className="bg-primary me-2"
@@ -235,14 +291,17 @@ export default function AnggotaDetail({ onChangePage, withID }) {
                             ></div>
                             <div className="p-1 ps-2 d-flex">
                               <img
-                                src="https://mdbcdn.b-cdn.net/img/Photos/Avatars/avatar-2.webp"
+                                src="https://t4.ftcdn.net/jpg/02/15/84/43/360_F_215844325_ttX9YiIIyeaR7Ne6EaLLjMAmy4GvPC69.jpg"
                                 alt={ag["Nama Anggota"]}
                                 className="img-fluid rounded-circle"
                                 width="45"
                               />
                               <div className="ps-3">
                                 <p className="mb-0">{ag["Nama Anggota"]}</p>
-                                <p className="mb-0" style={{ fontSize: "13px" }}>
+                                <p
+                                  className="mb-0"
+                                  style={{ fontSize: "13px" }}
+                                >
                                   {ag.Prodi}
                                 </p>
                               </div>
@@ -260,7 +319,7 @@ export default function AnggotaDetail({ onChangePage, withID }) {
                         </div>
                       ))
                     ) : (
-                      <p>No data available</p>
+                      <p>Tidak Ada Anggota Aktif</p>
                     )}
                   </div>
                 </div>
@@ -288,7 +347,7 @@ export default function AnggotaDetail({ onChangePage, withID }) {
                         iconName="search"
                         classType="primary px-4"
                         title="Cari"
-                      // onClick={handleSearch}
+                        // onClick={handleSearch}
                       />
                       <Filter>
                         <DropDown
@@ -296,12 +355,13 @@ export default function AnggotaDetail({ onChangePage, withID }) {
                           forInput="ddProdi"
                           label="Program Studi"
                           type="semua"
-                          arrData={ListProdi}
                           defaultValue=""
+                          arrData={listProdi}
+                          onChange={handleProdiChange}
                         />
                       </Filter>
                     </div>
-                    {listDosen.map((value) => (
+                    {filteredDosen.map((value) => (
                       <div>
                         <h6 className="fw-semibold mb-3">{value.Text}</h6>
                         <div className="card-profile mb-3 d-flex justify-content-between shadow-sm">
@@ -312,8 +372,8 @@ export default function AnggotaDetail({ onChangePage, withID }) {
                             ></div>
                             <div className="p-1 ps-2 d-flex">
                               <img
-                                src="https://mdbcdn.b-cdn.net/img/Photos/Avatars/avatar-4.webp"
-                                alt="Revalina"
+                                src="https://t4.ftcdn.net/jpg/02/15/84/43/360_F_215844325_ttX9YiIIyeaR7Ne6EaLLjMAmy4GvPC69.jpg"
+                                alt={value["Nama Karyawan"]}
                                 className="img-fluid rounded-circle"
                                 width="45"
                               />

@@ -197,7 +197,8 @@ export default function KKEdit({ onChangePage, withID }) {
               </div>
               <div className="col-lg-12">
                 <label style={{ paddingBottom: "5px", fontWeight: "bold" }}>
-                  Deskripsi <span style={{ color: "red" }}> *</span>
+                  Deskripsi/Ringkasan Mengenai Kelompok Keahlian{" "}
+                  <span style={{ color: "red" }}> *</span>
                 </label>
                 <textarea
                   className="form-control mb-3"
