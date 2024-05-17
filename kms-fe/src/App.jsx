@@ -24,6 +24,7 @@ import MasterTest_DetailTest from "./component/page/master-test/DetailTest";
 import MasterTest_Materi from "./component/page/master-test/Materi";
 import MasterTest_MateriPDF from "./component/page/master-test/MateriPDF";
 import MasterTest_MateriVideo from "./component/page/master-test/MateriVideo";
+import MasterTest_Forum from "./component/page/master-test/Forum";
 
 export default function App() {
   const Show_SideBar = ({ children, routes, currentPath }) => {
@@ -109,6 +110,10 @@ export default function App() {
     {
       path: "/sharing_expert/materi_video",
       element: <MasterTest_MateriVideo />,
+    },
+    {
+      path: "/master_test/forum",
+      element: <MasterTest_Forum />,
     }
   ]);
 
@@ -120,7 +125,7 @@ export default function App() {
       <Header />
       <div style={{ marginTop: '70px' }}></div>
       <div className="d-flex flex-row">
-        <SideBar />
+        {/* <SideBar /> */}
         <Container>
           <RouterProvider router={router} />
         </Container>
