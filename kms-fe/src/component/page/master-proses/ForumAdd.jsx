@@ -199,7 +199,7 @@ export default function MasterPelangganAdd({ onChangePage }) {
             onClick={() => onChangePage("sharingAdd")}
           />
           <Button
-            classType="warning ms-3 px-4 py-2"
+            classType="dark ms-3 px-4 py-2"
             label="Next"
             onClick={() => onChangePage("sharingAdd")}
           />
