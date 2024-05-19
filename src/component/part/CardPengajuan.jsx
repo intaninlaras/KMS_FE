@@ -4,7 +4,11 @@ import Icon from "./Icon";
 import Input from "./Input";
 import Button from "./Button";
 
-function CardPengajuan({ data, onChangePage, isShow }) {
+function CardPengajuan({
+  data,
+  onChangePage,
+  isShow
+}) {
   const [showAllText, setShowAllText] = useState(isShow);
 
   const handleToggleText = () => {
@@ -13,7 +17,7 @@ function CardPengajuan({ data, onChangePage, isShow }) {
 
   return (
     <>
-      {data.map((kk,index) => (
+      {data.map((kk, index) => (
         <div className="col-lg-4 mb-3" key={kk.ID || index}>
           <div
             className="card p-0 h-100"
@@ -26,7 +30,7 @@ function CardPengajuan({ data, onChangePage, isShow }) {
               <h5
                 className="card-title text-white px-3 pt-2 pb-3 mb-0"
                 style={{
-                  backgroundColor: "#67ACE9",
+                  backgroundColor: kk.Status == "Menunggu Acc" ? '#d3d3d3' : '#67ACE9',
                 }}
               >
                 {kk.Nama}
@@ -68,12 +72,27 @@ function CardPengajuan({ data, onChangePage, isShow }) {
                       title="Baca Selengkapnya"
                     />
                   </a>
-                  <Button
-                    iconName="plus"
-                    classType="primary btn-sm"
-                    label="Gabung"
-                    onClick={() => onChangePage("add", kk)}
-                  />
+                  {kk.Status === "Menunggu Acc" ? (
+                    <>
+                      <Button
+                        iconName="list"
+                        classType="primary btn-sm"
+                        label="Detail"
+                        onClick={() => onChangePage("detail", kk)}
+                        title="Klik untuk melihat detail"
+                      />
+                    </>
+                  ) : (
+                    <>
+                      <Button
+                        iconName="plus"
+                        classType="primary btn-sm"
+                        label="Gabung"
+                        onClick={() => onChangePage("add", kk)}
+                        title="Klik untuk bergabung"
+                      />
+                    </>
+                  )}
                 </div>
               </div>
             </div>

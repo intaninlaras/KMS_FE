@@ -42,7 +42,7 @@ export default function PengajuanAdd({ onChangePage, withID }) {
   const formDataRef = useRef({
     kke_id: withID.ID,
     kry_id: userData.kry_id,
-    pus_status: "Menunggu Persetujuan",
+    pus_status: "Menunggu Acc",
     creaby: activeUser,
     lampirans: [],
   });
@@ -132,16 +132,20 @@ export default function PengajuanAdd({ onChangePage, withID }) {
 
   const handleAdd = async (e) => {
     e.preventDefault();
+    
 
     const validationErrors = await validateAllInputs(
       formDataRef.current,
       userSchema,
       setErrors
     );
+    
 
     if (Object.values(validationErrors).every((error) => !error)) {
       setIsLoading(true);
-      setIsError((prevError) => ({ ...prevError, error: false }));
+      setIsError((prevError) => {
+        return { ...prevError, error: false };
+      });
       setErrors({});
 
       const uploadPromises = [];
@@ -152,69 +156,31 @@ export default function PengajuanAdd({ onChangePage, withID }) {
         if (ref && ref.current && ref.current.files.length > 0) {
           uploadPromises.push(
             uploadFile(ref.current).then((data) => {
-              formDataRef.current.lampirans.push({ file: data.newFileName });
-            }).catch((error) => {
-              // Handle upload error
-              console.error("Upload error:", error);
+              formDataRef.current.lampirans.push({ pus_file: data.newFileName });
             })
           );
         }
       });
 
-      // Set timeout untuk mengatur waktu maksimum unggah file
-      const uploadTimeout = setTimeout(() => {
-        setIsError((prevError) => ({
-          ...prevError,
-          error: true,
-          message: "Waktu unggah file telah habis. Silakan coba lagi.",
-        }));
-        setIsLoading(false);
-      }, 60000); // Waktu timeout dalam milidetik (contoh: 60 detik)
-
-      Promise.all(uploadPromises)
-        .then(() => {
-          // Hapus timeout jika semua file terunggah dalam batas waktu yang ditentukan
-          clearTimeout(uploadTimeout);
-
-          // Check if all files have been uploaded
-          if (formDataRef.current.lampirans.length === uploadPromises.length) {
-            UseFetch(API_LINK + "Pengajuans/SavePengajuanKK", formDataRef.current)
-              .then((data) => {
-                if (data === "ERROR") {
-                  setIsError((prevError) => ({
-                    ...prevError,
-                    error: true,
-                    message: "Terjadi kesalahan: Gagal menyimpan data Pengajuan KK.",
-                  }));
-                } else {
-                  SweetAlert("Sukses", "Data Pustaka berhasil disimpan", "success");
-                }
-              })
-              .finally(() => setIsLoading(false));
-          } else {
-            setIsError((prevError) => ({
-              ...prevError,
-              error: true,
-              message: "Ada file yang gagal diunggah. Silakan coba lagi.",
-            }));
-            setIsLoading(false);
-          }
-        })
-        .catch((error) => {
-          // Hapus timeout jika terjadi kesalahan saat mengunggah file
-          clearTimeout(uploadTimeout);
-
-          setIsError((prevError) => ({
-            ...prevError,
-            error: true,
-            message: "Terjadi kesalahan saat mengunggah file: " + error.message,
-          }));
-          setIsLoading(false);
-        });
+      Promise.all(uploadPromises).then(() => {
+        UseFetch(API_LINK + "Pengajuans/SaveAnggotaKK", formDataRef.current)
+          .then((data) => {
+            if (data === "ERROR") {
+              setIsError((prevError) => {
+                return {
+                  ...prevError,
+                  error: true,
+                  message: "Terjadi kesalahan: Gagal menyimpan data Pengajuan KK.",
+                };
+              });
+            } else {
+              SweetAlert("Sukses", "Data Pustaka berhasil disimpan", "success");
+            }
+          })
+          .finally(() => setIsLoading(false));
+      });
     }
   };
-
-
 
   return (
     <>

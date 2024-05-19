@@ -20,7 +20,13 @@ export default function PengajuanKKs() {
           />
         );
       case "detail":
-        return <PengajuanDetail onChangePage={handleSetPageMode} />;
+        return (
+          <
+            PengajuanDetail
+            onChangePage={handleSetPageMode}
+            withID={dataID} 
+            />
+        );
     }
   }
 

@@ -15,6 +15,8 @@ import CardKK from "../../part/CardKelompokKeahlian";
 import CardPengajuan from "../../part/CardPengajuan";
 import { ListKelompokKeahlian } from "../../util/Dummy";
 import { API_LINK } from "../../util/Constants";
+import Cookies from "js-cookie";
+import { decryptId } from "../../util/Encryptor";
 
 const inisialisasiKK = [
   {
@@ -29,37 +31,81 @@ const inisialisasiKK = [
 ];
 
 export default function PengajuanIndex({ onChangePage }) {
+  let activeUser = "";
+  const cookie = Cookies.get("activeUser");
+  if (cookie) activeUser = JSON.parse(decryptId(cookie)).username;
+
   const [show, setShow] = useState(false);
   const [isError, setIsError] = useState(false);
   const [listKK, setListKK] = useState(inisialisasiKK);
+
+  const [userData, setUserData] = useState({
+    Role: "",
+    Nama: "",
+    kry_id: "",
+  });
+
+  const [currentFilter, setCurrentFilter] = useState({
+    page: 1,
+    query: "",
+    KK:"",
+    sort: "Nama ASC",
+    status: "",
+    kry_id: "",
+  });
 
   const handleToggleText = () => {
     setShow(!show);
   };
 
   useEffect(() => {
+    const fetchDataUser = async () => {
+      setIsError((prevError) => ({ ...prevError, error: false }));
+
+      try {
+        const data = await UseFetch(API_LINK + "Utilities/GetUserLogin", {
+          param: activeUser,
+        });
+
+        if (data === "ERROR") {
+          throw new Error("Terjadi kesalahan: Gagal mengambil daftar prodi.");
+        } else {
+          setUserData(data[0]);
+          // console.log(data[0]);
+          setCurrentFilter((prevFilter) => ({
+            ...prevFilter,
+            kry_id: data[0].kry_id,
+          }));
+        }
+      } catch (error) {
+        setIsError((prevError) => ({
+          ...prevError,
+          error: true,
+          message: error.message,
+        }));
+        setUserData(null);
+      }
+    };
+
+    fetchDataUser();
+  }, [activeUser]);
+
+  useEffect(() => {
     const fetchDataKK = async () => {
       setIsError((prevError) => ({ ...prevError, error: false }));
 
       try {
-        const data = await UseFetch(API_LINK + "KKs/GetDataKK", {
-          page: 1,
-          query: "",
-          sort: "[Nama Kelompok Keahlian] asc",
-          status: "Aktif",
-        });
-        console.log("ADADA : " + data);
+        const data = await UseFetch(API_LINK + "Pengajuans/GetAnggotaKK",
+          currentFilter
+         );
+        // console.log("ADADA : " + JSON.stringify(data));
 
         if (data === "ERROR") {
           throw new Error("Terjadi kesalahan: Gagal mengambil daftar prodi.");
         } else {
           // Mengubah data menjadi format yang diinginkan
           const formattedData = data.map(item => ({
-            ID: item["Key"],
-            Nama: item["Nama Kelompok Keahlian"],
-            PIC: item["PIC"],
-            Desc: item["Deskripsi"],
-            Count: item["Count"]
+            ...item,
           }));
           setListKK(formattedData);
         }
@@ -75,11 +121,7 @@ export default function PengajuanIndex({ onChangePage }) {
 
     fetchDataKK();
 
-  }, []);
-
-  useEffect(() => {
-    console.log(listKK);
-  })
+  }, [currentFilter]);
 
   return (
     <>
