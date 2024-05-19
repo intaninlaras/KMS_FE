@@ -130,6 +130,13 @@ export default function MasterProdukAdd({ onChangePage }) {
     // Logika untuk pengiriman data ke server
   };
 
+  const handleDownloadTemplate = () => {
+    const link = document.createElement('a');
+    link.href = '/template.xlsx'; // Path to your template file in the public directory
+    link.download = 'template.xlsx';
+    link.click();
+  };
+
   if (isLoading) return <Loading />;
 
   return (
@@ -218,7 +225,7 @@ export default function MasterProdukAdd({ onChangePage }) {
               </div>
             </div>
             <div className="row mb-4">
-              <div className="col-lg-2">
+              <div className="col-lg-4">
                 <Button
                   onClick={() => addQuestion("essay")}
                   iconName="plus"
@@ -235,8 +242,16 @@ export default function MasterProdukAdd({ onChangePage }) {
                   classType="primary btn-sm mx-2 px-3 py-1"
                   onClick={() => document.getElementById('fileInput').click()} // Memicu klik pada input file
                 />
+                <Button
+                  iconName="download"
+                  label="Download Template"
+                  classType="warning btn-sm px-3 py-1"
+                  onClick={handleDownloadTemplate}
+                  
+                />
                 {/* Tampilkan nama file yang dipilih */}
                 {selectedFile && <span>{selectedFile.name}</span>} 
+                
               </div>
             </div>
             {formContent.map((question, index) => (
