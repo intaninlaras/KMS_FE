@@ -146,8 +146,8 @@ export default function MasterProdukAdd({ onChangePage }) {
            steps={[
             { label: 'Pretest', onClick:() => onChangePage("pretestAdd")},
             { label: 'Course' ,onClick:() => onChangePage("courseAdd")},
-            { label: 'Forum' ,onClick:() => onChangePage("forumAdd") },
             { label: 'Sharing Expert',onClick:() => onChangePage("sharingAdd")},
+            { label: 'Forum' ,onClick:() => onChangePage("forumAdd") },
             { label: 'Post Test',onClick:() => onChangePage("posttestAdd") }
           ]}
             activeStep={1} 
@@ -280,7 +280,7 @@ export default function MasterProdukAdd({ onChangePage }) {
           <Button
             classType="dark ms-3 px-4 py-2"
             label="Next"
-            onClick={() => onChangePage("forumAdd")}
+            onClick={() => onChangePage("sharingAdd")}
           />
         </div>
       </form>
