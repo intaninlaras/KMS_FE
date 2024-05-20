@@ -3,7 +3,7 @@ import Button from "./Button";
 import Icon from "./Icon";
 import Input from "./Input";
 
-const CardProgram = ({ isOpen }) => {
+const CardProgram = ({ isOpen, data, children }) => {
   const [isContentVisible, setIsContentVisible] = useState(isOpen);
 
   const toggleContentVisibility = () => {
@@ -24,11 +24,11 @@ const CardProgram = ({ isOpen }) => {
             : ""
         }`}
       >
-        <p className="fw-medium mb-0" style={{ width: "15%" }}>
-          HR Generalist
+        <p className="fw-medium mb-0 text-center" style={{ width: "15%" }}>
+          {data["Nama Program"]}
         </p>
         <p
-          className="mb-0"
+          className="mb-0 pe-3"
           style={{
             width: "65%",
             display: isContentVisible ? "block" : "-webkit-box",
@@ -37,10 +37,7 @@ const CardProgram = ({ isOpen }) => {
             overflow: "hidden",
           }}
         >
-          HR Generalist atau HRD Umum adalah bagian yang sangat penting.
-          Mereka bertugas melakukan tugas-tugas yang berkaitan dengan
-          pengelolaan sumber daya manusia dalam perusahaan dan melapor ke
-          Manajer HR atau Direktur HR.
+          {data.Deskripsi}
         </p>
         <div
           className="d-flex justify-content-between align-items-center px-3"
@@ -95,7 +92,8 @@ const CardProgram = ({ isOpen }) => {
         <Button iconName="add" classType="primary btn-sm" label="Tambah" />
         <div className="row row-cols-3">
           {/* Card Kategori Program */}
-          <div className="col">
+          {children}
+          {/* <div className="col">
             <div className="card card-kategori-program mt-3">
               <div className="card-body">
                 <div className="d-flex justify-content-between">
@@ -270,7 +268,7 @@ const CardProgram = ({ isOpen }) => {
                 </div>
               </div>
             </div>
-          </div>
+          </div> */}
         </div>
       </div>
     </div>
