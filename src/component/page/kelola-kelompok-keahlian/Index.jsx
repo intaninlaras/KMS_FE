@@ -9,18 +9,7 @@ import DropDown from "../../part/Dropdown";
 import Filter from "../../part/Filter";
 import CardKK from "../../part/CardKelompokKeahlian";
 import Icon from "../../part/Icon";
-
-const inisialisasiData = [
-  {
-    Key: null,
-    No: null,
-    "Nama Kelompok Keahlian": null,
-    PIC: null,
-    Deskripsi: null,
-    Status: null,
-    Count: 0,
-  },
-];
+import Loading from "../../part/Loading";
 
 const dataFilterSort = [
   { Value: "[Nama Kelompok Keahlian] asc", Text: "Nama Kelompok Keahlian [↑]" },
@@ -76,12 +65,19 @@ export default function KKIndex({ onChangePage }) {
     });
   }
 
-  useEffect(() => {
+  const getListKK = async () => {
     setIsError(false);
-    UseFetch(API_LINK + "KKs/GetDataKK", currentFilter)
-      .then((data) => {
-        if (data === "ERROR") setIsError(true);
-        else {
+    setIsLoading(true);
+
+    try {
+      while (true) {
+        let data = await UseFetch(API_LINK + "KKs/GetDataKK", currentFilter);
+  
+        if (data === "ERROR") {
+          throw new Error("Terjadi kesalahan: Gagal mengambil daftar Kelompok Keahlian.");
+        } else if (data.length === 0) {
+          await new Promise(resolve => setTimeout(resolve, 2000));
+        } else {
           const formattedData = data.map((value) => {
             return {
               ...value,
@@ -99,9 +95,23 @@ export default function KKIndex({ onChangePage }) {
             };
           });
           setCurrentData(formattedData);
+          setIsLoading(false);
+          break;
         }
-      })
-      .then(() => setIsLoading(false));
+      }
+    } catch(e) {
+      setIsLoading(true);
+      console.log(e.message);
+      setIsError((prevError) => ({
+        ...prevError,
+        error: true,
+        message: e.message,
+      }));
+    }
+  }
+
+  useEffect(() => {
+    getListKK();
   }, [currentFilter]);
 
   useEffect(() => {
@@ -186,6 +196,9 @@ export default function KKIndex({ onChangePage }) {
 
   return (
     <>
+    {isLoading ? (
+        <Loading />
+      ) : (
       <div className="d-flex flex-column">
         <div className="flex-fill">
           <div className="input-group">
@@ -293,7 +306,8 @@ export default function KKIndex({ onChangePage }) {
             </div>
           </div>
         </div>
-      </div>
+      </div> 
+    )}
     </>
   );
 }

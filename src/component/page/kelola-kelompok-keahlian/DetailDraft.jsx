@@ -1,14 +1,8 @@
 import { useState, useEffect } from "react";
-import SweetAlert from "../../util/SweetAlert";
-import UseFetch from "../../util/UseFetch";
-import UploadFile from "../../util/UploadFile";
 import Button from "../../part/Button";
-import DropDown from "../../part/Dropdown";
 import Input from "../../part/Input";
-import FileUpload from "../../part/FileUpload";
 import Loading from "../../part/Loading";
 import Alert from "../../part/Alert";
-import { ListKelompokKeahlian, ListProdi } from "../../util/Dummy";
 
 export default function KKDetailDraft({ onChangePage, withID }) {
   const [errors, setErrors] = useState({});

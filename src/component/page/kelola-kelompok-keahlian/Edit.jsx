@@ -13,9 +13,11 @@ import SweetAlert from "../../util/SweetAlert";
 export default function KKEdit({ onChangePage, withID }) {
   const [errors, setErrors] = useState({});
   const [isError, setIsError] = useState({ error: false, message: "" });
+  const [isLoadingProdi, setIsLoadingProdi] = useState(true);
+  const [isLoadingKaryawan, setIsLoadingKaryawan] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
-  const [listProdi, setListProdi] = useState({});
-  const [listKaryawan, setListKaryawan] = useState({});
+  const [listProdi, setListProdi] = useState([]);
+  const [listKaryawan, setListKaryawan] = useState([]);
 
   const formDataRef = useRef({
     key: "",
@@ -55,27 +57,61 @@ export default function KKEdit({ onChangePage, withID }) {
     }
   };
 
-  const fetchDataKaryawan = async (idProdi) => {
-    setIsError((prevError) => ({ ...prevError, error: false }));
-    setIsLoading(true);
-
+  const getListProdi = async () => {
+    setIsLoadingProdi(true);
+  
     try {
-      const data = await UseFetch(API_LINK + "KKs/GetListKaryawan", {
-        idProdi,
-      });
-
-      if (data === "ERROR") {
-        throw new Error("Terjadi kesalahan: Gagal mengambil daftar karyawan.");
-      } else {
-        setListKaryawan(data);
+      while (true) {
+        let data = await UseFetch(API_LINK + "KKs/GetListProdi", {});
+  
+        if (data === "ERROR") {
+          throw new Error("Terjadi kesalahan: Gagal mengambil daftar prodi.");
+        } else if (data.length === 0) {
+          await new Promise(resolve => setTimeout(resolve, 2000));
+        } else {
+          setListProdi(data);
+          setIsLoadingProdi(false);
+          break;
+        }
       }
-    } catch (error) {
-      setIsError({ error: true, message: error.message });
-      setListKaryawan([]);
-    } finally {
-      setIsLoading(false);
+    } catch(e) {
+      setIsLoadingProdi(false);
+      console.log(e.message);
+      setIsError((prevError) => ({
+        ...prevError,
+        error: true,
+        message: e.message,
+      }));
     }
-  };
+  }  
+
+  const getListKaryawan = async () => {
+    setIsLoadingKaryawan(true);
+  
+    try {
+      while (true) {
+        let data = await UseFetch(API_LINK + "KKs/GetListKaryawan", { idProdi: formDataRef.current.programStudi });
+  
+        if (data === "ERROR") {
+          throw new Error("Terjadi kesalahan: Gagal mengambil daftar karyawan.");
+        } else if (data.length === 0) {
+          await new Promise(resolve => setTimeout(resolve, 2000));
+        } else {
+          setListKaryawan(data);
+          setIsLoadingKaryawan(false);
+          break;
+        }
+      }
+    } catch(e) {
+      setIsLoadingKaryawan(false);
+      console.log(e.message);
+      setIsError((prevError) => ({
+        ...prevError,
+        error: true,
+        message: e.message,
+      }));
+    }
+  }
 
   useEffect(() => {
     formDataRef.current = {
@@ -86,35 +122,21 @@ export default function KKEdit({ onChangePage, withID }) {
       deskripsi: withID.desc,
       status: withID.status,
     };
-  }, [withID]);
-
-  useEffect(() => {
-    fetchDataKaryawan(withID.prodi.key);
-  }, [withID]);
-
-  useEffect(() => {
-    const fetchDataProdi = async () => {
-      setIsError((prevError) => ({ ...prevError, error: false }));
-      setIsLoading(true);
-
-      try {
-        const data = await UseFetch(API_LINK + "KKs/GetListProdi", {});
-
-        if (data === "ERROR") {
-          throw new Error("Terjadi kesalahan: Gagal mengambil daftar prodi.");
-        } else {
-          setListProdi(data);
-        }
-      } catch (error) {
-        setIsError({ error: true, message: error.message });
-        setListProdi([]);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchDataProdi();
   }, []);
+  
+  useEffect(() => {
+    getListProdi();
+  }, []);
+  
+  useEffect(() => {
+    if (formDataRef.current.programStudi) {
+      getListKaryawan();
+    }
+  }, [formDataRef.current.programStudi]);
+  
+  useEffect(() => {
+    setIsLoading(isLoadingProdi || isLoadingKaryawan);
+  }, [isLoadingProdi, isLoadingKaryawan]);
 
   const handleAdd = async (e) => {
     e.preventDefault();
@@ -127,9 +149,11 @@ export default function KKEdit({ onChangePage, withID }) {
 
     if (Object.values(validationErrors).every((error) => !error)) {
       setIsLoading(true);
+
       setIsError((prevError) => {
         return { ...prevError, error: false };
       });
+
       setErrors({});
 
       const dataToSend = { ...formDataRef.current };
@@ -175,6 +199,9 @@ export default function KKEdit({ onChangePage, withID }) {
           <Alert type="danger" message={isError.message} />
         </div>
       )}
+      {isLoading ? (
+        <Loading />
+      ) : (
       <form onSubmit={handleAdd}>
         <div className="card">
           <div className="card-header bg-primary fw-medium text-white">
@@ -249,7 +276,7 @@ export default function KKEdit({ onChangePage, withID }) {
             label="Simpan"
           />
         </div>
-      </form>
+      </form> )}
     </>
   );
 }
