@@ -11,6 +11,7 @@ import FileUpload from "../../part/FileUpload";
 import Loading from "../../part/Loading";
 import Alert from "../../part/Alert";
 import { API_LINK } from "../../util/Constants";
+import Label from "../../part/Label";
 import { validateAllInputs, validateInput } from "../../util/ValidateForm";
 
 const listKataKunci = [
@@ -56,11 +57,11 @@ export default function MasterDaftarPustakaEdit({ onChangePage, withID }) {
 
     const userSchema = object({
         pus_id: string(),
-        pus_judul: string(),
-        kke_id: string(),
+        pus_judul: string().required("Isi Judul Terlebih Dahulu"),
+        kke_id: string().required("Pilih Terlebih Dahulu"),
         pus_file: string(),
-        pus_keterangan: string(),
-        pus_kata_kunci: string(),
+        pus_keterangan: string().required("Isi Keterangan Terlebih Dahulu"),
+        pus_kata_kunci: string().required("Isi Kata Kunci Terlebih Dahulu"),
         pus_gambar: string(),
         pus_status: string(),
     });
@@ -276,8 +277,13 @@ export default function MasterDaftarPustakaEdit({ onChangePage, withID }) {
                                     }
                                     errorMessage={errors.pus_file}
                                 />
+                                <Label
+                                    // key={index}
+                                    title={"File Pustaka Sebelumnya"}
+                                    data={withID.File ? <a href={withID.File} target="_blank" rel="noopener noreferrer">Tampilkan Berkas</a> : "Tidak ada lampiran"}
+                                />
                             </div>
-                            <div className="col-lg-4">
+                            <div className="col-lg-4 py-2">
                                 <FileUpload
                                     ref={gambarInputRef}
                                     forInput="pus_gambar"
@@ -287,6 +293,11 @@ export default function MasterDaftarPustakaEdit({ onChangePage, withID }) {
                                         handleFileChange(gambarInputRef, "jpg,png")
                                     }
                                     errorMessage={errors.pus_gambar}
+                                />
+                                <Label
+                                    // key={index}
+                                    title={"Gambar Cover Sebelumnya"}
+                                    data={withID.Gambar ? <a href={withID.Gambar} target="_blank" rel="noopener noreferrer">Tampilkan Berkas</a> : "Tidak ada lampiran"}
                                 />
                             </div>
                             <div className="col-lg-12">

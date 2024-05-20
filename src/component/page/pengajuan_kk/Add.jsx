@@ -40,7 +40,7 @@ export default function PengajuanAdd({ onChangePage, withID }) {
   };
 
   const formDataRef = useRef({
-    kke_id: withID.ID,
+    kke_id: withID.IDAkk,
     kry_id: userData.kry_id,
     pus_status: "Menunggu Acc",
     creaby: activeUser,

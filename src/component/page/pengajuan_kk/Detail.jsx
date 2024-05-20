@@ -48,7 +48,7 @@ export default function PengajuanDetail({ onChangePage, withID }) {
         const data = await UseFetch(API_LINK + "Pengajuans/GetDetailLampiran", {
           p1: 1,
           p2: "[ID Lampiran] ASC",
-          p3: withID.IDAkk,
+          p3: withID.Key,
         });
 
         if (data === "ERROR") {

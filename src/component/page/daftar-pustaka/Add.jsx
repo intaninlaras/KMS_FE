@@ -42,12 +42,12 @@ export default function MasterDaftarPustakaAdd({ onChangePage, withID }) {
   });
 
   const userSchema = object({
-    kke_id: string(),
-    pus_file: string(),
-    pus_judul: string(),
-    pus_kata_kunci: string().required("harus dipilih"),
-    pus_keterangan: string(),
-    pus_gambar: string(),
+    kke_id: string().required("Pilih Terlebih Dahulu"),
+    pus_file: string().required("Pilih File Pustaka Terlebih Dahulu"),
+    pus_judul: string().required("Isi Judul Terlebih Dahulu"),
+    pus_kata_kunci: string().required("Isi Kata Kunci Terlebih Dahulu"),
+    pus_keterangan: string().required("Isi Keterangan Terlebih Dahulu"),
+    pus_gambar: string().required("Pilih Gambar Cover Terlebih Dahulu"),
     pus_status: string(),
   });
 
@@ -253,7 +253,7 @@ export default function MasterDaftarPustakaAdd({ onChangePage, withID }) {
                 <FileUpload
                   ref={gambarInputRef}
                   forInput="pus_gambar"
-                  label="Gambar Cover (.jpg, .png)"
+                  label="Gambar Cover (.jpg, .png) Ukuran( 3x5 )"
                   formatFile=".pdf,.jpg,.png"
                   onChange={() =>
                     handleFileChange(gambarInputRef, "jpg,png")
