@@ -185,7 +185,7 @@ export default function MasterProdukAdd({ onChangePage }) {
                 <Input
                   type="text"
                   forInput="namaMateri"
-                  label="Expertise Group"
+                  label="Kelompok Keahlian"
                   //isRequired
                   value={formDataRef.current.namaMateri}
                   onChange={handleInputChange}
@@ -195,18 +195,19 @@ export default function MasterProdukAdd({ onChangePage }) {
               <div className="col-lg-6">
                 <DropDown
                   forInput="jenisProduk"
-                  label="Category"
+                  label="Kategori"
                   arrData={listJenisProduk}
                   value={formDataRef.current.jenisProduk}
                   onChange={handleInputChange}
                   errorMessage={errors.jenisProduk}
                 />
+                
               </div>
               <div className="col-lg-6">
                 <Input
                   type="text"
                   forInput="namaMateri"
-                  label="Course Name"
+                  label="Nama Materi"
                   value={formDataRef.current.namaMateri}
                   onChange={handleInputChange}
                   errorMessage={errors.namaMateri}
@@ -216,7 +217,7 @@ export default function MasterProdukAdd({ onChangePage }) {
                 <Input
                   type="text"
                   forInput="namaMateri"
-                  label="Course Introduction"
+                  label="Pengenalan Materi"
                   value={formDataRef.current.namaMateri}
                   onChange={handleInputChange}
                   errorMessage={errors.namaMateri}
@@ -225,7 +226,8 @@ export default function MasterProdukAdd({ onChangePage }) {
               <div className="col-lg-12">
                 <div className="form-group">
                   <label htmlFor="deskripsiMateri" className="form-label fw-bold">
-                  Course Description
+                  Deskripsi Materi 
+                  <span style={{color:"Red"}}> *</span>
                   </label>
                   <textarea
                     id="deskripsiMateri"
