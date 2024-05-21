@@ -30,7 +30,11 @@ function CardPengajuan({
               <h5
                 className="card-title text-white px-3 pt-2 pb-3 mb-0"
                 style={{
-                  backgroundColor: kk.Status == "Menunggu Acc" ? '#d3d3d3' : '#67ACE9',
+                  backgroundColor:
+                    kk.Status === "Aktif" ? '#67ACE9' :
+                      kk.Status === "Menunggu Acc" ? '#ffcc00' :
+                        kk.Status === "None" || kk.Status === "Ditolak" ? '#d3d3d3' :
+                          '#d3d3d3',  // default to grey if status is not recognized
                 }}
               >
                 {kk.Nama}
@@ -72,7 +76,19 @@ function CardPengajuan({
                       title="Baca Selengkapnya"
                     />
                   </a>
-                  {kk.Status === "Menunggu Acc" ? (
+                  {kk.Status === "Aktif" ? (
+                    "Tergabung"
+                  ) : kk.Status === "Ditolak" || kk.Status === "None" ? (
+                    <>
+                      <Button
+                        iconName="list"
+                        classType="primary btn-sm"
+                        label="Detail"
+                        onClick={() => onChangePage("detailKK", kk)}
+                        title="Klik untuk melihat detail"
+                      />
+                    </>
+                  ) : kk.Status === "Menunggu Acc" ? (
                     <>
                       <Button
                         iconName="list"

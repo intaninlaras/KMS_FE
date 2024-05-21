@@ -48,7 +48,7 @@ export default function PengajuanIndex({ onChangePage }) {
   const [currentFilter, setCurrentFilter] = useState({
     page: 1,
     query: "",
-    KK:"",
+    KK: "",
     sort: "Nama ASC",
     status: "",
     kry_id: "",
@@ -69,13 +69,14 @@ export default function PengajuanIndex({ onChangePage }) {
 
         if (data === "ERROR") {
           throw new Error("Terjadi kesalahan: Gagal mengambil daftar prodi.");
-        } else {
+        } else if (Array.isArray(data) && data.length > 0) {
           setUserData(data[0]);
-          // console.log(data[0]);
           setCurrentFilter((prevFilter) => ({
             ...prevFilter,
             kry_id: data[0].kry_id,
           }));
+        } else {
+          throw new Error("Data pengguna tidak ditemukan atau format tidak valid.");
         }
       } catch (error) {
         setIsError((prevError) => ({
@@ -88,7 +89,8 @@ export default function PengajuanIndex({ onChangePage }) {
     };
 
     fetchDataUser();
-  }, [activeUser]);
+  }, []);
+
 
   useEffect(() => {
     const fetchDataKK = async () => {
@@ -97,8 +99,8 @@ export default function PengajuanIndex({ onChangePage }) {
       try {
         const data = await UseFetch(API_LINK + "Pengajuans/GetAnggotaKK",
           currentFilter
-         );
-        // console.log("ADADA : " + JSON.stringify(data));
+        );
+        console.log("ADADA : " + JSON.stringify(data));
 
         if (data === "ERROR") {
           throw new Error("Terjadi kesalahan: Gagal mengambil daftar prodi.");
@@ -168,83 +170,6 @@ export default function PengajuanIndex({ onChangePage }) {
           </div>
           <div className="container">
             <div className="row mt-3 gx-4">
-              {/* <div className="col-lg-4 mb-3">
-                 <div
-                  className="card p-0 h-100"
-                  style={{
-                    border: "",
-                    borderRadius: "0",
-                  }}
-                >
-                  <div className="card-body p-0">
-                    <h5
-                      className="card-title text-white px-3 pt-2 pb-3 mb-0"
-                      style={{
-                        backgroundColor: "#A6A6A6",
-                      }}
-                    >
-                      Data Scientist
-                    </h5>
-                    <div className="card-body p-3">
-                      <div>
-                        <Icon
-                          name="users"
-                          type="Bold"
-                          cssClass="btn px-0 pb-1 text-primary"
-                          title="Anggota Kelompok Keahlian"
-                        />{" "}
-                        <span className="fw-semibold">4 Anggota</span>
-                      </div>
-                      <p
-                        className="lh-sm"
-                        style={{
-                          display: show ? "block" : "-webkit-box",
-                          WebkitLineClamp: 3,
-                          WebkitBoxOrient: "vertical",
-                          overflow: "hidden",
-                        }}
-                      >
-                        Seorang data scientist atau ilmuwan data adalah
-                        seorang yang bertanggung jawab dalam hal mengumpulkan,
-                        menganalisis, dan menafsirkan data untuk membantu pengambilan
-                        keputusan dalam suatu organisasi.
-                      </p>
-                      <div className="d-flex justify-content-between align-items-center">
-                        <a
-                          href="#"
-                          className="text-decoration-none"
-                          onClick={handleToggleText}
-                        >
-                          <span className="fw-semibold">
-                            {show ? "Ringkas" : "Selengkapnya"}
-                          </span>{" "}
-                          <Icon
-                            name={show ? "arrow-up" : "arrow-right"}
-                            type="Bold"
-                            cssClass="btn px-0 pb-1 text-primary"
-                            title="Baca Selengkapnya"
-                          />
-                        </a>
-                        <div>
-                          <Icon
-                            name="list"
-                            type="Bold"
-                            cssClass="btn px-2 py-0 text-primary"
-                            title="Detail Pengajuan"
-                            onClick={() => onChangePage("detail")}
-                          />
-                          <Icon
-                            name="check"
-                            type="Bold"
-                            cssClass="btn px-2 py-0 text-primary"
-                            title="Berhasil Diajukan"
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                </div> */}
               <CardPengajuan
                 data={listKK}
                 onChangePage={onChangePage}

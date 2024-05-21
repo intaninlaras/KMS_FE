@@ -13,6 +13,8 @@ import Label from "../../part/Label";
 import FileUpload from "../../part/FileUpload";
 import Icon from "../../part/Icon";
 import { API_LINK } from "../../util/Constants";
+import Cookies from "js-cookie";
+import { decryptId } from "../../util/Encryptor";
 
 const inisialisasiData = [
   {
@@ -27,18 +29,55 @@ const inisialisasiData = [
 ];
 
 export default function PengajuanDetail({ onChangePage, withID }) {
-  console.log(JSON.stringify(withID));
+  let activeUser = "";
+  const cookie = Cookies.get("activeUser");
+  if (cookie) activeUser = JSON.parse(decryptId(cookie)).username;
+  // console.log(JSON.stringify("WITH ID: "+JSON.stringify(withID)));
   const [errors, setErrors] = useState({});
   const [isError, setIsError] = useState({ error: false, message: "" });
   const [isLoading, setIsLoading] = useState(false);
   const [lampiranCount, setLampiranCount] = useState(1);
   const [detail, setDetail] = useState(inisialisasiData);
+  const [userData, setUserData] = useState({
+    Role: "",
+    Nama: "",
+    kry_id: "",
+  });
 
   if (isLoading) return <Loading />;
 
   const handleTambahLampiran = () => {
     setLampiranCount((prevCount) => prevCount + 1);
   };
+
+  useEffect(() => {
+    const fetchDataUser = async () => {
+      setIsError((prevError) => ({ ...prevError, error: false }));
+
+      try {
+        const data = await UseFetch(API_LINK + "Utilities/GetUserLogin", {
+          param: activeUser,
+        });
+        console.log("data KRY: "+data);
+
+        if (data === "ERROR") {
+          throw new Error("Terjadi kesalahan: Gagal mengambil daftar prodi.");
+        } else {
+          setUserData(data[0]);
+          // formDataRef.current.kry_id = data[0].kry_id;
+        }
+      } catch (error) {
+        setIsError((prevError) => ({
+          ...prevError,
+          error: true,
+          message: error.message,
+        }));
+        setUserData(null);
+      }
+    };
+
+    fetchDataUser();
+  }, []);
 
   useEffect(() => {
     const fetchDataUser = async () => {
@@ -57,7 +96,7 @@ export default function PengajuanDetail({ onChangePage, withID }) {
           const formattedData = data.map(item => ({
             ...item,
           }));
-          console.log("for: " + JSON.stringify(formattedData));
+          // console.log("for: " + JSON.stringify(formattedData));
           const promises = formattedData.map((value) => {
             const filePromises = [];
 
@@ -125,13 +164,16 @@ export default function PengajuanDetail({ onChangePage, withID }) {
           <div className="card-body p-4">
             <div className="row">
               <div className="col-lg-6">
-                <Label title="Nama" data="Nicholas Saputra" />
+                <Label title="Nama" data={userData.Nama} />
               </div>
               <div className="col-lg-6">
-                <Label title="Jabatan" data="UPT Manajemen Informatika" />
+                <Label title="Jabatan" data={userData.Role} />
               </div>
-              <div className="col-lg-12 my-3">
+              <div className="col-lg-6 my-3">
                 <Label title="Kelompok Keahlian" data={withID.Nama} />
+              </div>
+              <div className="col-lg-6 my-3">
+                <Label title="Status" data={withID.Status} />
               </div>
               <div className="col-lg-12">
                 <div className="card">
