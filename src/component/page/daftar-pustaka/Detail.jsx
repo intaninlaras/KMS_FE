@@ -26,7 +26,7 @@ export default function MasterDaftarPustakaDetail({ onChangePage, withID }) {
                                 src={withID.Gambar}
                                 alt="gambar"
                                 className="img-fluid"
-                                style={{ width: "300px", height: "400px" }}
+                                style={{ width: "300px", height: "500px", marginBottom:"10px" }}
                             />
                         </div>
                         {/* Preview PDF */}
@@ -39,10 +39,10 @@ export default function MasterDaftarPustakaDetail({ onChangePage, withID }) {
                         </div>
                         <hr />
                         <div className="col-md-12">
-                            <h1 className="mb-3 mt-0">{withID.Judul}</h1>
+                            <h1 className="mb-3 mt-0 text-center">{withID.Judul}</h1>
                             <h4 className="mb-3 mt-0">Deskripsi</h4>
                             <p className="pb-3">{withID.Keterangan}</p>
-                            <p className="text-dark fw-medium mb-0">[ Kata kunci ] </p>
+                            <p className="text-dark fw-medium mb-0">Kata kunci </p>
                             <span>
                                 {Array.isArray(withID["Kata Kunci"])
                                     ? withID["Kata Kunci"].join(", ")

@@ -2,6 +2,7 @@ import { useState } from "react";
 import PengajuanIndex from "./Index";
 import PengajuanAdd from "./Add";
 import PengajuanDetail from "./Detail";
+import KKDetailPublish from "./DetailKK";
 
 export default function PengajuanKKs() {
   const [pageMode, setPageMode] = useState("index");
@@ -13,10 +14,28 @@ export default function PengajuanKKs() {
         return <PengajuanIndex onChangePage={handleSetPageMode} />;
       case "add":
         return (
-          <PengajuanAdd onChangePage={handleSetPageMode} withID={dataID} />
+          <
+            PengajuanAdd
+            onChangePage={handleSetPageMode}
+            withID={dataID}
+          />
         );
       case "detail":
-        return <PengajuanDetail onChangePage={handleSetPageMode} />;
+        return (
+          <
+            PengajuanDetail
+            onChangePage={handleSetPageMode}
+            withID={dataID}
+          />
+        );
+        case "detailKK":
+        return (
+          <
+            KKDetailPublish
+            onChangePage={handleSetPageMode}
+            withID={dataID}
+          />
+        );
     }
   }
 
