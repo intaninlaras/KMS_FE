@@ -3,6 +3,8 @@ import Button from "../../part/Button";
 import Input from "../../part/Input";
 import Loading from "../../part/Loading";
 import { Stepper } from 'react-form-stepper';
+import * as XLSX from 'xlsx';
+
 
 export default function MasterProdukAdd({ onChangePage }) {
   const [formContent, setFormContent] = useState([]);
@@ -10,6 +12,8 @@ export default function MasterProdukAdd({ onChangePage }) {
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
   const [correctAnswers, setCorrectAnswers] = useState({});
+  // const [selectedFile, setSelectedFile] = useState(null);
+  const [selectedFile, setSelectedFile] = useState(null);
 
   const addQuestion = (questionType) => {
     const newQuestion = {
@@ -36,6 +40,13 @@ export default function MasterProdukAdd({ onChangePage }) {
 
   const handleOptionChange = (e, index) => {
     const { value } = e.target;
+
+    // Update correctAnswer pada formContent
+    const updatedFormContent = [...formContent];
+    updatedFormContent[questionIndex].correctAnswer = value;
+    setFormContent(updatedFormContent);
+
+    // Update selectedOptions untuk radio button yang dipilih
     const updatedSelectedOptions = [...selectedOptions];
     updatedSelectedOptions[index] = value;
     setSelectedOptions(updatedSelectedOptions);
@@ -117,10 +128,62 @@ export default function MasterProdukAdd({ onChangePage }) {
     delete updatedCorrectAnswers[index];
     setCorrectAnswers(updatedCorrectAnswers);
   };
-  const [selectedFile, setSelectedFile] = useState(null);
+  const parseExcelData = (data) => {
+    const questions = data.map((row, index) => {
+      // Skip header row (index 0) and the row below it (index 1)
+      if (index < 2) return null; 
+  
+      const options = row[3] ? row[3].split(',') : [];
+      return {
+        text: row[1],
+        type: row[2].toLowerCase() === 'essay' ? 'essay' : 'multiple_choice', 
+        options: options.map((option, idx) => ({ label: option, value: String.fromCharCode(65 + idx) })),
+        point: row[4],
+        correctAnswer: row[5],
+      };
+    }).filter(Boolean); // Filter out null values
+  
+    const initialSelectedOptions = questions.map((question, index) => {
+      if (question.type === 'multiple_choice') {
+        // Temukan indeks jawaban benar di dalam options
+        const correctIndex = question.options.findIndex((option) => option.value === question.correctAnswer);
 
+        if (correctIndex !== -1) {
+          // Jika jawaban benar ditemukan, pilih radio button tersebut
+          return question.options[correctIndex].value;
+        } else {
+          // Jika jawaban benar tidak ditemukan, tetapkan nilai kosong
+          return ""; 
+        }
+      } else {
+        // Tidak ada pilihan awal untuk pertanyaan Essay
+        return ""; 
+      }
+    });
+
+    setSelectedOptions(initialSelectedOptions);
+    setFormContent(questions);
+  };
+  
   const handleFileChange = (e) => {
-    setSelectedFile(e.target.files[0]);
+    const file = e.target.files[0];
+    setSelectedFile(file);
+  };
+  const handleUploadFile = () => {
+    if (selectedFile) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const data = e.target.result;
+        const workbook = XLSX.read(data, { type: 'binary' });
+        const sheetName = workbook.SheetNames[0];
+        const sheet = workbook.Sheets[sheetName];
+        const parsedData = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+        parseExcelData(parsedData);
+      };
+      reader.readAsBinaryString(selectedFile);
+    } else {
+      alert("Pilih file Excel terlebih dahulu!");
+    }
   };
 
   const handleAdd = async (e) => {
@@ -128,6 +191,13 @@ export default function MasterProdukAdd({ onChangePage }) {
     setIsLoading(true);
     setErrors({});
     // Logika untuk pengiriman data ke server
+  };
+
+  const handleDownloadTemplate = () => {
+    const link = document.createElement('a');
+    link.href = '/template.xlsx'; // Path to your template file in the public directory
+    link.download = 'template.xlsx';
+    link.click();
   };
 
   if (isLoading) return <Loading />;
@@ -167,8 +237,8 @@ export default function MasterProdukAdd({ onChangePage }) {
             steps={[
               { label: 'Pretest', onClick:() => onChangePage("pretestAdd")},
               { label: 'Course' ,onClick:() => onChangePage("courseAdd")},
-              { label: 'Forum' ,onClick:() => onChangePage("forumAdd") },
               { label: 'Sharing Expert',onClick:() => onChangePage("sharingAdd")},
+              { label: 'Forum' ,onClick:() => onChangePage("forumAdd") },
               { label: 'Post Test',onClick:() => onChangePage("posttestAdd") }
             ]}
             activeStep={0} 
@@ -218,7 +288,10 @@ export default function MasterProdukAdd({ onChangePage }) {
               </div>
             </div>
             <div className="row mb-4">
-              <div className="col-lg-2">
+              <div className="mb-2">
+               
+              </div>
+              <div className="col-lg-4">
                 <Button
                   onClick={() => addQuestion("essay")}
                   iconName="plus"
@@ -235,9 +308,27 @@ export default function MasterProdukAdd({ onChangePage }) {
                   classType="primary btn-sm mx-2 px-3 py-1"
                   onClick={() => document.getElementById('fileInput').click()} // Memicu klik pada input file
                 />
-                {/* Tampilkan nama file yang dipilih */}
-                {selectedFile && <span>{selectedFile.name}</span>} 
+                 {/* Tampilkan nama file yang dipilih */}
+                 {selectedFile && <span>{selectedFile.name}</span>} 
+                
               </div>
+              <div className="p-2">
+                <Button
+                  iconName="upload"
+                  classType="primary btn-sm px-3 py-1"
+                  onClick={handleUploadFile} 
+                  label="Unggah File" 
+                />
+                
+                  <Button
+                  iconName="download"
+                  label="Download Template"
+                  classType="warning btn-sm px-3 py-1 mx-2"
+                  onClick={handleDownloadTemplate}
+                  
+                />
+              </div>
+               
             </div>
             {formContent.map((question, index) => (
               <div key={index} className="card mb-4">
@@ -245,10 +336,12 @@ export default function MasterProdukAdd({ onChangePage }) {
                   <span>Question</span>
                   <span>Point: {question.point}</span> 
                   <div className="col-lg-2">
-                    <select className="form-select" aria-label="Default select example" onChange={(e) => handleQuestionTypeChange(e, index)}>
-                      <option value="essay">Essay</option>
-                      <option value="multiple_choice">Multiple Choice</option>
-                    </select>
+                  <select className="form-select" aria-label="Default select example" 
+                        value={question.type} 
+                        onChange={(e) => handleQuestionTypeChange(e, index)}>
+                  <option value="essay">Essay</option>
+                  <option value="multiple_choice">Multiple Choice</option>
+                </select>
                   </div>
                 </div>
                 <div className="card-body p-4">
@@ -269,15 +362,16 @@ export default function MasterProdukAdd({ onChangePage }) {
                       <div className="col-lg-12">
                         <div className="form-check">
                           {question.options.map((option, optionIndex) => (
-                            <div key={optionIndex}>
-                              <input
+                            <div key={optionIndex} >
+                               <input
                                 type="radio"
                                 id={`option_${index}_${optionIndex}`}
                                 name={`option_${index}`}
                                 value={option.value}
-                                checked={selectedOptions[index] === option.value}
+                                // Checked hanya jika value di selectedOptions sama dengan value dari option
+                                checked={selectedOptions[index] === option.value} 
                                 onChange={(e) => handleOptionChange(e, index)}
-                                style={{ marginRight: '15px' }}
+                                style={{ marginRight: '5px' }}
                               />
                               <label htmlFor={`option_${index}_${optionIndex}`}>{option.label}</label>
                             </div>
@@ -360,29 +454,30 @@ export default function MasterProdukAdd({ onChangePage }) {
                         <div className="col-lg-12">
                           {question.options.map((option, optionIndex) => (
                             <div key={optionIndex} className="form-check">
-                              <input
-                                type="radio"
-                                id={`option_${index}_${optionIndex}`}
-                                name={`option_${index}`}
-                                value={option.value}
-                                checked={selectedOptions[index] === option.value}
-                                onChange={(e) => handleOptionChange(e, index)}
-                                style={{ marginRight: '5px' }}
-                              />
-                              <input
-                                type="text"
-                                value={option.label}
-                                onChange={(e) => handleOptionLabelChange(e, index, optionIndex)}
-                                className="option-input"
-                                readOnly={question.type === "answer"}
-                              />
-                              <Button
-                                iconName="delete"
-                                classType="btn-sm ms-2 px-2 py-0"
-                                onClick={() => handleDeleteOption(index, optionIndex)}
-                              />
+                                <input
+                                    type="radio"
+                                    id={`option_${index}_${optionIndex}`}
+                                    name={`option_${index}`}
+                                    value={option.value}
+                                    checked={selectedOptions[index] === option.value} // Memeriksa apakah nilai opsi ini sudah ada di selectedOptions
+                                    onChange={(e) => handleOptionChange(e, index)} // Menggunakan fungsi handleOptionChange saat radio button dipilih
+                                    style={{ marginRight: '5px' }}
+                                />
+                                <input
+                                    type="text"
+                                    value={option.label}
+                                    onChange={(e) => handleOptionLabelChange(e, index, optionIndex)}
+                                    className="option-input"
+                                    readOnly={question.type === "answer"}
+                                />
+                                <Button
+                                    iconName="delete"
+                                    classType="btn-sm ms-2 px-2 py-0"
+                                    onClick={() => handleDeleteOption(index, optionIndex)}
+                                />
                             </div>
-                          ))}
+                        ))}
+
                           {question.type === "multiple_choice" && (
                             <Button
                               onClick={() => handleAddOption(index)}
