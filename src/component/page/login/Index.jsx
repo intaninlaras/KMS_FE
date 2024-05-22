@@ -11,6 +11,7 @@ import Input from "../../part/Input";
 import Loading from "../../part/Loading";
 import Alert from "../../part/Alert";
 import Modal from "../../part/Modal";
+import Background from "../../../assets/IMG_Background.jpg";
 
 export default function Login() {
   const [errors, setErrors] = useState({});
@@ -124,9 +125,24 @@ export default function Login() {
           </div>
         </Modal>
         <form onSubmit={handleAdd}>
+          <header className="text-black py-3" style={{ borderBottom: "2px solid rgba(0, 0, 0, 0.1)", display: "flex", alignItems: "center" }}>
+            <img
+              src={logo}
+              alt="Logo AstraTech"
+              className="me-3"
+              style={{ width: "240px", height: "60px", marginLeft:"40px" }}
+            />
+            {/* <h1 style={{ margin: 0 }}>{APPLICATION_NAME}</h1> */}
+          </header>
           <div
             className="container-fluid d-flex justify-content-center align-items-center"
-            style={{ height: "70vh" }}
+            style={{
+              height: "78vh",
+              backgroundImage: `url(${Background})`,
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+              backgroundRepeat: "no-repeat",
+            }}
           >
             <div
               className="card w-50"
@@ -173,10 +189,13 @@ export default function Login() {
               </div>
             </div>
           </div>
-          <div className="fixed-bottom p-3 text-center bg-white">
+          {/* <div className="fixed-bottom p-3 text-center bg-white">
             Copyright &copy; 2024 - PSI Politeknik Astra
-          </div>
+          </div> */}
         </form>
+        <footer className="fixed-bottom text-center py-4">
+          <small>&copy; 2024 PSI Politeknik Astra</small>
+        </footer>
       </>
     );
   }

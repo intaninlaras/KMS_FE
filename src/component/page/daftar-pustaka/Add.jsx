@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { object, string } from "yup";
 import { API_LINK } from "../../util/Constants";
 import { validateAllInputs, validateInput } from "../../util/ValidateForm";
@@ -26,6 +26,7 @@ export default function MasterDaftarPustakaAdd({ onChangePage, withID }) {
   const [errors, setErrors] = useState({});
   const [isError, setIsError] = useState({ error: false, message: "" });
   const [isLoading, setIsLoading] = useState(false);
+  const [listKK, setListKK] = useState([]);
 
   const fileInputRef = useRef(null);
   const gambarInputRef = useRef(null);
@@ -41,12 +42,12 @@ export default function MasterDaftarPustakaAdd({ onChangePage, withID }) {
   });
 
   const userSchema = object({
-    kke_id: string(),
-    pus_file: string(),
-    pus_judul: string(),
-    pus_kata_kunci: string().required("harus dipilih"),
-    pus_keterangan: string(),
-    pus_gambar: string(),
+    kke_id: string().required("Pilih Terlebih Dahulu"),
+    pus_file: string().required("Pilih File Pustaka Terlebih Dahulu"),
+    pus_judul: string().required("Isi Judul Terlebih Dahulu"),
+    pus_kata_kunci: string().required("Isi Kata Kunci Terlebih Dahulu"),
+    pus_keterangan: string().required("Isi Keterangan Terlebih Dahulu"),
+    pus_gambar: string().required("Pilih Gambar Cover Terlebih Dahulu"),
     pus_status: string(),
   });
 
@@ -121,6 +122,7 @@ export default function MasterDaftarPustakaAdd({ onChangePage, withID }) {
       Promise.all(uploadPromises).then(() => {
         console.log(formDataRef.current.pus_gambar);
         console.log(formDataRef.current.pus_file);
+        console.log(formDataRef.current.kke_id);
         // console.log("Final formDataRef:", JSON.stringify(formDataRef.current));
         UseFetch(API_LINK + "Pustakas/SaveDataPustaka", formDataRef.current)
           .then((data) => {
@@ -141,6 +143,42 @@ export default function MasterDaftarPustakaAdd({ onChangePage, withID }) {
       });
     }
   };
+
+  useEffect(() => {
+    const fetchDataKK = async () => {
+      setIsError((prevError) => ({ ...prevError, error: false }));
+
+      try {
+        const data = await UseFetch(API_LINK + "KKs/GetDataKK", {
+          page: 1,
+          query: "",
+          sort: "[Nama Kelompok Keahlian] asc",
+          status: "Aktif",
+        });
+
+        if (data === "ERROR") {
+          throw new Error("Terjadi kesalahan: Gagal mengambil daftar prodi.");
+        } else {
+          // Mengubah data menjadi format yang diinginkan
+          const formattedData = data.map(item => ({
+            Value: item["Key"],
+            Text: item["Nama Kelompok Keahlian"]
+          }));
+          setListKK(formattedData);
+        }
+      } catch (error) {
+        setIsError((prevError) => ({
+          ...prevError,
+          error: true,
+          message: error.message,
+        }));
+        setListKK([]);
+      }
+    };
+
+    fetchDataKK();
+
+  }, []);
 
   if (isLoading) return <Loading />;
 
@@ -170,6 +208,17 @@ export default function MasterDaftarPustakaAdd({ onChangePage, withID }) {
                 />
               </div>
               <div className="col-lg-4">
+                <DropDown
+                  forInput="kke_id"
+                  label="Kelompok Keahlian"
+                  arrData={listKK}
+                  isRequired
+                  value={formDataRef.current.kke_id}
+                  onChange={handleInputChange}
+                  errorMessage={errors.kke_id}
+                />
+              </div>
+              <div className="col-lg-4">
                 {/* Dijadikan text biasa */}
                 <Input
                   type="text"
@@ -195,7 +244,7 @@ export default function MasterDaftarPustakaAdd({ onChangePage, withID }) {
                 <FileUpload
                   ref={gambarInputRef}
                   forInput="pus_gambar"
-                  label="Gambar Cover (.jpg, .png)"
+                  label="Gambar Cover (.jpg, .png) Ukuran( 3x5 )"
                   formatFile=".pdf,.jpg,.png"
                   onChange={() => handleFileChange(gambarInputRef, "jpg,png")}
                   errorMessage={errors.pus_gambar}
@@ -219,12 +268,12 @@ export default function MasterDaftarPustakaAdd({ onChangePage, withID }) {
           <Button
             classType="secondary me-2 px-4 py-2"
             label="Kembali"
-            onClick={() => onChangePage("list", withID)}
+            onClick={() => onChangePage("index", withID)}
           />
           <Button
             classType="primary ms-2 px-4 py-2"
             type="submit"
-            label="SIMPAN"
+            label="Simpan"
           />
         </div>
       </form>

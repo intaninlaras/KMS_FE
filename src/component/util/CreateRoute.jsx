@@ -1,5 +1,6 @@
 import { lazy } from "react";
 import MasterDaftarPustaka from "../page/daftar-pustaka/Root";
+import PengajuanKKs from "../page/pengajuan_kk/Root";
 
 const Beranda = lazy(() => import("../page/beranda/Root"));
 const KelolaKK = lazy(() => import("../page/kelola-kelompok-keahlian/Root"));
@@ -26,6 +27,10 @@ const routeList = [
   {
     path: "/kelola_program",
     element: <Program />,
+  },
+  {
+    path: "/pengajuan_kk",
+    element: <PengajuanKKs />,
   },
 ];
 
