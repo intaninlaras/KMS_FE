@@ -1,131 +1,194 @@
 import { useRef, useState, useEffect } from "react";
 import { object, string } from "yup";
 import { API_LINK } from "../../util/Constants";
+import { validateAllInputs } from "../../util/ValidateForm";
 import UseFetch from "../../util/UseFetch";
 import Button from "../../part/Button";
 import DropDown from "../../part/Dropdown";
 import Input from "../../part/Input";
 import Loading from "../../part/Loading";
 import Alert from "../../part/Alert";
+import SweetAlert from "../../util/SweetAlert";
 
 export default function KKEdit({ onChangePage, withID }) {
   const [errors, setErrors] = useState({});
   const [isError, setIsError] = useState({ error: false, message: "" });
+  const [isLoadingProdi, setIsLoadingProdi] = useState(true);
+  const [isLoadingKaryawan, setIsLoadingKaryawan] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
-  const [listProdi, setListProdi] = useState({});
-  const [listKaryawan, setListKaryawan] = useState({});
+  const [listProdi, setListProdi] = useState([]);
+  const [listKaryawan, setListKaryawan] = useState([]);
 
   const formDataRef = useRef({
-    Key: "",
-    ["Nama Kelompok Keahlian"]: "",
-    Prodi: "",
-    PIC: "",
-    Deskripsi: "",
+    key: "",
+    nama: "",
+    programStudi: "",
+    personInCharge: "",
+    deskripsi: "",
+    status: "",
   });
 
   const userSchema = object({
-    ["Nama Kelompok Keahlian"]: string()
-      .max(100, "maksimum 100 karakter")
-      .required("harus diisi"),
-    Prodi: string().required("harus dipilih"),
-    PIC: string().required("harus dipilih"),
-    Deskripsi: string(),
+    key: string(),
+    nama: string().max(100, "maksimum 100 karakter").required("harus diisi"),
+    programStudi: string().required("harus dipilih"),
+    personInCharge: string(),
+    deskripsi: string().required("harus diisi"),
+    status: string(),
   });
-
-  useEffect(() => {
-    const fetchData = async () => {
-      setIsError((prevError) => ({ ...prevError, error: false }));
-      setIsLoading(true);
-
-      try {
-        const data = await UseFetch(API_LINK + "KKs/GetDataKKByID", {
-          id: withID,
-        });
-
-        if (data === "ERROR" || data.length === 0) {
-          throw new Error(
-            "Terjadi kesalahan: Gagal mengambil data kelompok keahlian."
-          );
-        } else {
-          formDataRef.current = { ...formDataRef.current, ...data[0] };
-        }
-      } catch (error) {
-        setIsError({ error: true, message: error.message });
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchData();
-  }, [withID]);
-
-  useEffect(() => {
-    const fetchProdi = async () => {
-      setIsError((prevError) => ({ ...prevError, error: false }));
-
-      try {
-        const data = await UseFetch(API_LINK + "KKs/GetListProdi", {});
-
-        if (data === "ERROR" || !Array.isArray(data)) {
-          throw new Error("Terjadi kesalahan: Gagal mengambil daftar prodi.");
-        } else {
-          setListProdi(data);
-        }
-      } catch (error) {
-        setIsError((prevError) => ({
-          ...prevError,
-          error: true,
-          message: error.message,
-        }));
-        setListProdi([]);
-      }
-    };
-
-    fetchProdi();
-  }, []);
-
-  useEffect(() => {
-    const fetchKaryawan = async () => {
-      setIsError((prevError) => ({ ...prevError, error: false }));
-
-      try {
-        const data = await UseFetch(API_LINK + "KKs/GetListKaryawan", {});
-
-        if (data === "ERROR" || !Array.isArray(data)) {
-          throw new Error(
-            "Terjadi kesalahan: Gagal mengambil daftar karyawan."
-          );
-        } else {
-          setListKaryawan(data);
-        }
-      } catch (error) {
-        setIsError((prevError) => ({
-          ...prevError,
-          error: true,
-          message: error.message,
-        }));
-        setListKaryawan([]);
-      }
-    };
-
-    fetchKaryawan();
-  }, []);
-
-  useEffect(() => {
-    console.log(formDataRef.current);
-  }, []);
 
   const handleInputChange = async (e) => {
     const { name, value } = e.target;
-    const validationError = await validateInput(name, value, userSchema);
+
+    try {
+      if (name === "personInCharge" && value === "") {
+        setErrors((prevErrors) => ({ ...prevErrors, [name]: "" }));
+      } else {
+        await userSchema.validateAt(name, { [name]: value });
+        setErrors((prevErrors) => ({ ...prevErrors, [name]: "" }));
+      }
+    } catch (error) {
+      setErrors((prevErrors) => ({ ...prevErrors, [name]: error.message }));
+    }
+
     formDataRef.current[name] = value;
-    setErrors((prevErrors) => ({
-      ...prevErrors,
-      [validationError.name]: validationError.error,
-    }));
+    if (name === "programStudi") {
+      fetchDataKaryawan(value);
+    }
   };
 
-  const handleAdd = async (e) => {};
+  const getListProdi = async () => {
+    setIsLoadingProdi(true);
+  
+    try {
+      while (true) {
+        let data = await UseFetch(API_LINK + "KKs/GetListProdi", {});
+  
+        if (data === "ERROR") {
+          throw new Error("Terjadi kesalahan: Gagal mengambil daftar prodi.");
+        } else if (data.length === 0) {
+          await new Promise(resolve => setTimeout(resolve, 2000));
+        } else {
+          setListProdi(data);
+          setIsLoadingProdi(false);
+          break;
+        }
+      }
+    } catch(e) {
+      setIsLoadingProdi(false);
+      console.log(e.message);
+      setIsError((prevError) => ({
+        ...prevError,
+        error: true,
+        message: e.message,
+      }));
+    }
+  }  
+
+  const getListKaryawan = async () => {
+    setIsLoadingKaryawan(true);
+  
+    try {
+      while (true) {
+        let data = await UseFetch(API_LINK + "KKs/GetListKaryawan", { idProdi: formDataRef.current.programStudi });
+  
+        if (data === "ERROR") {
+          throw new Error("Terjadi kesalahan: Gagal mengambil daftar karyawan.");
+        } else if (data.length === 0) {
+          await new Promise(resolve => setTimeout(resolve, 2000));
+        } else {
+          setListKaryawan(data);
+          setIsLoadingKaryawan(false);
+          break;
+        }
+      }
+    } catch(e) {
+      setIsLoadingKaryawan(false);
+      console.log(e.message);
+      setIsError((prevError) => ({
+        ...prevError,
+        error: true,
+        message: e.message,
+      }));
+    }
+  }
+
+  useEffect(() => {
+    formDataRef.current = {
+      key: withID.id,
+      nama: withID.title,
+      programStudi: withID.prodi.key,
+      personInCharge: withID.pic.key ? withID.pic.key : "",
+      deskripsi: withID.desc,
+      status: withID.status,
+    };
+  }, []);
+  
+  useEffect(() => {
+    getListProdi();
+  }, []);
+  
+  useEffect(() => {
+    if (formDataRef.current.programStudi) {
+      getListKaryawan();
+    }
+  }, [formDataRef.current.programStudi]);
+  
+  useEffect(() => {
+    setIsLoading(isLoadingProdi || isLoadingKaryawan);
+  }, [isLoadingProdi, isLoadingKaryawan]);
+
+  const handleAdd = async (e) => {
+    e.preventDefault();
+
+    const validationErrors = await validateAllInputs(
+      formDataRef.current,
+      userSchema,
+      setErrors
+    );
+
+    if (Object.values(validationErrors).every((error) => !error)) {
+      setIsLoading(true);
+
+      setIsError((prevError) => {
+        return { ...prevError, error: false };
+      });
+
+      setErrors({});
+
+      const dataToSend = { ...formDataRef.current };
+      if (!dataToSend.personInCharge) {
+        dataToSend.personInCharge = "";
+      } else if (
+        dataToSend.status === "Menunggu" &&
+        dataToSend.personInCharge
+      ) {
+        dataToSend.status = "Aktif";
+      }
+
+      UseFetch(API_LINK + "KKs/EditKK", dataToSend)
+        .then((data) => {
+          if (data === "ERROR") {
+            setIsError((prevError) => {
+              return {
+                ...prevError,
+                error: true,
+                message:
+                  "Terjadi kesalahan: Gagal mengubah data kelompok keahlian.",
+              };
+            });
+          } else {
+            SweetAlert(
+              "Sukses",
+              "Data kelompok keahlian berhasil diubah",
+              "success"
+            );
+            onChangePage("index");
+          }
+        })
+        .then(() => setIsLoading(false));
+    }
+  };
 
   if (isLoading) return <Loading />;
 
@@ -136,6 +199,9 @@ export default function KKEdit({ onChangePage, withID }) {
           <Alert type="danger" message={isError.message} />
         </div>
       )}
+      {isLoading ? (
+        <Loading />
+      ) : (
       <form onSubmit={handleAdd}>
         <div className="card">
           <div className="card-header bg-primary fw-medium text-white">
@@ -147,27 +213,28 @@ export default function KKEdit({ onChangePage, withID }) {
               <div className="col-lg-12">
                 <Input
                   type="text"
-                  forInput="Nama Kelompok Keahlian"
+                  forInput="nama"
                   label="Nama Kelompok Keahlian"
                   isRequired
                   placeholder="Nama Kelompok Keahlian"
-                  value={formDataRef.current["Nama Kelompok Keahlian"]}
+                  value={formDataRef.current.nama}
                   onChange={handleInputChange}
-                  errorMessage={errors["Nama Kelompok Keahlian"]}
+                  errorMessage={errors.nama}
                 />
               </div>
               <div className="col-lg-12">
                 <label style={{ paddingBottom: "5px", fontWeight: "bold" }}>
-                  Deskripsi <span style={{ color: "red" }}> *</span>
+                  Deskripsi/Ringkasan Mengenai Kelompok Keahlian{" "}
+                  <span style={{ color: "red" }}> *</span>
                 </label>
                 <textarea
                   className="form-control mb-3"
                   style={{
                     height: "200px",
                   }}
-                  id="Deskripsi"
-                  name="Deskripsi"
-                  value={formDataRef.current.Deskripsi}
+                  id="deskripsi"
+                  name="deskripsi"
+                  value={formDataRef.current.deskripsi}
                   onChange={handleInputChange}
                   placeholder="Deskripsi"
                   required
@@ -175,23 +242,23 @@ export default function KKEdit({ onChangePage, withID }) {
               </div>
               <div className="col-lg-6">
                 <DropDown
-                  forInput="Prodi"
+                  forInput="programStudi"
                   label="Program Studi"
                   arrData={listProdi}
                   isRequired
-                  value={formDataRef.current.Prodi}
+                  value={formDataRef.current.programStudi}
                   onChange={handleInputChange}
-                  errorMessage={errors.jenisProduk}
+                  errorMessage={errors.programStudi}
                 />
               </div>
               <div className="col-lg-6">
                 <DropDown
-                  forInput="PIC"
+                  forInput="personInCharge"
                   label="PIC Kelompok Keahlian"
                   arrData={listKaryawan}
-                  value={formDataRef.current.PIC || ""}
+                  value={formDataRef.current.personInCharge || ""}
                   onChange={handleInputChange}
-                  errorMessage={errors.jenisProduk}
+                  errorMessage={errors.personInCharge}
                 />
               </div>
             </div>
@@ -209,7 +276,7 @@ export default function KKEdit({ onChangePage, withID }) {
             label="Simpan"
           />
         </div>
-      </form>
+      </form> )}
     </>
   );
 }

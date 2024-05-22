@@ -43,9 +43,7 @@ export default function MasterDaftarPustaka() {
           />
         );
       default:
-        return (
-          "Tidak ditemukan"
-        );
+        return "Tidak ditemukan";
     }
   }
 

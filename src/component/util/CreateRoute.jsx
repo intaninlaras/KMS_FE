@@ -5,6 +5,7 @@ import PengajuanKKs from "../page/pengajuan_kk/Root";
 const Beranda = lazy(() => import("../page/beranda/Root"));
 const KelolaKK = lazy(() => import("../page/kelola-kelompok-keahlian/Root"));
 const AnggotaKK = lazy(() => import("../page/anggota-kelompok-keahlian/Root"));
+const Program = lazy(() => import("../page/kelola-program/Root"));
 
 const routeList = [
   {
@@ -22,6 +23,10 @@ const routeList = [
   {
     path: "/daftar_pustaka",
     element: <MasterDaftarPustaka />,
+  },
+  {
+    path: "/kelola_program",
+    element: <Program />,
   },
   {
     path: "/pengajuan_kk",

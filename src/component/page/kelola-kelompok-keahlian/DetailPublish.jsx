@@ -1,50 +1,42 @@
-import { useRef, useState } from "react";
-import { object, string } from "yup";
-import SweetAlert from "../../util/SweetAlert";
-import UseFetch from "../../util/UseFetch";
-import UploadFile from "../../util/UploadFile";
+import { useState, useEffect } from "react";
 import Button from "../../part/Button";
 import DropDown from "../../part/Dropdown";
 import Input from "../../part/Input";
-import FileUpload from "../../part/FileUpload";
 import Loading from "../../part/Loading";
 import Alert from "../../part/Alert";
 import Filter from "../../part/Filter";
-import { ListKelompokKeahlian } from "../../util/Dummy";
+import Icon from "../../part/Icon";
 
 export default function KKDetailPublish({ onChangePage, withID }) {
   const [errors, setErrors] = useState({});
   const [isError, setIsError] = useState({ error: false, message: "" });
   const [isLoading, setIsLoading] = useState(false);
-  const data = ListKelompokKeahlian.find((item) => item.data.id === withID);
 
-  const formDataRef = useRef({
-    namaProduk: "",
-    jenisProduk: "",
-    gambarProduk: "",
-    spesifikasi: "",
+  const [formData, setFormData] = useState({
+    key: "",
+    nama: "",
+    programStudi: "",
+    personInCharge: "",
+    deskripsi: "",
+    status: "",
+    members: [],
+    memberCount: "",
   });
 
-  const userSchema = object({
-    namaProduk: string()
-      .max(100, "maksimum 100 karakter")
-      .required("harus diisi"),
-    jenisProduk: string().required("harus dipilih"),
-    gambarProduk: string(),
-    spesifikasi: string(),
-  });
-
-  const handleInputChange = async (e) => {
-    const { name, value } = e.target;
-    const validationError = await validateInput(name, value, userSchema);
-    formDataRef.current[name] = value;
-    setErrors((prevErrors) => ({
-      ...prevErrors,
-      [validationError.name]: validationError.error,
-    }));
-  };
-
-  const handleAdd = async (e) => {};
+  useEffect(() => {
+    if (withID) {
+      setFormData({
+        key: withID.id,
+        nama: withID.title,
+        programStudi: withID.prodi.nama,
+        personInCharge: withID.pic.nama,
+        deskripsi: withID.desc,
+        status: withID.status,
+        members: withID.members,
+        memberCount: withID.memberCount,
+      });
+    }
+  }, [withID]);
 
   if (isLoading) return <Loading />;
 
@@ -62,19 +54,28 @@ export default function KKDetailPublish({ onChangePage, withID }) {
         <div className="card-body">
           <div className="row pt-2">
             <div className="col-lg-7 px-4">
-              <h3 className="mb-3 fw-semibold">{data?.data.title || ""}</h3>
+              <h3 className="mb-3 fw-semibold">{formData.nama}</h3>
               <h6 className="fw-semibold">
                 <span
                   className="bg-primary me-2"
                   style={{ padding: "2px" }}
                 ></span>
-                {data?.data.prodi || ""}
+                {formData.programStudi}
               </h6>
-              <p className="py-3">{data?.data.desc || ""}</p>
+              <div className="pt-2 ps-2">
+                <Icon
+                  name="user"
+                  cssClass="p-0 ps-1 text-dark"
+                  title="PIC Kelompok Keahlian"
+                />{" "}
+                <span>PIC : {formData.personInCharge}</span>
+              </div>
+              <hr className="mb-0" style={{ opacity: "0.2" }} />
+              <p className="py-3">{formData.deskripsi}</p>
             </div>
             <div className="col-lg-5">
-              <p>3 orang baru saja bergabung!</p>
-              {data?.data.members.map((pr) => (
+              {/* <p>3 orang baru saja bergabung!</p> */}
+              {formData.members?.map((pr) => (
                 <div className="card-profile mb-2 d-flex shadow-sm">
                   <div className="bg-primary" style={{ width: "1.5%" }}></div>
                   <div className="p-1 ps-2 d-flex">
@@ -93,7 +94,7 @@ export default function KKDetailPublish({ onChangePage, withID }) {
                   </div>
                 </div>
               ))}
-              <div className="text-end">
+              {/* <div className="text-end">
                 <Button
                   classType="light btn-sm text-primary text-decoration-underline px-3 mt-2"
                   type="submit"
@@ -101,7 +102,7 @@ export default function KKDetailPublish({ onChangePage, withID }) {
                   data-bs-toggle="modal"
                   data-bs-target="#modalAnggota"
                 />
-              </div>
+              </div> */}
             </div>
           </div>
         </div>
@@ -174,7 +175,7 @@ export default function KKDetailPublish({ onChangePage, withID }) {
                   />
                 </Filter>
               </div>
-              {data?.data.members.map((pr, index) => (
+              {formData.members?.map((pr, index) => (
                 <div className="card-profile mb-3 d-flex shadow-sm">
                   <p className="mb-0 px-1 py-2 mt-2 me-2 fw-bold text-primary">
                     {index + 1}

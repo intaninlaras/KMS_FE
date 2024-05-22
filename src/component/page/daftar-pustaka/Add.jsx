@@ -100,7 +100,7 @@ export default function MasterDaftarPustakaAdd({ onChangePage, withID }) {
 
       const uploadPromises = [];
 
-      console.log(fileInputRef.current.files[0])
+      console.log(fileInputRef.current.files[0]);
       if (fileInputRef.current.files.length > 0) {
         uploadPromises.push(
           uploadFile(fileInputRef.current).then((data) => {
@@ -124,10 +124,7 @@ export default function MasterDaftarPustakaAdd({ onChangePage, withID }) {
         console.log(formDataRef.current.pus_file);
         console.log(formDataRef.current.kke_id);
         // console.log("Final formDataRef:", JSON.stringify(formDataRef.current));
-        UseFetch(
-          API_LINK + "Pustakas/SaveDataPustaka",
-          formDataRef.current
-        )
+        UseFetch(API_LINK + "Pustakas/SaveDataPustaka", formDataRef.current)
           .then((data) => {
             if (data === "ERROR") {
               setIsError((prevError) => {
@@ -138,11 +135,7 @@ export default function MasterDaftarPustakaAdd({ onChangePage, withID }) {
                 };
               });
             } else {
-              SweetAlert(
-                "Sukses",
-                "Data Pustaka berhasil disimpan",
-                "success"
-              );
+              SweetAlert("Sukses", "Data Pustaka berhasil disimpan", "success");
               window.location.reload();
             }
           })
@@ -243,9 +236,7 @@ export default function MasterDaftarPustakaAdd({ onChangePage, withID }) {
                   forInput="pus_file"
                   label="File Pustaka (.pdf, .mp4)"
                   formatFile=".pdf,.mp4"
-                  onChange={() =>
-                    handleFileChange(fileInputRef, "pdf,mp4")
-                  }
+                  onChange={() => handleFileChange(fileInputRef, "pdf,mp4")}
                   errorMessage={errors.pus_file}
                 />
               </div>
@@ -255,9 +246,7 @@ export default function MasterDaftarPustakaAdd({ onChangePage, withID }) {
                   forInput="pus_gambar"
                   label="Gambar Cover (.jpg, .png) Ukuran( 3x5 )"
                   formatFile=".pdf,.jpg,.png"
-                  onChange={() =>
-                    handleFileChange(gambarInputRef, "jpg,png")
-                  }
+                  onChange={() => handleFileChange(gambarInputRef, "jpg,png")}
                   errorMessage={errors.pus_gambar}
                 />
               </div>
