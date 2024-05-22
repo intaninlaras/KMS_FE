@@ -10,6 +10,22 @@ function CardPengajuan({
   isShow
 }) {
   const [showAllText, setShowAllText] = useState(isShow);
+  const sortDataByStatus = (data) => {
+    const statusOrder = {
+      "Aktif": 1,
+      "Menunggu Acc": 2,
+      "None": 3,
+      // Any other statuses will be considered last
+      "Ditolak": 4,
+      "Kosong": 4,
+    };
+
+    return data.sort((a, b) => {
+      return statusOrder[a.Status] - statusOrder[b.Status];
+    });
+  };
+
+  const sortedData = sortDataByStatus(data);
 
   const handleToggleText = () => {
     setShowAllText(!showAllText);
@@ -17,7 +33,7 @@ function CardPengajuan({
 
   return (
     <>
-      {data.map((kk, index) => (
+      {sortedData.map((kk, index) => (
         <div className="col-lg-4 mb-3" key={kk.ID || index}>
           <div
             className="card p-0 h-100"

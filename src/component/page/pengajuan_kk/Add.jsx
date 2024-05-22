@@ -176,6 +176,7 @@ export default function PengajuanAdd({ onChangePage, withID }) {
             } else {
               SweetAlert("Sukses", "Data Pustaka berhasil disimpan", "success");
             }
+            window.location.reload();
           })
           .finally(() => setIsLoading(false));
       });
