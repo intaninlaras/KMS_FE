@@ -29,7 +29,7 @@ const routeList = [
     element: <Program />,
   },
   {
-    path: "/pengajuan_kk",
+    path: "/pengajuan_anggota_keahlian",
     element: <PengajuanKKs />,
   },
 ];

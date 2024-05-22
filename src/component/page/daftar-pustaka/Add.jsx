@@ -44,10 +44,12 @@ export default function MasterDaftarPustakaAdd({ onChangePage, withID }) {
   const userSchema = object({
     kke_id: string().required("Pilih Terlebih Dahulu"),
     pus_file: string().required("Pilih File Pustaka Terlebih Dahulu"),
+    // pus_file: string(),
     pus_judul: string().required("Isi Judul Terlebih Dahulu"),
     pus_kata_kunci: string().required("Isi Kata Kunci Terlebih Dahulu"),
     pus_keterangan: string().required("Isi Keterangan Terlebih Dahulu"),
-    pus_gambar: string().required("Pilih Gambar Cover Terlebih Dahulu"),
+    // pus_gambar: string().required("Pilih Gambar Cover Terlebih Dahulu"),
+    pus_gambar: string(),
     pus_status: string(),
   });
 
@@ -75,6 +77,8 @@ export default function MasterDaftarPustakaAdd({ onChangePage, withID }) {
       error = "format berkas tidak valid";
 
     if (error) ref.current.value = "";
+    //BARIS BARUUUUUUUUUUU
+    formDataRef.current[name] = fileName;
 
     setErrors((prevErrors) => ({
       ...prevErrors,
@@ -160,9 +164,9 @@ export default function MasterDaftarPustakaAdd({ onChangePage, withID }) {
           throw new Error("Terjadi kesalahan: Gagal mengambil daftar prodi.");
         } else {
           // Mengubah data menjadi format yang diinginkan
-          const formattedData = data.map(item => ({
+          const formattedData = data.map((item) => ({
             Value: item["Key"],
-            Text: item["Nama Kelompok Keahlian"]
+            Text: item["Nama Kelompok Keahlian"],
           }));
           setListKK(formattedData);
         }
@@ -177,7 +181,6 @@ export default function MasterDaftarPustakaAdd({ onChangePage, withID }) {
     };
 
     fetchDataKK();
-
   }, []);
 
   if (isLoading) return <Loading />;

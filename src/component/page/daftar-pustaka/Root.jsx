@@ -21,13 +21,11 @@ export default function MasterDaftarPustaka() {
         );
       case "edit":
         return (
-        <MasterDaftarPustakaEdit 
-        onChangePage={handleSetPageMode} 
-        withID={dataID}
-        />
+          <MasterDaftarPustakaEdit
+            onChangePage={handleSetPageMode}
+            withID={dataID}
+          />
         );
-      case "add":
-        return <MasterDaftarPustakaAdd onChangePage={handleSetPageMode} />;
       case "index":
         return (
           <MasterDaftarPustakaIndex
