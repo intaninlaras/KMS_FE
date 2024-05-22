@@ -132,54 +132,57 @@ export default function PengajuanAdd({ onChangePage, withID }) {
 
   const handleAdd = async (e) => {
     e.preventDefault();
-    
 
+    // Validasi semua input
     const validationErrors = await validateAllInputs(
       formDataRef.current,
       userSchema,
       setErrors
     );
-    
 
     if (Object.values(validationErrors).every((error) => !error)) {
       setIsLoading(true);
-      setIsError((prevError) => {
-        return { ...prevError, error: false };
-      });
+      setIsError((prevError) => ({ ...prevError, error: false }));
       setErrors({});
 
       const uploadPromises = [];
-
       formDataRef.current.lampirans = [];
 
       lampiranRefs.current.forEach((ref) => {
         if (ref && ref.current && ref.current.files.length > 0) {
           uploadPromises.push(
             uploadFile(ref.current).then((data) => {
-              formDataRef.current.lampirans.push({ pus_file: data.newFileName });
+              if (data !== "ERROR" && data.newFileName) {
+                formDataRef.current.lampirans.push({ pus_file: data.newFileName });
+              } else {
+                throw new Error('File upload failed');
+              }
             })
           );
         }
       });
 
-      Promise.all(uploadPromises).then(() => {
-        UseFetch(API_LINK + "Pengajuans/SaveAnggotaKK", formDataRef.current)
-          .then((data) => {
-            if (data === "ERROR") {
-              setIsError((prevError) => {
-                return {
-                  ...prevError,
-                  error: true,
-                  message: "Terjadi kesalahan: Gagal menyimpan data Pengajuan KK.",
-                };
-              });
-            } else {
-              SweetAlert("Sukses", "Data Pustaka berhasil disimpan", "success");
-            }
-            window.location.reload();
-          })
-          .finally(() => setIsLoading(false));
-      });
+      try {
+        await Promise.all(uploadPromises);
+
+        const response = await UseFetch(API_LINK + "Pengajuans/SaveAnggotaKK", formDataRef.current);
+        if (response === "ERROR") {
+          setIsError({
+            error: true,
+            message: "Terjadi kesalahan: Gagal menyimpan data Pengajuan KK.",
+          });
+        } else {
+          SweetAlert("Sukses", "Data Pustaka berhasil disimpan", "success");
+          window.location.reload();
+        }
+      } catch (error) {
+        setIsError({
+          error: true,
+          message: "Terjadi kesalahan: Gagal mengupload file atau menyimpan data.",
+        });
+      } finally {
+        setIsLoading(false);
+      }
     }
   };
 
