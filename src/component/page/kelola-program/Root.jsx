@@ -1,6 +1,8 @@
 import { useState } from "react";
 import ProgramIndex from "./Index";
 import ProgramAdd from "./AddProgram";
+import KategoriProgramAdd from "./AddKategoriProgram";
+import ProgramEdit from "./EditProgram";
 
 export default function Program() {
   const [pageMode, setPageMode] = useState("index");
@@ -12,16 +14,15 @@ export default function Program() {
         return <ProgramIndex onChangePage={handleSetPageMode} />;
       case "add":
         return <ProgramAdd onChangePage={handleSetPageMode} withID={dataID} />;
-      // case "detailDraft":
-      //   return (
-      //     <KKDetailDraft onChangePage={handleSetPageMode} withID={dataID} />
-      //   );
-      // case "detailPublish":
-      //   return (
-      //     <KKDetailPublish onChangePage={handleSetPageMode} withID={dataID} />
-      //   );
-      // case "edit":
-      //   return <KKEdit onChangePage={handleSetPageMode} withID={dataID} />;
+      case "addKategori":
+        return (
+          <KategoriProgramAdd
+            onChangePage={handleSetPageMode}
+            withID={dataID}
+          />
+        );
+      case "edit":
+        return <ProgramEdit onChangePage={handleSetPageMode} withID={dataID} />;
     }
   }
 

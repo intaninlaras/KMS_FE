@@ -1,27 +1,23 @@
-import React, { useState } from "react";
+import React, { forwardRef } from "react";
 import Button from "./Button";
 import Icon from "./Icon";
-import Input from "./Input";
 
-const CardProgram = ({ isOpen, data, children }) => {
-  const [isContentVisible, setIsContentVisible] = useState(isOpen);
-
-  const toggleContentVisibility = () => {
-    setIsContentVisible(!isContentVisible);
-  };
-
+const CardProgram = ({
+  id,
+  data,
+  isActive,
+  onClick,
+  children,
+  onChangePage,
+}) => {
   return (
     <div
-      className={`card card-program mt-3 ${
-        isContentVisible ? "border-secondary" : ""
-      }`}
-      style={{ display: isOpen ? "block" : "none" }}
+      id={id}
+      className={`card card-program mt-3 ${isActive ? "border-secondary" : ""}`}
     >
       <div
         className={`card-body d-flex justify-content-between ${
-          isContentVisible
-            ? "align-items-center border-bottom border-secondary"
-            : ""
+          isActive ? "align-items-center border-bottom border-secondary" : ""
         }`}
       >
         <p className="fw-medium mb-0 text-center" style={{ width: "15%" }}>
@@ -31,7 +27,7 @@ const CardProgram = ({ isOpen, data, children }) => {
           className="mb-0 pe-3"
           style={{
             width: "65%",
-            display: isContentVisible ? "block" : "-webkit-box",
+            display: isActive ? "block" : "-webkit-box",
             WebkitLineClamp: 1,
             WebkitBoxOrient: "vertical",
             overflow: "hidden",
@@ -78,198 +74,24 @@ const CardProgram = ({ isOpen, data, children }) => {
           }}
         >
           <Button
-            iconName={isContentVisible ? "caret-up" : "caret-down"}
+            iconName={isActive ? "caret-up" : "caret-down"}
             classType="outline-primary btn-sm px-3"
-            onClick={toggleContentVisibility}
+            onClick={onClick}
             title="Detail Kelompok Keahlian"
           />
         </div>
       </div>
       <div
         className="card-body"
-        style={{ display: isContentVisible ? "block" : "none" }}
+        style={{ display: isActive ? "block" : "none" }}
       >
-        <Button iconName="add" classType="primary btn-sm" label="Tambah" />
-        <div className="row row-cols-3">
-          {/* Card Kategori Program */}
-          {children}
-          {/* <div className="col">
-            <div className="card card-kategori-program mt-3">
-              <div className="card-body">
-                <div className="d-flex justify-content-between">
-                  <h6 className="card-title">HR Generalist Fundamental</h6>
-                  <div>
-                    <Icon
-                      name="file"
-                      type="Bold"
-                      cssClass="btn px-2 py-0"
-                      title="Materi"
-                    />
-                    <span>5</span>
-                  </div>
-                </div>
-                <div className="d-flex mt-2">
-                  <div className="me-2 bg-primary ps-1"></div>
-                  <p className="card-subtitle">
-                    Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                    Inventore, quae!
-                  </p>
-                </div>
-                <div className="d-flex justify-content-end mt-3">
-                  <Icon
-                    name="check"
-                    type="Bold"
-                    cssClass="btn px-2 py-0 text-primary"
-                    title="Sudah di Publikasi"
-                  />
-                  <Icon
-                    name="edit"
-                    type="Bold"
-                    cssClass="btn px-2 py-0 text-primary"
-                    title="Ubah Program"
-                  />
-                  <Icon
-                    name="list"
-                    type="Bold"
-                    cssClass="btn px-2 py-0 text-primary"
-                    title="Detail"
-                  />
-                  <div
-                    class="form-check form-switch py-0 ms-2"
-                    style={{ width: "fit-content" }}
-                  >
-                    <Input
-                      type="checkbox"
-                      forInput=""
-                      label=""
-                      className="form-check-input"
-                    />
-                    <label
-                      className="form-check-label"
-                      for="flexSwitchCheckDefault"
-                    ></label>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div className="col">
-            <div className="card card-kategori-program mt-3">
-              <div className="card-body">
-                <div className="d-flex justify-content-between">
-                  <h6 className="card-title">HR Generalist Fundamental</h6>
-                  <div>
-                    <Icon
-                      name="file"
-                      type="Bold"
-                      cssClass="btn px-2 py-0"
-                      title="Materi"
-                    />
-                    <span>5</span>
-                  </div>
-                </div>
-                <div className="d-flex mt-2">
-                  <div className="me-2 bg-primary ps-1"></div>
-                  <p className="card-subtitle">
-                    Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                    Inventore, quae!
-                  </p>
-                </div>
-                <div className="d-flex justify-content-end mt-3">
-                  <Icon
-                    name="check"
-                    type="Bold"
-                    cssClass="btn px-2 py-0 text-primary"
-                    title="Sudah di Publikasi"
-                  />
-                  <Icon
-                    name="edit"
-                    type="Bold"
-                    cssClass="btn px-2 py-0 text-primary"
-                    title="Ubah Program"
-                  />
-                  <Icon
-                    name="list"
-                    type="Bold"
-                    cssClass="btn px-2 py-0 text-primary"
-                    title="Detail"
-                  />
-                  <div
-                    class="form-check form-switch py-0 ms-2"
-                    style={{ width: "fit-content" }}
-                  >
-                    <Input
-                      type="checkbox"
-                      forInput=""
-                      label=""
-                      className="form-check-input"
-                    />
-                    <label
-                      className="form-check-label"
-                      for="flexSwitchCheckDefault"
-                    ></label>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div className="col">
-            <div className="card card-kategori-program mt-3">
-              <div className="card-body">
-                <div className="d-flex justify-content-between">
-                  <h6 className="card-title">HR Generalist Fundamental</h6>
-                  <div>
-                    <Icon
-                      name="file"
-                      type="Bold"
-                      cssClass="btn px-2 py-0"
-                      title="Materi"
-                    />
-                    <span>5</span>
-                  </div>
-                </div>
-                <div className="d-flex mt-2">
-                  <div className="me-2 bg-primary ps-1"></div>
-                  <p className="card-subtitle">
-                    Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                    Inventore, quae!
-                  </p>
-                </div>
-                <div className="d-flex justify-content-between mt-3 align-items-center">
-                  <p className="text-danger mb-0" style={{ fontSize: "14px" }}>
-                    Draft
-                  </p>
-                  <div className="d-flex justify-content-end">
-                    <Icon
-                      name="edit"
-                      type="Bold"
-                      cssClass="btn px-2 py-0 text-primary"
-                      title="Edit"
-                    />
-                    <Icon
-                      name="trash"
-                      type="Bold"
-                      cssClass="btn px-2 py-0 text-primary"
-                      title="Hapus"
-                    />
-                    <Icon
-                      name="list"
-                      type="Bold"
-                      cssClass="btn px-2 py-0 text-primary"
-                      title="Detail"
-                    />
-                    <Icon
-                      name="paper-plane"
-                      type="Bold"
-                      cssClass="btn px-1 py-0 text-primary"
-                      title="Kirim Pengajuan"
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div> */}
-        </div>
+        <Button
+          iconName="add"
+          classType="primary btn-sm mb-2"
+          label="Tambah Mata Kuliah"
+          onClick={() => onChangePage("addKategori", data)}
+        />
+        {children}
       </div>
     </div>
   );

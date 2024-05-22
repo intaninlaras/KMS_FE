@@ -1,32 +1,45 @@
 import { useEffect, useRef, useState } from "react";
 import { API_LINK } from "../../util/Constants";
-import SweetAlert from "../../util/SweetAlert";
 import UseFetch from "../../util/UseFetch";
 import Button from "../../part/Button";
-import Input from "../../part/Input";
-import Table from "../../part/Table";
-import Paging from "../../part/Paging";
-import Filter from "../../part/Filter";
-import DropDown from "../../part/Dropdown";
-import Alert from "../../part/Alert";
 import Loading from "../../part/Loading";
 import Icon from "../../part/Icon";
 import CardProgram from "../../part/CardProgram";
+import ScrollIntoView from "react-scroll-into-view";
+import CardKategoriProgram from "../../part/CardKategoriProgram";
+import Alert from "../../part/Alert";
 
 export default function ProgramIndex({ onChangePage }) {
-  const [isOpen, setIsOpen] = useState(true);
-  const [isContentVisible, setIsContentVisible] = useState(false);
+  const cardRefs = useRef([]);
+  const [activeCard, setActiveCard] = useState(null);
   const [isError, setIsError] = useState({ error: false, message: "" });
   const [isLoading, setIsLoading] = useState(true);
   const [currentData, setCurrentData] = useState(null);
   const [listProgram, setListProgram] = useState([]);
+  const [listAnggota, setListAnggota] = useState([]);
+  const [listKategoriProgram, setListKategoriProgram] = useState([
+    { Message: "" },
+  ]);
   const [currentFilter, setCurrentFilter] = useState({
     page: 1,
     query: "",
-    sort: "[Nama Program] asc",
+    sort: "[Nama Program] desc",
     status: "",
     KKid: "",
   });
+
+  const handleCardClick = (id, index) => {
+    getListKategoriProgram(id);
+
+    setActiveCard(activeCard === id ? null : id);
+
+    if (cardRefs.current[index]) {
+      cardRefs.current[index].scrollIntoView({
+        behavior: "smooth",
+        block: "end",
+      });
+    }
+  };
 
   const getKK = async () => {
     setIsError({ error: false, message: "" });
@@ -88,6 +101,83 @@ export default function ProgramIndex({ onChangePage }) {
     }
   };
 
+  const getListAnggota = async (filter) => {
+    setIsError({ error: false, message: "" });
+    setIsLoading(true);
+
+    try {
+      while (true) {
+        let data = await UseFetch(API_LINK + "AnggotaKK/GetAnggotaKK", {
+          page: 1,
+          query: "",
+          sort: "[Nama Anggota] asc",
+          status: "Aktif",
+          kkeID: filter,
+        });
+
+        if (data === "ERROR") {
+          throw new Error("Terjadi kesalahan: Gagal mengambil daftar anggota.");
+        } else if (data === "data kosong") {
+          setListAnggota([]);
+          setIsLoading(false);
+          break;
+        } else if (data.length === 0) {
+          await new Promise((resolve) => setTimeout(resolve, 2000));
+        } else {
+          setListAnggota(data);
+          setIsLoading(false);
+          break;
+        }
+      }
+    } catch (e) {
+      setIsLoading(false);
+      console.log(e.message);
+      setIsError((prevError) => ({
+        ...prevError,
+        error: true,
+        message: e.message,
+      }));
+    }
+  };
+
+  const getListKategoriProgram = async (filter) => {
+    try {
+      while (true) {
+        let data = await UseFetch(
+          API_LINK + "KategoriProgram/GetKategoriByProgram",
+          {
+            page: 1,
+            query: "",
+            sort: "[Nama Kategori] asc",
+            status: "",
+            kkeID: filter,
+          }
+        );
+
+        if (data === "ERROR") {
+          throw new Error(
+            "Terjadi kesalahan: Gagal mengambil daftar kategori program."
+          );
+        } else if (data === "data kosong") {
+          setListKategoriProgram([]);
+          break;
+        } else if (data.length === 0) {
+          await new Promise((resolve) => setTimeout(resolve, 2000));
+        } else {
+          setListKategoriProgram(data);
+          break;
+        }
+      }
+    } catch (e) {
+      console.log(e.message);
+      setIsError((prevError) => ({
+        ...prevError,
+        error: true,
+        message: e.message,
+      }));
+    }
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       await getKK();
@@ -99,6 +189,7 @@ export default function ProgramIndex({ onChangePage }) {
   useEffect(() => {
     if (currentFilter.KKid) {
       getListProgram(currentFilter);
+      getListAnggota(currentFilter.KKid);
     }
   }, [currentFilter]);
 
@@ -111,7 +202,6 @@ export default function ProgramIndex({ onChangePage }) {
           <div className="flex-fill">
             <div className="container">
               <div className="row mt-3 gx-4">
-                {/* <CardProgram isOpen={isOpen} isOpenProgram={isOpenProgram} /> */}
                 <div className="col-md-12">
                   <div
                     className="card p-0 mb-3"
@@ -159,15 +249,15 @@ export default function ProgramIndex({ onChangePage }) {
                                 href=""
                                 className="text-decoration-underline text-dark"
                               >
-                                1 Anggota
+                                {listAnggota.length} Anggota
                               </a>
                             </span>
                           </h6>
                           <div className="action d-flex">
                             <Button
                               iconName="add"
-                              classType="primary btn-sm me-2"
-                              label="Tambah Program"
+                              classType="primary  me-2"
+                              label="Tambah Program (Kelompok Keilmuan)"
                               onClick={() => onChangePage("add", currentData)}
                             />
                             <Button
@@ -175,43 +265,48 @@ export default function ProgramIndex({ onChangePage }) {
                               classType="outline-primary btn-sm px-3 me-2"
                               title="Detail Kelompok Keahlian"
                             />
-                            {/* <Button
-                            iconName={
-                              isContentVisible ? "caret-up" : "caret-down"
-                            }
-                            classType="outline-primary btn-sm px-3"
-                            onClick={toggleContentVisibility}
-                            title="Detail Kelompok Keahlian"
-                          /> */}
                           </div>
                         </div>
                         <hr style={{ opacity: "0.1" }} />
-                        <p
-                          className="lh-sm"
-                          style={{
-                            // display: isContentVisible ? "block" : "-webkit-box",
-                            display: "block",
-                            WebkitLineClamp: 2,
-                            WebkitBoxOrient: "vertical",
-                            overflow: "hidden",
-                          }}
-                        >
-                          {currentData.Deskripsi}
-                        </p>
+                        <p className="lh-sm">{currentData.Deskripsi}</p>
                         <h5 className="text-primary py-2">
                           Daftar Program dalam Kelompok Keahlian{" "}
                           <strong>
                             {currentData["Nama Kelompok Keahlian"]}
                           </strong>
                         </h5>
-
-                        {listProgram.map((value) => (
-                          // <p Key={value.Key}>{value["Nama Program"]}</p>
-                          <CardProgram isOpen={isOpen} data={value} />
+                        {listProgram.map((value, index) => (
+                          <ScrollIntoView
+                            key={value.Key}
+                            selector={`#card-${value.Key}`}
+                            smooth={true}
+                            alignToTop={false}
+                          >
+                            <CardProgram
+                              id={`card-${value.Key}`}
+                              data={value}
+                              isActive={activeCard === value.Key}
+                              onClick={() => handleCardClick(value.Key, index)}
+                              onChangePage={onChangePage}
+                            >
+                              {listKategoriProgram[0]?.Message ? (
+                                <Alert
+                                  type="warning"
+                                  message="Tidak ada data! Silahkan klik tombol tambah diatas.."
+                                />
+                              ) : (
+                                <div className="row row-cols-3">
+                                  {listKategoriProgram.map((kat) => (
+                                    <CardKategoriProgram
+                                      key={kat.id}
+                                      data={kat}
+                                    />
+                                  ))}
+                                </div>
+                              )}
+                            </CardProgram>
+                          </ScrollIntoView>
                         ))}
-
-                        {/* <CardProgram isOpen={isOpen} />
-                      <CardProgram isOpen={isOpen} /> */}
                       </div>
                     </div>
                   </div>
