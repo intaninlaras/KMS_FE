@@ -63,7 +63,7 @@ export default function Login() {
           formDataRef.current
         );
 
-        if (data === "ERROR")
+        if (data[0].Message === "ERROR")
           throw new Error("Terjadi kesalahan: Gagal melakukan autentikasi.");
         else if (data.Status && data.Status === "LOGIN FAILED")
           throw new Error("Nama akun atau kata sandi salah.");
@@ -125,12 +125,19 @@ export default function Login() {
           </div>
         </Modal>
         <form onSubmit={handleAdd}>
-          <header className="text-black py-3" style={{ borderBottom: "2px solid rgba(0, 0, 0, 0.1)", display: "flex", alignItems: "center" }}>
+          <header
+            className="text-black py-3"
+            style={{
+              borderBottom: "2px solid rgba(0, 0, 0, 0.1)",
+              display: "flex",
+              alignItems: "center",
+            }}
+          >
             <img
               src={logo}
               alt="Logo AstraTech"
               className="me-3"
-              style={{ width: "240px", height: "60px", marginLeft:"40px" }}
+              style={{ width: "240px", height: "60px", marginLeft: "40px" }}
             />
             {/* <h1 style={{ margin: 0 }}>{APPLICATION_NAME}</h1> */}
           </header>

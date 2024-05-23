@@ -8,6 +8,7 @@ import CardProgram from "../../part/CardProgram";
 import ScrollIntoView from "react-scroll-into-view";
 import CardKategoriProgram from "../../part/CardKategoriProgram";
 import Alert from "../../part/Alert";
+import SweetAlert from "../../util/SweetAlert";
 
 export default function ProgramIndex({ onChangePage }) {
   const cardRefs = useRef([]);
@@ -17,6 +18,7 @@ export default function ProgramIndex({ onChangePage }) {
   const [currentData, setCurrentData] = useState(null);
   const [listProgram, setListProgram] = useState([]);
   const [listAnggota, setListAnggota] = useState([]);
+  const [message, setMessage] = useState("");
   const [listKategoriProgram, setListKategoriProgram] = useState([
     { Message: "" },
   ]);
@@ -50,9 +52,7 @@ export default function ProgramIndex({ onChangePage }) {
         let data = await UseFetch(API_LINK + "Program/GetDataKKByPIC");
 
         if (data === "ERROR") {
-          throw new Error(
-            "Terjadi kesalahan: Gagal mengambil data Kelompok Keahlian."
-          );
+          throw new Error("Terjadi kesalahan: Gagal mengambil data Program.");
         } else if (data.length === 0) {
           await new Promise((resolve) => setTimeout(resolve, 2000));
         } else {
@@ -193,8 +193,101 @@ export default function ProgramIndex({ onChangePage }) {
     }
   }, [currentFilter]);
 
+  // DELETE PERMANEN DATA DRAFT
+  function handleDelete(id) {
+    setIsLoading(true);
+    setIsError(false);
+
+    SweetAlert(
+      "Konfirmasi Hapus",
+      "Anda yakin ingin menghapus permanen data ini?",
+      "warning",
+      "Hapus"
+    ).then((confirm) => {
+      if (confirm) {
+        UseFetch(API_LINK + "Program/DeleteProgram", {
+          idKK: id,
+        })
+          .then((data) => {
+            if (data === "ERROR" || data.length === 0) setIsError(true);
+            else if (data[0].hasil === "GAGAL") {
+              setIsError({
+                error: true,
+                message:
+                  "Terjadi kesalahan: Gagal menghapus program karena sudah terdapat Draft Mata Kuliah.",
+              });
+            } else {
+              SweetAlert("Sukses", "Data berhasil dihapus.", "success");
+              handleSetCurrentPage(currentFilter.page);
+            }
+          })
+          .then(() => setIsLoading(false));
+      } else {
+        console.log("Penghapusan dibatalkan.");
+      }
+    });
+  }
+
+  function handleSetCurrentPage(newCurrentPage) {
+    setIsLoading(true);
+    setCurrentFilter((prevFilter) => {
+      return {
+        ...prevFilter,
+        page: newCurrentPage,
+      };
+    });
+  }
+
+  // MENGUBAH STATUS
+  function handleSetStatus(data, status) {
+    setIsLoading(true);
+    setIsError(false);
+
+    let message;
+
+    if (data.Status === "Draft")
+      message = "Apakah anda yakin ingin mempublikasikan data ini?";
+    else if (data.Status === "Aktif")
+      message = "Apakah anda yakin ingin menonaktifkan data ini?";
+    else if (data.Status === "Tidak Aktif")
+      message = "Apakah anda yakin ingin mengaktifkan data ini?";
+
+    setMessage(message);
+
+    SweetAlert("Konfirmasi", message, "info", "Ya").then((confirm) => {
+      if (confirm) {
+        UseFetch(API_LINK + "Program/SetStatusProgram", {
+          idProgram: data.Key,
+          status: status,
+        })
+          .then((data) => {
+            if (data === "ERROR" || data.length === 0) setIsError(true);
+            else {
+              let message;
+              if (data === "Tidak Aktif") {
+                message = "Data berhasil dinonaktifkan.";
+              } else if (data === "Aktif") {
+                message = "Sukses! Data berhasil dipublikasi.";
+              }
+              setMessage(message);
+              SweetAlert("Sukses", { message }, "success");
+              handleSetCurrentPage(currentFilter.page);
+            }
+          })
+          .then(() => setIsLoading(false));
+      } else {
+        console.log("Konfirmasi dibatalkan.");
+      }
+    });
+  }
+
   return (
     <>
+      {isError.error && (
+        <div className="flex-fill">
+          <Alert type="danger" message={isError.message} />
+        </div>
+      )}
       {isLoading ? (
         <Loading />
       ) : (
@@ -288,6 +381,8 @@ export default function ProgramIndex({ onChangePage }) {
                               isActive={activeCard === value.Key}
                               onClick={() => handleCardClick(value.Key, index)}
                               onChangePage={onChangePage}
+                              onDelete={handleDelete}
+                              onChangeStatus={handleSetStatus}
                             >
                               {listKategoriProgram[0]?.Message ? (
                                 <Alert

@@ -9,15 +9,39 @@ const CardProgram = ({
   onClick,
   children,
   onChangePage,
+  onChangeStatus,
+  onDelete,
 }) => {
+  const handleStatusChange = (data, status) => {
+    onChangeStatus(data, status);
+  };
+
+  const handleDeleteClick = (data) => {
+    onDelete(data.Key);
+  };
+
   return (
     <div
       id={id}
-      className={`card card-program mt-3 ${isActive ? "border-secondary" : ""}`}
+      className={`card card-program mt-3 ${isActive ? "border-primary" : ""}`}
     >
+      {data.Status === "Draft" ? (
+        <span
+          className="text-danger bg-white px-2 ms-2 mb-0"
+          style={{
+            marginTop: "-12px",
+            width: "fit-content",
+            fontSize: "14px",
+          }}
+        >
+          Draft
+        </span>
+      ) : (
+        ""
+      )}
       <div
         className={`card-body d-flex justify-content-between ${
-          isActive ? "align-items-center border-bottom border-secondary" : ""
+          isActive ? "align-items-center border-bottom border-primary" : ""
         }`}
       >
         <p className="fw-medium mb-0 text-center" style={{ width: "15%" }}>
@@ -35,38 +59,53 @@ const CardProgram = ({
         >
           {data.Deskripsi}
         </p>
-        <div
-          className="d-flex justify-content-between align-items-center px-3"
-          style={{
-            width: "15%",
-            borderLeft: "solid grey 1px",
-          }}
-        >
-          <Icon
-            name="edit"
-            type="Bold"
-            cssClass="btn px-2 py-0 text-primary"
-            title="Edit"
-          />
-          <Icon
-            name="trash"
-            type="Bold"
-            cssClass="btn px-2 py-0 text-primary"
-            title="Hapus"
-          />
-          <Icon
-            name="list"
-            type="Bold"
-            cssClass="btn px-2 py-0 text-primary"
-            title="Detail"
-          />
-          <Icon
-            name="paper-plane"
-            type="Bold"
-            cssClass="btn px-1 py-0 text-primary"
-            title="Kirim Pengajuan"
-          />
-        </div>
+        {data.Status === "Draft" ? (
+          <div
+            className="d-flex justify-content-between align-items-center px-3"
+            style={{
+              width: "10%",
+              borderLeft: "solid grey 1px",
+            }}
+          >
+            <Icon
+              name="edit"
+              type="Bold"
+              cssClass="btn px-2 py-0 text-primary"
+              title="Ubah data"
+              onClick={() => onChangePage("edit", data)}
+            />
+            <Icon
+              name="trash"
+              type="Bold"
+              cssClass="btn px-2 py-0 text-primary"
+              title="Hapus data permanen"
+              onClick={() => handleDeleteClick(data)}
+            />
+            <Icon
+              name="paper-plane"
+              type="Bold"
+              cssClass="btn px-1 py-0 text-primary"
+              title="Publikasi program"
+              onClick={() => handleStatusChange(data, "Aktif")}
+            />
+          </div>
+        ) : (
+          <div
+            className="d-flex justify-content-between align-items-center px-3"
+            style={{
+              width: "10%",
+              borderLeft: "solid grey 1px",
+            }}
+          >
+            <Icon
+              name="edit"
+              type="Bold"
+              cssClass="btn px-2 py-0 text-primary"
+              title="Ubah data"
+              onClick={() => onChangePage("edit", data)}
+            />{" "}
+          </div>
+        )}
         <div
           className="ps-3"
           style={{
