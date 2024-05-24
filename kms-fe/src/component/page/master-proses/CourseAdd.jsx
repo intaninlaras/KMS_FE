@@ -20,14 +20,14 @@ const listJenisProduk = [
   { Value: "Proses Perekrutan dan Seleksi", Text: "Proses Perekrutan dan Seleksi" },
 ];
 
-export default function MasterProdukAdd({ onChangePage }) {
+export default function MasterCourseAdd({ onChangePage }) {
   const [errors, setErrors] = useState({});
   const [isError, setIsError] = useState({ error: false, message: "" });
   const [isLoading, setIsLoading] = useState(false);
 
   const formDataRef = useRef({
     kategoriId:"1",
-    namaMateri: "", //Materi Judul
+    namaMateri: "", 
     materiFile: "",
     deskripsiMateri: "",
     karyawanId: "1",

@@ -12,22 +12,28 @@ import FileUpload from "../../part/FileUpload";
 import Loading from "../../part/Loading";
 import Alert from "../../part/Alert";
 import { Stepper } from 'react-form-stepper';
+import axios from "axios";
 
-export default function MasterPelangganAdd({ onChangePage }) {
+const userSchema = object({
+  forumJudul: string().max(100, "maksimum 100 karakter").required("harus diisi"),
+  forumIsi: string().required("harus diisi"),
+});
+
+export default function MasterForumAdd({ onChangePage }) {
   const [errors, setErrors] = useState({});
   const [isError, setIsError] = useState({ error: false, message: "" });
   const [isLoading, setIsLoading] = useState(false);
 
   const formDataRef = useRef({
-    namaProduk: "",
-    jenisProduk: "",
-    gambarProduk: "",
-    spesifikasi: "",
+    materiId:"00003",
+    karyawanId: "1",
+    forumJudul: "",
+    forumIsi: "",
+    forumStatus: "Aktif",
+    createdBy: "",
   });
 
   const fileGambarRef = useRef(null);
-
-
 
   const handleInputChange = async (e) => {
     const { name, value } = e.target;
@@ -71,9 +77,7 @@ export default function MasterPelangganAdd({ onChangePage }) {
 
     if (Object.values(validationErrors).every((error) => !error)) {
       setIsLoading(true);
-      setIsError((prevError) => {
-        return { ...prevError, error: false };
-      });
+      setIsError({ error: false, message: "" });
       setErrors({});
 
       const uploadPromises = [];
@@ -90,12 +94,9 @@ export default function MasterPelangganAdd({ onChangePage }) {
         UseFetch(API_LINK + "MasterProduk/CreateProduk", formDataRef.current)
           .then((data) => {
             if (data === "ERROR") {
-              setIsError((prevError) => {
-                return {
-                  ...prevError,
-                  error: true,
-                  message: "Terjadi kesalahan: Gagal menyimpan data produk.",
-                };
+              setIsError({
+                error: true,
+                message: "Terjadi kesalahan: Gagal menyimpan data produk.",
               });
             } else {
               SweetAlert("Sukses", "Data produk berhasil disimpan", "success");
@@ -105,6 +106,9 @@ export default function MasterPelangganAdd({ onChangePage }) {
           .then(() => setIsLoading(false));
       });
     }
+    console.log("Data yang dikirim ke backend:", formDataRef.current);
+    const response = await axios.post("http://localhost:8080/Forums/SaveDataForum", formDataRef.current);
+    console.log(response);
   };
 
   if (isLoading) return <Loading />;
@@ -118,35 +122,35 @@ export default function MasterPelangganAdd({ onChangePage }) {
       )}
       <form onSubmit={handleAdd}>
         <div>
-        <Stepper
-             steps={[
-              { label: 'Pretest', onClick:() => onChangePage("pretestAdd")},
-              { label: 'Course' ,onClick:() => onChangePage("courseAdd")},
-              { label: 'Sharing Expert',onClick:() => onChangePage("sharingAdd")},
-              { label: 'Forum' ,onClick:() => onChangePage("forumAdd") },
-              { label: 'Post Test',onClick:() => onChangePage("posttestAdd") }
+          <Stepper
+            steps={[
+              { label: 'Pretest', onClick: () => onChangePage("pretestAdd") },
+              { label: 'Course', onClick: () => onChangePage("courseAdd") },
+              { label: 'Sharing Expert', onClick: () => onChangePage("sharingAdd") },
+              { label: 'Forum', onClick: () => onChangePage("forumAdd") },
+              { label: 'Post Test', onClick: () => onChangePage("posttestAdd") }
             ]}
             activeStep={3} 
             styleConfig={{
-              activeBgColor: '#67ACE9', // Warna latar belakang langkah aktif
-              activeTextColor: '#FFFFFF', // Warna teks langkah aktif
-              completedBgColor: '#67ACE9', // Warna latar belakang langkah selesai
-              completedTextColor: '#FFFFFF', // Warna teks langkah selesai
-              inactiveBgColor: '#E0E0E0', // Warna latar belakang langkah non-aktif
-              inactiveTextColor: '#000000', // Warna teks langkah non-aktif
-              size: '2em', // Ukuran langkah
-              circleFontSize: '1rem', // Ukuran font label langkah
-              labelFontSize: '0.875rem', // Ukuran font label langkah
-              borderRadius: '50%', // Radius sudut langkah
-              fontWeight: 500 // Ketebalan font label langkah
+              activeBgColor: '#67ACE9',
+              activeTextColor: '#FFFFFF',
+              completedBgColor: '#67ACE9',
+              completedTextColor: '#FFFFFF',
+              inactiveBgColor: '#E0E0E0',
+              inactiveTextColor: '#000000',
+              size: '2em',
+              circleFontSize: '1rem',
+              labelFontSize: '0.875rem',
+              borderRadius: '50%',
+              fontWeight: 500
             }}
             connectorStyleConfig={{
-              completedColor: '#67ACE9', // Warna penghubung selesai
-              activeColor: '#67ACE9', // Warna penghubung aktif
-              disabledColor: '#BDBDBD', // Warna penghubung non-aktif
-              size: 1, // Ketebalan penghubung
-              stepSize: '2em', // Ukuran langkah, digunakan untuk menghitung ruang yang dipadatkan antara langkah dan awal penghubung
-              style: 'solid' // Gaya penghubung
+              completedColor: '#67ACE9',
+              activeColor: '#67ACE9',
+              disabledColor: '#BDBDBD',
+              size: 1,
+              stepSize: '2em',
+              style: 'solid'
             }}
           />
         </div>
@@ -157,29 +161,30 @@ export default function MasterPelangganAdd({ onChangePage }) {
           </div>
           <div className="card-body p-4">
             <div className="row">
-              
-            <div className="col-lg-12">
+              <div className="col-lg-12">
                 <Input
                   type="text"
-                  forInput="namaProduk"
+                  forInput="forumJudul"
                   label="Forum Title"
-          
+                  value={formDataRef.current.forumJudul}
+                  onChange={handleInputChange}
+                  errorMessage={errors.forumJudul}
                 />
               </div>
               <div className="col-lg-12">
                 <div className="form-group">
-                  <label htmlFor="deskripsiMateri" className="form-label fw-bold">
-                  Forum Contents
+                  <label htmlFor="forumIsi" className="form-label fw-bold">
+                    Forum Contents
                   </label>
                   <textarea
-                    id="deskripsiMateri"
-                    name="deskripsiMateri"
-                    className={`form-control ${errors.deskripsiMateri ? 'is-invalid' : ''}`}
-                    value={formDataRef.current.deskripsiMateri}
+                    id="forumIsi"
+                    name="forumIsi"
+                    className={`form-control ${errors.forumIsi ? 'is-invalid' : ''}`}
+                    value={formDataRef.current.forumIsi}
                     onChange={handleInputChange}
                   />
-                  {errors.deskripsiMateri && (
-                    <div className="invalid-feedback">{errors.deskripsiMateri}</div>
+                  {errors.forumIsi && (
+                    <div className="invalid-feedback">{errors.forumIsi}</div>
                   )}
                 </div>
               </div>
@@ -196,7 +201,6 @@ export default function MasterPelangganAdd({ onChangePage }) {
             classType="primary ms-2 px-4 py-2"
             type="submit"
             label="Save"
-            onClick={() => onChangePage("posttestAdd")}
           />
           <Button
             classType="dark ms-3 px-4 py-2"

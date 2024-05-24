@@ -4,7 +4,7 @@ import Input from "../../part/Input";
 import Loading from "../../part/Loading";
 import { Stepper } from 'react-form-stepper';
 
-export default function MasterProdukAdd({ onChangePage }) {
+export default function MasterPostTestAdd({ onChangePage }) {
   const [formContent, setFormContent] = useState([]);
   const [selectedOptions, setSelectedOptions] = useState([]);
   const [errors, setErrors] = useState({});

@@ -21,7 +21,7 @@ const listJenisProduk = [
   { Value: "Lainnya", Text: "Lainnya" },
 ];
 
-export default function MasterProdukAdd({ onChangePage }) {
+export default function MasterSharingAdd({ onChangePage }) {
   const [errors, setErrors] = useState({});
   const [isError, setIsError] = useState({ error: false, message: "" });
   const [isLoading, setIsLoading] = useState(false);
