@@ -27,19 +27,21 @@ export default function MasterCourseAdd({ onChangePage }) {
   const formDataRef = useRef({
     kat_id:"",
     mat_judul: "", 
-    mat_file: "",
+    mat_file_pdf: "",
+    mat_file_vidio: "",
     mat_keterangan: "",
     kry_id: "1",
     mat_kata_kunci: "",
     mat_gambar: "",
-    mat_sharing_expert: "",
-    createBy: "ika",
+    mat_sharing_expert: "dummy",
+    createBy: "dummy",
   });
 
   const userSchema = object({
     kat_id: string(),
     mat_judul: string(),
-    mat_file: string(),
+    mat_file_pdf: string(),
+    mat_file_vidio: string(),
     mat_keterangan: string(),
     kry_id: string(),
     mat_kata_kunci: string(),
@@ -102,7 +104,7 @@ export default function MasterCourseAdd({ onChangePage }) {
         uploadPromises.push(
           uploadFile(fileInputRef.current).then((data) => {
             // console.log("File Upload Response:", JSON.stringify(data));
-            formDataRef.current["mat_file"] = data.newFileName;
+            formDataRef.current["mat_file_pdf"] = data.newFileName;
           })
         );
       }
@@ -119,7 +121,7 @@ export default function MasterCourseAdd({ onChangePage }) {
         uploadPromises.push(
           uploadFile(vidioInputRef.current).then((data) => {
             // console.log("Image Upload Response:", JSON.stringify(data));
-            formDataRef.current["mat_sharing_expert"] = data.newFileName;
+            formDataRef.current["mat_file_vidio"] = data.newFileName;
           })
         );
       }
@@ -321,25 +323,25 @@ export default function MasterCourseAdd({ onChangePage }) {
               <div className="col-lg-4">
                 <FileUpload
                   ref={fileInputRef}
-                  forInput="mat_file"
+                  forInput="mat_file_pdf"
                   label="File Materi (.pdf)"
                   formatFile=".pdf"
                   onChange={() =>
                     handleFileChange(fileInputRef, "pdf")
                   }
-                  errorMessage={errors.mat_file}
+                  errorMessage={errors.mat_file_pdf}
                 />
               </div>
               <div className="col-lg-4">
                 <FileUpload
                   ref={vidioInputRef}
-                  forInput="mat_sharing_expert"
+                  forInput="mat_file_vidio"
                   label="File Materi (.mp4, .mov)"
                   formatFile=".mp4,.mov"
                   onChange={() =>
                     handleFileChange(vidioInputRef, "mp4,mov")
                   }
-                  errorMessage={errors.mat_sharing_expert}
+                  errorMessage={errors.mat_file_vidio}
                 />
               </div>
             </div>
