@@ -114,7 +114,7 @@ export default function MasterSharingAdd({ onChangePage }) {
               });
             } else {
               SweetAlert("Sukses", "Data produk berhasil disimpan", "success");
-              onChangePage("index");
+              onChangePage("forumAdd");
             }
           })
           .then(() => setIsLoading(false));

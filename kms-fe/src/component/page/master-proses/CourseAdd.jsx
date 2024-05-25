@@ -1,10 +1,9 @@
-import { useRef, useState } from "react";
+import { useRef, useState ,useEffect} from "react";
 import { object, string } from "yup";
 import { API_LINK } from "../../util/Constants";
 import { validateAllInputs, validateInput } from "../../util/ValidateForm";
 import SweetAlert from "../../util/SweetAlert";
 import UseFetch from "../../util/UseFetch";
-import UploadFile from "../../util/UploadFile";
 import Button from "../../part/Button";
 import DropDown from "../../part/Dropdown";
 import Input from "../../part/Input";
@@ -12,42 +11,41 @@ import FileUpload from "../../part/FileUpload";
 import Loading from "../../part/Loading";
 import Alert from "../../part/Alert";
 import { Stepper } from 'react-form-stepper';
+import uploadFile from "../../util/UploadFile";
 
-import axios from "axios";
-const listJenisProduk = [
-  { Value: "HR Generalist Fundamental", Text: "HR Generalist Fundamental" },
-  { Value: "Manajemen Pengembangan SDM", Text: "Manajemen Pengembangan SDM" },
-  { Value: "Proses Perekrutan dan Seleksi", Text: "Proses Perekrutan dan Seleksi" },
-];
 
 export default function MasterCourseAdd({ onChangePage }) {
   const [errors, setErrors] = useState({});
   const [isError, setIsError] = useState({ error: false, message: "" });
   const [isLoading, setIsLoading] = useState(false);
+  const [listKategori, setListKategori] = useState([]);
+
+  const fileInputRef = useRef(null);
+  const gambarInputRef = useRef(null);
+  const vidioInputRef = useRef(null);
 
   const formDataRef = useRef({
-    kategoriId:"1",
-    namaMateri: "", 
-    materiFile: "",
-    deskripsiMateri: "",
-    karyawanId: "1",
-    materiKataKunci: "",
-    materiGambar: "",
-    materiSharingExpert: "",
-    materiStatus: "Aktif",
-    createdBy: "",
+    kat_id:"",
+    mat_judul: "", 
+    mat_file: "",
+    mat_keterangan: "",
+    kry_id: "1",
+    mat_kata_kunci: "",
+    mat_gambar: "",
+    mat_sharing_expert: "",
+    createBy: "ika",
   });
 
-  const fileGambarRef = useRef(null);
-
   const userSchema = object({
-    namaMateri: string()
-      .max(100, "maksimum 100 karakter")
-      .required("harus diisi"),
-    jenisProduk: string().required("harus dipilih"),
-    gambarProduk: string(),
-    spesifikasi: string(),
-    deskripsiMateri: string(),
+    kat_id: string(),
+    mat_judul: string(),
+    mat_file: string(),
+    mat_keterangan: string(),
+    kry_id: string(),
+    mat_kata_kunci: string(),
+    mat_gambar: string(),
+    mat_sharing_expert: string(),
+    createBy: string(),
   });
 
   const handleInputChange = async (e) => {
@@ -99,38 +97,100 @@ export default function MasterCourseAdd({ onChangePage }) {
 
       const uploadPromises = [];
 
-      if (fileGambarRef.current.files.length > 0) {
+      console.log(fileInputRef.current.files[0])
+      if (fileInputRef.current.files.length > 0) {
         uploadPromises.push(
-          UploadFile(fileGambarRef.current).then(
-            (data) => (formDataRef.current["gambarProduk"] = data.Hasil)
-          )
+          uploadFile(fileInputRef.current).then((data) => {
+            // console.log("File Upload Response:", JSON.stringify(data));
+            formDataRef.current["mat_file"] = data.newFileName;
+          })
+        );
+      }
+
+      if (gambarInputRef.current.files.length > 0) {
+        uploadPromises.push(
+          uploadFile(gambarInputRef.current).then((data) => {
+            // console.log("Image Upload Response:", JSON.stringify(data));
+            formDataRef.current["mat_gambar"] = data.newFileName;
+          })
+        );
+      }
+      if (vidioInputRef.current.files.length > 0) {
+        uploadPromises.push(
+          uploadFile(vidioInputRef.current).then((data) => {
+            // console.log("Image Upload Response:", JSON.stringify(data));
+            formDataRef.current["mat_sharing_expert"] = data.newFileName;
+          })
         );
       }
 
       Promise.all(uploadPromises).then(() => {
-        UseFetch(API_LINK + "MasterProduk/CreateProduk", formDataRef.current)
+        console.log(formDataRef.current.mat_gambar);
+        console.log(formDataRef.current.mat_sharing_expert);
+        console.log(formDataRef.current.mat_file);
+        console.log(formDataRef.current.kat_id);
+        // console.log("Final formDataRef:", JSON.stringify(formDataRef.current));
+        UseFetch(
+          API_LINK + "Materis/SaveDataMateri",
+          formDataRef.current
+        )
           .then((data) => {
             if (data === "ERROR") {
               setIsError((prevError) => {
                 return {
                   ...prevError,
                   error: true,
-                  message: "Terjadi kesalahan: Gagal menyimpan data produk.",
+                  message: "Terjadi kesalahan: Gagal menyimpan data Materi.",
                 };
               });
             } else {
-              SweetAlert("Sukses", "Data produk berhasil disimpan", "success");
-              onChangePage("index");
+              SweetAlert(
+                "Sukses",
+                "Data Materi berhasil disimpan",
+                "success"
+              );
+              window.location.reload();
             }
           })
           .then(() => setIsLoading(false));
       });
     }
-    console.log("Data yang dikirim ke backend:", formDataRef.current);
-    const response = await axios.post("http://localhost:8080/Materis/SaveDataMateri", formDataRef.current);
-    console.log(response);
   };
 
+  useEffect(() => {
+    const fetchDataKategori = async () => {
+      setIsError((prevError) => ({ ...prevError, error: false }));
+
+      try {
+        const data = await UseFetch(API_LINK + "Materis/GetListKategoriProgram", {
+          page: 1,
+          query: "",
+          sort: "[Nama Kategori] asc",
+          status: "Aktif",
+        });
+
+        if (data === "ERROR") {
+          throw new Error("Terjadi kesalahan: Gagal mengambil daftar kategori program.");
+        } else {
+          // Mengubah data menjadi format yang diinginkan
+          const formattedData = data.map(item => ({
+            Value: item["Key"],
+            Text: item["Nama Kategori"]
+          }));
+          setListKategori(formattedData);
+        }
+      } catch (error) {
+        setIsError((prevError) => ({
+          ...prevError,
+          error: true,
+          message: error.message,
+        }));
+        setListKategori([]);
+      }
+    };
+    fetchDataKategori();
+  }, []);
+    
   if (isLoading) return <Loading />;
 
   return (
@@ -176,93 +236,110 @@ export default function MasterCourseAdd({ onChangePage }) {
         </div>
 
         <div className="card">
-          <div className="card-header bg-outline-primary fw-medium text-black">
-            Add Course
+          <div className="card-header bg-outline-primary fw-medium text-white">
+            Tambah Materi Baru
           </div>
           <div className="card-body p-4">
             <div className="row">
               <div className="col-lg-6">
                 <Input
                   type="text"
-                  forInput="namaMateri"
+                  forInput="mat_judul"
                   label="Kelompok Keahlian"
-                  //isRequired
-                  value={formDataRef.current.namaMateri}
+                  placeholder="Kelompok Keahlian"
+                  value={formDataRef.current.mat_judul}
                   onChange={handleInputChange}
-                  errorMessage={errors.namaMateri}
+                  errorMessage={errors.mat_judul}
                 />
               </div>
               <div className="col-lg-6">
                 <DropDown
-                  forInput="jenisProduk"
-                  label="Kategori"
-                  arrData={listJenisProduk}
-                  value={formDataRef.current.jenisProduk}
+                  forInput="kat_id"
+                  label="Kategori program"
+                  placeholder="Kategori program"
+                  arrData={listKategori}
+                  isRequired
+                  value={formDataRef.current.kat_id}
                   onChange={handleInputChange}
-                  errorMessage={errors.jenisProduk}
+                  errorMessage={errors.kat_id}
                 />
                 
               </div>
               <div className="col-lg-6">
-                <Input
+              <Input
                   type="text"
-                  forInput="namaMateri"
-                  label="Nama Materi"
-                  value={formDataRef.current.namaMateri}
+                  forInput="mat_judul"
+                  label="Judul Materi"
+                  placeholder="Judul Materi"
+                  value={formDataRef.current.mat_judul}
                   onChange={handleInputChange}
-                  errorMessage={errors.namaMateri}
+                  errorMessage={errors.mat_judul}
                 />
               </div>
               <div className="col-lg-6">
-                <Input
+              <Input
                   type="text"
-                  forInput="namaMateri"
-                  label="Pengenalan Materi"
-                  value={formDataRef.current.namaMateri}
+                  forInput="mat_kata_kunci"
+                  label="Kata Kunci Materi"
+                  placeholder="Kata Kunci Materi"
+                  value={formDataRef.current.mat_kata_kunci}
                   onChange={handleInputChange}
-                  errorMessage={errors.namaMateri}
+                  errorMessage={errors.mat_kata_kunci}
                 />
               </div>
               <div className="col-lg-12">
                 <div className="form-group">
                   <label htmlFor="deskripsiMateri" className="form-label fw-bold">
-                  Deskripsi Materi 
-                  <span style={{color:"Red"}}> *</span>
+                  Deskripsi Materi <span style={{color:"Red"}}> *</span>
                   </label>
                   <textarea
-                    id="deskripsiMateri"
-                    name="deskripsiMateri"
-                    className={`form-control ${errors.deskripsiMateri ? 'is-invalid' : ''}`}
-                    value={formDataRef.current.deskripsiMateri}
+                    className="form-control mb-3"
+                    id="mat_keterangan"
+                    name="mat_keterangan"
+                    forInput="mat_keterangan"
+                    value={formDataRef.current.mat_keterangan}
                     onChange={handleInputChange}
+                    required
                   />
                   {errors.deskripsiMateri && (
                     <div className="invalid-feedback">{errors.deskripsiMateri}</div>
                   )}
                 </div>
               </div>
-              <div className="col-lg-6">
+              <div className="col-lg-4">
                 <FileUpload
-                  forInput="materiPdf"
-                  label="Course (PDF)"
-                  formatFile=".pdf,.jpg,.png"
-                  ref={fileGambarRef}
+                  ref={gambarInputRef}
+                  forInput="mat_gambar"
+                  label="Gambar Cover (.jpg, .png)"
+                  formatFile=".jpg,.png"
                   onChange={() =>
-                    handleFileChange(fileGambarRef, "pdf,jpg,png")
+                    handleFileChange(gambarInputRef, "jpg,png")
                   }
-                  errorMessage={errors.materiPdf}
+                  errorMessage={errors.mat_gambar}
                 />
               </div>
-              <div className="col-lg-6">
+              <div className="col-lg-4">
                 <FileUpload
-                  forInput="materiPdf"
-                  label="Course (Video)"
-                  formatFile=".pdf,.jpg,.png"
-                  ref={fileGambarRef}
+                  ref={fileInputRef}
+                  forInput="mat_file"
+                  label="File Materi (.pdf)"
+                  formatFile=".pdf"
                   onChange={() =>
-                    handleFileChange(fileGambarRef, "pdf,jpg,png")
+                    handleFileChange(fileInputRef, "pdf")
                   }
-                  errorMessage={errors.materiPdf}
+                  errorMessage={errors.mat_file}
+                />
+              </div>
+              <div className="col-lg-4">
+                <FileUpload
+                  ref={vidioInputRef}
+                  forInput="mat_sharing_expert"
+                  label="File Materi (.mp4, .mov)"
+                  formatFile=".mp4,.mov"
+                  onChange={() =>
+                    handleFileChange(vidioInputRef, "mp4,mov")
+                  }
+                  errorMessage={errors.mat_sharing_expert}
                 />
               </div>
             </div>

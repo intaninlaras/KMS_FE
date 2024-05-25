@@ -1,14 +1,9 @@
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { object, string } from "yup";
-import { API_LINK } from "../../util/Constants";
 import { validateAllInputs, validateInput } from "../../util/ValidateForm";
 import SweetAlert from "../../util/SweetAlert";
-import UseFetch from "../../util/UseFetch";
-import UploadFile from "../../util/UploadFile";
 import Button from "../../part/Button";
-import DropDown from "../../part/Dropdown";
 import Input from "../../part/Input";
-import FileUpload from "../../part/FileUpload";
 import Loading from "../../part/Loading";
 import Alert from "../../part/Alert";
 import { Stepper } from 'react-form-stepper';
@@ -23,92 +18,81 @@ export default function MasterForumAdd({ onChangePage }) {
   const [errors, setErrors] = useState({});
   const [isError, setIsError] = useState({ error: false, message: "" });
   const [isLoading, setIsLoading] = useState(false);
-
-  const formDataRef = useRef({
-    materiId:"00003",
+  const [formData, setFormData] = useState({
+    materiId: "00003",
     karyawanId: "1",
     forumJudul: "",
     forumIsi: "",
-    forumStatus: "Aktif",
-    createdBy: "",
+    forumCreatedBy:"ika",
   });
-
-  const fileGambarRef = useRef(null);
 
   const handleInputChange = async (e) => {
     const { name, value } = e.target;
     const validationError = await validateInput(name, value, userSchema);
-    formDataRef.current[name] = value;
+    setFormData((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
     setErrors((prevErrors) => ({
       ...prevErrors,
       [validationError.name]: validationError.error,
     }));
   };
 
-  const handleFileChange = async (ref, extAllowed) => {
-    const { name, value } = ref.current;
-    const file = ref.current.files[0];
-    const fileName = file.name;
-    const fileSize = file.size;
-    const fileExt = fileName.split(".").pop();
-    const validationError = await validateInput(name, value, userSchema);
-    let error = "";
-
-    if (fileSize / 1024576 > 10) error = "berkas terlalu besar";
-    else if (!extAllowed.split(",").includes(fileExt))
-      error = "format berkas tidak valid";
-
-    if (error) ref.current.value = "";
-
-    setErrors((prevErrors) => ({
-      ...prevErrors,
-      [validationError.name]: error,
-    }));
+  const resetForm = () => {
+    setFormData({
+      materiId: "00003",
+      karyawanId: "1",
+      forumJudul: "",
+      forumIsi: "",
+      forumStatus: "Aktif",
+    });
+    setErrors({});
+    setIsError({ error: false, message: "" });
   };
 
   const handleAdd = async (e) => {
     e.preventDefault();
 
-    const validationErrors = await validateAllInputs(
-      formDataRef.current,
-      userSchema,
-      setErrors
-    );
+    const validationErrors = await validateAllInputs(formData, userSchema, setErrors);
+    const isEmptyData = Object.values(formData).some(value => value === "");
+
+    if (isEmptyData) {
+      setIsError({
+        error: true,
+        message: "Data tidak boleh kosong",
+      });
+      return;
+    }
 
     if (Object.values(validationErrors).every((error) => !error)) {
       setIsLoading(true);
       setIsError({ error: false, message: "" });
       setErrors({});
-
-      const uploadPromises = [];
-
-      if (fileGambarRef.current.files.length > 0) {
-        uploadPromises.push(
-          UploadFile(fileGambarRef.current).then(
-            (data) => (formDataRef.current["gambarProduk"] = data.Hasil)
-          )
-        );
-      }
-
-      Promise.all(uploadPromises).then(() => {
-        UseFetch(API_LINK + "MasterProduk/CreateProduk", formDataRef.current)
-          .then((data) => {
-            if (data === "ERROR") {
-              setIsError({
-                error: true,
-                message: "Terjadi kesalahan: Gagal menyimpan data produk.",
-              });
-            } else {
-              SweetAlert("Sukses", "Data produk berhasil disimpan", "success");
-              onChangePage("index");
-            }
-          })
-          .then(() => setIsLoading(false));
-      });
     }
-    console.log("Data yang dikirim ke backend:", formDataRef.current);
-    const response = await axios.post("http://localhost:8080/Forums/SaveDataForum", formDataRef.current);
-    console.log(response);
+
+    try {
+      console.log("Data yang dikirim ke backend:", formData);
+      const response = await axios.post("http://localhost:8080/Forums/SaveDataForum", formData);
+
+      if (response.status === 200) {
+        SweetAlert("Success", "Forum data has been successfully saved", "success");
+        resetForm();
+        setIsLoading(false);
+      } else {
+        setIsError({
+          error: true,
+          message: "Failed to save forum data: " + response.statusText,
+        });
+        setIsLoading(false); 
+      }
+    } catch (error) {
+      setIsError({
+        error: true,
+        message: "Failed to save forum data: " + error.message,
+      });
+      setIsLoading(false);
+    }
   };
 
   if (isLoading) return <Loading />;
@@ -166,7 +150,7 @@ export default function MasterForumAdd({ onChangePage }) {
                   type="text"
                   forInput="forumJudul"
                   label="Forum Title"
-                  value={formDataRef.current.forumJudul}
+                  value={formData.forumJudul}
                   onChange={handleInputChange}
                   errorMessage={errors.forumJudul}
                 />
@@ -180,7 +164,7 @@ export default function MasterForumAdd({ onChangePage }) {
                     id="forumIsi"
                     name="forumIsi"
                     className={`form-control ${errors.forumIsi ? 'is-invalid' : ''}`}
-                    value={formDataRef.current.forumIsi}
+                    value={formData.forumIsi}
                     onChange={handleInputChange}
                   />
                   {errors.forumIsi && (
