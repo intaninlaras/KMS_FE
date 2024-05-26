@@ -11,46 +11,27 @@ import '@fortawesome/fontawesome-free/css/all.css';
 import axios from "axios";
 import SweetAlert from "../../util/SweetAlert";
 
-// Definisikan beberapa data contoh untuk tabel
-const sampleData = [
+
+const inisialisasiData = [
   {
-    Key: 1,
-    "Nama Materi": "Pemrograman 5",
-    "Kelompok Keahlian": "Pemrograman",
-    "Deskripsi Materi": "Pengenalan Bahasa Pemrograman PHP dan Framework Laravel",
-    "Status Materi": "Aktif",
+    Key: null,
+    No: null,
+    "Nama Materi": null,
+    Judul: null,
+    File: null,
+    Keterangan: null,
+    "Kata Kunci": null,
+    Gambar: null,
+    Uploader: null,
+    Creadate: null,
+    Status: "Aktif",
+    Count: 0,
   },
-  {
-    Key: 2,
-    "Nama Materi": "DDL & DML",
-    "Kelompok Keahlian": "Basis Data",
-    "Deskripsi Materi": "Pengenalan Query DDL dan DML pada DBMS SQL Server",
-    "Status Materi": "Tidak Aktif",
-  },
-  {
-    Key: 3,
-    "Nama Materi": "Pengantar Informatika",
-    "Kelompok Keahlian": "Informatika",
-    "Deskripsi Materi": "Pengenalan Fitur dan Formula Dasar Pada Microsoft Excel",
-    "Status Materi": "Aktif",
-  },
-  {
-    Key: 4,
-    "Nama Materi": "Router",
-    "Kelompok Keahlian": "Jaringan Komputer",
-    "Deskripsi Materi": "Dasar Pengenalan Router dan Cara Konfigurasi Router",
-    "Status Materi": "Tidak Aktif",
-  },
-  // Tambahkan data contoh lebih banyak jika dibutuhkan
 ];
 
 const dataFilterSort = [
-  { Value: "key,asc", Text: "Key [↑]" },
-  { Value: "key,desc", Text: "Key [↓]" },
-  { Value: "namaMateri,asc", Text: "Nama Materi [↑]" },
-  { Value: "namaMateri,desc", Text: "Nama Materi [↓]" },
-  { Value: "kelompokKeahlian,asc", Text: "Kelompok Keahlian [↑]" },
-  { Value: "kelompokKeahlian,desc", Text: "Kelompok Keahlian [↓]" },
+  { Value: "[Judul] ASC", Text: "Nama Materi [↑]" },
+  { Value: "[Judul] DESC", Text: "Nama Materi [↓]" },
 ];
 
 const dataFilterJenis = [
@@ -60,16 +41,31 @@ const dataFilterJenis = [
   // Tambahkan jenis lainnya jika diperlukan
 ];
 
+const dataFilterStatus = [
+  
+  { Value: "Aktif", Text: "Aktif" },
+  { Value: "Tidak Aktif", Text: "Tidak Aktif" },
+];
+
 export default function MasterProsesIndex({ onChangePage }) {
   const [isError, setIsError] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [currentData, setCurrentData] = useState([]);
+  const [currentData, setCurrentData] = useState([inisialisasiData]);
   const [filteredData, setFilteredData] = useState([]);
   const [status, setStatus] = useState({});
+  const [currentFilter, setCurrentFilter] = useState({
+    page: 1,
+    query: "",
+    sort: "JUDUL",
+    status: "Aktif",
+    order: "asc",
+    
+  });
+
 
   const searchQuery = useRef(null);
   const searchFilterSort = useRef(null);
-  const searchFilterJenis = useRef(null);
+  const searchFilterStatus = useRef(null);
 
   async function handleSetStatus(id) {
     setIsError(false);
@@ -128,21 +124,30 @@ export default function MasterProsesIndex({ onChangePage }) {
   }
 
   function handleSearch() {
-    setIsLoading(true);
+    const searchTerm = searchQuery.current.value.toLowerCase();
     setCurrentFilter({
-      page: 1,
-      query: searchQuery.current.value,
-      sort: searchFilterSort.current.value,
-      jenis: searchFilterJenis.current.value,
+      ...currentFilter,
+      query: searchTerm,
     });
   }
 
-  const [currentFilter, setCurrentFilter] = useState({
-    page: 1,
-    query: "",
-    sort: "key,asc",
-    jenis: "",
-  });
+  function handleStatusChange(event) {
+    const { value } = event.target;
+    setCurrentFilter({
+      ...currentFilter,
+      status: value,
+    });
+  }
+
+  function handleSortChange(event) {
+    const { value } = event.target;
+    const [sort, order] = value.split(" ");
+    setCurrentFilter({
+      ...currentFilter,
+      sort,
+      order,
+    });
+  }
 
   useEffect(() => {
     const fetchData = async () => {
@@ -151,11 +156,11 @@ export default function MasterProsesIndex({ onChangePage }) {
   
       try {
         const response = await axios.post("http://localhost:8080/Materis/GetDataMateri", {
-          page: '1',
-          status: 'Aktif',
-          query: '',
-          orderby: 'Judul',
-          sort: 'asc',
+        page: currentFilter.page,
+        status: currentFilter.status,
+        query: currentFilter.query, // Kirim nilai pencarian ke server
+        orderby: 'Judul',
+        sort: currentFilter.order,
         });
   
         const promises = response.data.map(async (value) => {
@@ -176,7 +181,7 @@ export default function MasterProsesIndex({ onChangePage }) {
     };
   
     fetchData();
-  }, []);
+  }, [currentFilter]);
   
   async function fetchGambar(filename) {
     if (!filename) return null; // Jika tidak ada nama file, kembalikan null
@@ -219,7 +224,7 @@ export default function MasterProsesIndex({ onChangePage }) {
                 />
                 <Input
                   ref={searchQuery}
-                  forInput="pencarianProduk"
+                  forInput="pencarianMateri"
                   placeholder="Search"
                 />
                 <Button
@@ -235,17 +240,20 @@ export default function MasterProsesIndex({ onChangePage }) {
                     label="Urut Berdasarkan"
                     type="none"
                     arrData={dataFilterSort}
-                    defaultValue="[Key] asc"
+                    defaultValue="[Judul] ASC"
+                    onChange={handleSortChange}
                   />
                   <DropDown
-                    ref={searchFilterJenis}
-                    forInput="ddJenis"
-                    label="Kelompok Keahlian"
+                    ref={searchFilterStatus}
+                    forInput="ddStatus"
+                    label="Status"
                     type="semua"
-                    arrData={dataFilterJenis}
-                    defaultValue=""
+                    arrData={dataFilterStatus}
+                    defaultValue="Aktif"
+                    onChange={handleStatusChange}
                   />
                 </Filter>
+
               </div>
             </div>
             <div className="mt-3">
@@ -292,14 +300,7 @@ export default function MasterProsesIndex({ onChangePage }) {
                 </div>
               )}
             </div>
-            {!isLoading && (
-              <Paging
-                pageSize={PAGE_SIZE}
-                pageCurrent={currentFilter.page}
-                totalData={sampleData.length}
-                navigation={handleSetCurrentPage}
-              />
-            )}
+            
           </div>
         </div>
         <div className="float my-4 mx-1">
