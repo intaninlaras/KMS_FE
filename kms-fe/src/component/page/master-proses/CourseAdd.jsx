@@ -33,7 +33,6 @@ export default function MasterCourseAdd({ onChangePage }) {
     kry_id: "1",
     mat_kata_kunci: "",
     mat_gambar: "",
-    mat_sharing_expert: "dummy",
     createBy: "dummy",
   });
 
@@ -46,7 +45,6 @@ export default function MasterCourseAdd({ onChangePage }) {
     kry_id: string(),
     mat_kata_kunci: string(),
     mat_gambar: string(),
-    mat_sharing_expert: string(),
     createBy: string(),
   });
 
@@ -151,7 +149,7 @@ export default function MasterCourseAdd({ onChangePage }) {
                 "Data Materi berhasil disimpan",
                 "success"
               );
-              window.location.reload();
+              onChangePage("index")
             }
           })
           .then(() => setIsLoading(false));
