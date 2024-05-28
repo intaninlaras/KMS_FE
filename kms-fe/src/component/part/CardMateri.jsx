@@ -5,7 +5,8 @@ import Button from "./Button.jsx";
 function CardMateri({ 
   materis, 
   onStatus,
-  onChangePage,
+  onEdit,
+  onDetail,
   MAX_DESCRIPTION_LENGTH = 50,
 }) {
 
@@ -90,14 +91,14 @@ function CardMateri({
                 <button
                   className="btn btn-sm text-primary"
                   title="Edit Materi"
-                  onClick={() => onChangePage("courseEdit", book)}
+                  onClick={() => onEdit("courseEdit",(book))}
                 >
                   <i className="fas fa-edit"></i>
                 </button>
                 <button
                   className="btn btn-sm text-primary"
                   title="Detail Materi"
-                  onClick={() => onChangePage("detail")}
+                  onClick={() => onDetail("detail")}
                 >
                   <i className="fas fa-list"></i>
                 </button>

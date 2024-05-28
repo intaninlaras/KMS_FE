@@ -15,8 +15,9 @@ import { Stepper } from 'react-form-stepper';
 import uploadFile from "../../util/UploadFile";
 
 
-export default function MasterCourseEdit({ onChangePage ,withID}) {
-  console.log("ID: " + JSON.stringify(withID));
+export default function MasterCourseEdit({onChangePage,withID}) {
+  // console.log("ID: " + JSON.stringify(withID));
+  console.log("onChangePage prop:", onChangePage);
 
   const [errors, setErrors] = useState({});
   const [isError, setIsError] = useState({ error: false, message: "" });
@@ -31,12 +32,14 @@ export default function MasterCourseEdit({ onChangePage ,withID}) {
     mat_id:withID.Key,
     kat_id:"",
     mat_judul: withID.Judul, 
-    mat_file_pdf: withID.Filepdf,
-    mat_file_vidio: withID.Filevidio,
+    mat_file_pdf: withID.File_pdf,
+    mat_file_vidio: withID.File_vidio,
+    mat_pengenalan: withID.Pengenalan,
     mat_keterangan: withID.Keterangan,
     kry_id: "1",
-    mat_kata_kunci: withID.Katakunci,
+    mat_kata_kunci:withID["Kata Kunci"],
     mat_gambar: withID.Gambar,
+    // mat_status: withID.Status,
   });
 
   const userSchema = object({
@@ -45,15 +48,16 @@ export default function MasterCourseEdit({ onChangePage ,withID}) {
     mat_judul: string(),
     mat_file_pdf: string(),
     mat_file_vidio: string(),
+    mat_pengenalan: string(),
     mat_keterangan: string(),
     kry_id: string(),
     mat_kata_kunci: string(),
     mat_gambar: string(),
-    createBy: string(),
+    //  mat_status: string(),
   });
 
   const handleInputChange = async (e) => {
-    console.log("DADA: " + formDataRef.current.kat_id + formDataRef.current.mat_kat);
+    // console.log("DADA: " + formDataRef.current.kat_id + formDataRef.current.mat_kat);
     const { name, value } = e.target;
     const validationError = await validateInput(name, value, userSchema);
     formDataRef.current[name] = value;
@@ -108,9 +112,9 @@ export default function MasterCourseEdit({ onChangePage ,withID}) {
           setListKategori(formattedData);
 
           // Mencocokkan dengan nama Kategori Kelompok dari withID
-          const matchingItem = formattedData.find(item => item.Text === withID["Kelompok Keahlian"]);
+          const matchingItem = formattedData.find(item => item.Text === withID["Kategori"]);
           if (matchingItem) {
-            formDataRef.current.kke_id = matchingItem.Value;
+            formDataRef.current.kat_id = matchingItem.Value;
           }
         }
       } catch (error) {
@@ -148,7 +152,6 @@ export default function MasterCourseEdit({ onChangePage ,withID}) {
 
       const uploadPromises = [];
 
-      console.log(fileInputRef.current.files[0])
       if (fileInputRef.current.files.length > 0) {
         uploadPromises.push(
           uploadFile(fileInputRef.current).then((data) => {
@@ -180,7 +183,7 @@ export default function MasterCourseEdit({ onChangePage ,withID}) {
         console.log(formDataRef.current.mat_gambar);
         console.log(formDataRef.current.mat_file_pdf);
         console.log(formDataRef.current.mat_file_vidio);
-        // console.log("Final formDataRef:", JSON.stringify(formDataRef.current));
+         console.log("Final formDataRef:", JSON.stringify(formDataRef.current));
         UseFetch(
           API_LINK + "Materis/EditDataMateri",
           formDataRef.current
@@ -200,8 +203,9 @@ export default function MasterCourseEdit({ onChangePage ,withID}) {
                 "Data Materi berhasil diedit",
                 "success"
               );
-              window.location.reload();
+              onChangePage("index")
             }
+
           })
           .then(() => setIsLoading(false));
       });
@@ -306,7 +310,7 @@ export default function MasterCourseEdit({ onChangePage ,withID}) {
                   errorMessage={errors.mat_kata_kunci}
                 />
               </div>
-              <div className="col-lg-12">
+              <div className="col-lg-6">
                 <div className="form-group">
                   <label htmlFor="deskripsiMateri" className="form-label fw-bold">
                   Deskripsi Materi <span style={{color:"Red"}}> *</span>
@@ -322,6 +326,25 @@ export default function MasterCourseEdit({ onChangePage ,withID}) {
                   />
                   {errors.deskripsiMateri && (
                     <div className="invalid-feedback">{errors.deskripsiMateri}</div>
+                  )}
+                </div>
+              </div>
+              <div className="col-lg-6">
+                <div className="form-group">
+                  <label htmlFor="pengenalanMateri" className="form-label fw-bold">
+                  Pengenalan Materi <span style={{color:"Red"}}> *</span>
+                  </label>
+                  <textarea
+                    className="form-control mb-3"
+                    id="mat_pengenalan"
+                    name="mat_pengenalan"
+                    forInput="mat_pengenalan"
+                    value={formDataRef.current.mat_pengenalan}
+                    onChange={handleInputChange}
+                    required
+                  />
+                  {errors.deskripsiMateri && (
+                    <div className="invalid-feedback">{errors.pengenalanMateri}</div>
                   )}
                 </div>
               </div>

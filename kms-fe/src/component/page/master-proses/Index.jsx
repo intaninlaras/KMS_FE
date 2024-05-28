@@ -20,6 +20,7 @@ const inisialisasiData = [
     "Kategori": null,
     Judul: null,
     File: null,
+    Pengenalan: null,
     Keterangan: null,
     "Kata Kunci": null,
     Gambar: null,
@@ -139,13 +140,13 @@ export default function MasterProsesIndex({ onChangePage }) {
       setIsError(false);
       setIsLoading(true);
 
-      // console.log("Filter: " + JSON.stringify(currentFilter));
+       console.log("Filter: " + JSON.stringify(currentFilter));
       try {
         const data = await UseFetch(
           API_LINK + "Materis/GetDataMateri",
           currentFilter
         );
-        //  console.log("Fetched data:", data);
+          console.log("Fetched data:", data);
 
         if (data === "ERROR") {
           setIsError(true);

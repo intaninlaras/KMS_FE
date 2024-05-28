@@ -21,7 +21,8 @@ export default function MasterProses() {
       case "courseAdd":
         return <MasterCourseAdd onChangePage={handleSetPageMode} />;
       case "courseEdit":
-        return <MasterCourseEdit onChangePage={handleSetPageMode} withID={dataID} />;
+        return <MasterCourseEdit onChangePage={handleSetPageMode}             withID={dataID}
+        />;
       case "forumAdd":
         return <MasterForumAdd onChangePage={handleSetPageMode} />;
       case "posttestAdd":

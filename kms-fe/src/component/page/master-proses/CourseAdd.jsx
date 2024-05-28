@@ -29,6 +29,7 @@ export default function MasterCourseAdd({ onChangePage}) {
     mat_judul: "", 
     mat_file_pdf: "",
     mat_file_vidio: "",
+    mat_pengenalan: "",
     mat_keterangan: "",
     kry_id: "1",
     mat_kata_kunci: "",
@@ -41,6 +42,7 @@ export default function MasterCourseAdd({ onChangePage}) {
     mat_judul: string(),
     mat_file_pdf: string(),
     mat_file_vidio: string(),
+    mat_pengenalan: string(),
     mat_keterangan: string(),
     kry_id: string(),
     mat_kata_kunci: string(),
@@ -125,11 +127,12 @@ export default function MasterCourseAdd({ onChangePage}) {
       }
 
       Promise.all(uploadPromises).then(() => {
-        console.log(formDataRef.current.mat_gambar);
-        console.log(formDataRef.current.mat_sharing_expert);
-        console.log(formDataRef.current.mat_file);
-        console.log(formDataRef.current.kat_id);
+        // console.log(formDataRef.current.mat_gambar);
+        // console.log(formDataRef.current.mat_sharing_expert);
+        // console.log(formDataRef.current.mat_file);
+        // console.log(formDataRef.current.kat_id);
         // console.log("Final formDataRef:", JSON.stringify(formDataRef.current));
+        console.log("Filter: " + JSON.stringify(formDataRef.current));
         UseFetch(
           API_LINK + "Materis/SaveDataMateri",
           formDataRef.current
@@ -287,7 +290,7 @@ export default function MasterCourseAdd({ onChangePage}) {
                   errorMessage={errors.mat_kata_kunci}
                 />
               </div>
-              <div className="col-lg-12">
+              <div className="col-lg-6">
                 <div className="form-group">
                   <label htmlFor="deskripsiMateri" className="form-label fw-bold">
                   Deskripsi Materi <span style={{color:"Red"}}> *</span>
@@ -298,6 +301,25 @@ export default function MasterCourseAdd({ onChangePage}) {
                     name="mat_keterangan"
                     forInput="mat_keterangan"
                     value={formDataRef.current.mat_keterangan}
+                    onChange={handleInputChange}
+                    required
+                  />
+                  {errors.deskripsiMateri && (
+                    <div className="invalid-feedback">{errors.deskripsiMateri}</div>
+                  )}
+                </div>
+              </div>
+              <div className="col-lg-6">
+                <div className="form-group">
+                  <label htmlFor="deskripsiMateri" className="form-label fw-bold">
+                  Pengenalan Materi <span style={{color:"Red"}}> *</span>
+                  </label>
+                  <textarea
+                    className="form-control mb-3"
+                    id="mat_pengenalan"
+                    name="mat_pengenalan"
+                    forInput="mat_pengenalan"
+                    value={formDataRef.current.mat_pengenalan}
                     onChange={handleInputChange}
                     required
                   />
