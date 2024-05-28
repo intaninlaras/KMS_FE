@@ -145,18 +145,12 @@ export default function SubKKIndex({ onChangePage }) {
                           overflow: "hidden",
                         }}
                       >
-                        Manajemen Sumber Daya Manusia (HRM) adalah suatu pendekatan 
-                        strategis untuk mengelola orang-orang di sebuah organisasi agar 
-                        mencapai tujuan organisasi dengan efektif. Ini melibatkan 
-                        perencanaan, pengorganisasian, pengarahan, dan pengendalian 
-                        sumber daya manusia organisasi untuk mencapai tujuan yang ditetapkan. 
-                        Manajemen Sumber Daya Manusia memainkan peran penting dalam 
-                        kesuksesan jangka panjang suatu organisasi dengan memastikan 
-                        bahwa organisasi memiliki karyawan yang berkualitas, termotivasi, 
-                        dan berkinerja tinggi.
+                        Manajemen Informatika adalah cabang dari manajemen yang berfokus pada pengelolaan sumber daya teknologi informasi (TI) 
+                        dalam suatu organisasi dengan tujuan meningkatkan efisiensi, efektivitas, dan nilai bisnis. Ini melibatkan perencanaan, 
+                        pengembangan, implementasi, dan pemeliharaan sistem informasi dan teknologi informasi yang digunakan dalam konteks organisasi.
                       </p>
                       <CardProgram isOpen={isOpen} onChangePage={onChangePage} />
-                      <CardProgram isOpen={isOpen} onChangePage={onChangePage} />
+                      {/* <CardProgram isOpen={isOpen} onChangePage={onChangePage} /> */}
                     </div>
                   </div>
                 </div>

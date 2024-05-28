@@ -13,21 +13,27 @@ import Loading from "../../part/Loading";
 import Alert from "../../part/Alert";
 import { Stepper } from 'react-form-stepper';
 
+import axios from "axios";
 export default function MasterPelangganAdd({ onChangePage }) {
   const [errors, setErrors] = useState({});
   const [isError, setIsError] = useState({ error: false, message: "" });
   const [isLoading, setIsLoading] = useState(false);
 
   const formDataRef = useRef({
-    namaProduk: "",
-    jenisProduk: "",
-    gambarProduk: "",
-    spesifikasi: "",
+    materiId:"1",
+    karyawanId: "1", 
+    judulForum: "",
+    isiForum: "",
+    statusForum: "Aktif",
+    createdBy: "Fahriel",
   });
 
   const fileGambarRef = useRef(null);
 
-
+  const userSchema = object({
+    judulForum: string(),
+    isiForum: string(),
+  });
 
   const handleInputChange = async (e) => {
     const { name, value } = e.target;
@@ -105,6 +111,9 @@ export default function MasterPelangganAdd({ onChangePage }) {
           .then(() => setIsLoading(false));
       });
     }
+    console.log("Data yang dikirim ke backend:", formDataRef.current);
+    const response = await axios.post("http://localhost:8080/Forum/SaveDataForum", formDataRef.current);
+    console.log(response);
   };
 
   if (isLoading) return <Loading />;
@@ -128,25 +137,25 @@ export default function MasterPelangganAdd({ onChangePage }) {
             ]}
             activeStep={3} 
             styleConfig={{
-              activeBgColor: '#67ACE9', // Warna latar belakang langkah aktif
-              activeTextColor: '#FFFFFF', // Warna teks langkah aktif
-              completedBgColor: '#67ACE9', // Warna latar belakang langkah selesai
-              completedTextColor: '#FFFFFF', // Warna teks langkah selesai
-              inactiveBgColor: '#E0E0E0', // Warna latar belakang langkah non-aktif
-              inactiveTextColor: '#000000', // Warna teks langkah non-aktif
-              size: '2em', // Ukuran langkah
-              circleFontSize: '1rem', // Ukuran font label langkah
-              labelFontSize: '0.875rem', // Ukuran font label langkah
-              borderRadius: '50%', // Radius sudut langkah
-              fontWeight: 500 // Ketebalan font label langkah
+              activeBgColor: '#67ACE9', 
+              activeTextColor: '#FFFFFF',
+              completedBgColor: '#67ACE9', 
+              completedTextColor: '#FFFFFF',
+              inactiveBgColor: '#E0E0E0', 
+              inactiveTextColor: '#000000', 
+              size: '2em', 
+              circleFontSize: '1rem', 
+              labelFontSize: '0.875rem', 
+              borderRadius: '50%', 
+              fontWeight: 500 
             }}
             connectorStyleConfig={{
-              completedColor: '#67ACE9', // Warna penghubung selesai
-              activeColor: '#67ACE9', // Warna penghubung aktif
-              disabledColor: '#BDBDBD', // Warna penghubung non-aktif
-              size: 1, // Ketebalan penghubung
-              stepSize: '2em', // Ukuran langkah, digunakan untuk menghitung ruang yang dipadatkan antara langkah dan awal penghubung
-              style: 'solid' // Gaya penghubung
+              completedColor: '#67ACE9', 
+              activeColor: '#67ACE9',
+              disabledColor: '#BDBDBD', 
+              size: 1,
+              stepSize: '2em',
+              style: 'solid'
             }}
           />
         </div>
@@ -161,25 +170,28 @@ export default function MasterPelangganAdd({ onChangePage }) {
             <div className="col-lg-12">
                 <Input
                   type="text"
-                  forInput="namaProduk"
-                  label="Forum Title"
-          
+                  forInput="judulForum"
+                  label="Judul Forum"
+                  isRequired
+                  value={formDataRef.current.judulForum}
+                  onChange={handleInputChange}
+                  errorMessage={errors.judulForum}
                 />
               </div>
               <div className="col-lg-12">
                 <div className="form-group">
                   <label htmlFor="deskripsiMateri" className="form-label fw-bold">
-                  Forum Contents
+                  Isi Forum
                   </label>
                   <textarea
-                    id="deskripsiMateri"
-                    name="deskripsiMateri"
-                    className={`form-control ${errors.deskripsiMateri ? 'is-invalid' : ''}`}
-                    value={formDataRef.current.deskripsiMateri}
+                    id="isiForum"
+                    name="isiForum"
+                    className={`form-control ${errors.isiForum ? 'is-invalid' : ''}`}
+                    value={formDataRef.current.isiForum}
                     onChange={handleInputChange}
                   />
                   {errors.deskripsiMateri && (
-                    <div className="invalid-feedback">{errors.deskripsiMateri}</div>
+                    <div className="invalid-feedback">{errors.isiForum}</div>
                   )}
                 </div>
               </div>
@@ -196,7 +208,6 @@ export default function MasterPelangganAdd({ onChangePage }) {
             classType="primary ms-2 px-4 py-2"
             type="submit"
             label="Save"
-            onClick={() => onChangePage("posttestAdd")}
           />
           <Button
             classType="dark ms-3 px-4 py-2"
