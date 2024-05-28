@@ -1,4 +1,5 @@
-import { useRef, useState ,useEffect} from "react";
+import { useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { object, string } from "yup";
 import { API_LINK } from "../../util/Constants";
 import { validateAllInputs, validateInput } from "../../util/ValidateForm";
@@ -14,7 +15,9 @@ import { Stepper } from 'react-form-stepper';
 import uploadFile from "../../util/UploadFile";
 
 
-export default function MasterCourseAdd({ onChangePage}) {
+export default function MasterCourseEdit({ onChangePage ,withID}) {
+  console.log("ID: " + JSON.stringify(withID));
+
   const [errors, setErrors] = useState({});
   const [isError, setIsError] = useState({ error: false, message: "" });
   const [isLoading, setIsLoading] = useState(false);
@@ -25,18 +28,19 @@ export default function MasterCourseAdd({ onChangePage}) {
   const vidioInputRef = useRef(null);
 
   const formDataRef = useRef({
+    mat_id:withID.Key,
     kat_id:"",
-    mat_judul: "", 
-    mat_file_pdf: "",
-    mat_file_vidio: "",
-    mat_keterangan: "",
+    mat_judul: withID.Judul, 
+    mat_file_pdf: withID.Filepdf,
+    mat_file_vidio: withID.Filevidio,
+    mat_keterangan: withID.Keterangan,
     kry_id: "1",
-    mat_kata_kunci: "",
-    mat_gambar: "",
-    createBy: "dummy",
+    mat_kata_kunci: withID.Katakunci,
+    mat_gambar: withID.Gambar,
   });
 
   const userSchema = object({
+    mat_id: string(),
     kat_id: string(),
     mat_judul: string(),
     mat_file_pdf: string(),
@@ -49,14 +53,15 @@ export default function MasterCourseAdd({ onChangePage}) {
   });
 
   const handleInputChange = async (e) => {
+    console.log("DADA: " + formDataRef.current.kat_id + formDataRef.current.mat_kat);
     const { name, value } = e.target;
     const validationError = await validateInput(name, value, userSchema);
     formDataRef.current[name] = value;
     setErrors((prevErrors) => ({
-      ...prevErrors,
-      [validationError.name]: validationError.error,
+        ...prevErrors,
+        [validationError.name]: validationError.error,
     }));
-  };
+};
 
   const handleFileChange = async (ref, extAllowed) => {
     const { name, value } = ref.current;
@@ -78,6 +83,52 @@ export default function MasterCourseAdd({ onChangePage}) {
       [validationError.name]: error,
     }));
   };
+
+  useEffect(() => {
+    const fetchDataKategori = async () => {
+      setIsError((prevError) => ({ ...prevError, error: false }));
+
+      try {
+        const data = await UseFetch(API_LINK + "Materis/GetListKategoriProgram", {
+          page: 1,
+          query: "",
+          sort: "[Nama Kategori] asc",
+          status: "Aktif",
+        });
+        console.log("Kategori: " + JSON.stringify(data));
+
+        if (data === "ERROR") {
+          throw new Error("Terjadi kesalahan: Gagal mengambil daftar kategori program.");
+        } else {
+          // Mengubah data menjadi format yang diinginkan
+          const formattedData = data.map(item => ({
+            Value: item["Key"],
+            Text: item["Nama Kategori"]
+          }));
+          setListKategori(formattedData);
+
+          // Mencocokkan dengan nama Kategori Kelompok dari withID
+          const matchingItem = formattedData.find(item => item.Text === withID["Kelompok Keahlian"]);
+          if (matchingItem) {
+            formDataRef.current.kke_id = matchingItem.Value;
+          }
+        }
+      } catch (error) {
+        setIsError((prevError) => ({
+          ...prevError,
+          error: true,
+          message: error.message,
+        }));
+        setListKategori([]);
+      }
+    };
+    fetchDataKategori();
+  }, [withID]);
+
+  useEffect(() => {
+    console.log("kate: " + JSON.stringify(listKategori));
+  });
+
 
   const handleAdd = async (e) => {
     e.preventDefault();
@@ -123,15 +174,15 @@ export default function MasterCourseAdd({ onChangePage}) {
           })
         );
       }
+      console.log(fileInputRef.current);
 
       Promise.all(uploadPromises).then(() => {
         console.log(formDataRef.current.mat_gambar);
-        console.log(formDataRef.current.mat_sharing_expert);
-        console.log(formDataRef.current.mat_file);
-        console.log(formDataRef.current.kat_id);
+        console.log(formDataRef.current.mat_file_pdf);
+        console.log(formDataRef.current.mat_file_vidio);
         // console.log("Final formDataRef:", JSON.stringify(formDataRef.current));
         UseFetch(
-          API_LINK + "Materis/SaveDataMateri",
+          API_LINK + "Materis/EditDataMateri",
           formDataRef.current
         )
           .then((data) => {
@@ -140,16 +191,16 @@ export default function MasterCourseAdd({ onChangePage}) {
                 return {
                   ...prevError,
                   error: true,
-                  message: "Terjadi kesalahan: Gagal menyimpan data Materi.",
+                  message: "Terjadi kesalahan: Gagal mengedit data Materi.",
                 };
               });
             } else {
               SweetAlert(
                 "Sukses",
-                "Data Materi berhasil disimpan",
+                "Data Materi berhasil diedit",
                 "success"
               );
-              onChangePage("index")
+              window.location.reload();
             }
           })
           .then(() => setIsLoading(false));
@@ -157,39 +208,7 @@ export default function MasterCourseAdd({ onChangePage}) {
     }
   };
 
-  useEffect(() => {
-    const fetchDataKategori = async () => {
-      setIsError((prevError) => ({ ...prevError, error: false }));
-
-      try {
-        const data = await UseFetch(API_LINK + "Materis/GetListKategoriProgram", {
-          page: 1,
-          query: "",
-          sort: "[Nama Kategori] asc",
-          status: "Aktif",
-        });
-
-        if (data === "ERROR") {
-          throw new Error("Terjadi kesalahan: Gagal mengambil daftar kategori program.");
-        } else {
-          // Mengubah data menjadi format yang diinginkan
-          const formattedData = data.map(item => ({
-            Value: item["Key"],
-            Text: item["Nama Kategori"]
-          }));
-          setListKategori(formattedData);
-        }
-      } catch (error) {
-        setIsError((prevError) => ({
-          ...prevError,
-          error: true,
-          message: error.message,
-        }));
-        setListKategori([]);
-      }
-    };
-    fetchDataKategori();
-  }, []);
+  
     
   if (isLoading) return <Loading />;
 
@@ -237,7 +256,7 @@ export default function MasterCourseAdd({ onChangePage}) {
 
         <div className="card">
           <div className="card-header bg-outline-primary fw-medium text-white">
-            Tambah Materi Baru
+          Edit Materi 
           </div>
           <div className="card-body p-4">
             <div className="row">

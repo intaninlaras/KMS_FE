@@ -1,119 +1,98 @@
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { object, string } from "yup";
-import { API_LINK } from "../../util/Constants";
 import { validateAllInputs, validateInput } from "../../util/ValidateForm";
 import SweetAlert from "../../util/SweetAlert";
-import UseFetch from "../../util/UseFetch";
-import UploadFile from "../../util/UploadFile";
 import Button from "../../part/Button";
-import DropDown from "../../part/Dropdown";
 import Input from "../../part/Input";
-import FileUpload from "../../part/FileUpload";
 import Loading from "../../part/Loading";
 import Alert from "../../part/Alert";
 import { Stepper } from 'react-form-stepper';
-
 import axios from "axios";
-export default function MasterPelangganAdd({ onChangePage }) {
+
+const userSchema = object({
+  forumJudul: string().max(100, "maksimum 100 karakter").required("harus diisi"),
+  forumIsi: string().required("harus diisi"),
+});
+
+export default function MasterForumAdd({ onChangePage }) {
   const [errors, setErrors] = useState({});
   const [isError, setIsError] = useState({ error: false, message: "" });
   const [isLoading, setIsLoading] = useState(false);
-
-  const formDataRef = useRef({
-    materiId:"1",
-    karyawanId: "1", 
-    judulForum: "",
-    isiForum: "",
-    statusForum: "Aktif",
-    createdBy: "Fahriel",
-  });
-
-  const fileGambarRef = useRef(null);
-
-  const userSchema = object({
-    judulForum: string(),
-    isiForum: string(),
+  const [formData, setFormData] = useState({
+    materiId: "00003",
+    karyawanId: "1",
+    forumJudul: "",
+    forumIsi: "",
+    forumCreatedBy:"ika",
   });
 
   const handleInputChange = async (e) => {
     const { name, value } = e.target;
     const validationError = await validateInput(name, value, userSchema);
-    formDataRef.current[name] = value;
+    setFormData((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
     setErrors((prevErrors) => ({
       ...prevErrors,
       [validationError.name]: validationError.error,
     }));
   };
 
-  const handleFileChange = async (ref, extAllowed) => {
-    const { name, value } = ref.current;
-    const file = ref.current.files[0];
-    const fileName = file.name;
-    const fileSize = file.size;
-    const fileExt = fileName.split(".").pop();
-    const validationError = await validateInput(name, value, userSchema);
-    let error = "";
-
-    if (fileSize / 1024576 > 10) error = "berkas terlalu besar";
-    else if (!extAllowed.split(",").includes(fileExt))
-      error = "format berkas tidak valid";
-
-    if (error) ref.current.value = "";
-
-    setErrors((prevErrors) => ({
-      ...prevErrors,
-      [validationError.name]: error,
-    }));
+  const resetForm = () => {
+    setFormData({
+      materiId: "00003",
+      karyawanId: "1",
+      forumJudul: "",
+      forumIsi: "",
+      forumStatus: "Aktif",
+    });
+    setErrors({});
+    setIsError({ error: false, message: "" });
   };
 
   const handleAdd = async (e) => {
     e.preventDefault();
 
-    const validationErrors = await validateAllInputs(
-      formDataRef.current,
-      userSchema,
-      setErrors
-    );
+    const validationErrors = await validateAllInputs(formData, userSchema, setErrors);
+    const isEmptyData = Object.values(formData).some(value => value === "");
+
+    if (isEmptyData) {
+      setIsError({
+        error: true,
+        message: "Data tidak boleh kosong",
+      });
+      return;
+    }
 
     if (Object.values(validationErrors).every((error) => !error)) {
       setIsLoading(true);
-      setIsError((prevError) => {
-        return { ...prevError, error: false };
-      });
+      setIsError({ error: false, message: "" });
       setErrors({});
-
-      const uploadPromises = [];
-
-      if (fileGambarRef.current.files.length > 0) {
-        uploadPromises.push(
-          UploadFile(fileGambarRef.current).then(
-            (data) => (formDataRef.current["gambarProduk"] = data.Hasil)
-          )
-        );
-      }
-
-      Promise.all(uploadPromises).then(() => {
-        UseFetch(API_LINK + "MasterProduk/CreateProduk", formDataRef.current)
-          .then((data) => {
-            if (data === "ERROR") {
-              setIsError((prevError) => {
-                return {
-                  ...prevError,
-                  error: true,
-                  message: "Terjadi kesalahan: Gagal menyimpan data produk.",
-                };
-              });
-            } else {
-              SweetAlert("Sukses", "Data produk berhasil disimpan", "success");
-              onChangePage("index");
-            }
-          })
-          .then(() => setIsLoading(false));
-      });
     }
-    console.log("Data yang dikirim ke backend:", formDataRef.current);
-    const response = await axios.post("http://localhost:8080/Forum/SaveDataForum", formDataRef.current);
-    console.log(response);
+
+    try {
+      console.log("Data yang dikirim ke backend:", formData);
+      const response = await axios.post("http://localhost:8080/Forums/SaveDataForum", formData);
+
+      if (response.status === 200) {
+        SweetAlert("Success", "Forum data has been successfully saved", "success");
+        resetForm();
+        setIsLoading(false);
+      } else {
+        setIsError({
+          error: true,
+          message: "Failed to save forum data: " + response.statusText,
+        });
+        setIsLoading(false); 
+      }
+    } catch (error) {
+      setIsError({
+        error: true,
+        message: "Failed to save forum data: " + error.message,
+      });
+      setIsLoading(false);
+    }
   };
 
   if (isLoading) return <Loading />;
@@ -127,32 +106,32 @@ export default function MasterPelangganAdd({ onChangePage }) {
       )}
       <form onSubmit={handleAdd}>
         <div>
-        <Stepper
-             steps={[
-              { label: 'Pretest', onClick:() => onChangePage("pretestAdd")},
-              { label: 'Course' ,onClick:() => onChangePage("courseAdd")},
-              { label: 'Sharing Expert',onClick:() => onChangePage("sharingAdd")},
-              { label: 'Forum' ,onClick:() => onChangePage("forumAdd") },
-              { label: 'Post Test',onClick:() => onChangePage("posttestAdd") }
+          <Stepper
+            steps={[
+              { label: 'Pretest', onClick: () => onChangePage("pretestAdd") },
+              { label: 'Course', onClick: () => onChangePage("courseAdd") },
+              { label: 'Sharing Expert', onClick: () => onChangePage("sharingAdd") },
+              { label: 'Forum', onClick: () => onChangePage("forumAdd") },
+              { label: 'Post Test', onClick: () => onChangePage("posttestAdd") }
             ]}
             activeStep={3} 
             styleConfig={{
-              activeBgColor: '#67ACE9', 
+              activeBgColor: '#67ACE9',
               activeTextColor: '#FFFFFF',
-              completedBgColor: '#67ACE9', 
+              completedBgColor: '#67ACE9',
               completedTextColor: '#FFFFFF',
-              inactiveBgColor: '#E0E0E0', 
-              inactiveTextColor: '#000000', 
-              size: '2em', 
-              circleFontSize: '1rem', 
-              labelFontSize: '0.875rem', 
-              borderRadius: '50%', 
-              fontWeight: 500 
+              inactiveBgColor: '#E0E0E0',
+              inactiveTextColor: '#000000',
+              size: '2em',
+              circleFontSize: '1rem',
+              labelFontSize: '0.875rem',
+              borderRadius: '50%',
+              fontWeight: 500
             }}
             connectorStyleConfig={{
-              completedColor: '#67ACE9', 
+              completedColor: '#67ACE9',
               activeColor: '#67ACE9',
-              disabledColor: '#BDBDBD', 
+              disabledColor: '#BDBDBD',
               size: 1,
               stepSize: '2em',
               style: 'solid'
@@ -166,32 +145,30 @@ export default function MasterPelangganAdd({ onChangePage }) {
           </div>
           <div className="card-body p-4">
             <div className="row">
-              
-            <div className="col-lg-12">
+              <div className="col-lg-12">
                 <Input
                   type="text"
-                  forInput="judulForum"
-                  label="Judul Forum"
-                  isRequired
-                  value={formDataRef.current.judulForum}
+                  forInput="forumJudul"
+                  label="Forum Title"
+                  value={formData.forumJudul}
                   onChange={handleInputChange}
-                  errorMessage={errors.judulForum}
+                  errorMessage={errors.forumJudul}
                 />
               </div>
               <div className="col-lg-12">
                 <div className="form-group">
-                  <label htmlFor="deskripsiMateri" className="form-label fw-bold">
-                  Isi Forum
+                  <label htmlFor="forumIsi" className="form-label fw-bold">
+                    Forum Contents
                   </label>
                   <textarea
-                    id="isiForum"
-                    name="isiForum"
-                    className={`form-control ${errors.isiForum ? 'is-invalid' : ''}`}
-                    value={formDataRef.current.isiForum}
+                    id="forumIsi"
+                    name="forumIsi"
+                    className={`form-control ${errors.forumIsi ? 'is-invalid' : ''}`}
+                    value={formData.forumIsi}
                     onChange={handleInputChange}
                   />
-                  {errors.deskripsiMateri && (
-                    <div className="invalid-feedback">{errors.isiForum}</div>
+                  {errors.forumIsi && (
+                    <div className="invalid-feedback">{errors.forumIsi}</div>
                   )}
                 </div>
               </div>

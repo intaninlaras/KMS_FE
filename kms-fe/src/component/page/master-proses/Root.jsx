@@ -2,6 +2,7 @@ import { useState } from "react";
 import MasterProsesIndex from "./Index";
 import MasterPreTestAdd from "./PreTestAdd";
 import MasterCourseAdd from "./CourseAdd";
+import MasterCourseEdit from "./CourseEdit";
 import MasterForumAdd from "./ForumAdd";
 import MasterPostTestAdd from "./PostTestAdd";
 import MasterSharingAdd from "./SharingAdd";
@@ -19,6 +20,8 @@ export default function MasterProses() {
         return <MasterPreTestAdd onChangePage={handleSetPageMode} />;
       case "courseAdd":
         return <MasterCourseAdd onChangePage={handleSetPageMode} />;
+      case "courseEdit":
+        return <MasterCourseEdit onChangePage={handleSetPageMode} withID={dataID} />;
       case "forumAdd":
         return <MasterForumAdd onChangePage={handleSetPageMode} />;
       case "posttestAdd":

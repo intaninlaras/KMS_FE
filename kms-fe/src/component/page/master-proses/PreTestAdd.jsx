@@ -6,7 +6,7 @@ import { Stepper } from 'react-form-stepper';
 import * as XLSX from 'xlsx';
 
 
-export default function MasterProdukAdd({ onChangePage }) {
+export default function MasterPreTestAdd({ onChangePage }) {
   const [formContent, setFormContent] = useState([]);
   const [selectedOptions, setSelectedOptions] = useState([]);
   const [errors, setErrors] = useState({});
