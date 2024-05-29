@@ -3,6 +3,7 @@ import ProgramIndex from "./Index";
 import ProgramAdd from "./AddProgram";
 import KategoriProgramAdd from "./AddKategoriProgram";
 import ProgramEdit from "./EditProgram";
+import KategoriProgramEdit from "./EditKategoriProgram";
 
 export default function Program() {
   const [pageMode, setPageMode] = useState("index");
@@ -23,6 +24,13 @@ export default function Program() {
         );
       case "edit":
         return <ProgramEdit onChangePage={handleSetPageMode} withID={dataID} />;
+      case "editKategori":
+        return (
+          <KategoriProgramEdit
+            onChangePage={handleSetPageMode}
+            withID={dataID}
+          />
+        );
     }
   }
 

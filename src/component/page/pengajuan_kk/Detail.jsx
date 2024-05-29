@@ -32,11 +32,10 @@ export default function PengajuanDetail({ onChangePage, withID }) {
   let activeUser = "";
   const cookie = Cookies.get("activeUser");
   if (cookie) activeUser = JSON.parse(decryptId(cookie)).username;
-  // console.log(JSON.stringify("WITH ID: "+JSON.stringify(withID)));
-  const [errors, setErrors] = useState({});
+
   const [isError, setIsError] = useState({ error: false, message: "" });
   const [isLoading, setIsLoading] = useState(false);
-  const [lampiranCount, setLampiranCount] = useState(1);
+  const [listNamaFile, setListNamaFile] = useState([]);
   const [detail, setDetail] = useState(inisialisasiData);
   const [userData, setUserData] = useState({
     Role: "",
@@ -44,68 +43,73 @@ export default function PengajuanDetail({ onChangePage, withID }) {
     kry_id: "",
   });
 
-  if (isLoading) return <Loading />;
+  const getUserKryID = async () => {
+    setIsLoading(true);
+    setIsError((prevError) => ({ ...prevError, error: false }));
 
-  const handleTambahLampiran = () => {
-    setLampiranCount((prevCount) => prevCount + 1);
+    try {
+      while (true) {
+        let data = await UseFetch(API_LINK + "Utilities/GetUserLogin", {
+          param: activeUser,
+        });
+
+        if (data === "ERROR") {
+          throw new Error("Terjadi kesalahan: Gagal mengambil data.");
+        } else if (data.length === 0) {
+          await new Promise((resolve) => setTimeout(resolve, 2000));
+        } else {
+          setUserData(data[0]);
+          setIsLoading(false);
+          break;
+        }
+      }
+    } catch (error) {
+      setIsLoading(true);
+      setIsError((prevError) => ({
+        ...prevError,
+        error: true,
+        message: error.message,
+      }));
+    }
   };
 
   useEffect(() => {
-    const fetchDataUser = async () => {
-      setIsError((prevError) => ({ ...prevError, error: false }));
-
-      try {
-        const data = await UseFetch(API_LINK + "Utilities/GetUserLogin", {
-          param: activeUser,
-        });
-        console.log("data KRY: "+data);
-
-        if (data === "ERROR") {
-          throw new Error("Terjadi kesalahan: Gagal mengambil daftar prodi.");
-        } else {
-          setUserData(data[0]);
-          // formDataRef.current.kry_id = data[0].kry_id;
-        }
-      } catch (error) {
-        setIsError((prevError) => ({
-          ...prevError,
-          error: true,
-          message: error.message,
-        }));
-        setUserData(null);
-      }
-    };
-
-    fetchDataUser();
+    getUserKryID();
   }, []);
 
-  useEffect(() => {
-    const fetchDataUser = async () => {
-      setIsError((prevError) => ({ ...prevError, error: false }));
+  const getListLampiran = async () => {
+    setIsError((prevError) => ({ ...prevError, error: false }));
+    setIsLoading(true);
 
-      try {
-        const data = await UseFetch(API_LINK + "Pengajuans/GetDetailLampiran", {
-          p1: 1,
-          p2: "[ID Lampiran] ASC",
-          p3: withID.Key,
+    try {
+      while (true) {
+        let data = await UseFetch(API_LINK + "Pengajuans/GetDetailLampiran", {
+          page: 1,
+          sort: "[ID Lampiran] ASC",
+          akk_id: withID.Key,
         });
 
         if (data === "ERROR") {
-          throw new Error("Terjadi kesalahan: Gagal mengambil Detail Lampiran.");
+          throw new Error(
+            "Terjadi kesalahan: Gagal mengambil Detail Lampiran."
+          );
+        } else if (data.length === 0) {
+          setListNamaFile([]);
+          await new Promise((resolve) => setTimeout(resolve, 2000));
         } else {
-          const formattedData = data.map(item => ({
+          setListNamaFile(data);
+          const formattedData = data.map((item) => ({
             ...item,
           }));
-          // console.log("for: " + JSON.stringify(formattedData));
           const promises = formattedData.map((value) => {
             const filePromises = [];
 
             if (value["Lampiran"]) {
               const filePromise = fetch(
                 API_LINK +
-                `Utilities/Upload/DownloadFile?namaFile=${encodeURIComponent(
-                  value["Lampiran"]
-                )}`
+                  `Utilities/Upload/DownloadFile?namaFile=${encodeURIComponent(
+                    value["Lampiran"]
+                  )}`
               )
                 .then((response) => response.blob())
                 .then((blob) => {
@@ -121,10 +125,12 @@ export default function PengajuanDetail({ onChangePage, withID }) {
             }
 
             return Promise.all(filePromises).then((results) => {
-              const updatedValue = results.reduce((acc, curr) => ({ ...acc, ...curr }), value);
+              const updatedValue = results.reduce(
+                (acc, curr) => ({ ...acc, ...curr }),
+                value
+              );
               return updatedValue;
             });
-
           });
 
           Promise.all(promises)
@@ -135,19 +141,24 @@ export default function PengajuanDetail({ onChangePage, withID }) {
             .catch((error) => {
               console.error("Error updating currentData:", error);
             });
-        }
-      } catch (error) {
-        setIsError((prevError) => ({
-          ...prevError,
-          error: true,
-          message: error.message,
-        }));
-        setDetail(null);
-      }
-    };
 
-    fetchDataUser();
-  }, []);
+          setIsLoading(false);
+          break;
+        }
+      }
+    } catch (error) {
+      setDetail(null);
+      setIsError((prevError) => ({
+        ...prevError,
+        error: true,
+        message: error.message,
+      }));
+    }
+  };
+
+  useEffect(() => {
+    getListLampiran();
+  }, [withID]);
 
   return (
     <>
@@ -156,52 +167,71 @@ export default function PengajuanDetail({ onChangePage, withID }) {
           <Alert type="danger" message={isError.message} />
         </div>
       )}
-      <form>
-        <div className="card">
-          <div className="card-header bg-primary fw-medium text-white">
-            Pengajuan Kelompok Keahlian
-          </div>
-          <div className="card-body p-4">
-            <div className="row">
-              <div className="col-lg-6">
-                <Label title="Nama" data={userData.Nama} />
-              </div>
-              <div className="col-lg-6">
-                <Label title="Jabatan" data={userData.Role} />
-              </div>
-              <div className="col-lg-6 my-3">
-                <Label title="Kelompok Keahlian" data={withID.Nama} />
-              </div>
-              <div className="col-lg-6 my-3">
-                <Label title="Status" data={withID.Status} />
-              </div>
-              <div className="col-lg-12">
-                <div className="card">
-                  <div className="card-header fw-medium">
-                    Lampiran Pendukung
-                  </div>
-                  <div className="card-body p-4">
-                    {detail.map((item, index) => (
-                      <Label
-                        key={index}
-                        title={`Lampiran ${index + 1}`}
-                        data={item.Lampiran ? <a href={item.Lampiran} target="_blank" rel="noopener noreferrer">Tampilkan Berkas</a> : "Tidak ada lampiran"}
-                      />
-                    ))}
+      {isLoading ? (
+        <Loading />
+      ) : (
+        <form>
+          <div className="card">
+            <div className="card-header bg-primary fw-medium text-white">
+              Pengajuan Kelompok Keahlian
+            </div>
+            <div className="card-body p-4">
+              <div className="row">
+                <div className="col-lg-6">
+                  <Label title="Nama" data={userData.Nama} />
+                </div>
+                <div className="col-lg-6">
+                  <Label title="Jabatan" data={userData.Role} />
+                </div>
+                <div className="col-lg-6 my-3">
+                  <Label
+                    title="Kelompok Keahlian"
+                    data={withID["Nama Kelompok Keahlian"]}
+                  />
+                </div>
+                <div className="col-lg-6 my-3">
+                  <Label title="Status" data={withID.Status} />
+                </div>
+                <div className="col-lg-12">
+                  <div className="card">
+                    <div className="card-header fw-medium">
+                      Lampiran Pendukung
+                    </div>
+                    <div className="card-body p-4">
+                      {detail?.map((item, index) => (
+                        <Label
+                          key={index}
+                          title={`Lampiran ${index + 1}`}
+                          data={
+                            item.Lampiran ? (
+                              <a
+                                href={item.Lampiran}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                              >
+                                {listNamaFile[index]?.Lampiran}
+                              </a>
+                            ) : (
+                              "Tidak ada lampiran"
+                            )
+                          }
+                        />
+                      ))}
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
-        <div className="float-end my-4 mx-1">
-          <Button
-            classType="secondary me-2 px-4 py-2"
-            label="Kembali"
-            onClick={() => onChangePage("index")}
-          />
-        </div>
-      </form>
+          <div className="float-end my-4 mx-1">
+            <Button
+              classType="secondary me-2 px-4 py-2"
+              label="Kembali"
+              onClick={() => onChangePage("index")}
+            />
+          </div>
+        </form>
+      )}
     </>
   );
 }

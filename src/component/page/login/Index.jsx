@@ -44,12 +44,14 @@ export default function Login() {
   const handleAdd = async (e) => {
     e.preventDefault();
 
+    // Validate the form inputs
     const validationErrors = await validateAllInputs(
       formDataRef.current,
       userSchema,
       setErrors
     );
 
+    // If no validation errors, proceed with the login attempt
     if (Object.values(validationErrors).every((error) => !error)) {
       setIsLoading(true);
       setIsError((prevError) => {
@@ -58,16 +60,15 @@ export default function Login() {
       setErrors({});
 
       try {
+        // Ensure the UseFetch function sends a POST request
         const data = await UseFetch(
           API_LINK + "Utilities/Login",
           formDataRef.current
         );
 
-        if (data[0].Message === "ERROR")
-          throw new Error("Terjadi kesalahan: Gagal melakukan autentikasi.");
-        else if (data.Status && data.Status === "LOGIN FAILED")
+        if (data[0].Status && data[0].Status === "LOGIN FAILED") {
           throw new Error("Nama akun atau kata sandi salah.");
-        else {
+        } else {
           setListRole(data);
           modalRef.current.open();
         }

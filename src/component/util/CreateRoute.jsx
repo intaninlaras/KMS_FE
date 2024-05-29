@@ -1,6 +1,9 @@
 import { lazy } from "react";
 import MasterDaftarPustaka from "../page/daftar-pustaka/Root";
 import PengajuanKKs from "../page/pengajuan_kk/Root";
+import PICKKbyProdi from "../page/pic-kelompok-keahlian/Root";
+import KonfirmasiAnggota from "../page/konfirmasi-anggota-kelompok-keahlian/Root";
+import RiwayatPengajuan from "../page/riwayat-pengajuan-kk/Root";
 
 const Beranda = lazy(() => import("../page/beranda/Root"));
 const KelolaKK = lazy(() => import("../page/kelola-kelompok-keahlian/Root"));
@@ -31,6 +34,18 @@ const routeList = [
   {
     path: "/pengajuan_anggota_keahlian",
     element: <PengajuanKKs />,
+  },
+  {
+    path: "/pic_kelompok_keahlian",
+    element: <PICKKbyProdi />,
+  },
+  {
+    path: "/persetujuan_anggota_keahlian",
+    element: <KonfirmasiAnggota />,
+  },
+  {
+    path: "/riwayat_pengajuan_anggota",
+    element: <RiwayatPengajuan />,
   },
 ];
 

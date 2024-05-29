@@ -291,7 +291,7 @@ function CardKelompokKeahlian({
               borderTopRightRadius: "10px",
               borderTopLeftRadius: "10px",
               backgroundColor:
-                config.footer === "Draft" || config.footer === "Menunggu"
+                data.status === "Draft" || data.status === "Menunggu"
                   ? "#6c757d"
                   : "#67ACE9",
             }}

@@ -1,6 +1,7 @@
 import React, { forwardRef } from "react";
 import Button from "./Button";
 import Icon from "./Icon";
+import Input from "./Input";
 
 const CardProgram = ({
   id,
@@ -103,7 +104,29 @@ const CardProgram = ({
               cssClass="btn px-2 py-0 text-primary"
               title="Ubah data"
               onClick={() => onChangePage("edit", data)}
-            />{" "}
+            />
+            <div
+              class="form-check form-switch py-0 ms-2"
+              style={{ width: "fit-content" }}
+            >
+              <Input
+                type="checkbox"
+                forInput=""
+                label=""
+                className="form-check-input"
+                checked={data.Status === "Aktif"}
+                onChange={() =>
+                  handleStatusChange(
+                    data,
+                    data.Status === "Aktif" ? "Tidak Aktif" : "Aktif"
+                  )
+                }
+              />
+              <label
+                className="form-check-label"
+                for="flexSwitchCheckDefault"
+              ></label>
+            </div>
           </div>
         )}
         <div

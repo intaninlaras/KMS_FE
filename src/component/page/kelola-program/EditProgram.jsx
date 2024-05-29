@@ -48,10 +48,6 @@ export default function ProgramEdit({ onChangePage, withID }) {
   };
 
   useEffect(() => {
-    console.log(formData);
-  });
-
-  useEffect(() => {
     setFormData({
       idProgram: withID.Key,
       idKK: withID.KKiD,
@@ -63,8 +59,6 @@ export default function ProgramEdit({ onChangePage, withID }) {
 
   const handleAdd = async (e) => {
     e.preventDefault();
-
-    console.log("im here");
 
     const validationErrors = await validateAllInputs(
       formData,
@@ -115,7 +109,7 @@ export default function ProgramEdit({ onChangePage, withID }) {
         <form onSubmit={handleAdd}>
           <div className="card">
             <div className="card-header bg-primary fw-medium text-white">
-              Edit Program <span className="badge text-bg-dark">Draft</span>
+              Edit Program
             </div>
             <div className="card-body p-4">
               <div className="row">

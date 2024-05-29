@@ -1,40 +1,35 @@
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { object, string } from "yup";
 import { API_LINK } from "../../util/Constants";
-import { validateAllInputs, validateInput } from "../../util/ValidateForm";
-import SweetAlert from "../../util/SweetAlert";
+import { validateAllInputs } from "../../util/ValidateForm";
 import UseFetch from "../../util/UseFetch";
 import Button from "../../part/Button";
-import DropDown from "../../part/Dropdown";
 import Input from "../../part/Input";
 import Loading from "../../part/Loading";
 import Alert from "../../part/Alert";
-import Label from "../../part/Label";
+import SweetAlert from "../../util/SweetAlert";
 
-export default function KategoriProgramAdd({ onChangePage, withID }) {
+export default function ProgramEdit({ onChangePage, withID }) {
   const [errors, setErrors] = useState({});
   const [isError, setIsError] = useState({ error: false, message: "" });
   const [isLoading, setIsLoading] = useState(false);
-
-  const formDataRef = useRef({
+  const [formData, setFormData] = useState({
+    idKatProgram: "",
     idProgram: "",
     nama: "",
     deskripsi: "",
+    status: "",
   });
 
   const userSchema = object({
+    idKatProgram: string(),
     idProgram: string(),
     nama: string().max(100, "maksimum 100 karakter").required("harus diisi"),
-    deskripsi: string().required("harus dipilih"),
+    deskripsi: string()
+      .max(500, "maksimum 500 karakter")
+      .required("harus diisi"),
+    status: string(),
   });
-
-  useEffect(() => {
-    formDataRef.current = {
-      idProgram: withID.Key,
-      nama: "",
-      deskripsi: "",
-    };
-  }, []);
 
   const handleInputChange = async (e) => {
     const { name, value } = e.target;
@@ -46,14 +41,27 @@ export default function KategoriProgramAdd({ onChangePage, withID }) {
       setErrors((prevErrors) => ({ ...prevErrors, [name]: error.message }));
     }
 
-    formDataRef.current[name] = value;
+    setFormData((prevFormData) => ({
+      ...prevFormData,
+      [name]: value,
+    }));
   };
+
+  useEffect(() => {
+    setFormData({
+      idKatProgram: withID.Key,
+      idProgram: withID.ProID,
+      nama: withID["Nama Kategori"],
+      deskripsi: withID.Deskripsi,
+      status: withID.Status,
+    });
+  }, [withID]);
 
   const handleAdd = async (e) => {
     e.preventDefault();
 
     const validationErrors = await validateAllInputs(
-      formDataRef.current,
+      formData,
       userSchema,
       setErrors
     );
@@ -67,26 +75,18 @@ export default function KategoriProgramAdd({ onChangePage, withID }) {
 
       setErrors({});
 
-      UseFetch(
-        API_LINK + "KategoriProgram/CreateKategoriProgram",
-        formDataRef.current
-      )
+      UseFetch(API_LINK + "KategoriProgram/EditKategoriProgram", formData)
         .then((data) => {
           if (data === "ERROR") {
             setIsError((prevError) => {
               return {
                 ...prevError,
                 error: true,
-                message:
-                  "Terjadi kesalahan: Gagal menyimpan data kategori program.",
+                message: "Terjadi kesalahan: Gagal mengubah data mata kuliah.",
               };
             });
           } else {
-            SweetAlert(
-              "Sukses",
-              "Data Mata Kuliah berhasil disimpan",
-              "success"
-            );
+            SweetAlert("Sukses", "Data mata kuliah berhasil diubah", "success");
             onChangePage("index");
           }
         })
@@ -109,22 +109,18 @@ export default function KategoriProgramAdd({ onChangePage, withID }) {
         <form onSubmit={handleAdd}>
           <div className="card">
             <div className="card-header bg-primary fw-medium text-white">
-              Tambah Mata Kuliah{" "}
-              <span className="badge text-bg-dark">Draft</span>
+              Edit Mata Kuliah
             </div>
             <div className="card-body p-4">
               <div className="row">
                 <div className="col-lg-12">
-                  <Label title="Nama Program" data={withID["Nama Program"]} />
-                </div>
-                <div className="col-lg-12">
                   <Input
                     type="text"
                     forInput="nama"
-                    label="Nama Program"
+                    label="Nama Mata Kuliah"
                     isRequired
-                    placeholder="Nama Mata Kuliah (Kelompok Keilmuan)"
-                    value={formDataRef.current.nama}
+                    placeholder="Nama Mata Kuliah"
+                    value={formData.nama}
                     onChange={handleInputChange}
                     errorMessage={errors.nama}
                   />
@@ -142,7 +138,7 @@ export default function KategoriProgramAdd({ onChangePage, withID }) {
                     id="deskripsi"
                     name="deskripsi"
                     forInput="deskripsi"
-                    value={formDataRef.current.deskripsi}
+                    value={formData.deskripsi}
                     onChange={handleInputChange}
                     placeholder="Deskripsi/Penjelasan Program"
                     required

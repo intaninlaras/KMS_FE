@@ -9,20 +9,18 @@ import Input from "../../part/Input";
 import Loading from "../../part/Loading";
 import Alert from "../../part/Alert";
 import SweetAlert from "../../util/SweetAlert";
+import Label from "../../part/Label";
 
-export default function KKEdit({ onChangePage, withID }) {
+export default function PICEdit({ onChangePage, withID }) {
   const [errors, setErrors] = useState({});
   const [isError, setIsError] = useState({ error: false, message: "" });
-  const [isLoadingProdi, setIsLoadingProdi] = useState(true);
-  const [isLoadingKaryawan, setIsLoadingKaryawan] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
-  const [listProdi, setListProdi] = useState([]);
   const [listKaryawan, setListKaryawan] = useState([]);
 
   const formDataRef = useRef({
     key: "",
     nama: "",
-    programStudi: "",
+    programStudi: { id: "", nama: "" },
     personInCharge: "",
     deskripsi: "",
     status: "",
@@ -30,68 +28,45 @@ export default function KKEdit({ onChangePage, withID }) {
 
   const userSchema = object({
     key: string(),
-    nama: string().max(100, "maksimum 100 karakter").required("harus diisi"),
-    programStudi: string().required("harus dipilih"),
-    personInCharge: string(),
-    deskripsi: string().required("harus diisi"),
+    nama: string(),
+    programStudi: object({
+      id: string(),
+      nama: string(),
+    }),
+    personInCharge: string().required("harus dipilih"),
+    deskripsi: string(),
     status: string(),
   });
 
   const handleInputChange = async (e) => {
     const { name, value } = e.target;
 
-    try {
-      if (name === "personInCharge" && value === "") {
-        setErrors((prevErrors) => ({ ...prevErrors, [name]: "" }));
-      } else {
-        await userSchema.validateAt(name, { [name]: value });
-        setErrors((prevErrors) => ({ ...prevErrors, [name]: "" }));
-      }
-    } catch (error) {
-      setErrors((prevErrors) => ({ ...prevErrors, [name]: error.message }));
-    }
-
-    formDataRef.current[name] = value;
-    if (name === "programStudi") {
-      fetchDataKaryawan(value);
-    }
-  };
-
-  const getListProdi = async () => {
-    setIsLoadingProdi(true);
-
-    try {
-      while (true) {
-        let data = await UseFetch(API_LINK + "KKs/GetListProdi", {});
-
-        if (data === "ERROR") {
-          throw new Error("Terjadi kesalahan: Gagal mengambil daftar prodi.");
-        } else if (data.length === 0) {
-          await new Promise((resolve) => setTimeout(resolve, 2000));
+    if (name === "personInCharge") {
+      try {
+        if (value === "") {
+          setErrors((prevErrors) => ({
+            ...prevErrors,
+            [name]: "harus dipilih",
+          }));
         } else {
-          setListProdi(data);
-          setIsLoadingProdi(false);
-          break;
+          await userSchema.validateAt(name, { [name]: value });
+          setErrors((prevErrors) => ({ ...prevErrors, [name]: "" }));
         }
+      } catch (error) {
+        setErrors((prevErrors) => ({ ...prevErrors, [name]: error.message }));
       }
-    } catch (e) {
-      setIsLoadingProdi(false);
-      console.log(e.message);
-      setIsError((prevError) => ({
-        ...prevError,
-        error: true,
-        message: e.message,
-      }));
+
+      formDataRef.current[name] = value;
     }
   };
 
   const getListKaryawan = async () => {
-    setIsLoadingKaryawan(true);
+    setIsLoading(true);
 
     try {
       while (true) {
         let data = await UseFetch(API_LINK + "KKs/GetListKaryawan", {
-          idProdi: formDataRef.current.programStudi,
+          idProdi: formDataRef.current.programStudi.key,
         });
 
         if (data === "ERROR") {
@@ -102,12 +77,12 @@ export default function KKEdit({ onChangePage, withID }) {
           await new Promise((resolve) => setTimeout(resolve, 2000));
         } else {
           setListKaryawan(data);
-          setIsLoadingKaryawan(false);
+          setIsLoading(false);
           break;
         }
       }
     } catch (e) {
-      setIsLoadingKaryawan(false);
+      setIsLoading(false);
       console.log(e.message);
       setIsError((prevError) => ({
         ...prevError,
@@ -121,7 +96,7 @@ export default function KKEdit({ onChangePage, withID }) {
     formDataRef.current = {
       key: withID.id,
       nama: withID.title,
-      programStudi: withID.prodi.key,
+      programStudi: withID.prodi,
       personInCharge: withID.pic.key ? withID.pic.key : "",
       deskripsi: withID.desc,
       status: withID.status,
@@ -129,18 +104,10 @@ export default function KKEdit({ onChangePage, withID }) {
   }, []);
 
   useEffect(() => {
-    getListProdi();
-  }, []);
-
-  useEffect(() => {
     if (formDataRef.current.programStudi) {
       getListKaryawan();
     }
   }, [formDataRef.current.programStudi]);
-
-  useEffect(() => {
-    setIsLoading(isLoadingProdi || isLoadingKaryawan);
-  }, [isLoadingProdi, isLoadingKaryawan]);
 
   const handleAdd = async (e) => {
     e.preventDefault();
@@ -150,6 +117,8 @@ export default function KKEdit({ onChangePage, withID }) {
       userSchema,
       setErrors
     );
+
+    console.log("im here");
 
     if (Object.values(validationErrors).every((error) => !error)) {
       setIsLoading(true);
@@ -161,14 +130,9 @@ export default function KKEdit({ onChangePage, withID }) {
       setErrors({});
 
       const dataToSend = { ...formDataRef.current };
-      if (!dataToSend.personInCharge) {
-        dataToSend.personInCharge = "";
-      } else if (
-        dataToSend.status === "Menunggu" &&
-        dataToSend.personInCharge
-      ) {
+      if (dataToSend.status === "Menunggu" && dataToSend.personInCharge)
         dataToSend.status = "Aktif";
-      }
+      dataToSend.programStudi = dataToSend.programStudi.key;
 
       UseFetch(API_LINK + "KKs/EditKK", dataToSend)
         .then((data) => {
@@ -178,15 +142,11 @@ export default function KKEdit({ onChangePage, withID }) {
                 ...prevError,
                 error: true,
                 message:
-                  "Terjadi kesalahan: Gagal mengubah data kelompok keahlian.",
+                  "Terjadi kesalahan: Gagal menambah PIC kelompok keahlian.",
               };
             });
           } else {
-            SweetAlert(
-              "Sukses",
-              "Data kelompok keahlian berhasil diubah",
-              "success"
-            );
+            SweetAlert("Sukses", "PIC berhasil ditambahkan.", "success");
             onChangePage("index");
           }
         })
@@ -214,44 +174,21 @@ export default function KKEdit({ onChangePage, withID }) {
             <div className="card-body p-4">
               <div className="row">
                 <div className="col-lg-12">
-                  <Input
-                    type="text"
-                    forInput="nama"
-                    label="Nama Kelompok Keahlian"
-                    isRequired
-                    placeholder="Nama Kelompok Keahlian"
-                    value={formDataRef.current.nama}
-                    onChange={handleInputChange}
-                    errorMessage={errors.nama}
+                  <Label
+                    title="Nama Kelompok Keahlian"
+                    data={formDataRef.current.nama}
                   />
                 </div>
                 <div className="col-lg-12">
-                  <label style={{ paddingBottom: "5px", fontWeight: "bold" }}>
-                    Deskripsi/Ringkasan Mengenai Kelompok Keahlian{" "}
-                    <span style={{ color: "red" }}> *</span>
-                  </label>
-                  <textarea
-                    className="form-control mb-3"
-                    style={{
-                      height: "200px",
-                    }}
-                    id="deskripsi"
-                    name="deskripsi"
-                    value={formDataRef.current.deskripsi}
-                    onChange={handleInputChange}
-                    placeholder="Deskripsi"
-                    required
+                  <Label
+                    title="Deskripsi/Ringkasan Mengenai Kelompok Keahlian"
+                    data={formDataRef.current.deskripsi}
                   />
                 </div>
                 <div className="col-lg-6">
-                  <DropDown
-                    forInput="programStudi"
-                    label="Program Studi"
-                    arrData={listProdi}
-                    isRequired
-                    value={formDataRef.current.programStudi}
-                    onChange={handleInputChange}
-                    errorMessage={errors.programStudi}
+                  <Label
+                    title="Program Studi"
+                    data={formDataRef.current.programStudi.nama}
                   />
                 </div>
                 <div className="col-lg-6">
@@ -262,6 +199,7 @@ export default function KKEdit({ onChangePage, withID }) {
                     value={formDataRef.current.personInCharge || ""}
                     onChange={handleInputChange}
                     errorMessage={errors.personInCharge}
+                    isRequired
                   />
                 </div>
               </div>

@@ -4,20 +4,16 @@ import Icon from "./Icon";
 import Input from "./Input";
 import Button from "./Button";
 
-function CardPengajuan({
-  data,
-  onChangePage,
-  isShow
-}) {
+function CardPengajuan({ data, onChangePage, isShow }) {
   const [showAllText, setShowAllText] = useState(isShow);
   const sortDataByStatus = (data) => {
     const statusOrder = {
-      "Aktif": 1,
+      Aktif: 1,
       "Menunggu Acc": 2,
-      "None": 3,
-      // Any other statuses will be considered last
-      "Ditolak": 4,
-      "Kosong": 4,
+      None: 3,
+      Ditolak: 4,
+      Dibatalkan: 5,
+      Kosong: 6,
     };
 
     return data.sort((a, b) => {
@@ -44,13 +40,16 @@ function CardPengajuan({
           >
             <div className="card-body p-0">
               <h5
-                className="card-title text-white px-3 pt-2 pb-3 mb-0"
+                className="card-title text-white px-3 pt-2 pb-2 mb-0"
                 style={{
                   backgroundColor:
-                    kk.Status === "Aktif" ? '#67ACE9' :
-                      kk.Status === "Menunggu Acc" ? '#ffcc00' :
-                        kk.Status === "None" || kk.Status === "Ditolak" ? '#d3d3d3' :
-                          '#d3d3d3',  // default to grey if status is not recognized
+                    kk.Status === "Aktif"
+                      ? "#67ACE9"
+                      : kk.Status === "Menunggu Acc"
+                      ? "#ffcc00"
+                      : kk.Status === "None" || kk.Status === "Ditolak"
+                      ? "#6C757D"
+                      : "#6C757D", // default to grey if status is not recognized
                 }}
               >
                 {kk.Nama}
@@ -94,7 +93,9 @@ function CardPengajuan({
                   </a>
                   {kk.Status === "Aktif" ? (
                     "Tergabung"
-                  ) : kk.Status === "Ditolak" || kk.Status === "None" ? (
+                  ) : kk.Status === "Ditolak" ||
+                    kk.Status === "None" ||
+                    kk.Status === "Dibatalkan" ? (
                     <>
                       <Button
                         iconName="list"
