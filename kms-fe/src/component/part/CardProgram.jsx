@@ -76,7 +76,7 @@ const CardProgram = ({ isOpen, onChangePage }) => {
             <div className="col">
               <div
                 className="card card-kategori-program mt-3"
-                onClick={() => onChangePage("index")}
+                onClick={() => onChangePage("index","1")}
               >
                 <div className="card-body">
                   <div className="d-flex justify-content-between">
@@ -107,7 +107,7 @@ const CardProgram = ({ isOpen, onChangePage }) => {
             <div className="col">
               <div
                 className="card card-kategori-program mt-3"
-                onClick={() => onChangePage("index")}
+                onClick={() => onChangePage("index","1")}
               >
                 <div className="card-body">
                   <div className="d-flex justify-content-between">
@@ -137,7 +137,7 @@ const CardProgram = ({ isOpen, onChangePage }) => {
             <div className="col">
               <div
                 className="card card-kategori-program mt-3"
-                onClick={() => onChangePage("index")}
+                onClick={() => onChangePage("index","1")}
               >
                 <div className="card-body">
                   <div className="d-flex justify-content-between">

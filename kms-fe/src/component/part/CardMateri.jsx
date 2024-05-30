@@ -88,17 +88,19 @@ function CardMateri({
                 </div>
               </div>
               <div className="card-footer d-flex justify-content-end bg-white">
-                <button
-                  className="btn btn-sm text-primary"
-                  title="Edit Materi"
-                  onClick={() => onEdit("courseEdit",(book))}
-                >
-                  <i className="fas fa-edit"></i>
-                </button>
+                {book.Status === "Aktif" && (
+                  <button
+                    className="btn btn-sm text-primary"
+                    title="Edit Materi"
+                    onClick={() => onEdit("courseEdit", book)}
+                  >
+                    <i className="fas fa-edit"></i>
+                  </button>
+                )}
                 <button
                   className="btn btn-sm text-primary"
                   title="Detail Materi"
-                  onClick={() => onDetail("detail")}
+                  onClick={() => onDetail("courseDetail", book)}
                 >
                   <i className="fas fa-list"></i>
                 </button>

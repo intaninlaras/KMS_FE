@@ -38,9 +38,21 @@ export default function MasterCourseEdit({onChangePage,withID}) {
     mat_keterangan: withID.Keterangan,
     kry_id: "1",
     mat_kata_kunci:withID["Kata Kunci"],
-    mat_gambar: withID.Gambar,
-    // mat_status: withID.Status,
+    mat_gambar: "",
   });
+
+  // const formUpdateRef = useRef({
+  //   mat_id:withID.Key,
+  //   kat_id:"",
+  //   mat_judul: withID.Judul, 
+  //   mat_file_pdf: withID.File_P,
+  //   mat_file_vidio: withID.File_vidio,
+  //   mat_pengenalan: withID.Pengenalan,
+  //   mat_keterangan: withID.Keterangan,
+  //   kry_id: "1",
+  //   mat_kata_kunci:withID["Kata Kunci"],
+  //   mat_gambar: "FILE_1717049166708.jpg",
+  // });
 
   const userSchema = object({
     mat_id: string(),
@@ -53,7 +65,6 @@ export default function MasterCourseEdit({onChangePage,withID}) {
     kry_id: string(),
     mat_kata_kunci: string(),
     mat_gambar: string(),
-    //  mat_status: string(),
   });
 
   const handleInputChange = async (e) => {
@@ -136,81 +147,57 @@ export default function MasterCourseEdit({onChangePage,withID}) {
 
   const handleAdd = async (e) => {
     e.preventDefault();
-
-    const validationErrors = await validateAllInputs(
-      formDataRef.current,
-      userSchema,
-      setErrors
-    );
-
+    // Validasi data form
+    const validationErrors = await validateAllInputs(formDataRef.current, userSchema, setErrors);
     if (Object.values(validationErrors).every((error) => !error)) {
       setIsLoading(true);
-      setIsError((prevError) => {
-        return { ...prevError, error: false };
-      });
+      setIsError((prevError) => ({ ...prevError, error: false }));
       setErrors({});
-
+      // Promise upload file
       const uploadPromises = [];
-
       if (fileInputRef.current.files.length > 0) {
         uploadPromises.push(
           uploadFile(fileInputRef.current).then((data) => {
-            // console.log("File Upload Response:", JSON.stringify(data));
-            formDataRef.current["mat_file_pdf"] = data.newFileName;
+            formDataRef.current.mat_file_pdf = data.newFileName;
           })
         );
       }
-
       if (gambarInputRef.current.files.length > 0) {
         uploadPromises.push(
           uploadFile(gambarInputRef.current).then((data) => {
-            // console.log("Image Upload Response:", JSON.stringify(data));
-            formDataRef.current["mat_gambar"] = data.newFileName;
+            formDataRef.current.mat_gambar = data.newFileName;
           })
         );
       }
       if (vidioInputRef.current.files.length > 0) {
         uploadPromises.push(
           uploadFile(vidioInputRef.current).then((data) => {
-            // console.log("Image Upload Response:", JSON.stringify(data));
-            formDataRef.current["mat_file_vidio"] = data.newFileName;
+            formDataRef.current.mat_file_vidio = data.newFileName;
           })
         );
       }
-      console.log(fileInputRef.current);
-
+      // Setelah semua upload selesai
       Promise.all(uploadPromises).then(() => {
-        console.log(formDataRef.current.mat_gambar);
-        console.log(formDataRef.current.mat_file_pdf);
-        console.log(formDataRef.current.mat_file_vidio);
-         console.log("Final formDataRef:", JSON.stringify(formDataRef.current));
-        UseFetch(
-          API_LINK + "Materis/EditDataMateri",
-          formDataRef.current
-        )
+        // Log formDataRef akhir untuk memastikan semua field terisi dengan benar
+        console.log("Final formDataRef:", JSON.stringify(formDataRef.current));
+        UseFetch(API_LINK + "Materis/EditDataMateri", formDataRef.current)
           .then((data) => {
             if (data === "ERROR") {
-              setIsError((prevError) => {
-                return {
-                  ...prevError,
-                  error: true,
-                  message: "Terjadi kesalahan: Gagal mengedit data Materi.",
-                };
-              });
+              setIsError({ error: true, message: "Terjadi kesalahan: Gagal mengedit data Materi." });
             } else {
-              SweetAlert(
-                "Sukses",
-                "Data Materi berhasil diedit",
-                "success"
-              );
-              onChangePage("index")
+              
+              SweetAlert("Sukses", "Data Materi berhasil diedit", "success");
+              onChangePage("index");
             }
-
           })
-          .then(() => setIsLoading(false));
+          .catch((error) => {
+            setIsError({ error: true, message: `Terjadi kesalahan: ${error.message}` });
+          })
+          .finally(() => setIsLoading(false));
       });
     }
   };
+  
 
   
     
@@ -390,17 +377,17 @@ export default function MasterCourseEdit({onChangePage,withID}) {
         <div className="float my-4 mx-1">
           <Button
             classType="outline-secondary me-2 px-4 py-2"
-            label="Back"
+            label="Kembali"
             onClick={() => onChangePage("pretestAdd")}
           />
           <Button
             classType="primary ms-2 px-4 py-2"
             type="submit"
-            label="Save"
+            label="Simpan"
           />
           <Button
             classType="dark ms-3 px-4 py-2"
-            label="Next"
+            label="Berikutnya"
             onClick={() => onChangePage("sharingAdd")}
           />
         </div>

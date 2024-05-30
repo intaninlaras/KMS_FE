@@ -17,14 +17,14 @@ const inisialisasiData = [
   {
     Key: null,
     No: null,
-    "Kategori": null,
+    Kategori: null,
     Judul: null,
-    File: null,
+    File_pdf: null,
+    File_vidio: null,
     Pengenalan: null,
     Keterangan: null,
     "Kata Kunci": null,
     Gambar: null,
-    Creadate: null,
     Status: "Aktif",
     Count: 0,
   },
@@ -47,22 +47,19 @@ const dataFilterStatus = [
   { Value: "Tidak Aktif", Text: "Tidak Aktif" },
 ];
 
-export default function MasterProsesIndex({ onChangePage }) {
+export default function MasterProsesIndex({ onChangePage, withID }) {
   const [isError, setIsError] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [currentData, setCurrentData] = useState([inisialisasiData]);
-  const [filteredData, setFilteredData] = useState([]);
-  const [status, setStatus] = useState({});
+  const [currentData, setCurrentData] = useState(inisialisasiData);
   const [currentFilter, setCurrentFilter] = useState({
     page: 1,
-    status: "Aktif",
+    status: "Semua",
     query: "",
     sort: "Judul",
     order: "asc",
+   // Default status
   });
-  // useEffect(() => {
-  //   console.log("filter : "+JSON.stringify(currentFilter));
-  // })
+
   const searchQuery = useRef(null);
   const searchFilterSort = useRef(null);
   const searchFilterStatus = useRef(null);
@@ -73,7 +70,7 @@ export default function MasterProsesIndex({ onChangePage }) {
 
     SweetAlert(
       "Konfirmasi",
-      "Apakah Anda yakin ingin mengubah status data Pustaka?",
+      "Apakah Anda yakin ingin mengubah status data Materi?",
       "warning",
       "Ya",
     ).then((confirmed) => {
@@ -101,38 +98,37 @@ export default function MasterProsesIndex({ onChangePage }) {
 
   function handleSetCurrentPage(newCurrentPage) {
     setIsLoading(true);
-    setCurrentFilter((prevFilter) => {
-      return {
-        ...prevFilter,
-        page: newCurrentPage,
-      };
-    });
+    setCurrentFilter((prevFilter) => ({
+      ...prevFilter,
+      page: newCurrentPage,
+    }));
   }
 
   function handleSearch() {
     const searchTerm = searchQuery.current.value.toLowerCase();
-    setCurrentFilter({
-      ...currentFilter,
+    setCurrentFilter((prevFilter) => ({
+      ...prevFilter,
       query: searchTerm,
-    });
+    }));
   }
 
   function handleStatusChange(event) {
     const { value } = event.target;
-    setCurrentFilter({
-      ...currentFilter,
-      status: value,
-    });
+    const newStatus = value === "" ? "Semua" : value;
+    setCurrentFilter((prevFilter) => ({
+      ...prevFilter,
+      status: newStatus,
+    }));
   }
 
   function handleSortChange(event) {
     const { value } = event.target;
     const [sort, order] = value.split(" ");
-    setCurrentFilter({
-      ...currentFilter,
+    setCurrentFilter((prevFilter) => ({
+      ...prevFilter,
       sort,
       order,
-    });
+    }));
   }
 
   useEffect(() => {
@@ -140,13 +136,13 @@ export default function MasterProsesIndex({ onChangePage }) {
       setIsError(false);
       setIsLoading(true);
 
-       console.log("Filter: " + JSON.stringify(currentFilter));
+      console.log("Filter: " + JSON.stringify(currentFilter));
       try {
         const data = await UseFetch(
           API_LINK + "Materis/GetDataMateri",
           currentFilter
         );
-          console.log("Fetched data:", data);
+        console.log("Fetched data:", data);
 
         if (data === "ERROR") {
           setIsError(true);
@@ -156,26 +152,22 @@ export default function MasterProsesIndex({ onChangePage }) {
           const formattedData = data.map((value) => ({
             ...value,
           }));
-          // console.log("Formatted data:", formattedData);
-
           const promises = formattedData.map((value) => {
             const filePromises = [];
 
-            if (value["Gambar"]) {
+            if (value.Gambar) {
               const gambarPromise = fetch(
                 API_LINK +
-                `Utilities/Upload/DownloadFile?namaFile=${encodeURIComponent(
-                  value["Gambar"]
-                )}`
+                  `Utilities/Upload/DownloadFile?namaFile=${encodeURIComponent(
+                    value.Gambar
+                  )}`
               )
                 .then((response) => response.blob())
                 .then((blob) => {
                   const url = URL.createObjectURL(blob);
-                  // console.log("Gambar URL:", url);
                   value.gbr = value.Gambar;
-                  value.Gambar = url; // Simpan URL blob di objek value
+                  value.Gambar = url;
                   return value;
-                  // return { ...value, Gambar: url };
                 })
                 .catch((error) => {
                   console.error("Error fetching gambar:", error);
@@ -185,13 +177,12 @@ export default function MasterProsesIndex({ onChangePage }) {
             }
 
             return Promise.all(filePromises).then((results) => {
-              // console.log("Contents of filePromises:", filePromises);
-              // console.log("Results of fetching files:", results);
-              const updatedValue = results.reduce((acc, curr) => ({ ...acc, ...curr }), value);
-              // console.log("Updated value with blobs:", updatedValue);
+              const updatedValue = results.reduce(
+                (acc, curr) => ({ ...acc, ...curr }),
+                value
+              );
               return updatedValue;
             });
-
           });
 
           Promise.all(promises)
@@ -200,7 +191,7 @@ export default function MasterProsesIndex({ onChangePage }) {
               setCurrentData(updatedData);
             })
             .catch((error) => {
-              // console.error("Error updating currentData:", error);
+              console.error("Error updating currentData:", error);
             });
         }
       } catch (error) {
@@ -262,15 +253,15 @@ export default function MasterProsesIndex({ onChangePage }) {
                   label="Status"
                   type="semua"
                   arrData={dataFilterStatus}
-                  defaultValue="Aktif"
+                  defaultValue="Semua"
                   onChange={handleStatusChange}
                 />
               </Filter>
             </div>
           </div>
           <div className="mt-3">
-          {isLoading ? (
-          <Loading />
+            {isLoading ? (
+              <Loading />
             ) : (
               <div className="row">
                 <CardMateri
