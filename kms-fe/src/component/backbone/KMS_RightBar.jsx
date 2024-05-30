@@ -1,17 +1,70 @@
 import React, { useState, useEffect  } from "react";
 import Button from "../part/Button";
-import { ROOT_LINK } from "../util/Constants";
+import { PAGE_SIZE, API_LINK, ROOT_LINK } from "../util/Constants";
 import Icon from "../part/Icon";
+import UseFetch from "../util/UseFetch";
 import KMS_ProgressBar from "../part/KMS_ProgressBar";
+import axios from "axios";
 
-export default function KMS_Rightbar({ handlePreTestClick_close, handlePreTestClick_open }) {
+export default function KMS_Rightbar({ handlePreTestClick_close, handlePreTestClick_open, onChangePage }) {
   const [progress, setProgress] = useState(50);
   const [dropdowns, setDropdowns] = useState({});
   const [sidebarVisible, setSidebarVisible] = useState(true);
   const [widthDynamic, setwidthDynamic] = useState("");
   const [showElement, setShowElement] = useState(false);
   const [showMainContent_SideBar, setShowMainContent_SideBar] = useState(true);
+  const [isError, setIsError] = useState(false);
+  const [errors, setErrors] = useState({});
+  const [isLoading, setIsLoading] = useState(true);
+  const [currentData, setCurrentData] = useState([]);
   
+  // const fetchDataProgres = async () => {
+  //   try {
+  //     const response = await axios.post("http://localhost:8080/Materis/GetProgresMateri", {
+  //       materiId: '1',
+  //       karyawanId: '1',
+  //     });
+  //     return response.data;
+  //   } catch (error) {
+  //     console.error("Error fetching forum data:", error);
+  //     throw error; 
+  //   }
+  // };
+  const fetchDataProgres = async () => {
+    try {
+      const response = await axios.post("http://localhost:8080/Materis/GetProgresMateri", {
+        materiId: '1',
+        karyawanId: '1',
+      });
+      if (response.data.length === 0) {
+        // Return a default data structure with TotalProgres set to 0
+        return [{ Key: 'default', TotalProgres: 0 }];
+      }
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching forum data:", error);
+      throw error;
+    }
+  };
+
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setIsError(false);
+      setIsLoading(true);
+      try {
+        const data = await fetchDataProgres();
+        setCurrentData(data);
+      } catch (error) {
+        setIsError(true);
+        console.error("Fetch error:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   const toggleDropdown = (name) => {
     setDropdowns((prev) => ({ ...prev, [name]: !prev[name] }));
@@ -70,8 +123,8 @@ export default function KMS_Rightbar({ handlePreTestClick_close, handlePreTestCl
     sidebarItem: {
       fontFamily: 'Arial, sans-serif',
       paddingBottom: '7%',
-      paddingTop:"7%",
-      width:"100%"
+      paddingTop: "7%",
+      width: "100%"
     },
     buttonDropdown: {
       cursor: 'pointer'
@@ -95,18 +148,23 @@ export default function KMS_Rightbar({ handlePreTestClick_close, handlePreTestCl
       fontSize: '14px',
       color: 'black',
       textDecoration: 'none',
+      background: 'none',
+      border: 'none',
+      padding: 0,
+      cursor: 'pointer',
+      width: '100%',
+      textAlign: 'left'
     }
   };
+
+
 
   const dropdownData = [
     { 
       name: 'Materi', 
       items: [
-        { label: 'Sub-materi 1', href: ROOT_LINK + "/master_test/sub_materi1" },
-        { label: 'Sub-materi 2', href: ROOT_LINK + "/master_test/sub_materi2" },
-        { label: 'Sub-materi 3', href: ROOT_LINK + "/master_test/sub_materi3" },
-        { label: 'Sub-materi 4', href: ROOT_LINK + "/master_test/sub_materi4" },
-        { label: 'Sub-materi 5', href: ROOT_LINK + "/master_test/sub_materi5" }
+        { label: 'Materi PDF', href: ROOT_LINK + "/sharing_expert/materi_pdf" },
+        { label: 'Materi Video', href: ROOT_LINK + "/sharing_expert/materi_video" }
       ], 
       countDone: 5 
     },
@@ -146,17 +204,15 @@ export default function KMS_Rightbar({ handlePreTestClick_close, handlePreTestCl
     window.location.href = ROOT_LINK + "/master_test/forum";
   }
 
-
   function onClick_postTest() {
     window.location.href = ROOT_LINK + "/master_test/post-test";
   }
 
   function onClick_preTest() {
-    window.location.href = ROOT_LINK + "/master_test/soal-preTest";
+    window.location.href = ROOT_LINK + "/preTest";
   }
-
   return (
-    <div className="border-start h-100 pt-2 overflow-y-auto position-fixed" style={{right:"10px", width: widthDynamic}}>
+    <div className="h-100 pt-2 overflow-y-auto position-fixed" style={{right:"10px", width: widthDynamic}}>
       <div className="px-2 collapseTrue">
         { showElement && 
           <div className="" style={button_listOfLearningStyle}>
@@ -182,17 +238,22 @@ export default function KMS_Rightbar({ handlePreTestClick_close, handlePreTestCl
               fontWeight: 'bold', 
               fontSize: '22px'
             }}>
-              List of Learning
+              Daftar Pembelajaran
             </span>
           </div>
           <div className="border-top border-bottom" style={progressStyle}>
-            <KMS_ProgressBar progress={progress}/>
-            <span style={{ fontSize: '14px' }}>
-              {progress}% Complete</span>
+            {currentData.map((item) => (
+              <div key={item.Key}>
+                <KMS_ProgressBar progress={item.TotalProgres} />
+                <span style={{ fontSize: '14px', marginLeft: '8px' }}>
+                  {item.TotalProgres}% Selesai
+                </span>
+              </div>
+            ))}
           </div>
           <div className="border-top" style={contentSidebarStyle}>
             <div style={styles.sidebarItem}>
-              <a href="#" style={styles.link} onClick={onClick_preTest}>Pre-Test</a>
+              <button  style={styles.link} onClick={onClick_preTest}>Pre-Test</button >
             </div>
             <div className="dropDown_menu">
               {dropdownData.map((dropdown, index) => (
@@ -238,10 +299,10 @@ export default function KMS_Rightbar({ handlePreTestClick_close, handlePreTestCl
               ))}
             </div>
             <div style={styles.sidebarItem}>
-              <a href="#" style={styles.link} onClick={onClick_forum}>Forum</a>
+              <button style={styles.link} onClick={onClick_forum}>Forum</button>
             </div>
             <div style={styles.sidebarItem}>
-              <a href="#" style={styles.link} onClick={onClick_postTest}>Post-Test</a>
+              <button  style={styles.link} onClick={onClick_postTest}>Post-Test</button>
             </div>
           </div>
         </div>

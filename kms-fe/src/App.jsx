@@ -27,14 +27,6 @@ import MasterTest_MateriVideo from "./component/page/master-test/MateriVideo";
 import MasterTest_Forum from "./component/page/master-test/Forum";
 
 export default function App() {
-  const Show_SideBar = ({ children, routes, currentPath }) => {
-      const isSidebarVisible = !routes.find(route => route.path === currentPath)?.hideSideBar;
-
-      return (
-          <div>{isSidebarVisible && children}</div>
-      );
-  };
-
   const router = createBrowserRouter([
     {
       path: "/",
@@ -75,21 +67,22 @@ export default function App() {
     {
       path: "/master_test/soal-postTest",
       element: <MasterTest_Test />,
-      hideSideBar: true ,
     },
     {
       path: "/master_test/soal-preTest",
-      element: <MasterTest_PreTest />,
-      hideSideBar: true ,
+      element: <MasterTest_HasilTest />,
     },
     {
       path: "/master_posttest",
       element: <MasterPostTest />,
     },
     {
+      path: "/pretest",
+      element: <MasterTest_PreTest />,
+    },
+    {
       path: "/soal_pretest",
       element: <MasterTest_Test />,
-      hideSideBar: true ,
     },
     {
       path: "/hasil_test",
@@ -117,15 +110,12 @@ export default function App() {
     }
   ]);
 
-  const currentPath = window.location.pathname;
-  const isSidebarVisible = !router.routes.find(route => route.path === currentPath)?.hideSideBar;
-
   return (
     <>
       <Header />
       <div style={{ marginTop: '70px' }}></div>
       <div className="d-flex flex-row">
-        {/* <SideBar /> */}
+        <SideBar />
         <Container>
           <RouterProvider router={router} />
         </Container>

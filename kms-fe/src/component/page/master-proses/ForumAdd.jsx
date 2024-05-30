@@ -163,7 +163,6 @@ export default function MasterPelangganAdd({ onChangePage }) {
                   type="text"
                   forInput="namaProduk"
                   label="Forum Title"
-          
                 />
               </div>
               <div className="col-lg-12">

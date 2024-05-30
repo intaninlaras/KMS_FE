@@ -48,14 +48,14 @@ export default function MasterTestIndex({ onChangePage }) {
     sort: "[Kode Test] asc",
     status: "Aktif",
   });
-  const [marginRight, setMarginRight] = useState("40vh");
+  const [marginRight, setMarginRight] = useState("48vh");
 
   function handlePreTestClick_close() {
     setMarginRight("0vh");
   }
 
   function handlePreTestClick_open() {
-    setMarginRight("40vh");
+    setMarginRight("48vh");
   }
 
   const searchQuery = useRef();
@@ -85,62 +85,26 @@ export default function MasterTestIndex({ onChangePage }) {
     });
   }
 
-  function handleSetStatus(id) {
-    setIsLoading(true);
-    setIsError(false);
-    UseFetch(API_LINK + "MasterTest/SetStatusTest", {
-      idTest: id,
-    })
-      .then((data) => {
-        if (data === "ERROR" || data.length === 0) setIsError(true);
-        else {
-          SweetAlert(
-            "Sukses",
-            "Status data Test berhasil diubah menjadi " + data[0].Status,
-            "success"
-          );
-          handleSetCurrentPage(currentFilter.page);
-        }
-      })
-      .then(() => setIsLoading(false));
-  }
+  
+  useEffect(() => {
+    document.documentElement.style.setProperty('--responsiveContainer-margin-left', '0vw');
+    const sidebarMenuElement = document.querySelector('.sidebarMenu');
+    if (sidebarMenuElement) {
+      sidebarMenuElement.classList.add('sidebarMenu-hidden');
+    }
+  }, []);
 
   function handleStartPostTest() {
-    window.location.href = ROOT_LINK + "/master_test/soal-postTest";
+    const quizType = "Posttest"; // Ganti dengan nilai yang sesuai
+    const quizId = "2"; // Ganti dengan nilai yang sesuai
+    const newUrl = `${ROOT_LINK}/master_test/soal-postTest?quizType=${encodeURIComponent(quizType)}&quizId=${encodeURIComponent(quizId)}`;
+    window.location.href = newUrl;
   }
 
   function handleDetailAction() {
     window.location.href = ROOT_LINK + "/master_test";
   }
 
-  useEffect(() => {
-    setIsError(false);
-    UseFetch(API_LINK + "MasterTest/GetDataTest", currentFilter)
-      .then((data) => {
-        if (data === "ERROR") 
-        //Harusnya true
-        setIsError(false);
-        else if (data.length === 0) setCurrentData(inisialisasiData);
-        else {
-          const formattedData = data.map((value) => {
-            return {
-              ...value,
-              Aksi: ["Toggle", "Detail", "Edit"],
-              Alignment: [
-                "center",
-                "center",
-                "left",
-                "left",
-                "center",
-                "center",
-              ],
-            };
-          });
-          setCurrentData(formattedData);
-        }
-      })
-      .then(() => setIsLoading(false));
-  }, [currentFilter]);
 
   const circleStyle = {
     width: '50px',
@@ -230,9 +194,9 @@ export default function MasterTestIndex({ onChangePage }) {
                   <h3 className="font-weight-bold">Riwayat</h3>
                   <Table
                     data={dummyData}
-                    onToggle={handleSetStatus}
+                    // onToggle={handleSetStatus}
                     onDetail={handleDetailAction}
-                    onEdit={onChangePage}
+                    // onEdit={onChangePage}
                   />
                 </div>
               </div>

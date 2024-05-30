@@ -71,16 +71,16 @@ export default function MasterProdukAdd({ onChangePage }) {
     let error = "";
 
     if (fileSize / 1024576 > 10) error = "berkas terlalu besar";
-    else if (!extAllowed.split(",").includes(fileExt))
-      error = "format berkas tidak valid";
+      else if (!extAllowed.split(",").includes(fileExt))
+        error = "format berkas tidak valid";
 
-    if (error) ref.current.value = "";
+      if (error) ref.current.value = "";
 
-    setErrors((prevErrors) => ({
-      ...prevErrors,
-      [validationError.name]: error,
-    }));
-  };
+      setErrors((prevErrors) => ({
+        ...prevErrors,
+        [validationError.name]: error,
+      }));
+    };
 
   const handleAdd = async (e) => {
     e.preventDefault();

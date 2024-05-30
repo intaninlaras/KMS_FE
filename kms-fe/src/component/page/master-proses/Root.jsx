@@ -6,7 +6,7 @@ import MasterForumAdd from "./ForumAdd";
 import MasterPostTestAdd from "./PostTestAdd";
 import MasterSharingAdd from "./SharingAdd";
 import PilihKelompokKeahlian from "./Kelompok_Keahlian";
-
+import "../../../index.css";
 export default function MasterProses() {
   const [pageMode, setPageMode] = useState("kk");
   const [dataID, setDataID] = useState();

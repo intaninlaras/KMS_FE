@@ -185,7 +185,7 @@ export default function MasterTestIndex({ onChangePage }) {
             <Loading />
           ) : (
             <>
-              <div style={{ marginRight: "40vh" }}>
+              <div style={{ marginRight: "48vh" }}>
                 <div
                   className="d-flex align-items-center mb-5"
                   >

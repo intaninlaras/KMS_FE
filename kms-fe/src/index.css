@@ -1,4 +1,4 @@
-/* a div:hover {
+a div:hover {
   background-color: #eee;
 }
  
@@ -6,16 +6,26 @@
   width: 13vw;
 }
 
-.responsiveContainer {
-  margin-left: 13vw;
+.sidebarMenu-hidden {
+  display: none;
 }
+:root {
+  --responsiveContainer-margin-left: 13vw;
+  --sidebarMenu-width: 13vw;
+}
+
+.responsiveContainer {
+  margin-left: var(--responsiveContainer-margin-left);
+}
+
 
 @media only screen and (max-width: 1280px) {
   .sidebarMenu {
+    width: var(---sidebarMenu-width);
+  }
+  :root {
+    --responsiveContainer-margin-left: 0;
+  }.sidebarMenu-hidden {
     display: none;
   }
-
-  .responsiveContainer {
-    margin-left: 0;
-  }
-} */
+}

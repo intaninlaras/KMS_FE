@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import axios from 'axios';
 import { PAGE_SIZE, API_LINK, ROOT_LINK } from "../../util/Constants";
 import SweetAlert from "../../util/SweetAlert";
 import UseFetch from "../../util/UseFetch";
@@ -52,14 +53,46 @@ export default function MasterTestIndex({ onChangePage }) {
     sort: "[Kode Test] asc",
     status: "Aktif",
   });
-  const [marginRight, setMarginRight] = useState("40vh");
+
+  
+  const formUpdate = useRef({
+    materiId:"1",
+    karyawanId: "1",
+    totalProgress: "0", 
+    statusMateri_PDF: "",
+    statusMateri_Video: "Done",
+    statusSharingExpert_PDF: "",
+    statusSharingExpert_Video: "",
+    createdBy: "Fahriel",
+  });
+
+  async function saveProgress() {
+    try {
+      await axios.post("http://localhost:8080/Materis/SaveProgresMateri", formUpdate.current);
+    } catch (error) {
+      console.error("Failed to save progress:", error);
+    }
+  }
+  
+  useEffect(() => {
+    document.documentElement.style.setProperty('--responsiveContainer-margin-left', '0vw');
+    const sidebarMenuElement = document.querySelector('.sidebarMenu');
+    if (sidebarMenuElement) {
+      sidebarMenuElement.classList.add('sidebarMenu-hidden');
+    }
+  }, []);
+  useEffect(() => {
+    saveProgress();
+  }, []);
+
+  const [marginRight, setMarginRight] = useState("48vh");
 
   function handlePreTestClick_close() {
     setMarginRight("0vh");
   }
 
   function handlePreTestClick_open() {
-    setMarginRight("40vh");
+    setMarginRight("48vh");
   }
 
   const searchQuery = useRef();

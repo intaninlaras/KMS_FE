@@ -4,6 +4,11 @@ import UseFetch from "../../util/UseFetch";
 import Alert from "../../part/Alert";
 import profilePicture from "../../../assets/tes.jpg";
 import KMS_Rightbar from "../../backbone/KMS_RightBar";
+import { validateAllInputs, validateInput } from "../../util/ValidateForm";
+import axios from "axios";
+import Input from "../../part/Input";
+import { object, string } from "yup";
+import fetchData from "../../util/UseFetch";
 
 const inisialisasiData = [
   {
@@ -17,115 +22,254 @@ const inisialisasiData = [
   },
 ];
 
-export default function MasterTestIndex({ onChangePage }) {
+export default function Forum({ onChangePage }) {
   const [isError, setIsError] = useState(false);
+  const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(true);
-  const [currentData, setCurrentData] = useState(inisialisasiData);
-  const [currentFilter, setCurrentFilter] = useState({
-    page: 1,
-    query: "",
-    sort: "[Kode Test] asc",
-    status: "Aktif",
+  const [currentData, setCurrentData] = useState([]);
+  const [marginRight, setMarginRight] = useState("48vh");
+  const [widthReply, setWidthReply] = useState("75%");
+  const [replyMessage, setReplyMessage] = useState("");
+  const [showReplyInput, setShowReplyInput] = useState(false);
+  const formDataRef = useRef({
+    forumId:"001",
+    karyawanId: "1", 
+    isiDetailForum: "",
+    statusDetailForum: "Aktif",
+    createdBy: "I Made Dananjaya Adyatma",
+    detailId: "001",
   });
-  const [marginRight, setMarginRight] = useState("40vh");
-  const [textValue, setTextValue] = useState("");
-  const [replyText, setReplyText] = useState("");
-  const [messages, setMessages] = useState([]);
+
+  const handleReply = (item) => {
+    formDataRef.current = {
+      forumId: "001",
+      karyawanId: "1",
+      isiDetailForum: "",
+      statusDetailForum: "Aktif",
+      createdBy: "I Made Dananjaya Adyatma",
+      detailId: item.DetailId,
+    };
+    setReplyMessage(`Membalas: ${item.IsiDetailForum}`); 
+    setShowReplyInput(true); 
+  };
+
+  const handleCancelReply = () => {
+    setReplyMessage(""); 
+    formDataRef.current = {
+      forumId: "001",
+      karyawanId: "1",
+      isiDetailForum: "",
+      statusDetailForum: "Aktif",
+      createdBy: "I Made Dananjaya Adyatma",
+      detailId: "001",
+    };
+    setShowReplyInput(false); 
+  };
+
+  const userSchema = object({
+    isiDetailForum: string(),
+  });
 
 
   function handlePreTestClick_close() {
-    setMarginRight("0vh");
+    setMarginRight("10vh");
+    setWidthReply("93%")
   }
 
   function handlePreTestClick_open() {
-    setMarginRight("40vh");
+    setMarginRight("48vh");
+    setWidthReply("75%")
   }
 
-  function handleSendReply() {
-    if (replyText.trim() !== "") {
-      setMessages([...messages, { text: replyText, sender: "Me" }]);
-      setReplyText("");
+  const fetchForumData = async () => {
+    try {
+      const response = await axios.post("http://localhost:8080/Forum/GetDataForum", {
+        materiId: '1',
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching forum data:", error);
+      throw error; 
     }
-  }
+  };
+  
+  const handleSendReply = async (e) => {
+    const validationErrors = await validateAllInputs(
+      formDataRef.current,
+      userSchema,
+      setErrors
+    );
+
+    if (Object.values(validationErrors).every((error) => !error)) {
+      setIsLoading(true);
+      setIsError((prevError) => {
+        return { ...prevError, error: false };
+      });
+      setErrors({});
+    }
+    // console.log("Data yang dikirim ke backend:", formDataRef.current);
+    try {
+      const response = await axios.post(
+        "http://localhost:8080/Forum/SaveTransaksiForum",
+        formDataRef.current
+      );
+      const updatedForumData = await fetchForumData();
+      setCurrentData(updatedForumData); 
+      formDataRef.current.isiDetailForum = "";
+      handleCancelReply()
+    } catch (error) {
+      console.error("Error sending reply:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setIsError(false);
+      setIsLoading(true);
+
+      try {
+        const data = await fetchForumData();
+        setCurrentData(data);
+      } catch (error) {
+        setIsError(true);
+        console.error("Fetch error:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  const handleInputChange = async (e) => {
+    const { name, value } = e.target;
+    const validationError = await validateInput(name, value, userSchema);
+    formDataRef.current[name] = value;
+    setErrors((prevErrors) => ({
+      ...prevErrors,
+      [validationError.name]: validationError.error,
+    }));
+  };
 
   const renderMessages = () => {
-    return messages.map((message, index) => (
-      <div key={index} className={message.sender === "Me" ? "text-right" : ""}>
-        
-        <div className="card p-3 mb-3">
-                <div className="d-flex align-items-center mb-3">
-                  <div
-                    className="rounded-circle overflow-hidden d-flex justify-content-center align-items-center"
-                    style={{ ...circleStyle, ...profileStyle }}
-                  >
-                    <img
-                      src={profilePicture}
-                      alt="Profile Picture"
-                      className="align-self-start"
-                      style={{
-                        width: "680%",
-                        height: "auto",
-                        position: "relative",
-                        right: "25px",
-                        bottom: "40px",
-                      }}
-                    />
-                  </div>
-                  
-                  
-                  <div >
-                    <h6 className="mb-0" style={{ fontSize: "14px" }}>
-                      Re : Contoh Secondary Memory
-                    </h6>
-                    <h6 className="mb-0" style={nameStyle}>
-                      I Made Dananjaya Adyatma - 03 Agustus 2022
-                    </h6>
-                  </div>
-                </div>
-                <p
-                  className="mb-0"
+    return currentData.map((item) => (
+      item.DetailId !== null && (
+        <div key={item.Key} className="text-right">
+          <div className="card p-3 mb-3">
+            <div className="d-flex align-items-center mb-3">
+              <div
+                className="rounded-circle overflow-hidden d-flex justify-content-center align-items-center"
+                style={{ ...circleStyle, ...profileStyle }}
+              >
+                <img
+                  // src={profilePicture}
+                  alt="Profile Picture"
+                  className="align-self-start"
                   style={{
-                    maxWidth: "1500px",
-                    marginBottom: "0px",
-                    fontSize: "14px",
-                    textAlign: "left",
-                    marginLeft: "10px", 
-                    
+                    width: "680%",
+                    height: "auto",
+                    position: "relative",
+                    right: "25px",
+                    bottom: "40px",
                   }}
-                >
-                {message.text}
-                                 </p>
+                />
               </div>
+              <div>
+                <h6 className="mb-0" style={{ fontSize: "14px" }}>
+                  Membalas: 
+                  {(() => {
+                    const foundItem = currentData.find((dataItem) => dataItem.DetailId === item.ChildDetailId);
+                    if (foundItem) {
+                      return " " + foundItem.IsiDetailForum;
+                    } else {
+                      return " " + item.JudulForum;
+                    }
+                  })()}
+                </h6>
+                <h6 className="mb-0" style={nameStyle}>
+                  {item.CreatedByDetailForum} - {formatDate(item.CreatedDateDetailForum)}
+                </h6>
+              </div>
+            </div>
+            <div className="d-flex justify-content-between align-items-center">
+              <p
+                className="mb-0"
+                style={{
+                  maxWidth: "1500px",
+                  marginBottom: "0px",
+                  fontSize: "14px",
+                  textAlign: "left",
+                  marginLeft: "10px",
+                  flex: 1
+                }}
+              >
+                {item.IsiDetailForum}
+              </p>
+              <button
+                className="btn btn-outline-primary btn-sm"
+                onClick={() => handleReply(item)}
+                style={{ marginLeft: "10px" }}
+              >
+                Balas
+              </button>
+            </div>
+            
+          </div>
+        </div>
+      )
+    ));
+  };
+
+  const renderJudulForum = () => {
+    return currentData.slice(0,1).map((item) => (
+      <div key={item.DetailId} className="text-right">
+        <div className="card p-3 mb-3">
+          <div className="d-flex align-items-center mb-3">
+            <div
+              className="rounded-circle overflow-hidden d-flex justify-content-center align-items-center"
+              style={{ ...circleStyle, ...profileStyle }}
+            >
+              <img
+                // src={profilePicture}
+                alt="Profile Picture"
+                className="align-self-start"
+                style={{
+                  width: "680%",
+                  height: "auto",
+                  position: "relative",
+                  right: "25px",
+                  bottom: "40px",
+                }}
+              />
+            </div>
+            <div>
+              <h6 className="mb-0" style={{ fontSize: "14px" }}>
+                {item.JudulForum}
+              </h6>
+              <h6 className="mb-0" style={nameStyle}>
+                {item.CreatedByForum} - {formatDate(item.CreatedDateForum)}
+              </h6>
+            </div>
+          </div>
+          <p
+            className="mb-0"
+            style={{
+              maxWidth: "1500px",
+              marginBottom: "0px",
+              fontSize: "14px",
+              textAlign: "left",
+              marginLeft: "10px",
+            }}
+          >
+            {item.IsiForum}
+          </p>
+        </div>
       </div>
     ));
   };
 
-  useEffect(() => {
-    setIsError(false);
-    UseFetch(API_LINK + "MasterTest/GetDataTest", currentFilter)
-      .then((data) => {
-        if (data === "ERROR") setIsError(false);
-        else if (data.length === 0) setCurrentData(inisialisasiData);
-        else {
-          const formattedData = data.map((value) => {
-            return {
-              ...value,
-              Aksi: ["Toggle", "Detail", "Edit"],
-              Alignment: [
-                "center",
-                "center",
-                "left",
-                "left",
-                "center",
-                "center",
-              ],
-            };
-          });
-          setCurrentData(formattedData);
-        }
-      })
-      .then(() => setIsLoading(false));
-  }, [currentFilter]);
 
   const circleStyle = {
     width: "30px",
@@ -143,6 +287,7 @@ export default function MasterTestIndex({ onChangePage }) {
   const nameStyle = {
     fontSize: "12px",
     marginBottom: "15px",
+    color:'grey',
   };
 
   const textBoxStyle = {
@@ -154,9 +299,27 @@ export default function MasterTestIndex({ onChangePage }) {
     marginTop: "10px",
   };
 
-  const handleTextChange = (e) => {
-    setTextValue(e.target.value);
+  useEffect(() => {
+    document.documentElement.style.setProperty('--responsiveContainer-margin-left', '0vw');
+    const sidebarMenuElement = document.querySelector('.sidebarMenu');
+    if (sidebarMenuElement) {
+      sidebarMenuElement.classList.add('sidebarMenu-hidden');
+    }
+  }, []);
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    const options = { 
+      weekday: "long", 
+      year: "numeric", 
+      month: "long", 
+      day: "numeric", 
+      hour: "2-digit", 
+      minute: "2-digit" 
+    };
+
+    return new Intl.DateTimeFormat('id-ID', options).format(date);
   };
+
 
   return (
     <>
@@ -165,152 +328,54 @@ export default function MasterTestIndex({ onChangePage }) {
           handlePreTestClick_close={handlePreTestClick_close}
           handlePreTestClick_open={handlePreTestClick_open}
         />
-        {isError && (
-          <div className="flex-fill">
-            <Alert
-              type="warning"
-              message="Terjadi kesalahan: Gagal mengambil data Test."
-            />
-          </div>
-        )}
-        <div className="flex-fill"></div>
         <div className="mt-3 ">
           <>
-            <div style={{ marginRight: marginRight }}>         
-               
-              <div className="card p-3 mb-3">
-                <div className="d-flex align-items-center mb-3">
-                  <div
-                    className="rounded-circle overflow-hidden d-flex justify-content-center align-items-center"
-                    style={{ ...circleStyle, ...profileStyle }}
-                  >
-                    <img
-                      src={profilePicture}
-                      alt="Profile Picture"
-                      className="align-self-start"
-                      style={{
-                        width: "680%",
-                        height: "auto",
-                        position: "relative",
-                        right: "25px",
-                        bottom: "40px",
-                      }}
-                    />
-                  </div>
-                  
-                  <div>
-                    <h6 className="mb-0" style={{ fontSize: "14px" }}>
-                      Contoh Secondary Memory
-                    </h6>
-                    <h6 className="mb-0" style={nameStyle}>
-                      Fahriel Dwifaldi - 03 Agustus 2022
-                    </h6>
-                  </div>
-                </div>
-                <div className="text-center">
-                  
-                          <p
-            className="mb-0"
-            style={{
-              maxWidth: "600px",
-              marginBottom: "0px",
-              fontSize: "14px",
-              textAlign: "left",
-              marginLeft: "10px", 
-              
-            }}
-          >
-            1. Apa pengertian dari secondary memory!<br/>
-            2. Sebutkan dan Jelaskan contoh secondary memory!<br/>
-            3. Laptop yang kalian guanakan menggunakan secondary memory tipe apa?
-          </p>
-
-                </div>
-              </div>
-              <div className="card p-3 mb-3">
-                <div className="d-flex align-items-center mb-3">
-                  <div
-                    className="rounded-circle overflow-hidden d-flex justify-content-center align-items-center"
-                    style={{ ...circleStyle, ...profileStyle }}
-                  >
-                    <img
-                      src={profilePicture}
-                      alt="Profile Picture"
-                      className="align-self-start"
-                      style={{
-                        width: "680%",
-                        height: "auto",
-                        position: "relative",
-                        right: "25px",
-                        bottom: "40px",
-                      }}
-                    />
-                  </div>
-                  
-                  
-                  <div >
-                    <h6 className="mb-0" style={{ fontSize: "14px" }}>
-                      Re : Contoh Secondary Memory
-                    </h6>
-                    <h6 className="mb-0" style={nameStyle}>
-                      I Made Dananjaya Adyatma - 03 Agustus 2022
-                    </h6>
-                  </div>
-                </div>
-                <p
-                  className="mb-0"
-                  style={{
-                    maxWidth: "1500px",
-                    marginBottom: "0px",
-                    fontSize: "14px",
-                    textAlign: "left",
-                    marginLeft: "10px", 
+              <div style={{ marginRight: marginRight }}>
+                {renderJudulForum()}
+                {renderMessages()}
+                <div style={{marginTop:'100px'}}></div>
+                {showReplyInput && (
+                  <div className="reply-batal input-group mb-3" style={{ position: 'fixed', bottom: '60px', left: '15px', zIndex: '999', maxWidth:widthReply, boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.3)', borderRadius: '8px', backgroundColor: '#ffffff', padding: '10px', display: 'flex', alignItems: 'center' }}>
+                    <p style={{ marginBottom: '20px', color: 'gray', flex:'1' }}>{replyMessage}</p>
                     
-                  }}
-                >
-                 Nama : I Made Dananjaya Adyatma <br/>
-                 Kelas : MI 2C<br/>
-                 NIM : 0320220067<br/><br/>
-
-                 1. Secondary Memory ialah Secondary memory, dalam konteks komputer, mengacu pada media penyimpanan data yang dapat menyimpan informasi secara permanen atau semi-permanen di luar memori utama komputer. <br/><br/>
-                 2. Contoh dari secondary memory termasuk:<br/>
-                 
-                 Hard Disk Drive: Ini adalah media penyimpanan yang paling umum digunakan di komputer pribadi. HDD menggunakan piringan magnetis yang berputar dengan kecepatan tinggi untuk menyimpan data.<br/>
-                 Solid State Drive: Mirip dengan HDD, tetapi tidak memiliki bagian yang bergerak. SSD menggunakan sirkuit terintegrasi untuk menyimpan data, membuatnya lebih cepat daripada HDD dalam membaca dan menulis data.<br/>
-                 Flash Drive: Ini adalah perangkat penyimpanan portabel yang menggunakan teknologi flash memory untuk menyimpan data. Mereka kecil, ringan, dan mudah dibawa-bawa.<br/>
-                 Memory Cards: Kartu memori seperti Secure Digital (SD), CompactFlash (CF), dan lainnya digunakan dalam perangkat seperti kamera digital, ponsel cerdas, dan perangkat portabel lainnya untuk menyimpan foto, video, dan data lainnya.<br/>
-                 Optical Drives: Termasuk CD-ROM, DVD-ROM, dan Blu-ray Disc, optical drives menggunakan cahaya laser untuk membaca dan menulis data ke dalam media optik.<br/><br/>
-
-                 3. SSD
-                                 </p>
+                    <div className="input-group-append">
+                      <button
+                        className="btn btn-danger btn-sm flex-end"
+                        type="button"
+                        onClick={handleCancelReply}
+                        style={{  marginLeft:'100px', marginBottom:'20px'}}
+                      >
+                        Batal
+                      </button>
+                    </div>
+                  </div>
+                )}
+                <div className="reply input-group mb-3" style={{ position: 'fixed', bottom: '20px', left: '15px', zIndex: '999', maxWidth:widthReply, boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.3)', borderRadius: '8px', backgroundColor: '#ffffff', padding: '10px', display: 'flex', alignItems: 'center' }}>
+                  <Input
+                    type="text"
+                    forInput="isiDetailForum"
+                    className="form-control"
+                    placeholder="Ketik pesan..."
+                    value={formDataRef.current.isiDetailForum}
+                    errorMessage={errors.isiDetailForum}
+                    onChange={handleInputChange}
+                    style={{ flex: '1', marginRight: '10px' }}
+                  />
+                  <div className="input-group-append">
+                    <button
+                      className="btn btn-primary"
+                      type="button"
+                      onClick={handleSendReply}
+                      style={{ minWidth: '80px' }}
+                    >
+                      Kirim
+                    </button>
+                  </div>
+                </div>
               </div>
-              {renderMessages()}
-              <div className="input-group mb-3" >
-                
-              <input
-                type="text"
-                className="form-control"
-                placeholder="Ketik pesan..."
-                value={replyText}
-                onChange={(e) => setReplyText(e.target.value)}
-              />
-              <div className="input-group-append">
-                <button
-                  className="btn btn-primary"
-                  type="button"
-                  onClick={handleSendReply}
-                >
-                  Kirim
-                </button>
-              
-            </div>
-            </div>
-            </div>
           </>
         </div>
-        
       </div>
-      
     </>
   );
 }

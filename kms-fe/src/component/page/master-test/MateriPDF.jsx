@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import axios from 'axios';
 import { PAGE_SIZE, API_LINK, ROOT_LINK } from "../../util/Constants";
 import SweetAlert from "../../util/SweetAlert";
 import UseFetch from "../../util/UseFetch";
@@ -49,11 +50,34 @@ export default function MasterTestIndex({ onChangePage }) {
     sort: "[Kode Test] asc",
     status: "Aktif",
   });
-  const [marginRight, setMarginRight] = useState("40vh");
+  const [marginRight, setMarginRight] = useState("48vh");
 
   const searchQuery = useRef();
   const searchFilterSort = useRef();
   const searchFilterStatus = useRef();
+
+  const formUpdate = useRef({
+    materiId:"1",
+    karyawanId: "1",
+    totalProgress: "0", 
+    statusMateri_PDF: "Done",
+    statusMateri_Video: "",
+    statusSharingExpert_PDF: "",
+    statusSharingExpert_Video: "",
+    createdBy: "Fahriel",
+  });
+
+  async function saveProgress() {
+    try {
+      await axios.post("http://localhost:8080/Materis/SaveProgresMateri", formUpdate.current);
+    } catch (error) {
+      console.error("Failed to save progress:", error);
+    }
+  }
+
+  useEffect(() => {
+    saveProgress();
+  }, []);
 
   function handleSetCurrentPage(newCurrentPage) {
     setIsLoading(true);
@@ -78,13 +102,12 @@ export default function MasterTestIndex({ onChangePage }) {
     });
   }
 
-  
   function handlePreTestClick_close() {
     setMarginRight("10vh");
   }
 
   function handlePreTestClick_open() {
-    setMarginRight("40vh");
+    setMarginRight("48vh");
   }
 
   function handleSetStatus(id) {
@@ -111,6 +134,13 @@ export default function MasterTestIndex({ onChangePage }) {
     window.location.href = ROOT_LINK + "/master_test/soal-test";
   }
 
+  useEffect(() => {
+    document.documentElement.style.setProperty('--responsiveContainer-margin-left', '0vw');
+    const sidebarMenuElement = document.querySelector('.sidebarMenu');
+    if (sidebarMenuElement) {
+      sidebarMenuElement.classList.add('sidebarMenu-hidden');
+    }
+  }, []);
   useEffect(() => {
     setIsError(false);
     UseFetch(API_LINK + "MasterTest/GetDataTest", currentFilter)
@@ -176,5 +206,4 @@ export default function MasterTestIndex({ onChangePage }) {
       </div>
     </>
   );
-
 }

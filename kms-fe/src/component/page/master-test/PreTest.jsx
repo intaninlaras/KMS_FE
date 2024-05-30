@@ -13,42 +13,11 @@ import Loading from "../../part/Loading";
 import profilePicture from "../../../assets/tes.jpg";
 import KMS_Rightbar from "../../backbone/KMS_RightBar";
 import SideBar from "../../backbone/SideBar";
-// import KMS_SB_RightBar from '../../backbone/KMS_SB_RightBar';
-
-const inisialisasiData = [
-  {
-    Key: null,
-    No: null,
-    "Kode Test": null,
-    "Nama Test": null,
-    "Alamat Test": null,
-    Status: null,
-    Count: 0,
-  },
-];
-
-const dataFilterSort = [
-  { Value: "[Kode Test] asc", Text: "Kode Test [↑]" },
-  { Value: "[Kode Test] desc", Text: "Kode Test [↓]" },
-  { Value: "[Nama Test] asc", Text: "Nama Test [↑]" },
-  { Value: "[Nama Test] desc", Text: "Nama Test [↓]" },
-];
-
-const dataFilterStatus = [
-  { Value: "Aktif", Text: "Aktif" },
-  { Value: "Tidak Aktif", Text: "Tidak Aktif" },
-];
-
-export default function MasterTestIndex({ onChangePage }) {
+import axios from "axios";
+import "../../../custom_index.css";
+export default function MasterTestIndex({ onChangePage, CheckDataReady, materiId }) {
   const [isError, setIsError] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const [currentData, setCurrentData] = useState(inisialisasiData);
-  const [currentFilter, setCurrentFilter] = useState({
-    page: 1,
-    query: "",
-    sort: "[Kode Test] asc",
-    status: "Aktif",
-  });
   const [marginRight, setMarginRight] = useState("40vh");
 
   function handlePreTestClick_close() {
@@ -58,7 +27,6 @@ export default function MasterTestIndex({ onChangePage }) {
   function handlePreTestClick_open() {
     setMarginRight("40vh");
   }
-
 
   const searchQuery = useRef();
   const searchFilterSort = useRef();
@@ -107,37 +75,72 @@ export default function MasterTestIndex({ onChangePage }) {
       .then(() => setIsLoading(false));
   }
   function onStartTest() {
-    window.location.href = ROOT_LINK + "/soal_pretest";
+    // onChangePage('test')
+    // window.location.href = ROOT_LINK + "/soal_pretest";
+    const quizType = "PreTest"; // Ganti dengan nilai yang sesuai
+    const quizId = "1"; // Ganti dengan nilai yang sesuai
+    const newUrl = `${ROOT_LINK}/master_test/soal-postTest?quizType=${encodeURIComponent(quizType)}&quizId=${encodeURIComponent(quizId)}`;
+    window.location.href = newUrl;
   }
 
+  
   useEffect(() => {
-    setIsError(false);
-    UseFetch(API_LINK + "MasterTest/GetDataTest", currentFilter)
-      .then((data) => {
-        if (data === "ERROR")
-          //Harusnya true
-          setIsError(false);
-        else if (data.length === 0) setCurrentData(inisialisasiData);
-        else {
-          const formattedData = data.map((value) => {
-            return {
-              ...value,
-              Aksi: ["Toggle", "Detail", "Edit"],
-              Alignment: [
-                "center",
-                "center",
-                "left",
-                "left",
-                "center",
-                "center",
-              ],
-            };
-          });
-          setCurrentData(formattedData);
+    document.documentElement.style.setProperty('--responsiveContainer-margin-left', '0vw');
+    const sidebarMenuElement = document.querySelector('.sidebarMenu');
+    if (sidebarMenuElement) {
+      sidebarMenuElement.classList.add('sidebarMenu-hidden');
+    }
+  }, []);
+
+  useEffect(() => {
+    let isMounted = true; 
+    // if (!CheckDataReady) return; 
+    const fetchData = async () => {
+      setIsLoading(true);
+      try {
+        const response = await axios.post("http://localhost:8080/Quiz/GetDataResultQuiz", {
+          quizId: "1",
+          karyawanId: "1",
+          tipeQuiz: "Pretest",
+        });
+        
+        if (isMounted) { 
+          if (response.data) {
+              if (Array.isArray(response.data)) {
+              if (response.data.length == 0) {
+                
+              } else {
+                // onChangePage("hasiltest", true, response.data[0].IdQuiz);
+                window.location.href = ROOT_LINK + "/hasil_test";
+              }
+              return;
+            } else {
+              console.error("Data is not an array:", response.data);
+            }
+          } else {
+            console.error("Response data is undefined or null");
+          }
         }
-      })
-      .then(() => setIsLoading(false));
-  }, [currentFilter]);
+      } catch (error) {
+        if (isMounted) {
+          setIsError(true);
+          console.error("Fetch error:", error);
+        }
+      } finally {
+        if (isMounted) {
+          setIsLoading(false);
+          console.log("Loading finished");
+        }
+      }
+    };
+
+    fetchData();
+
+    return () => {
+      isMounted = false; // cleanup flag
+    };
+  }, []);
+
 
   const circleStyle = {
     width: "50px",
@@ -145,36 +148,6 @@ export default function MasterTestIndex({ onChangePage }) {
     backgroundColor: "lightgray",
     marginRight: "20px",
   };
-
-  const dummyData = [
-    {
-      Key: 1,
-      No: 1,
-      TanggalUjian: "01-04-2024",
-      Persentase: "75%",
-      StatusTest: "Tidak Lulus",
-      Aksi: ["Detail"],
-      Alignment: ["center", "center", "center", "center", "center"],
-    },
-    {
-      Key: 2,
-      No: 2,
-      TanggalUjian: "02-04-2024",
-      Persentase: "90%",
-      StatusTest: "Lulus",
-      Aksi: ["Detail"],
-      Alignment: ["center", "center", "center", "center", "center"],
-    },
-    {
-      Key: 3,
-      No: 3,
-      TanggalUjian: "03-04-2024",
-      Persentase: "60%",
-      StatusTest: "Tidak Lulus",
-      Aksi: ["Detail"],
-      Alignment: ["center", "center", "center", "center", "center"],
-    },
-  ];
 
   return (
     <>
@@ -203,8 +176,6 @@ export default function MasterTestIndex({ onChangePage }) {
                     style={circleStyle}
                   >
                     <img
-                      src={profilePicture}
-                      alt="Profile Picture"
                       className="align-self-start"
                       style={{
                         width: "450%",
@@ -229,14 +200,13 @@ export default function MasterTestIndex({ onChangePage }) {
                       marginBottom: "60px",
                     }}
                   >
-                    This test consists of 10 questions, the minimum passing
-                    score to get a certificate is 80%, and you only have 30
-                    minutes to do all the questions, starting when you click the
-                    “Start Pre Test” button below.
+                    Tes ini terdiri dari 10 soal, nilai kelulusan minimal untuk mendapatkan sertifikat adalah 80%, 
+                    dan Anda hanya memiliki waktu 30 menit untuk mengerjakan semua soal, dimulai saat Anda mengklik tombol
+                    "Mulai Pre Test" di bawah ini.
                   </p>
                   <Button
                     classType="primary ms-2 px-4 py-2"
-                    label="Start Pre-Test"
+                    label="Mulai Pre-Test"
                     onClick={onStartTest}
                   />
                   <div></div>

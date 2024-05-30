@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { useLocation } from 'react-router-dom';
 import { object, string } from "yup";
 import { API_LINK, ROOT_LINK } from "../../util/Constants";
 import { validateAllInputs, validateInput } from "../../util/ValidateForm";
@@ -15,21 +16,90 @@ import KMS_Sidebar from '../../backbone/KMS_SideBar';
 import Sidebar from '../../backbone/SideBar';
 import styled from 'styled-components';
 import KMS_Uploader from "../../part/KMS_Uploader";
+import axios from "axios";
+import Swal from 'sweetalert2';
 
-const responsiveContainer = styled.div`
-  margin-left: 0;
-`;
 
+  const ButtonContainer = styled.div`
+    position: fixed;
+    bottom: 35px;
+    left: 30%;
+    transform: translateX(-50%);
+    z-index: 999;
+  `;
+
+  function useQuery() {
+    return new URLSearchParams(useLocation().search);
+  }
+  
 export default function PengerjaanTest({ onChangePage }) {
   const [showSidebar, setShowSidebar] = useState(true);
   const [errors, setErrors] = useState({});
   const [isError, setIsError] = useState({ error: false, message: "" });
   const [isLoading, setIsLoading] = useState(false);
-  const [listProvinsi, setListProvinsi] = useState({});
-  const [listKabupaten, setListKabupaten] = useState({});
-  const [listKecamatan, setListKecamatan] = useState({});
-  const [listKelurahan, setListKelurahan] = useState({});
+  const [currentData, setCurrentData] = useState([]);
+  const [questionNumbers, setQuestionNumbers] = useState(0);
+  const [IdQuiz, setIdQuiz] = useState();
+  const [nilai, setNilai] = useState(0);
+  const formDataRef = useRef({
+    karyawanId:"1",
+    quizId: "",
+    nilai: "", 
+    status: "",
+    answers: [],
+    createdBy: "Fahriel",
+  });
+  const query = useQuery();
+  const quizType = query.get("quizType");
+  const quizId = query.get("quizId");
+  useEffect(() => {
+    // Anda bisa menggunakan quizType di sini
+    console.log("quizType:", quizType);
+    console.log("quizId:", quizId);
+  }, [quizType, quizId]);
+  const formUpdate = useRef({
+    materiId:"1",
+    karyawanId: "1",
+    totalProgress: "0", 
+    statusMateri_PDF: "",
+    statusMateri_Video: "",
+    statusSharingExpert_PDF: "",
+    statusSharingExpert_Video: "",
+    createdBy: "Fahriel",
+  });
 
+  function convertEmptyToNull(obj) {
+    const newObj = {};
+    for (const [key, value] of Object.entries(obj)) {
+      newObj[key] = value === "" ? null : value;
+    }
+    return newObj;
+  }
+  
+  const processedFormUpdate = convertEmptyToNull(formUpdate);
+  // console.log(processedFormUpdate)
+  const fileGambarRef = useRef(null);
+
+  const userSchema = object({
+    gambar: string(),
+  });
+
+  const handleSubmitConfirmation = () => {
+    Swal.fire({
+      title: 'Apakah anda yakin sudah selesai?',
+      text: 'Jawaban akan disimpan dan tidak dapat diubah lagi.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Ya, submit',
+      cancelButtonText: 'Tidak',
+      reverseButtons: true,
+    }).then((result) => {
+      if (result.isConfirmed) {
+        handleAdd();
+        handleSubmitAction();
+      }
+    });
+  };
 
   const handleInputChange = async (e) => {
     const { name, value } = e.target;
@@ -40,14 +110,6 @@ export default function PengerjaanTest({ onChangePage }) {
       [validationError.name]: validationError.error,
     }));
   };
-
-  const ButtonContainer = styled.div`
-    position: fixed;
-    bottom: 35px;
-    left: 30%;
-    transform: translateX(-50%);
-    z-index: 999;
-  `;
 
   function handleSubmitAction() {
     window.location.href = ROOT_LINK + "/hasil_test";
@@ -75,9 +137,7 @@ export default function PengerjaanTest({ onChangePage }) {
   };
 
   const handleAdd = async (e) => {
-    e.preventDefault();
-    console.log("Nomor Soal:", selectedQuestion);
-    console.log("Jawaban Terpilih:", selectedAnswer);
+    // e.preventDefault();
     const validationErrors = await validateAllInputs(
       formDataRef.current,
       userSchema,
@@ -127,10 +187,70 @@ export default function PengerjaanTest({ onChangePage }) {
           .then(() => setIsLoading(false));
       });
     }
+    const totalNilai = answers.reduce((accumulator, currentValue) => {
+      return accumulator + currentValue.nilaiSelected;
+    }, 0);
+    formDataRef.current.nilai = totalNilai;
+    formDataRef.current.answers = submittedAnswers;
+    console.log("update: ",formUpdate.current)
+    console.log("insert: ",formDataRef.current)
+    const response = await axios.post("http://localhost:8080/Quiz/SaveTransaksiQuiz", formDataRef.current);
+    const saveProgress = await axios.post("http://localhost:8080/Materis/SaveProgresMateri", formUpdate.current);
   };
 
-  if (isLoading) return <Loading />;
-  const questionNumbers = Array.from(Array(30).keys());
+  const selectPreviousQuestion = () => {
+    if (selectedQuestion > 1) {
+      setSelectedQuestion(selectedQuestion - 1);
+    } else {
+      setSelectedQuestion(selectedQuestion + dummyData.length - 1);
+    }
+  };
+
+  const selectNextQuestionOrSubmit = () => {
+    if (selectedQuestion < questionNumbers) {
+      setSelectedQuestion(selectedQuestion + 1);
+    } else {
+      handleSubmitConfirmation();
+
+    }
+  };
+
+  const [selectedQuestion, setSelectedQuestion] = useState(1);
+  const [selectedOption, setSelectedOption] = useState(null);
+  const [answers, setAnswers] = useState([]);
+  const [submittedAnswers, setSubmittedAnswers] = useState([]);
+
+  const handleValueAnswer = (urutan, idSoal, answer, nilaiSelected) => {
+    setSelectedOption(answer);
+    const updatedAnswers = [...answers];
+    const submitAnswer = [...submittedAnswers];
+    const existingAnswerIndex = updatedAnswers.findIndex(
+      (ans) => ans.idSoal === idSoal 
+    );
+    if (existingAnswerIndex !== -1) {
+      updatedAnswers[existingAnswerIndex] = { urutan, idSoal, answer, nilaiSelected};
+      submitAnswer[existingAnswerIndex] = { urutan };
+    } else {
+      updatedAnswers.push({ urutan, idSoal, answer, nilaiSelected});
+      submitAnswer.push ([urutan, idSoal]) ;
+    }
+    setAnswers(updatedAnswers);
+    setSubmittedAnswers(submitAnswer);
+
+  };
+
+  useEffect(() => {
+  }, [answers]);
+
+  const FileCard = ({ fileName }) => {
+    return (
+      <div style={{ display: 'flex', alignItems: 'center', backgroundColor: '#ffe0e0', borderRadius: '10px', padding: '10px' }}>
+        <img src="/path/to/file-icon.png" style={{ marginRight: '10px' }} />
+        <span style={{ fontSize: '14px' }}>{fileName}</span>
+      </div>
+    );
+  };
+
   const dummyData = [
     {
       type: "pilgan",
@@ -142,215 +262,106 @@ export default function PengerjaanTest({ onChangePage }) {
     {
       type: "essay",
       question: "Siapakah penemu relativitas umum?",
-      options: ["Isaac Newton", "Galileo Galilei", "Albert Einstein", "Stephen Hawking"],
       correctAnswer: "Albert Einstein",
-      answerStatus: "none",
-    },
-    {
-      question: "Apa warna bendera Indonesia?",
-      options: ["Merah-Putih", "Hijau-Kuning", "Biru-Putih", "Hitam-Kuning"],
-      correctAnswer: "Merah-Putih",
-      answerStatus: "none",
-    },
-    {
-      question: "Apa ibukota Amerika Serikat?",
-      options: ["Washington D.C.", "New York City", "Los Angeles", "Chicago"],
-      correctAnswer: "Washington D.C.",
-      answerStatus: "none",
-    },
-    {
-      question: "Berapa jumlah planet dalam tata surya?",
-      options: ["7", "8", "9", "10"],
-      correctAnswer: "8",
-      answerStatus: "none",
-    },
-    {
-      question: "Siapakah penemu relativitas umum?",
-      options: ["Isaac Newton", "Galileo Galilei", "Albert Einstein", "Stephen Hawking"],
-      correctAnswer: "Albert Einstein",
-      answerStatus: "none",
-    },
-    {
-      question: "Berapa banyak huruf dalam alfabet Inggris?",
-      options: ["24", "25", "26", "27"],
-      correctAnswer: "26",
-      answerStatus: "none",
-    },
-    {
-      question: "Siapakah penulis 'Pride and Prejudice'?",
-      options: ["Jane Austen", "Emily Brontë", "Charlotte Brontë", "Virginia Woolf"],
-      correctAnswer: "Jane Austen",
-      answerStatus: "none",
-    },
-    {
-      question: "Berapa banyak warna dalam pelangi?",
-      options: ["6", "7", "8", "9"],
-      correctAnswer: "7",
-      answerStatus: "none",
-    },
-    {
-      question: "Apa nama ilmuwan yang menemukan hukum gravitasi?",
-      options: ["Isaac Newton", "Albert Einstein", "Galileo Galilei", "Nikola Tesla"],
-      correctAnswer: "Isaac Newton",
-      answerStatus: "none",
-    },
-    {
-      question: "Berapa banyak gigi manusia dewasa?",
-      options: ["28", "30", "32", "34"],
-      correctAnswer: "32",
-      answerStatus: "none",
-    },
-    {
-      question: "Siapakah penulis '1984'?",
-      options: ["George Orwell", "Aldous Huxley", "Ray Bradbury", "F. Scott Fitzgerald"],
-      correctAnswer: "George Orwell",
-      answerStatus: "none",
-    },
-    {
-      question: "Berapa banyak benua di dunia?",
-      options: ["5", "6", "7", "8"],
-      correctAnswer: "7",
-      answerStatus: "none",
-    },
-    {
-      question: "Apa nama senjata tradisional Jepang?",
-      options: ["Katana", "Wakizashi", "Naginata", "Tanto"],
-      correctAnswer: "Katana",
-      answerStatus: "none",
-    },
-    {
-      question: "Berapa banyak musim di sebagian besar belahan bumi?",
-      options: ["2", "3", "4", "5"],
-      correctAnswer: "4",
-      answerStatus: "none",
-    },
-    {
-      question: "Siapakah presiden pertama Amerika Serikat?",
-      options: ["George Washington", "Thomas Jefferson", "John Adams", "Abraham Lincoln"],
-      correctAnswer: "George Washington",
-      answerStatus: "none",
-    },
-    {
-      question: "Berapa banyak mata uang yang beredar di dunia?",
-      options: ["100", "150", "180", "200"],
-      correctAnswer: "180",
-      answerStatus: "none",
-    },
-    {
-      question: "Apa nama sungai terpanjang di dunia?",
-      options: ["Nil", "Amazon", "Yangtze", "Mississippi"],
-      correctAnswer: "Nil",
-      answerStatus: "none",
-    },
-    {
-      question: "Berapa banyak hari dalam satu tahun kabisat?",
-      options: ["365", "366", "367", "368"],
-      correctAnswer: "366",
-      answerStatus: "none",
-    },
-    {
-      question: "Siapakah penulis 'Hamlet'?",
-      options: ["William Shakespeare", "Charles Dickens", "Jane Austen", "Mark Twain"],
-      correctAnswer: "William Shakespeare",
-      answerStatus: "none",
-    },
-    {
-      question: "Berapa umur alam semesta?",
-      options: ["13.7 Miliar tahun", "15 Miliar tahun", "20 Miliar tahun", "25 Miliar tahun"],
-      correctAnswer: "13.7 Miliar tahun",
-      answerStatus: "none",
-    },
-    {
-      question: "Apa nama benua terbesar di dunia?",
-      options: ["Asia", "Afrika", "Amerika", "Eropa"],
-      correctAnswer: "Asia",
-      answerStatus: "none",
-    },
-    {
-      question: "Berapa jumlah gigi pada anak-anak?",
-      options: ["20", "22", "24", "26"],
-      correctAnswer: "20",
-      answerStatus: "none",
-    },
-    {
-      question: "Siapakah penulis 'To Kill a Mockingbird'?",
-      options: ["Harper Lee", "F. Scott Fitzgerald", "Ernest Hemingway", "J.D. Salinger"],
-      correctAnswer: "Harper Lee",
-      answerStatus: "none",
-    },
-    {
-      question: "Berapa banyak negara di dunia?",
-      options: ["190", "195", "200", "205"],
-      correctAnswer: "195",
-      answerStatus: "none",
-    },
-    {
-      question: "Apa nama ilmuwan yang menemukan radioaktivitas?",
-      options: ["Marie Curie", "Albert Einstein", "Isaac Newton", "Galileo Galilei"],
-      correctAnswer: "Marie Curie",
-      answerStatus: "none",
-    },
-    {
-      type: "essay",
-      question: "Apa nama tokoh fiksi terkenal dalam novel 'The Lord of the Rings'?",
-      options: ["Frodo Baggins", "Gandalf", "Aragorn", "Legolas"],
-      correctAnswer: "Frodo Baggins",
-      answerStatus: "none",
-    },
-    {
-      type: "pilgan",
-      question: "Siapakah penemu telepon?",
-      options: ["Alexander Graham Bell", "Thomas Edison", "Nikola Tesla", "Albert Einstein"],
-      correctAnswer: "Alexander Graham Bell",
-      answerStatus: "none",
-    },
-    {
-      question: "Apa nama ibukota Jepang?",
-      options: ["Tokyo", "Osaka", "Kyoto", "Hiroshima"],
-      correctAnswer: "Tokyo",
-      answerStatus: "none",
-    },
-    {
-      question: "Berapa jumlah surat dalam alfabet Arab?",
-      options: ["26", "28", "30", "32"],
-      correctAnswer: "28",
       answerStatus: "none",
     },
   ];
 
-  const selectPreviousQuestion = () => {
-    if (selectedQuestion > 1) {
-      setSelectedQuestion(selectedQuestion - 1);
-    }
-  };
-
-  const selectNextQuestionOrSubmit = () => {
-    if (selectedQuestion < dummyData.length) {
-      setSelectedQuestion(selectedQuestion + 1);
-    } else {
-      handleSubmitAction();
-    }
-  };
-
-  const [selectedQuestion, setSelectedQuestion] = useState(1);
-  const [selectedAnswer, setSelectedAnswer] = useState("");
-  const handleSelectAnswer = (answer) => {
-    setSelectedAnswer(answer);
-  };
-
-  const FileCard = ({ fileName }) => {
-    return (
-      <div style={{ display: 'flex', alignItems: 'center', backgroundColor: '#ffe0e0', borderRadius: '10px', padding: '10px' }}>
-        <img src="/path/to/file-icon.png" style={{ marginRight: '10px' }} />
-        <span style={{ fontSize: '14px' }}>{fileName}</span>
-      </div>
-    );
-  };
-
   const [answerStatus, setAnswerStatus] = useState(
     dummyData.map(() => "none")
   );
+
+  const [currentAnswer, setCurrentAnswer] = useState(false);
+
+  const handleSelect = (answer) => {
+    setCurrentAnswer(answer);
+  };
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setIsLoading(true);
+      try {
+        const response = await axios.post("http://localhost:8080/Quiz/GetDataQuestion", {
+          quizId: quizId,
+          status: 'Aktif',
+          quizType: quizType,
+        });
+
+        const checkIsDone = await axios.post("http://localhost:8080/Quiz/GetDataResultQuiz", {
+          quizId: quizId,
+          karyawanId: "1",
+        });
+
+        if (checkIsDone.data && Array.isArray(checkIsDone.data)) {
+          if (checkIsDone.data.length == 0) {
+          } else {
+              // window.location.href = ROOT_LINK + "/hasil_test";
+          }
+        }
+
+        if (response.data && Array.isArray(response.data)) {
+          
+          const questionMap = new Map();
+          const transformedData = response.data.map((item) => {
+            const { Soal, TipeSoal, Jawaban, UrutanJawaban, NilaiJawaban, ForeignKey} = item;
+            if (!questionMap.has(Soal)) {
+              questionMap.set(Soal, true);
+              if (TipeSoal === "Essay") {
+                return {
+                  type: "essay",
+                  question: Soal,
+                  correctAnswer: Jawaban,
+                  answerStatus: "none",
+                };
+              } else {
+                const options = response.data
+                .filter(choice => choice.Key === item.Key)
+                .map(choice => ({
+                  value: choice.Jawaban, 
+                  urutan: choice.UrutanJawaban,
+                  nomorSoal: choice.Key,
+                  nilai: choice.NilaiJawaban
+                }));
+                
+                return {
+                  type: "pilgan",
+                  question: Soal,
+                  options: options,
+                  correctAnswer: options.find(option => option === Jawaban && NilaiJawaban !== "0"), 
+                  urutan: UrutanJawaban,
+                  answerStatus: "none",
+                };
+              }
+            }
+            formDataRef.current.quizId = ForeignKey;
+            return null;
+          }).filter(item => item !== null);
+          setQuestionNumbers(transformedData.length);
+          setCurrentData(transformedData);
+        } else {
+          throw new Error("Data format is incorrect");
+        }
+      } catch (error) {
+        setIsError(true);
+        console.error("Fetch error:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
   
+    fetchData();
+  }, []);
+
+  useEffect(() => {
+  }, [IdQuiz]);
+
+  useEffect(() => {
+    document.documentElement.style.setProperty('--responsiveContainer-margin-left', '0vw');
+    const sidebarMenuElement = document.querySelector('.sidebarMenu');
+    if (sidebarMenuElement) {
+      sidebarMenuElement.classList.add('sidebarMenu-hidden');
+    }
+  }, []);
   return (
     <>
       <div className="d-flex">
@@ -363,25 +374,30 @@ export default function PengerjaanTest({ onChangePage }) {
         />
         <div className="flex-fill p-3 d-flex flex-column" style={{marginLeft:"21vw"}}>
           <div className="mb-3" style={{ overflowX: 'auto', whiteSpace: 'nowrap' }}> 
-            {dummyData.map((data, index) => {
+            {currentData.map((item, index) => {
+              const key = `${item.question}_${index}`;
               if (index + 1 !== selectedQuestion) return null;
+              const currentIndex = index + 1;
              
               return (
-                <div key={index} className="mb-3" style={{ display: 'inline-block', verticalAlign: 'top', minWidth: '300px', marginRight: '20px' }}>
+                <div key={key} className="mb-3" style={{ display: 'inline-block', verticalAlign: 'top', minWidth: '300px', marginRight: '20px' }}>
                   {/* Soal */}
                   <div className="mb-3">
-                    <h4>{data.question}</h4>
+                    <h4>{item.question}</h4>
                   </div>
 
                   {/* Jawaban */}
-                  {data.type === "essay" ? (
+                  {item.type === "essay" ? (
                     <KMS_Uploader />
                   ) : (
                     
                     <div className="d-flex flex-column">
-                      {data.options.map((option, index) => {
-                        const isCorrect = option === data.correctAnswer;
-                        const isSelected = data.answeredOption ? option === data.answeredOption : false;
+                      {item.options.map((option, index) => {
+                        const isCorrect = option === item.correctAnswer;
+                        const isSelected = answers.some(
+                          (ans) => ans.idSoal == option.nomorSoal && ans.urutan == option.urutan
+                        );
+                        
                         let borderColor1 = '';
                         let backgroundColor1 = '';
                         
@@ -394,19 +410,30 @@ export default function PengerjaanTest({ onChangePage }) {
                         }
 
                         return (
-                          <div 
-                          key={option} 
-                          className="mt-4 mb-2"
-                          style={{ display: 'flex', alignItems: 'center'}} 
-                        >
-                          <button
-                            className="btn btn-outline-primary"
-                            style={{ width: "40px", height: "40px", borderColor:borderColor1, backgroundColor:backgroundColor1, color: borderColor1}}
-                          >
-                            {String.fromCharCode(65 + index)}
-                          </button>
-                          <span className="ms-2">{option}</span>
-                        </div>
+                          <div key={option.urutan} className="mt-4 mb-2" style={{ display: "flex", alignItems: "center" }}>
+                            <input
+                              type="radio"
+                              id={`option-${option.urutan}`}
+                              name={`question-${selectedQuestion}`}
+                              onChange={() => handleValueAnswer(option.urutan, option.nomorSoal, option.value, option.nilai)}
+                              checked={isSelected}
+                              style={{ display: "none" }}
+                            />
+                            <label
+                              htmlFor={`option-${option.urutan}`}
+                              className={`btn btn-outline-primary ${isSelected ? 'active' : ''}`}
+                              style={{
+                                width: "40px",
+                                height: "40px",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                              }}
+                            >
+                              {String.fromCharCode(65 + index)}
+                            </label>
+                            <span className="ms-2">{option.value}</span>
+                          </div>
                         );
                       })}
                     </div>
@@ -420,12 +447,12 @@ export default function PengerjaanTest({ onChangePage }) {
             <ButtonContainer >
               <Button 
                 classType="secondary me-2 px-4 py-2" 
-                label="Previous" 
+                label="Sebelumnya" 
                 onClick={selectPreviousQuestion} 
               />
               <Button 
                 classType="primary ms-2 px-4 py-2" 
-                label={selectedQuestion < dummyData.length ? "Next" : "Submit"} 
+                label={selectedQuestion < questionNumbers ? "Berikutnya" : "Selesai"} 
                 onClick={selectNextQuestionOrSubmit} 
               />
               </ButtonContainer>

@@ -4,7 +4,6 @@ import { ROOT_LINK } from "../util/Constants";
 
 export default function KMS_Sidebar({ questionNumbers, selectedQuestion, setSelectedQuestion, answerStatus, checkMainContent}) {
   const [remainingTime, setRemainingTime] = useState(1800);
-
   useEffect(() => {
     const timer = setInterval(() => {
       setRemainingTime(prevTime => prevTime - 1);
@@ -38,7 +37,7 @@ export default function KMS_Sidebar({ questionNumbers, selectedQuestion, setSele
         className="grid"
         style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '20px', padding: '20px' }}
       >
-        {[...Array(30)].map((_, index) => (
+        {[...Array(questionNumbers)].map((_, index) => (
           <button
             key={index}
             className={`box ${index + 1 === selectedQuestion ? "active" : ""}`}
