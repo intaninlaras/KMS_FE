@@ -454,7 +454,7 @@ export default function ProgramIndex({ onChangePage }) {
                             <Button
                               iconName="add"
                               classType="primary  me-2"
-                              label="Tambah Program (Kelompok Keilmuan)"
+                              label="Tambah Program"
                               onClick={() => onChangePage("add", currentData)}
                             />
                             <Button
@@ -502,7 +502,11 @@ export default function ProgramIndex({ onChangePage }) {
                                     message="Tidak ada data! Silahkan klik tombol tambah diatas.."
                                   />
                                 ) : (
-                                  <div className="row row-cols-3">
+                                  <div>
+                                    <p className="text-primary fw-semibold mb-0 mt-2">
+                                      Daftar Kategori Program
+                                    </p>
+                                    <div className="row row-cols-3">
                                     {listKategoriProgram.map((kat) => (
                                       <CardKategoriProgram
                                         key={kat.id}
@@ -513,6 +517,8 @@ export default function ProgramIndex({ onChangePage }) {
                                       />
                                     ))}
                                   </div>
+                                  </div>
+                                  
                                 )}
                               </CardProgram>
                             </ScrollIntoView>

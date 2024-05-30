@@ -230,8 +230,8 @@ export default function PengajuanAdd({ onChangePage, withID }) {
                       <div className="card-body p-4">
                         <Alert
                           type="info fw-bold"
-                          message="Notes: Lampiran dapat berupa Sertifikat Keahlian atau
-                          Surat Tugas yang berkaitan"
+                          message="Notes: Lampiran dapat berupa Sertifikat Keahlian, Surat Tugas, atau
+                          Berkas Lainnya yang berkaitan"
                         />
                         <p className="ps-3 mb-0">
                           Format Penamaan:

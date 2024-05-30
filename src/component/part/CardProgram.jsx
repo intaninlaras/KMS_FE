@@ -150,7 +150,7 @@ const CardProgram = ({
         <Button
           iconName="add"
           classType="primary btn-sm mb-2"
-          label="Tambah Mata Kuliah"
+          label="Tambah Kategori"
           onClick={() => onChangePage("addKategori", data)}
         />
         {children}

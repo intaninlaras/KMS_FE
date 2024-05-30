@@ -190,7 +190,7 @@ export default function PengajuanDetail({ onChangePage, withID }) {
                   />
                 </div>
                 <div className="col-lg-6 my-3">
-                  <Label title="Status" data={withID.Status} />
+                  <Label title="Status" data={withID.Status === "Menunggu Acc" ? "Menunggu Persetujuan" : withID.Status} />
                 </div>
                 <div className="col-lg-12">
                   <div className="card">
@@ -209,7 +209,8 @@ export default function PengajuanDetail({ onChangePage, withID }) {
                                 target="_blank"
                                 rel="noopener noreferrer"
                               >
-                                {listNamaFile[index]?.Lampiran}
+                                {/* {listNamaFile[index]?.Lampiran} */}
+                                Lampiran {index + 1} {withID["Nama Kelompok Keahlian"]}
                               </a>
                             ) : (
                               "Tidak ada lampiran"

@@ -213,6 +213,75 @@ export default function KonfirmasiAnggotaDetail({ onChangePage, withID }) {
         <div>
           <div className="card mb-3">
             <div className="card-header bg-primary fw-medium text-white">
+              Detail Kelompok Keahlian
+            </div>
+            <div className="card-body">
+              <div className="row pt-2">
+                <div className="col-lg-7 px-4">
+                  <h3 className="mb-3 fw-semibold">
+                    {formData["Nama Kelompok Keahlian"]}
+                  </h3>
+                  <h6 className="fw-semibold">
+                    <span
+                      className="bg-primary me-2"
+                      style={{ padding: "2px" }}
+                    ></span>
+                    {formData.Prodi}
+                  </h6>
+                  <div className="pt-2 ps-2">
+                    <Icon
+                      name="user"
+                      cssClass="p-0 ps-1 text-dark"
+                      title="PIC Kelompok Keahlian"
+                    />{" "}
+                    <span>PIC : {formData.PIC}</span>
+                  </div>
+                  <hr className="mb-0" style={{ opacity: "0.2" }} />
+                  <p className="py-3">{formData.Deskripsi}</p>
+                </div>
+                <div className="col-lg-5">
+                  {/* <p>3 orang baru saja bergabung!</p> */}
+                  {listAnggota
+                    ?.filter((value) => {
+                      return value.Status === "Aktif";
+                    })
+                    .map((pr) => (
+                      <div className="card-profile mb-2 d-flex shadow-sm">
+                        <div
+                          className="bg-primary"
+                          style={{ width: "1.5%" }}
+                        ></div>
+                        <div className="p-1 ps-2 d-flex">
+                          <img
+                            src="https://t4.ftcdn.net/jpg/02/15/84/43/360_F_215844325_ttX9YiIIyeaR7Ne6EaLLjMAmy4GvPC69.jpg"
+                            alt={pr["Nama Anggota"]}
+                            className="img-fluid rounded-circle"
+                            width="45"
+                          />
+                          <div className="ps-3">
+                            <p className="mb-0">{pr["Nama Anggota"]}</p>
+                            <p className="mb-0" style={{ fontSize: "13px" }}>
+                              {pr.Prodi}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  {/* <div className="text-end">
+                <Button
+                  classType="light btn-sm text-primary text-decoration-underline px-3 mt-2"
+                  type="submit"
+                  label="Lihat Semua"
+                  data-bs-toggle="modal"
+                  data-bs-target="#modalAnggota"
+                />
+              </div> */}
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="card">
+            <div className="card-header bg-primary fw-medium text-white">
               Menunggu Persetujuan
             </div>
             <div className="card-body">
@@ -355,75 +424,7 @@ export default function KonfirmasiAnggotaDetail({ onChangePage, withID }) {
               </div>
             </div>
           </div>
-          <div className="card">
-            <div className="card-header bg-primary fw-medium text-white">
-              Detail Kelompok Keahlian
-            </div>
-            <div className="card-body">
-              <div className="row pt-2">
-                <div className="col-lg-7 px-4">
-                  <h3 className="mb-3 fw-semibold">
-                    {formData["Nama Kelompok Keahlian"]}
-                  </h3>
-                  <h6 className="fw-semibold">
-                    <span
-                      className="bg-primary me-2"
-                      style={{ padding: "2px" }}
-                    ></span>
-                    {formData.Prodi}
-                  </h6>
-                  <div className="pt-2 ps-2">
-                    <Icon
-                      name="user"
-                      cssClass="p-0 ps-1 text-dark"
-                      title="PIC Kelompok Keahlian"
-                    />{" "}
-                    <span>PIC : {formData.PIC}</span>
-                  </div>
-                  <hr className="mb-0" style={{ opacity: "0.2" }} />
-                  <p className="py-3">{formData.Deskripsi}</p>
-                </div>
-                <div className="col-lg-5">
-                  {/* <p>3 orang baru saja bergabung!</p> */}
-                  {listAnggota
-                    ?.filter((value) => {
-                      return value.Status === "Aktif";
-                    })
-                    .map((pr) => (
-                      <div className="card-profile mb-2 d-flex shadow-sm">
-                        <div
-                          className="bg-primary"
-                          style={{ width: "1.5%" }}
-                        ></div>
-                        <div className="p-1 ps-2 d-flex">
-                          <img
-                            src="https://t4.ftcdn.net/jpg/02/15/84/43/360_F_215844325_ttX9YiIIyeaR7Ne6EaLLjMAmy4GvPC69.jpg"
-                            alt={pr["Nama Anggota"]}
-                            className="img-fluid rounded-circle"
-                            width="45"
-                          />
-                          <div className="ps-3">
-                            <p className="mb-0">{pr["Nama Anggota"]}</p>
-                            <p className="mb-0" style={{ fontSize: "13px" }}>
-                              {pr.Prodi}
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  {/* <div className="text-end">
-                <Button
-                  classType="light btn-sm text-primary text-decoration-underline px-3 mt-2"
-                  type="submit"
-                  label="Lihat Semua"
-                  data-bs-toggle="modal"
-                  data-bs-target="#modalAnggota"
-                />
-              </div> */}
-                </div>
-              </div>
-            </div>
-          </div>
+          
           <div className="float-end my-4 mx-1">
             <Button
               classType="secondary me-2 px-4 py-2"

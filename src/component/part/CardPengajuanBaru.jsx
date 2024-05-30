@@ -61,7 +61,7 @@ function CardPengajuanBaru({ data, onChangePage, isShow }) {
   } else if (data.Status === "Menunggu Acc") {
     status = (
       <p>
-        Status: <span className="text-warning fw-bold">{data.Status}</span>
+        Status: <span className="text-warning fw-bold">Menunggu Persetujuan</span>
       </p>
     );
     aksi = (
