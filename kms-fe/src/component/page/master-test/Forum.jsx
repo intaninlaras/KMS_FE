@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { PAGE_SIZE, API_LINK, ROOT_LINK } from "../../util/Constants";
 import UseFetch from "../../util/UseFetch";
 import Alert from "../../part/Alert";

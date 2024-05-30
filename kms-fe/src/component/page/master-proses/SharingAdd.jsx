@@ -21,7 +21,7 @@ const listJenisProduk = [
   { Value: "Lainnya", Text: "Lainnya" },
 ];
 
-export default function MasterProdukAdd({ onChangePage }) {
+export default function MasterSharingAdd({ onChangePage }) {
   const [errors, setErrors] = useState({});
   const [isError, setIsError] = useState({ error: false, message: "" });
   const [isLoading, setIsLoading] = useState(false);
@@ -114,7 +114,7 @@ export default function MasterProdukAdd({ onChangePage }) {
               });
             } else {
               SweetAlert("Sukses", "Data produk berhasil disimpan", "success");
-              onChangePage("index");
+              onChangePage("forumAdd");
             }
           })
           .then(() => setIsLoading(false));
@@ -137,11 +137,11 @@ export default function MasterProdukAdd({ onChangePage }) {
              steps={[
               { label: 'Pretest', onClick:() => onChangePage("pretestAdd")},
               { label: 'Course' ,onClick:() => onChangePage("courseAdd")},
-              { label: 'Forum' ,onClick:() => onChangePage("forumAdd") },
               { label: 'Sharing Expert',onClick:() => onChangePage("sharingAdd")},
+              { label: 'Forum' ,onClick:() => onChangePage("forumAdd") },
               { label: 'Post Test',onClick:() => onChangePage("posttestAdd") }
             ]}
-            activeStep={3} 
+            activeStep={2} 
             styleConfig={{
               activeBgColor: '#67ACE9', // Warna latar belakang langkah aktif
               activeTextColor: '#FFFFFF', // Warna teks langkah aktif
@@ -203,19 +203,19 @@ export default function MasterProdukAdd({ onChangePage }) {
         <div className="float my-4 mx-1">
           <Button
             classType="outline-secondary me-2 px-4 py-2"
-            label="Back"
-            onClick={() => onChangePage("forumAdd")}
+            label="Kemballi"
+            onClick={() => onChangePage("courseAdd")}
           />
           <Button
             classType="primary ms-2 px-4 py-2"
             type="submit"
-            label="Save"
-            onClick={() => onChangePage("posttestAdd")}
+            label="Simpan"
+            onClick={() => onChangePage("forumAdd")}
           />
           <Button
-            classType="warning ms-3 px-4 py-2"
-            label="Next"
-            onClick={() => onChangePage("posttestAdd")}
+            classType="dark ms-3 px-4 py-2"
+            label="Berikutnya"
+            onClick={() => onChangePage("forumAdd")}
           />
         </div>
       </form>

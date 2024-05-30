@@ -35,7 +35,7 @@ const CardProgram = ({ isOpen, onChangePage }) => {
           }`}
         >
           <p className="fw-medium mb-0" style={{ width: "15%" }}>
-            HR Generalist
+            Software & IOT Engineering
           </p>
           <p
             className="mb-0"
@@ -47,10 +47,11 @@ const CardProgram = ({ isOpen, onChangePage }) => {
               overflow: "hidden",
             }}
           >
-            HR Generalist atau HRD Umum adalah bagian yang sangat penting.
-            Mereka bertugas melakukan tugas-tugas yang berkaitan dengan
-            pengelolaan sumber daya manusia dalam perusahaan dan melapor ke
-            Manajer HR atau Direktur HR.
+            Software Engineering adalah disiplin ilmu yang berfokus pada pengembangan perangkat lunak dengan 
+            menggunakan prinsip-prinsip rekayasa yang sistematis dan terstruktur. Ini melibatkan proses mulai 
+            dari perencanaan, desain, pengembangan, pengujian, hingga pemeliharaan perangkat lunak untuk memastikan kualitas, 
+            keandalan, dan keberlanjutan sistem. Software Engineering melibatkan pemahaman yang mendalam tentang kebutuhan pengguna, 
+            rekayasa perangkat lunak, metodologi pengembangan, dan praktik manajemen proyek.  
           </p>
           <div
             className="ps-3"
@@ -75,11 +76,11 @@ const CardProgram = ({ isOpen, onChangePage }) => {
             <div className="col">
               <div
                 className="card card-kategori-program mt-3"
-                onClick={() => onChangePage("index")}
+                onClick={() => onChangePage("index","1")}
               >
                 <div className="card-body">
                   <div className="d-flex justify-content-between">
-                    <h6 className="card-title">HR Generalist Fundamental</h6>
+                    <h6 className="card-title">UI / UX Engineer</h6>
                     <div>
                       <Icon
                         name="file"
@@ -93,8 +94,10 @@ const CardProgram = ({ isOpen, onChangePage }) => {
                   <div className="d-flex mt-2">
                     <div className="me-2 bg-primary ps-1"></div>
                     <p className="card-subtitle">
-                      Berisi dasar-dasar fundamental tentang ilmu Manajemen 
-                      Sumber Daya Manusia.
+                      UI/UX Engineer menggabungkan elemen-elemen dari Desain Antarmuka Pengguna (UI) dan Pengalaman Pengguna 
+                      (UX) dengan pemahaman yang kuat tentang pengembangan perangkat lunak. Mereka bertanggung jawab untuk merancang, 
+                      mengembangkan, dan mengimplementasikan antarmuka pengguna yang intuitif, efisien, dan menarik untuk aplikasi dan 
+                      situs web.
                     </p>
                   </div>
                   <div className="d-flex justify-content-end mt-3"></div>
@@ -104,11 +107,11 @@ const CardProgram = ({ isOpen, onChangePage }) => {
             <div className="col">
               <div
                 className="card card-kategori-program mt-3"
-                onClick={() => onChangePage("index")}
+                onClick={() => onChangePage("index","1")}
               >
                 <div className="card-body">
                   <div className="d-flex justify-content-between">
-                    <h6 className="card-title">Manajemen Pengembangan SDM</h6>
+                    <h6 className="card-title">Software Engineer</h6>
                     <div>
                       <Icon
                         name="file"
@@ -122,22 +125,23 @@ const CardProgram = ({ isOpen, onChangePage }) => {
                   <div className="d-flex mt-2">
                     <div className="me-2 bg-primary ps-1"></div>
                     <p className="card-subtitle">
-                      Berisi perencanaan pengembangan karyawan, mulai dari 
-                      pelatihan hingga evaluasi.
+                      Software Engineering adalah disiplin ilmu yang berkaitan dengan pengembangan perangkat lunak secara sistematis, terstruktur, dan terorganisir. Tujuannya adalah untuk menciptakan solusi perangkat lunak yang berkualitas tinggi, andal, dan efisien untuk memenuhi kebutuhan pengguna atau masalah bisnis yang spesifik.  
                     </p>
                   </div>
-                  <div className="d-flex justify-content-end mt-3"></div>
+                  <div className="d-flex justify-content-end mt-3 align-items-center">
+                    <div className="d-flex justify-content-end"></div>
+                  </div>
                 </div>
               </div>
             </div>
             <div className="col">
               <div
                 className="card card-kategori-program mt-3"
-                onClick={() => onChangePage("index")}
+                onClick={() => onChangePage("index","1")}
               >
                 <div className="card-body">
                   <div className="d-flex justify-content-between">
-                    <h6 className="card-title">Proses Perekrutan dan Seleksi</h6>
+                    <h6 className="card-title">Full-Stack (Web) Developer</h6>
                     <div>
                       <Icon
                         name="file"
@@ -151,8 +155,7 @@ const CardProgram = ({ isOpen, onChangePage }) => {
                   <div className="d-flex mt-2">
                     <div className="me-2 bg-primary ps-1"></div>
                     <p className="card-subtitle">
-                      Berisi metode perekrutan, teknik seleksi, dan 
-                      etika dalam perekrutan dan seleksi.
+                      Full-Stack Web Developer tentang teknologi dan bahasa pemrograman yang digunakan di kedua lingkungan tersebut, serta kemampuan untuk merancang, mengembangkan, dan mendeploy aplikasi web secara lengkap.
                     </p>
                   </div>
                   <div className="d-flex justify-content-end mt-3 align-items-center">

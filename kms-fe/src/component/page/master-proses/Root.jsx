@@ -2,6 +2,8 @@ import { useState } from "react";
 import MasterProsesIndex from "./Index";
 import MasterPreTestAdd from "./PreTestAdd";
 import MasterCourseAdd from "./CourseAdd";
+import MasterCourseEdit from "./CourseEdit";
+import MasterCourseDetail from "./CourseDetail";
 import MasterForumAdd from "./ForumAdd";
 import MasterPostTestAdd from "./PostTestAdd";
 import MasterSharingAdd from "./SharingAdd";
@@ -14,11 +16,17 @@ export default function MasterProses() {
   function getPageMode() {
     switch (pageMode) {
       case "index":
-        return <MasterProsesIndex onChangePage={handleSetPageMode} />;
+        return <MasterProsesIndex onChangePage={handleSetPageMode} withID={dataID}/>;
       case "pretestAdd":
         return <MasterPreTestAdd onChangePage={handleSetPageMode} />;
       case "courseAdd":
         return <MasterCourseAdd onChangePage={handleSetPageMode} />;
+      case "courseEdit":
+        return <MasterCourseEdit onChangePage={handleSetPageMode}             withID={dataID}
+        />;
+        case "courseDetail":
+        return <MasterCourseDetail onChangePage={handleSetPageMode}             withID={dataID}
+        />;
       case "forumAdd":
         return <MasterForumAdd onChangePage={handleSetPageMode} />;
       case "posttestAdd":

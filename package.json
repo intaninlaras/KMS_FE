@@ -4,7 +4,8 @@
     "react-form-stepper": "^2.0.3",
     "react-icons": "^5.2.0",
     "react-radio-buttons": "^1.2.2",
-    "react-time-picker": "^7.0.0"
+    "react-time-picker": "^7.0.0",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "moment": "^2.30.1",

@@ -1,15 +1,46 @@
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import Button from "../../part/Button";
+import { object, string } from "yup";
 import Input from "../../part/Input";
 import Loading from "../../part/Loading";
 import { Stepper } from 'react-form-stepper';
+import * as XLSX from 'xlsx';
+import axios from 'axios';
+import { validateAllInputs, validateInput } from "../../util/ValidateForm";
+import { API_LINK } from "../../util/Constants";
 
-export default function MasterProdukAdd({ onChangePage }) {
+export default function MasterPreTestAdd({ onChangePage }) {
   const [formContent, setFormContent] = useState([]);
   const [selectedOptions, setSelectedOptions] = useState([]);
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
   const [correctAnswers, setCorrectAnswers] = useState({});
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [timer, setTimer] = useState('');
+  const [minimumScore, setMinimumScore] = useState();
+
+  const handleChange = (name, value) => {
+    setFormData((prevFormData) => ({
+      ...prevFormData,
+      [name]: value,
+    }));
+  };
+  
+  const handlePointChange = (e, index) => {
+    const { value } = e.target;
+  
+    // Update point pada formContent
+    const updatedFormContent = [...formContent];
+    updatedFormContent[index].point = value;
+    setFormContent(updatedFormContent);
+  
+    // Update nilaiChoice pada formChoice
+    setFormChoice((prevFormChoice) => ({
+      ...prevFormChoice,
+      nilaiChoice: value,
+    }));
+  };
+  
 
   const addQuestion = (questionType) => {
     const newQuestion = {
@@ -17,10 +48,130 @@ export default function MasterProdukAdd({ onChangePage }) {
       text: `Question ${formContent.length + 1}`,
       options: [],
       point: 0,
-      correctAnswer: "", // Inisialisasi correctAnswer sebagai string kosong
+      correctAnswer: "", // Default correctAnswer
     };
     setFormContent([...formContent, newQuestion]);
     setSelectedOptions([...selectedOptions, ""]);
+  };
+  
+
+
+  const [formData, setFormData] = useState({
+    materiId: '1',
+    quizJudul: 'Pemrograman 9',
+    quizDeskripsi: '',
+    quizTipe: 'PreTest',
+    tanggalAwal: '',
+    tanggalAkhir: '',
+    timer: '',
+    status: 'Aktif',
+    createdby: 'Admin',
+  });
+  
+  const [formQuestion, setFormQuestion] = useState({
+    quizId: '',
+    soal: '',
+    tipeQuestion: 'essay',
+    gambar: '',
+    questionDeskripsi: '',
+    status: 'Aktif',
+    quecreatedby: 'Admin',
+  });
+
+  formData.timer = timer;
+  
+  const [formChoice, setFormChoice] = useState({
+    urutanChoice: '',
+    isiChoice: '',
+    questionId: '',
+    nilaiChoice: '',
+    quecreatedby: 'Admin',
+  });
+
+  const userSchema = object({
+    quizJudul: string(),
+  });
+
+  const initialFormQuestion = {
+    quizId: '',
+    soal: '',
+    tipeQuestion: 'essay',
+    gambar: '',
+    questionDeskripsi: '',
+    status: 'Aktif',
+    quecreatedby: 'Admin',
+  };
+
+  const handleAdd = async (e) => {
+    e.preventDefault();
+
+    try {
+      formData.timer = convertTimeToSeconds(timer)
+
+      const response = await axios.post(API_LINK + 'Quizs/SaveDataQuiz', formData);
+
+      if (response.data.length === 0) {
+        alert('Gagal menyimpan data');
+        return; 
+      }
+
+      const quizId = response.data[0].hasil;
+
+      for (const question of formContent) {
+        const formQuestion = {
+          quizId: quizId,
+          soal: question.text,
+          tipeQuestion: question.type,
+          gambar: '',
+          questionDeskripsi: '',
+          status: 'Aktif',
+          quecreatedby: 'Admin',
+        };
+  
+        console.log("hasil questionn")
+        console.log(formQuestion);
+        
+        try {
+          const questionResponse = await axios.post(API_LINK + 'Questions/SaveDataQuestion', formQuestion);
+          console.log('Pertanyaan berhasil disimpan:', questionResponse.data);
+
+          if (questionResponse.data.length === 0) {
+            alert('Gagal menyimpan question')
+            return
+          }
+
+          const questionId = questionResponse.data[0].hasil;
+
+          if (question.type === 'essay') {
+            const answerData = {
+              urutanChoice: '',
+              answerText: question.correctAnswer, // Pastikan menggunakan correctAnswer dari question
+              questionId: questionId,
+              nilaiChoice: question.point,
+              quecreatedby: 'Admin',
+            };
+          
+            try {
+              const answerResponse = await axios.post(API_LINK + 'Choices/SaveDataChoice', answerData);
+              console.log('Jawaban essay berhasil disimpan:', answerResponse.data);
+            } catch (error) {
+              console.error('Gagal menyimpan jawaban essay:', error);
+              alert('Gagal menyimpan jawaban essay');
+            }
+          }          
+        } catch (error) {
+          console.error('Gagal menyimpan pertanyaan:', error);
+          alert('Gagal menyimpan pertanyaan');
+        }
+      }
+  
+      // Tampilkan pesan sukses atau lakukan tindakan lain yang diperlukan setelah semua data berhasil disimpan
+      alert('Kuis dan pertanyaan berhasil disimpan');
+      
+    } catch (error) {
+      console.error('Gagal menyimpan data:', error);
+      alert('Gagal menyimpan data');
+    }
   };
 
   const handleQuestionTypeChange = (e, index) => {
@@ -32,15 +183,18 @@ export default function MasterProdukAdd({ onChangePage }) {
       options: value === "essay" ? [] : updatedFormContent[index].options,
     };
     setFormContent(updatedFormContent);
-  };
 
-  const handleOptionChange = (e, index) => {
+    // Pastikan tipeQuestion diperbarui dengan benar di formQuestion
+    updateFormQuestion('tipeQuestion', value);
+};
+
+  const handleQuestionTextChange = (e, index) => {
     const { value } = e.target;
-    const updatedSelectedOptions = [...selectedOptions];
-    updatedSelectedOptions[index] = value;
-    setSelectedOptions(updatedSelectedOptions);
+    const updatedFormContent = [...formContent];
+    updatedFormContent[index].text = value;
+    setFormContent(updatedFormContent);
   };
-
+  
   const handleOptionLabelChange = (e, questionIndex, optionIndex) => {
     const { value } = e.target;
     const updatedFormContent = [...formContent];
@@ -48,6 +202,20 @@ export default function MasterProdukAdd({ onChangePage }) {
     setFormContent(updatedFormContent);
   };
 
+  const handleOptionChange = (e, index) => {
+    const { value } = e.target;
+  
+    // Update correctAnswer pada formContent
+    const updatedFormContent = [...formContent];
+    updatedFormContent[index].correctAnswer = value;
+    setFormContent(updatedFormContent);
+  
+    // Update selectedOptions untuk radio button yang dipilih
+    const updatedSelectedOptions = [...selectedOptions];
+    updatedSelectedOptions[index] = value;
+    setSelectedOptions(updatedSelectedOptions);
+  };
+  
   const handleAddOption = (index) => {
     const updatedFormContent = [...formContent];
     if (updatedFormContent[index].type === "multiple_choice") {
@@ -66,7 +234,7 @@ export default function MasterProdukAdd({ onChangePage }) {
         ...prevCorrectAnswers,
         [index]: question.correctAnswer,
       }));
-    } 
+    }
 
     const newType =
       question.type !== "answer"
@@ -74,8 +242,8 @@ export default function MasterProdukAdd({ onChangePage }) {
           ? "answer"
           : "answer"
         : question.options.length > 0
-        ? "multiple_choice"
-        : "essay";
+          ? "multiple_choice"
+          : "essay";
 
     updatedFormContent[index] = {
       ...question,
@@ -117,19 +285,128 @@ export default function MasterProdukAdd({ onChangePage }) {
     delete updatedCorrectAnswers[index];
     setCorrectAnswers(updatedCorrectAnswers);
   };
-  const [selectedFile, setSelectedFile] = useState(null);
+
+  const parseExcelData = (data) => {
+    const questions = data.map((row, index) => {
+      // Skip header row (index 0) and the row below it (index 1)
+      if (index < 2) return null;
+
+      const options = row[3] ? row[3].split(',') : [];
+      return {
+        text: row[1],
+        type: row[2].toLowerCase() === 'essay' ? 'essay' : 'multiple_choice',
+        options: options.map((option, idx) => ({ label: option, value: String.fromCharCode(65 + idx) })),
+        point: row[4],
+        correctAnswer: row[5],
+      };
+    }).filter(Boolean); // Filter out null values
+
+    const initialSelectedOptions = questions.map((question, index) => {
+      if (question.type === 'multiple_choice') {
+        // Temukan indeks jawaban benar di dalam options
+        const correctIndex = question.options.findIndex((option) => option.value === question.correctAnswer);
+
+        if (correctIndex !== -1) {
+          // Jika jawaban benar ditemukan, pilih radio button tersebut
+          return question.options[correctIndex].value;
+        } else {
+          // Jika jawaban benar tidak ditemukan, tetapkan nilai kosong
+          return "";
+        }
+      } else {
+        // Tidak ada pilihan awal untuk pertanyaan Essay
+        return "";
+      }
+    });
+
+    setSelectedOptions(initialSelectedOptions);
+    setFormContent(questions);
+  };
 
   const handleFileChange = (e) => {
-    setSelectedFile(e.target.files[0]);
+    const file = e.target.files[0];
+    setSelectedFile(file);
   };
 
-  const handleAdd = async (e) => {
-    e.preventDefault();
-    setIsLoading(true);
-    setErrors({});
-    // Logika untuk pengiriman data ke server
+  const handleUploadFile = () => {
+    if (selectedFile) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const data = e.target.result;
+        const workbook = XLSX.read(data, { type: 'binary' });
+        const sheetName = workbook.SheetNames[0];
+        const sheet = workbook.Sheets[sheetName];
+        const parsedData = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+        parseExcelData(parsedData);
+      };
+      reader.readAsBinaryString(selectedFile);
+    } else {
+      alert("Pilih file Excel terlebih dahulu!");
+    }
   };
 
+  const handleDownloadTemplate = () => {
+    const link = document.createElement('a');
+    link.href = '/template.xlsx'; // Path to your template file in the public directory
+    link.download = 'template.xlsx';
+    link.click();
+  };
+
+  const convertTimeToSeconds = (time) => {
+    // Pastikan nilai time dalam bentuk string dengan format "HH:MM"
+    const timeString = typeof time === 'string' ? time.trim() : time.toLocaleTimeString();
+  
+    // Pisahkan string waktu menjadi jam dan menit
+    const timeParts = timeString.split(':');
+  
+    // Periksa apakah ada 2 bagian (jam dan menit) setelah pemisahan
+    if (timeParts.length !== 2) {
+      console.error('Invalid time format:', timeString);
+      return NaN;
+    }
+  
+    // Ambil jam dan menit dari hasil pemisahan
+    const [hours, minutes] = timeParts.map(Number);
+  
+    // Periksa apakah jam dan menit valid (tidak menghasilkan NaN)
+    if (isNaN(hours) || isNaN(minutes)) {
+      console.error('Invalid time format:', timeString);
+      return NaN;
+    }
+  
+    // Kembalikan total detik dari waktu yang diberikan
+    return hours * 3600 + minutes * 60;
+  };
+  
+  const updateFormQuestion = (name, value) => {
+    setFormQuestion((prevFormQuestion) => ({
+      ...prevFormQuestion,
+      [name]: value,
+    }));
+  };
+
+  const handleTimerChange = (e) => {
+    const { value } = e.target;
+    setTimer(value);
+    console.log(convertTimeToSeconds(timer))
+    
+  };
+
+  const handleInputChange = async (e) => {
+    const { name, value } = e.target;
+    const validationError = await validateInput(name, value, userSchema);
+  
+    setFormData((prevFormData) => ({
+      ...prevFormData,
+      [name]: value,
+    }));
+  
+    setErrors((prevErrors) => ({
+      ...prevErrors,
+      [validationError.name]: validationError.error,
+    }));
+  };
+  
   if (isLoading) return <Loading />;
 
   return (
@@ -161,17 +438,17 @@ export default function MasterProdukAdd({ onChangePage }) {
           }
         `}
       </style>
-      <form onSubmit={handleAdd}>
+      <form id="myForm" onSubmit={handleAdd}>
         <div>
           <Stepper
             steps={[
-              { label: 'Pretest', onClick:() => onChangePage("pretestAdd")},
-              { label: 'Course' ,onClick:() => onChangePage("courseAdd")},
-              { label: 'Forum' ,onClick:() => onChangePage("forumAdd") },
-              { label: 'Sharing Expert',onClick:() => onChangePage("sharingAdd")},
-              { label: 'Post Test',onClick:() => onChangePage("posttestAdd") }
+              { label: 'Pretest', onClick: () => onChangePage("pretestAdd") },
+              { label: 'Course', onClick: () => onChangePage("courseAdd") },
+              { label: 'Sharing Expert', onClick: () => onChangePage("sharingAdd") },
+              { label: 'Forum', onClick: () => onChangePage("forumAdd") },
+              { label: 'Post Test', onClick: () => onChangePage("posttestAdd") }
             ]}
-            activeStep={0} 
+            activeStep={0}
             styleConfig={{
               activeBgColor: '#67ACE9',
               activeTextColor: '#FFFFFF',
@@ -201,51 +478,117 @@ export default function MasterProdukAdd({ onChangePage }) {
           </div>
           <div className="card-body p-4">
             <div className="row mb-4">
-              <div className="col-lg-6">
+              
+              <div className="col-lg">
                 <Input
-                  type="time"
-                  forInput="namaProduk"
-                  label="Timer"
-                  isRequired
-                />
-              </div>
-              <div className="col-lg-6">
-                <Input
-                  type="number"
-                  label="Minimum score"
-                  isRequired
+                  type="text"
+                  label="Deskripsi Quiz"
+                  forInput="quizDeskripsi"
+                  value={formData.quizDeskripsi}
+                  onChange={handleInputChange} 
+                  isRequired={true}
                 />
               </div>
             </div>
             <div className="row mb-4">
-              <div className="col-lg-2">
+              <div className="col-lg-6">
+                <Input
+                  type="time"
+                  name="timer"
+                  label="Timer (in minutes)"
+                  forInput="timerInput"
+                  value={timer}
+                  onChange={handleTimerChange}
+                  isRequired={true}
+                  // stepSize="60"
+                />
+              </div>
+              <div className="col-lg-6">
+              <Input
+                type="number"
+                label="Minimum Score"
+                forInput="minimumScoreInput"
+                name="minimumScore"
+                //value={formData.minimumScore}
+                value="100"
+                //onChange={handleInputChange}
+                isRequired={true}
+              />
+
+              </div>
+            </div>
+            <div className="row mb-4">
+              <div className="col-lg-6">
+                <Input 
+                  label="Tanggal Dimulai:"
+                  type="date" 
+                  value={formData.tanggalAwal} 
+                  onChange={(e) => handleChange('tanggalAwal', e.target.value)} 
+                  isRequired={true}
+                />
+              </div>
+              <div className="col-lg-6">
+                <Input
+                  label="Tanggal Berakhir:"
+                  type="date" 
+                  value={formData.tanggalAkhir} 
+                  onChange={(e) => handleChange('tanggalAkhir', e.target.value)} 
+                  isRequired={true}
+                />
+              </div>
+            </div>
+            <div className="row mb-4">
+              <div className="mb-2">
+
+              </div>
+              <div className="col-lg-4">
                 <Button
                   onClick={() => addQuestion("essay")}
                   iconName="plus"
                   classType="primary btn-sm px-3 py-1"
                 />
-                <input 
-                  type="file" 
-                  id="fileInput" 
-                  style={{ display: 'none' }} 
-                  onChange={handleFileChange} 
+                <input
+                  type="file"
+                  id="fileInput"
+                  style={{ display: 'none' }}
+                  onChange={handleFileChange}
                 />
-               <Button
+                <Button
                   iconName="upload"
                   classType="primary btn-sm mx-2 px-3 py-1"
                   onClick={() => document.getElementById('fileInput').click()} // Memicu klik pada input file
                 />
                 {/* Tampilkan nama file yang dipilih */}
-                {selectedFile && <span>{selectedFile.name}</span>} 
+                {selectedFile && <span>{selectedFile.name}</span>}
+
               </div>
+              <div className="p-2">
+                <Button
+                  iconName="upload"
+                  classType="primary btn-sm px-3 py-1"
+                  onClick={handleUploadFile}
+                  label="Unggah File"
+                />
+
+                <Button
+                  iconName="download"
+                  label="Download Template"
+                  classType="warning btn-sm px-3 py-1 mx-2"
+                  onClick={handleDownloadTemplate}
+
+                />
+              </div>
+
             </div>
             {formContent.map((question, index) => (
               <div key={index} className="card mb-4">
                 <div className="card-header bg-white fw-medium text-black d-flex justify-content-between align-items-center">
                   <span>Question</span>
-                  <span>Point: {question.point}</span> 
+                  <span>Point: {question.point}</span>
                   <div className="col-lg-2">
-                    <select className="form-select" aria-label="Default select example" onChange={(e) => handleQuestionTypeChange(e, index)}>
+                    <select className="form-select" aria-label="Default select example"
+                      value={question.type}
+                      onChange={(e) => handleQuestionTypeChange(e, index)}>
                       <option value="essay">Essay</option>
                       <option value="multiple_choice">Multiple Choice</option>
                     </select>
@@ -255,29 +598,35 @@ export default function MasterProdukAdd({ onChangePage }) {
                   {question.type === "answer" ? (
                     <div className="row">
                       <div className="col-lg-12 question-input">
-                        <Input
-                          type="text"
-                          forInput={`pertanyaan_${index}`}
-                          value={question.text}
-                          onChange={(e) => {
-                            const updatedFormContent = [...formContent];
-                            updatedFormContent[index].text = e.target.value;
-                            setFormContent(updatedFormContent);
-                          }}
-                        />
+                      <Input
+                        type="text"
+                        label={`Question ${index + 1}`}
+                        forInput={`questionText-${index}`}
+                        value={question.text}
+                        onChange={(e) => {
+                          const updatedFormContent = [...formContent];
+                          updatedFormContent[index].text = e.target.value;
+                          setFormContent(updatedFormContent);
+                          // Update formQuestion with the new question text
+                          updateFormQuestion('soal', e.target.value);
+                        }}
+                        isRequired={true}
+                      />
                       </div>
+
                       <div className="col-lg-12">
                         <div className="form-check">
                           {question.options.map((option, optionIndex) => (
-                            <div key={optionIndex}>
+                            <div key={optionIndex} >
                               <input
                                 type="radio"
                                 id={`option_${index}_${optionIndex}`}
                                 name={`option_${index}`}
                                 value={option.value}
+                                // Checked hanya jika value di selectedOptions sama dengan value dari option
                                 checked={selectedOptions[index] === option.value}
                                 onChange={(e) => handleOptionChange(e, index)}
-                                style={{ marginRight: '15px' }}
+                                style={{ marginRight: '5px' }}
                               />
                               <label htmlFor={`option_${index}_${optionIndex}`}>{option.label}</label>
                             </div>
@@ -289,7 +638,7 @@ export default function MasterProdukAdd({ onChangePage }) {
                           <Input
                             type="text"
                             label="Correct Answer"
-                            value={correctAnswers[index] || ""} 
+                            value={correctAnswers[index] || ""}
                             onChange={(e) => {
                               const updatedCorrectAnswers = { ...correctAnswers };
                               updatedCorrectAnswers[index] = e.target.value;
@@ -301,17 +650,13 @@ export default function MasterProdukAdd({ onChangePage }) {
                             }}
                           />
                         )}
-
                         <Input
                           type="number"
                           label="Point"
                           value={question.point}
-                          onChange={(e) => {
-                            const updatedFormContent = [...formContent];
-                            updatedFormContent[index].point = e.target.value;
-                            setFormContent(updatedFormContent);
-                          }}
+                          onChange={(e) => handlePointChange(e, index)}
                         />
+
                         <Button
                           classType="primary btn-sm ms-2 px-3 py-1"
                           label="Done"
@@ -321,39 +666,45 @@ export default function MasterProdukAdd({ onChangePage }) {
                     </div>
                   ) : (
                     <div className="row">
-                      <div className="col-lg-12 question-input">
-                        <Input
-                          type="text"
-                          forInput={`pertanyaan_${index}`}
-                          value={question.text}
-                          onChange={(e) => {
-                            const updatedFormContent = [...formContent];
-                            updatedFormContent[index].text = e.target.value;
-                            setFormContent(updatedFormContent);
-                          }}
-                        />
-                      </div>
+                     <div className="col-lg-12 question-input">
+                      <Input
+                        type="text"
+                        forInput={`pertanyaan_${index}`}
+                        value={question.text}
+                        onChange={(e) => {
+                          const updatedFormContent = [...formContent];
+                          updatedFormContent[index].text = e.target.value;
+                          setFormContent(updatedFormContent);
+                        
+                          // Update formQuestion.soal
+                          setFormQuestion((prevFormQuestion) => ({
+                            ...prevFormQuestion,
+                            soal: e.target.value
+                          }));
+                        }}
+                      />
+                    </div>
 
                       {/* Tampilkan tombol gambar dan PDF hanya jika type = essay */}
                       {question.type === "essay" && (
-                        <div className="col-lg-2 d-flex align-items-center"> 
-                          <input 
-                            type="file" 
-                            id={`fileInput_${index}`} 
-                            style={{ display: 'none' }} 
+                        <div className="col-lg-2 d-flex align-items-center">
+                          <input
+                            type="file"
+                            id={`fileInput_${index}`}
+                            style={{ display: 'none' }}
                             onChange={(e) => setSelectedFile(e.target.files[0])}
                           />
-                          <Button 
-                            iconName="picture" 
-                            classType="btn-sm ms-2 px-3 py-1" 
+                          <Button
+                            iconName="picture"
+                            classType="btn-sm ms-2 px-3 py-1"
                             onClick={() => document.getElementById(`fileInput_${index}`).click()}
                           />
-                          <Button 
-                            iconName="file-pdf" 
-                            classType="btn-sm ms-2 px-3 py-1" 
+                          <Button
+                            iconName="file-pdf"
+                            classType="btn-sm ms-2 px-3 py-1"
                             onClick={() => document.getElementById(`fileInput_${index}`).click()}
                           />
-                          <span className="file-name">{selectedFile && selectedFile.name}</span> 
+                          <span className="file-name">{selectedFile && selectedFile.name}</span>
                         </div>
                       )}
                       {question.type === "multiple_choice" && (
@@ -365,8 +716,8 @@ export default function MasterProdukAdd({ onChangePage }) {
                                 id={`option_${index}_${optionIndex}`}
                                 name={`option_${index}`}
                                 value={option.value}
-                                checked={selectedOptions[index] === option.value}
-                                onChange={(e) => handleOptionChange(e, index)}
+                                checked={selectedOptions[index] === option.value} // Memeriksa apakah nilai opsi ini sudah ada di selectedOptions
+                                onChange={(e) => handleOptionChange(e, index)} // Menggunakan fungsi handleOptionChange saat radio button dipilih
                                 style={{ marginRight: '5px' }}
                               />
                               <input
@@ -383,6 +734,7 @@ export default function MasterProdukAdd({ onChangePage }) {
                               />
                             </div>
                           ))}
+
                           {question.type === "multiple_choice" && (
                             <Button
                               onClick={() => handleAddOption(index)}
@@ -390,7 +742,7 @@ export default function MasterProdukAdd({ onChangePage }) {
                               classType="success btn-sm ms-2 px-3 py-1"
                               label="New Option"
                             />
-                          )}  
+                          )}
                         </div>
                       )}
                       <div className="d-flex justify-content-between my-2 mx-1">
@@ -436,10 +788,9 @@ export default function MasterProdukAdd({ onChangePage }) {
             classType="primary ms-2 px-4 py-2"
             type="submit"
             label="Save"
-            onClick={() => onChangePage("courseAdd")}
           />
           <Button
-            classType="warning ms-3 px-4 py-2"
+            classType="dark ms-3 px-4 py-2"
             label="Next"
             onClick={() => onChangePage("courseAdd")}
           />

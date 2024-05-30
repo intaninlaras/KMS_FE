@@ -6,7 +6,7 @@ const uploadFile = async (file) => {
     data.append("file", file.files[0]);
 
     try {
-      const response = await fetch(API_LINK + "Upload/UploadFile", {
+      const response = await fetch(API_LINK + "Utilities/Upload", {
         method: "POST",
         body: data,
       });
