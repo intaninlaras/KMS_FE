@@ -228,7 +228,7 @@ export default function MasterProsesIndex({ onChangePage, withID }) {
                 iconName="add"
                 classType="success"
                 title="Tambah Materi"
-                label="Add Course"
+                label="Tambah Materi"
                 onClick={() => onChangePage("pretestAdd")}
               />
               <Input
@@ -284,6 +284,7 @@ export default function MasterProsesIndex({ onChangePage, withID }) {
                 itemsPerPage={20}
                 currentPage={currentFilter.page}
                 onPageChange={handleSetCurrentPage}
+                className="mt-3"
               />
             )}
           </div>
@@ -292,7 +293,7 @@ export default function MasterProsesIndex({ onChangePage, withID }) {
       <div className="float my-4 mx-1">
         <Button
           classType="outline-secondary me-2 px-4 py-2"
-          label="Back"
+          label="Kembali"
           onClick={() => onChangePage("kk")}
         />
       </div>

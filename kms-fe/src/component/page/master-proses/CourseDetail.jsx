@@ -13,40 +13,39 @@ export default function MasterMateriDetail({ onChangePage, withID }) {
                 </div>
                 <div className="card-body">
                     <div className="row">
-                        <div className="col-lg-3 d-flex flex-column align-items-center justify-content-center">
+                        <div className="col-lg-6 d-flex flex-column align-items-center justify-content-center">
                             <img
                                 src={withID.Gambar}
                                 alt="gambar"
                                 className="img-fluid"
-                                style={{ width: "300px", height: "auto", marginBottom: "10px" }}
+                                style={{ maxWidth: "100%", height: "auto", marginBottom: "10px" }}
                             />
+                            <h4 className="mt-3">Video</h4>
                             {withID.File_vidio && (
-                                <div className="mb-3">
-                                    <video controls width="100%" height="250">
-                                        <source src={withID.File_vidio} type="video/mp4" />
-                                        Your browser does not support the video tag.
-                                    </video>
-                                </div>
-                            )}
-                            {withID.File_pdf && (
-                                <div className="mt-3">
-                                    <embed
-                                        src={withID.File_pdf}
-                                        type="application/pdf"
-                                        width="100%"
-                                        height="250"
-                                    />
-                                    <p className="mt-2 text-muted">
-                                        Maaf, browser Anda tidak mendukung Preview File. Silakan unduh File untuk melihatnya.
-                                    </p>
-                                </div>
+                                <video controls width="100%" height="auto">
+                                    <source src={withID.File_vidio} type="video/mp4" />
+                                    Your browser does not support the video tag.
+                                </video>
                             )}
                         </div>
-                        <div className="col-lg-9">
-                            <h1 className="mb-3 mt-0 text-center">{withID.Judul}</h1>
+                        <div className="col-lg-6 d-flex flex-column align-items-center justify-content-center">
+                            <h4 className="mt-3">PDF</h4>
+                            {withID.File_pdf && (
+                                <embed
+                                    src={withID.File_pdf}
+                                    type="application/pdf"
+                                    width="100%"
+                                    height="auto"
+                                />
+                            )}
+                        </div>
+                    </div>
+                    <div className="row mt-3">
+                    <div className="col-md-12">
+                            {/* <h1 className="mb-3 mt-0 text-center">{withID.Judul}</h1> */}
                             <h4 className="mb-3 mt-0">Deskripsi</h4>
                             <p className="pb-3">{withID.Keterangan}</p>
-                            <p className="text-dark fw-medium mb-0">Kata kunci</p>
+                            <p className="text-dark fw-medium mb-0">Kata kunci </p>
                             <span>
                                 {Array.isArray(withID["Kata Kunci"])
                                     ? withID["Kata Kunci"].join(", ")
@@ -56,7 +55,7 @@ export default function MasterMateriDetail({ onChangePage, withID }) {
                     </div>
                 </div>
             </div>
-            <div className="float-end my-4 mx-1">
+            <div className="float my-4 mx-1">
                 <Button
                     classType="btn btn-outline-secondary me-2 px-4 py-2"
                     label="Kembali"
