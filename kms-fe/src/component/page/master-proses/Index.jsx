@@ -106,9 +106,14 @@ export default function MasterProsesIndex({ onChangePage, withID }) {
 
   function handleSearch() {
     const searchTerm = searchQuery.current.value.toLowerCase();
+    const statusFilterValue = searchFilterStatus.current.value;
+    const isStatusFilterSelected = statusFilterValue !== "" && statusFilterValue !== "Semua";
+
+    const newStatus = isStatusFilterSelected ? statusFilterValue : "Semua";
     setCurrentFilter((prevFilter) => ({
       ...prevFilter,
       query: searchTerm,
+      status: newStatus,
     }));
   }
 
@@ -117,7 +122,7 @@ export default function MasterProsesIndex({ onChangePage, withID }) {
     const newStatus = value === "" ? "Semua" : value;
     setCurrentFilter((prevFilter) => ({
       ...prevFilter,
-      status: newStatus,
+      // status: newStatus,
     }));
   }
 
@@ -245,7 +250,7 @@ export default function MasterProsesIndex({ onChangePage, withID }) {
                   type="none"
                   arrData={dataFilterSort}
                   defaultValue="[Judul] ASC"
-                  onChange={handleSortChange}
+                  // onChange={handleSortChange}
                 />
                 <DropDown
                   ref={searchFilterStatus}
@@ -254,7 +259,7 @@ export default function MasterProsesIndex({ onChangePage, withID }) {
                   type="semua"
                   arrData={dataFilterStatus}
                   defaultValue="Semua"
-                  onChange={handleStatusChange}
+                  // onChange={handleStatusChange}
                 />
               </Filter>
             </div>
