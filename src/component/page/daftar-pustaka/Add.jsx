@@ -44,11 +44,9 @@ export default function MasterDaftarPustakaAdd({ onChangePage, withID }) {
   const userSchema = object({
     kke_id: string().required("Pilih Terlebih Dahulu"),
     pus_file: string().required("Pilih File Pustaka Terlebih Dahulu"),
-    // pus_file: string(),
     pus_judul: string().required("Isi Judul Terlebih Dahulu"),
     pus_kata_kunci: string().required("Isi Kata Kunci Terlebih Dahulu"),
     pus_keterangan: string().required("Isi Keterangan Terlebih Dahulu"),
-    // pus_gambar: string().required("Pilih Gambar Cover Terlebih Dahulu"),
     pus_gambar: string(),
     pus_status: string(),
   });
@@ -77,7 +75,7 @@ export default function MasterDaftarPustakaAdd({ onChangePage, withID }) {
       error = "format berkas tidak valid";
 
     if (error) ref.current.value = "";
-    //BARIS BARUUUUUUUUUUU
+
     formDataRef.current[name] = fileName;
 
     setErrors((prevErrors) => ({
@@ -203,7 +201,7 @@ export default function MasterDaftarPustakaAdd({ onChangePage, withID }) {
                 <Input
                   type="text"
                   forInput="pus_judul"
-                  label="Judul Pustaka"
+                  label="Judul / Nama File Pustaka"
                   isRequired
                   value={formDataRef.current.pus_judul}
                   onChange={handleInputChange}
@@ -257,7 +255,7 @@ export default function MasterDaftarPustakaAdd({ onChangePage, withID }) {
                 <Input
                   type="textarea"
                   forInput="pus_keterangan"
-                  label="Keterangan Pustaka"
+                  label="Sinopsis / Ringkasan Pustaka"
                   isRequired
                   value={formDataRef.current.pus_keterangan}
                   onChange={handleInputChange}

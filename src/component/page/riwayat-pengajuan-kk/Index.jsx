@@ -19,6 +19,7 @@ import Cookies from "js-cookie";
 import { decryptId } from "../../util/Encryptor";
 import Label from "../../part/Label";
 import CardPengajuanBaru from "../../part/CardPengajuanBaru";
+import { faL } from "@fortawesome/free-solid-svg-icons";
 
 const inisialisasiKK = [
   {
@@ -44,13 +45,14 @@ const inisialisasiData = [
   },
 ];
 
-export default function RiwayatIndex() {
+export default function RiwayatIndex({ onChangePage }) {
   let activeUser = "";
   const cookie = Cookies.get("activeUser");
   if (cookie) activeUser = JSON.parse(decryptId(cookie)).username;
 
   const [show, setShow] = useState(false);
   const [isError, setIsError] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [dataAktif, setDataAktif] = useState(false);
   const [listKK, setListKK] = useState(inisialisasiKK);
   const [detail, setDetail] = useState(inisialisasiData);
@@ -68,72 +70,81 @@ export default function RiwayatIndex() {
     kry_id: "",
   });
 
-  const handleToggleText = () => {
-    setShow(!show);
-  };
+  const getUserKryID = async () => {
+    setIsLoading(true);
+    setIsError((prevError) => ({ ...prevError, error: false }));
 
-  useEffect(() => {
-    const fetchDataUser = async () => {
-      setIsError((prevError) => ({ ...prevError, error: false }));
-
-      try {
-        const data = await UseFetch(API_LINK + "Utilities/GetUserLogin", {
+    try {
+      while (true) {
+        let data = await UseFetch(API_LINK + "Utilities/GetUserLogin", {
           param: activeUser,
         });
 
         if (data === "ERROR") {
           throw new Error("Terjadi kesalahan: Gagal mengambil daftar prodi.");
-        } else if (Array.isArray(data) && data.length > 0) {
+        } else if (data.length === 0) {
+          await new Promise((resolve) => setTimeout(resolve, 2000));
+        } else {
           setUserData(data[0]);
           setCurrentFilter((prevFilter) => ({
             ...prevFilter,
             kry_id: data[0].kry_id,
           }));
-        } else {
-          throw new Error(
-            "Data pengguna tidak ditemukan atau format tidak valid."
-          );
+          setIsLoading(false);
+          break;
         }
-      } catch (error) {
-        setIsError((prevError) => ({
-          ...prevError,
-          error: true,
-          message: error.message,
-        }));
-        setUserData(null);
       }
-    };
-
-    fetchDataUser();
-  }, []);
+    } catch (error) {
+      setIsLoading(true);
+      setIsError((prevError) => ({
+        ...prevError,
+        error: true,
+        message: error.message,
+      }));
+    }
+  };
 
   useEffect(() => {
-    const fetchDataKK = async () => {
-      setIsError((prevError) => ({ ...prevError, error: false }));
+    getUserKryID();
+  }, []);
 
-      try {
-        const data = await UseFetch(
+  const getRiwayat = async () => {
+    setIsError((prevError) => ({ ...prevError, error: false }));
+    setIsLoading(true);
+
+    if (currentFilter.kry_id === "") return;
+
+    try {
+      while (true) {
+        let data = await UseFetch(
           API_LINK + "Pengajuans/GetRiwayat",
           currentFilter
         );
-        console.log("ADADA : " + JSON.stringify(data));
 
         if (data === "ERROR") {
           throw new Error("Terjadi kesalahan: Gagal mengambil daftar prodi.");
+        } else if (data === "data kosong") {
+          setListKK([]);
+          setIsLoading(false);
+          break;
         } else {
           setListKK(data);
+          setIsLoading(false);
+          break;
         }
-      } catch (error) {
-        setIsError((prevError) => ({
-          ...prevError,
-          error: true,
-          message: error.message,
-        }));
-        setListKK([]);
       }
-    };
+    } catch (error) {
+      setIsError((prevError) => ({
+        ...prevError,
+        error: true,
+        message: error.message,
+      }));
+      setListKK([]);
+    }
+  };
 
-    fetchDataKK();
+  useEffect(() => {
+    getRiwayat();
   }, [currentFilter]);
 
   return (
@@ -181,9 +192,17 @@ export default function RiwayatIndex() {
           </div>
           <div className="container">
             <div className="row mt-3 gx-4">
-              {listKK?.map((value) => (
-                <CardPengajuanBaru key={value.Key} data={value} />
-              ))}
+              {listKK[0]?.Message ? (
+                <Alert type="warning" message="Tidak ada riwayat.." />
+              ) : (
+                listKK?.map((value) => (
+                  <CardPengajuanBaru
+                    key={value.Key}
+                    data={value}
+                    onChangePage={onChangePage}
+                  />
+                ))
+              )}
             </div>
           </div>
         </div>

@@ -47,6 +47,7 @@ export default function PengajuanIndex({ onChangePage }) {
   const [dataAktif, setDataAktif] = useState(false);
   const [listKK, setListKK] = useState(inisialisasiKK);
   const [detail, setDetail] = useState(inisialisasiData);
+  const [listNamaFile, setListNamaFile] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
   const [userData, setUserData] = useState({
@@ -118,7 +119,12 @@ export default function PengajuanIndex({ onChangePage }) {
         } else if (data.length === 0) {
           await new Promise((resolve) => setTimeout(resolve, 2000));
         } else {
-          setListKK(data);
+          const formattedData = data.map((value) => {
+            if (value.Status === "Ditolak")
+              return { ...value, Status: "Kosong" };
+            return value;
+          });
+          setListKK(formattedData);
           setIsLoading(false);
           break;
         }
@@ -146,6 +152,18 @@ export default function PengajuanIndex({ onChangePage }) {
     setDataAktif(getDataAktif(listKK));
   }, [listKK]);
 
+  useEffect(() => {
+    if (dataAktif) {
+      console.log("vvv");
+      const formattedData = listKK.map((value) => {
+        if (value.Status === "Kosong") return { ...value, Status: "None" };
+        return value;
+      });
+      setListKK(formattedData);
+    }
+    console.log("cccc");
+  }, [dataAktif]);
+
   const getLampiran = async () => {
     setIsError((prevError) => ({ ...prevError, error: false }));
 
@@ -164,10 +182,10 @@ export default function PengajuanIndex({ onChangePage }) {
             "Terjadi kesalahan: Gagal mengambil Detail Lampiran."
           );
         } else {
+          setListNamaFile(data);
           const formattedData = data.map((item) => ({
             ...item,
           }));
-
           const promises = formattedData.map((value) => {
             const filePromises = [];
 
@@ -241,16 +259,17 @@ export default function PengajuanIndex({ onChangePage }) {
                 <div className="card-body p-3">
                   <div className="row">
                     <div className="col-lg-7 pe-4">
-                      <h3 className="mb-3 fw-semibold">{dataAktif?.Nama}</h3>
+                      <h3 className="mb-3 fw-semibold">
+                        {dataAktif["Nama Kelompok Keahlian"]}
+                      </h3>
                       <h6 className="fw-semibold">
                         <span
                           className="bg-primary me-2"
                           style={{ padding: "2px" }}
                         ></span>
-                        {dataAktif?.NamaProdi}
+                        {dataAktif?.Prodi}
                       </h6>
-                      {/* <hr className="mb-0" style={{ opacity: "0.2" }} /> */}
-                      <p className="py-3">{dataAktif?.Desc}</p>
+                      <p className="pt-3">{dataAktif?.Deskripsi}</p>
                     </div>
                     <div className="col-lg-5 ps-4 border-start">
                       <h5 className="fw-semibold mt-1">Lampiran pendukung</h5>
@@ -265,7 +284,7 @@ export default function PengajuanIndex({ onChangePage }) {
                                 target="_blank"
                                 rel="noopener noreferrer"
                               >
-                                Tampilkan Berkas
+                                {listNamaFile[index]?.Lampiran}
                               </a>
                             ) : (
                               "Tidak ada lampiran"
@@ -283,13 +302,17 @@ export default function PengajuanIndex({ onChangePage }) {
                 </div>
                 <div className="card-body p-3">
                   <div className="row gx-4">
-                    <CardPengajuan
-                      data={listKK.filter((val) => {
-                        return val.Status != "Aktif";
-                      })}
-                      onChangePage={onChangePage}
-                      isShow={show}
-                    />
+                    {listKK
+                      ?.filter((value) => {
+                        return value.Status !== "Aktif";
+                      })
+                      .map((value, index) => (
+                        <CardPengajuanBaru
+                          key={index}
+                          data={value}
+                          onChangePage={onChangePage}
+                        />
+                      ))}
                   </div>
                 </div>
               </div>

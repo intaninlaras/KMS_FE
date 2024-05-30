@@ -40,11 +40,9 @@ export default function MasterDaftarPustakaIndex({ onChangePage, withID }) {
   let activeUser = "";
   const cookie = Cookies.get("activeUser");
   if (cookie) activeUser = JSON.parse(decryptId(cookie)).username;
-  // console.log(activeUser);
-  // console.log("ID: "+withID);
-  // const buttonLabel = withMenu === "kelola" ? "Tambah" : "Kelola";
-  const [isLoading, setIsLoading] = useState(true);
+
   const [isError, setIsError] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [currentData, setCurrentData] = useState(inisialisasiData);
   const [listKK, setListKK] = useState([]);
   const [currentFilter, setCurrentFilter] = useState({
@@ -56,8 +54,8 @@ export default function MasterDaftarPustakaIndex({ onChangePage, withID }) {
   });
 
   useEffect(() => {
-    console.log("filter : "+JSON.stringify(currentFilter));
-  })
+    console.log("filter : " + JSON.stringify(currentFilter));
+  });
 
   const searchQuery = useRef();
   const searchFilterSort = useRef();
@@ -113,7 +111,7 @@ export default function MasterDaftarPustakaIndex({ onChangePage, withID }) {
       "Konfirmasi",
       "Apakah Anda yakin ingin mengubah status data Pustaka?",
       "warning",
-      "Ya",
+      "Ya"
     ).then((confirmed) => {
       if (confirmed) {
         UseFetch(API_LINK + "Pustakas/SetStatusPustaka", {
@@ -137,28 +135,25 @@ export default function MasterDaftarPustakaIndex({ onChangePage, withID }) {
     });
   }
 
-  useEffect(() => {
-    const fetchData = async () => {
-      setIsError(false);
-      setIsLoading(true);
+  const getListPustaka = async () => {
+    setIsError(false);
+    setIsLoading(true);
 
-      // console.log("Filter: " + JSON.stringify(currentFilter));
-      try {
-        const data = await UseFetch(
+    try {
+      while (true) {
+        let data = await UseFetch(
           API_LINK + "Pustakas/GetDataPustaka",
           currentFilter
         );
-        // console.log("Fetched data:", data);
 
         if (data === "ERROR") {
           setIsError(true);
         } else if (data.length === 0) {
-          setCurrentData(inisialisasiData);
+          await new Promise((resolve) => setTimeout(resolve, 2000));
         } else {
           const formattedData = data.map((value) => ({
             ...value,
           }));
-          // console.log("Formatted data:", formattedData);
 
           const promises = formattedData.map((value) => {
             const filePromises = [];
@@ -166,18 +161,16 @@ export default function MasterDaftarPustakaIndex({ onChangePage, withID }) {
             if (value["Gambar"]) {
               const gambarPromise = fetch(
                 API_LINK +
-                `Utilities/Upload/DownloadFile?namaFile=${encodeURIComponent(
-                  value["Gambar"]
-                )}`
+                  `Utilities/Upload/DownloadFile?namaFile=${encodeURIComponent(
+                    value["Gambar"]
+                  )}`
               )
                 .then((response) => response.blob())
                 .then((blob) => {
                   const url = URL.createObjectURL(blob);
-                  // console.log("Gambar URL:", url);
                   value.gbr = value.Gambar;
-                  value.Gambar = url; // Simpan URL blob di objek value
+                  value.Gambar = url;
                   return value;
-                  // return { ...value, Gambar: url };
                 })
                 .catch((error) => {
                   console.error("Error fetching gambar:", error);
@@ -189,18 +182,16 @@ export default function MasterDaftarPustakaIndex({ onChangePage, withID }) {
             if (value["File"]) {
               const filePromise = fetch(
                 API_LINK +
-                `Utilities/Upload/DownloadFile?namaFile=${encodeURIComponent(
-                  value["File"]
-                )}`
+                  `Utilities/Upload/DownloadFile?namaFile=${encodeURIComponent(
+                    value["File"]
+                  )}`
               )
                 .then((response) => response.blob())
                 .then((blob) => {
                   const url = URL.createObjectURL(blob);
-                  // console.log("File URL:", url);
                   value.fls = value.File;
                   value.File = url;
                   return value;
-                  // return { ...value, File: url };
                 })
                 .catch((error) => {
                   console.error("Error fetching file:", error);
@@ -210,13 +201,13 @@ export default function MasterDaftarPustakaIndex({ onChangePage, withID }) {
             }
 
             return Promise.all(filePromises).then((results) => {
-              // console.log("Contents of filePromises:", filePromises);
               console.log("Results of fetching files:", results);
-              const updatedValue = results.reduce((acc, curr) => ({ ...acc, ...curr }), value);
-              // console.log("Updated value with blobs:", updatedValue);
+              const updatedValue = results.reduce(
+                (acc, curr) => ({ ...acc, ...curr }),
+                value
+              );
               return updatedValue;
             });
-
           });
 
           Promise.all(promises)
@@ -225,26 +216,33 @@ export default function MasterDaftarPustakaIndex({ onChangePage, withID }) {
               setCurrentData(updatedData);
             })
             .catch((error) => {
-              // console.error("Error updating currentData:", error);
+              console.error("Error updating currentData:", error);
             });
         }
-      } catch (error) {
-        setIsError(true);
-        console.error("Fetch error:", error);
-      } finally {
-        setIsLoading(false);
+        break;
       }
-    };
+    } catch (error) {
+      setIsError(true);
+      console.error("Fetch error:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-    fetchData();
+  useEffect(() => {
+    getListPustaka();
   }, [currentFilter]);
 
   useEffect(() => {
-    const fetchDataKK = async () => {
-      setIsError((prevError) => ({ ...prevError, error: false }));
+    console.log(currentData);
+  }, [currentData]);
 
-      try {
-        const data = await UseFetch(API_LINK + "KKs/GetDataKK", {
+  const getListKKDropdown = async () => {
+    setIsError((prevError) => ({ ...prevError, error: false }));
+
+    try {
+      while (true) {
+        let data = await UseFetch(API_LINK + "KKs/GetDataKK", {
           page: 1,
           query: "",
           sort: "[Nama Kelompok Keahlian] asc",
@@ -253,26 +251,29 @@ export default function MasterDaftarPustakaIndex({ onChangePage, withID }) {
 
         if (data === "ERROR") {
           throw new Error("Terjadi kesalahan: Gagal mengambil daftar prodi.");
+        } else if (data.length === 0) {
+          await new Promise((resolve) => setTimeout(resolve, 2000));
         } else {
-          // Mengubah data menjadi format yang diinginkan
-          const formattedData = data.map(item => ({
+          const formattedData = data.map((item) => ({
             Value: item["Nama Kelompok Keahlian"],
-            Text: item["Nama Kelompok Keahlian"]
+            Text: item["Nama Kelompok Keahlian"],
           }));
           setListKK(formattedData);
+          break;
         }
-      } catch (error) {
-        setIsError((prevError) => ({
-          ...prevError,
-          error: true,
-          message: error.message,
-        }));
-        setListKK([]);
       }
-    };
+    } catch (error) {
+      setListKK([]);
+      setIsError((prevError) => ({
+        ...prevError,
+        error: true,
+        message: error.message,
+      }));
+    }
+  };
 
-    fetchDataKK();
-
+  useEffect(() => {
+    getListKKDropdown();
   }, []);
 
   return (
@@ -324,13 +325,18 @@ export default function MasterDaftarPustakaIndex({ onChangePage, withID }) {
                 defaultValue="Aktif"
               />
             </Filter>
-          </div>{isLoading ? (
+          </div>
+          {isLoading ? (
             <Loading />
+          ) : currentData[0].Count === 0 ? (
+            <Alert type="warning mt-3" message="Tidak ada data." />
           ) : (
-            <div className="row" style={{
-              maxWidth: "100%"
-            }}>
-              {/* Mapping data buku untuk membuat komponen Card */}
+            <div
+              className="row"
+              style={{
+                maxWidth: "100%",
+              }}
+            >
               <CardPustaka
                 pustakas={currentData}
                 onDetail={onChangePage}

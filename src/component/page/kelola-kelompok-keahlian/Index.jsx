@@ -21,6 +21,7 @@ const dataFilterSort = [
 
 const dataFilterStatus = [
   { Value: "", Text: "Semua" },
+  { Value: "Menunggu", Text: "Menunggu PIC Prodi" },
   { Value: "Draft", Text: "Draft" },
   { Value: "Aktif", Text: "Aktif" },
   { Value: "Tidak Aktif", Text: "Tidak Aktif" },

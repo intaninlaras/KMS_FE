@@ -73,6 +73,17 @@ function CardPengajuanBaru({ data, onChangePage, isShow }) {
         title="Klik untuk melihat detail pengajuan"
       />
     );
+  } else if (data.Status === "None") {
+    status = "";
+    aksi = (
+      <Button
+        iconName="list"
+        classType="primary btn-sm"
+        label="Detail"
+        onClick={() => onChangePage("detailKK", data)}
+        title="Klik untuk melihat detail Kelompok Keahlian"
+      />
+    );
   } else {
     status = (
       <p>
