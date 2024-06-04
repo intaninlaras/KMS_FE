@@ -1,8 +1,9 @@
 import React, { useState } from "react";
 import Button from "./Button";
 import Icon from "./Icon";
+import CardProgram from "./CardProgram";
 
-const CardKK = ({ kk }) => {
+const CardKK = ({ kk, onChangePage }) => {
   const [isContentVisible, setIsContentVisible] = useState(false);
 
   const toggleContentVisibility = () => {
@@ -27,11 +28,11 @@ const CardKK = ({ kk }) => {
             <h6 className="card-programtitle mb-0">
               <Icon name="align-left" type="Bold" cssClass="btn px-2 py-0 text-primary" title="Program" />
               <span>
-                <a href="" className="text-decoration-underline text-dark">{kk.ProgramCount} Program</a>
+                <a href="#" className="text-decoration-underline text-dark">{kk.ProgramCount} Program</a>
               </span>
               <Icon name="users" type="Bold" cssClass="btn px-2 py-0 text-primary ms-3" title="Anggota Kelompok Keahlian" />
               <span>
-                <a href="" className="text-decoration-underline text-dark">{kk.MemberCount} Members</a>
+                <a href="#" className="text-decoration-underline text-dark">{kk.MemberCount} Members</a>
               </span>
             </h6>
             <div className="ps-3" style={{ borderLeft: "solid grey 1px" }}>
@@ -52,10 +53,16 @@ const CardKK = ({ kk }) => {
               WebkitBoxOrient: "vertical",
               overflow: "hidden"
             }}
-            
           >
             {kk.Deskripsi}
           </p>
+          {isContentVisible && (
+            <>
+              {kk.programs.map((program) => (
+                <CardProgram key={program.Key} program={program} onChangePage={onChangePage} />
+              ))}
+            </>
+          )}
         </div>
       </div>
     </div>

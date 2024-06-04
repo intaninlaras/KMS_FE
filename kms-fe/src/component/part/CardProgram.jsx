@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import Button from "./Button";
-import Icon from "./Icon";
+import CardKategoriProgram from "./CardKategoriProgram";
 
 const CardProgram = ({ program, onChangePage }) => {
-  const [isContentVisible, setIsContentVisible] = useState(true);
+  const [isContentVisible, setIsContentVisible] = useState(false);
 
   const toggleContentVisibility = () => {
     setIsContentVisible(!isContentVisible);
@@ -11,18 +11,14 @@ const CardProgram = ({ program, onChangePage }) => {
 
   return (
     <div className={`card card-program mt-3 ${isContentVisible ? "border-primary" : ""}`}>
-      <div
-        className={`card-body d-flex justify-content-between ${
-          isContentVisible ? "align-items-center border-bottom border-primary" : ""
-        }`}
-      >
+      <div className={`card-body d-flex justify-content-between ${isContentVisible ? "align-items-center border-bottom border-primary" : ""}`}>
         <p className="fw-medium mb-0" style={{ width: "15%" }}>
           {program["Nama Program"]}
         </p>
         <p
           className="mb-0"
           style={{
-            width: "95%",
+            width: "70%",
             display: isContentVisible ? "block" : "-webkit-box",
             WebkitLineClamp: 1,
             WebkitBoxOrient: "vertical",
@@ -45,6 +41,17 @@ const CardProgram = ({ program, onChangePage }) => {
           />
         </div>
       </div>
+      {isContentVisible && (
+        <div className="mt-3">
+          {program.categories.map((kategori) => (
+            <CardKategoriProgram 
+              key={kategori.Key} 
+              kategori={kategori} 
+              onChangePage={onChangePage} 
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 };
