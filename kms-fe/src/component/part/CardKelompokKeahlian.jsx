@@ -21,7 +21,7 @@ const CardKK = ({ kk, onChangePage }) => {
             backgroundColor: "#67ACE9"
           }}
         >
-          {kk.Key} {kk["Nama Kelompok Keahlian"]}
+          {kk["Nama Kelompok Keahlian"]}
         </h5>
         <div className="card-body px-3">
           <div className="d-flex justify-content-between align-items-center">
@@ -32,7 +32,7 @@ const CardKK = ({ kk, onChangePage }) => {
               </span>
               <Icon name="users" type="Bold" cssClass="btn px-2 py-0 text-primary ms-3" title="Anggota Kelompok Keahlian" />
               <span>
-                <a href="#" className="text-decoration-underline text-dark">{kk.MemberCount} Members</a>
+                <a href="#" className="text-decoration-underline text-dark">{kk.AnggotaCount} Anggota</a>
               </span>
             </h6>
             <div className="ps-3" style={{ borderLeft: "solid grey 1px" }}>
