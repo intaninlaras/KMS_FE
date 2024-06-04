@@ -11,7 +11,6 @@ import CardMateri from "../../part/CardMateri";
 import UseFetch from "../../util/UseFetch";
 import { API_LINK } from "../../util/Constants";
 import '@fortawesome/fontawesome-free/css/all.css';
-import axios from "axios";
 import "../../../index.css";
 // Definisikan beberapa data contoh untuk tabel
 
@@ -59,9 +58,11 @@ export default function MasterProsesIndex({ onChangePage, withID }) {
     query: "",
     sort: "Judul",
     order: "asc",
+    kategori:withID,
    // Default status
   });
-
+  const kategori = withID;
+  console.log("kategori ID: " + kategori);
   const searchQuery = useRef(null);
   const searchFilterSort = useRef(null);
   const searchFilterStatus = useRef(null);
@@ -146,7 +147,7 @@ export default function MasterProsesIndex({ onChangePage, withID }) {
       console.log("Filter: " + JSON.stringify(currentFilter));
       try {
         const data = await UseFetch(
-          API_LINK + "Materis/GetDataMateri",
+          API_LINK + "Materis/GetDataMateriByKategori",
           currentFilter
         );
         console.log("Fetched data:", data);
@@ -231,7 +232,7 @@ export default function MasterProsesIndex({ onChangePage, withID }) {
                 classType="success"
                 title="Tambah Materi"
                 label="Tambah Materi"
-                onClick={() => onChangePage("pretestAdd")}
+                onClick={() => onChangePage("pretestAdd",kategori)}
               />
               <Input
                 ref={searchQuery}
@@ -299,6 +300,6 @@ export default function MasterProsesIndex({ onChangePage, withID }) {
           onClick={() => onChangePage("kk")}
         />
       </div>
-    </div>
+  </div>
   );
 }
