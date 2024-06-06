@@ -61,13 +61,13 @@ const arrMenu = [
     link: "#",
     sub: [
       {
-        title: "Course",
+        title: "Materi",
         link: ROOT_LINK + "/master_proses",
       },
-      {
-        title: "Read Course",
-        link: ROOT_LINK + "/master_test",
-      },
+      // {
+      //   title: "Read Materi",
+      //   link: ROOT_LINK + "/master_test",
+      // },
       // {
       //   title: "Post-Test",
       //   link: ROOT_LINK + "/master_produk",

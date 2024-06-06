@@ -168,7 +168,7 @@ export default function MasterPostTestAdd({ onChangePage }) {
           <Stepper
             steps={[
               { label: 'Pretest', onClick:() => onChangePage("pretestAdd")},
-              { label: 'Course' ,onClick:() => onChangePage("courseAdd")},
+              { label: 'Materi' ,onClick:() => onChangePage("courseAdd")},
               { label: 'Sharing Expert',onClick:() => onChangePage("sharingAdd")},
               { label: 'Forum' ,onClick:() => onChangePage("forumAdd") },
               { label: 'Post Test',onClick:() => onChangePage("posttestAdd") }
@@ -199,7 +199,7 @@ export default function MasterPostTestAdd({ onChangePage }) {
         </div>
         <div className="card">
           <div className="card-header bg-outline-primary fw-medium text-black">
-            Add New Post Test
+            Tambah Post Test Baru
           </div>
           <div className="card-body p-4">
             <div className="row mb-4">
@@ -207,14 +207,14 @@ export default function MasterPostTestAdd({ onChangePage }) {
                 <Input
                   type="time"
                   forInput="namaProduk"
-                  label="Timer"
+                  label="Durasi"
                   isRequired
                 />
               </div>
               <div className="col-lg-6">
                 <Input
                   type="number"
-                  label="Minimum score"
+                  label="Skor Minimal"
                   isRequired
                 />
               </div>
@@ -239,7 +239,7 @@ export default function MasterPostTestAdd({ onChangePage }) {
                 />
                 <Button
                   iconName="download"
-                  label="Download Template"
+                  label="Unduh Template"
                   classType="warning btn-sm px-3 py-1"
                   onClick={handleDownloadTemplate}
                   

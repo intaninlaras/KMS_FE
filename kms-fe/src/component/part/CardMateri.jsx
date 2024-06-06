@@ -8,6 +8,7 @@ function CardMateri({
   onEdit,
   onDetail,
   MAX_DESCRIPTION_LENGTH = 50,
+  isNonEdit,
 }) {
 
   const [expandDeskripsi, setExpandDeskripsi] = useState({});
@@ -88,38 +89,57 @@ function CardMateri({
                 </div>
               </div>
               <div className="card-footer d-flex justify-content-end bg-white">
-                {book.Status === "Aktif" && (
+                {isNonEdit === false ? (
+                  <>
+                    {book.Status === "Aktif" && (
+                      <button
+                        className="btn btn-sm text-primary"
+                        title="Edit Materi"
+                        onClick={() => onEdit("courseEdit", book)}
+                      >
+                        <i className="fas fa-edit"></i>
+                      </button>
+                    )}
+                    <button
+                      className="btn btn-sm text-primary"
+                      title="Detail Materi"
+                      onClick={() => onDetail("courseDetail", book)}
+                    >
+                      <i className="fas fa-list"></i>
+                    </button>
+                    <button
+                      className="btn btn-circle"
+                      onClick={() => handleStatusChange(book)}
+                    >
+                      {book.Status === "Aktif" ? (
+                        <i
+                          className="fas fa-toggle-on text-primary"
+                          style={{ fontSize: '20px' }}
+                        ></i>
+                      ) : (
+                        <i
+                          className="fas fa-toggle-off text-red"
+                          style={{ fontSize: '20px' }}
+                        ></i>
+                      )}
+                    </button>
+                  </>
+                ) : (
                   <button
-                    className="btn btn-sm text-primary"
-                    title="Edit Materi"
-                    onClick={() => onEdit("courseEdit", book)}
+                    className="btn btn-outline-primary"
+                    type="button"
+                    onClick={() => {
+                      onChangePage(
+                        "pretest",
+                        isDataReadyTemp,
+                        materiIdTemp
+                      );
+                    }}
+                    style={{ }}
                   >
-                    <i className="fas fa-edit"></i>
+                    Baca Materi
                   </button>
                 )}
-                <button
-                  className="btn btn-sm text-primary"
-                  title="Detail Materi"
-                  onClick={() => onDetail("courseDetail", book)}
-                >
-                  <i className="fas fa-list"></i>
-                </button>
-                <button
-                  className="btn btn-circle"
-                  onClick={() => handleStatusChange(book)}
-                >
-                  {book.Status === "Aktif" ? (
-                    <i
-                      className="fas fa-toggle-on text-primary"
-                      style={{ fontSize: '20px' }}
-                    ></i>
-                  ) : (
-                    <i
-                      className="fas fa-toggle-off text-red"
-                      style={{ fontSize: '20px' }}
-                    ></i>
-                  )}
-                </button>
               </div>
             </div>
           </div>

@@ -109,7 +109,7 @@ export default function MasterForumAdd({ onChangePage }) {
           <Stepper
             steps={[
               { label: 'Pretest', onClick: () => onChangePage("pretestAdd") },
-              { label: 'Course', onClick: () => onChangePage("courseAdd") },
+              { label: 'Materi', onClick: () => onChangePage("courseAdd") },
               { label: 'Sharing Expert', onClick: () => onChangePage("sharingAdd") },
               { label: 'Forum', onClick: () => onChangePage("forumAdd") },
               { label: 'Post Test', onClick: () => onChangePage("posttestAdd") }
@@ -141,7 +141,7 @@ export default function MasterForumAdd({ onChangePage }) {
 
         <div className="card">
           <div className="card-header bg-outline-primary fw-medium text-black">
-            Add Forum
+            Tambah Forum
           </div>
           <div className="card-body p-4">
             <div className="row">
@@ -149,7 +149,7 @@ export default function MasterForumAdd({ onChangePage }) {
                 <Input
                   type="text"
                   forInput="forumJudul"
-                  label="Forum Title"
+                  label="Judul Forum"
                   value={formData.forumJudul}
                   onChange={handleInputChange}
                   errorMessage={errors.forumJudul}
@@ -158,7 +158,7 @@ export default function MasterForumAdd({ onChangePage }) {
               <div className="col-lg-12">
                 <div className="form-group">
                   <label htmlFor="forumIsi" className="form-label fw-bold">
-                    Forum Contents
+                    Isi Forum
                   </label>
                   <textarea
                     id="forumIsi"

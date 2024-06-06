@@ -208,7 +208,7 @@ export default function MasterCourseAdd({ onChangePage}) {
         <Stepper
            steps={[
             { label: 'Pretest', onClick:() => onChangePage("pretestAdd")},
-            { label: 'Course' ,onClick:() => onChangePage("courseAdd")},
+            { label: 'Materi' ,onClick:() => onChangePage("courseAdd")},
             { label: 'Sharing Expert',onClick:() => onChangePage("sharingAdd")},
             { label: 'Forum' ,onClick:() => onChangePage("forumAdd") },
             { label: 'Post Test',onClick:() => onChangePage("posttestAdd") }

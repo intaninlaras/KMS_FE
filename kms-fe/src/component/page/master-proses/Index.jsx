@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from "react";
-import axios from "axios";
 import SweetAlert from "../../util/SweetAlert";
 import Button from "../../part/Button";
 import Input from "../../part/Input";
@@ -272,15 +271,36 @@ export default function MasterProsesIndex({ onChangePage, withID }) {
               <Loading />
             ) : (
               <div className="row">
-                <CardMateri
-                  materis={currentData}
-                  onDetail={onChangePage}
-                  onEdit={onChangePage}
-                  onStatus={handleSetStatus}
-                />
+                {currentFilter.status === "Semua" ? (
+                  <>
+                    <CardMateri
+                      materis={currentData.filter(materi => materi.Status === "Aktif")}
+                      onDetail={onChangePage}
+                      onEdit={onChangePage}
+                      onStatus={handleSetStatus}
+                      isNonEdit={false}
+                    />
+                    <div><b>Tidak Aktif</b></div>
+                    <hr />
+                    <CardMateri
+                      materis={currentData.filter(materi => materi.Status === "Tidak Aktif")}
+                      onDetail={onChangePage}
+                      onEdit={onChangePage}
+                      onStatus={handleSetStatus}
+                      isNonEdit={false}
+                    />
+                  </>
+                ) : (
+                  <CardMateri
+                    materis={currentData.filter(materi => materi.Status === currentFilter.status)}
+                    onDetail={onChangePage}
+                    onEdit={onChangePage}
+                    onStatus={handleSetStatus}
+                      isNonEdit={false}
+                  />
+                )}
               </div>
             )}
-
             {currentData.length > 0 && currentData[0].Count > 20 && (
               <Paging
                 totalItems={currentData[0].Count}

@@ -136,7 +136,7 @@ export default function MasterSharingAdd({ onChangePage }) {
         <Stepper
              steps={[
               { label: 'Pretest', onClick:() => onChangePage("pretestAdd")},
-              { label: 'Course' ,onClick:() => onChangePage("courseAdd")},
+              { label: 'Materi' ,onClick:() => onChangePage("courseAdd")},
               { label: 'Sharing Expert',onClick:() => onChangePage("sharingAdd")},
               { label: 'Forum' ,onClick:() => onChangePage("forumAdd") },
               { label: 'Post Test',onClick:() => onChangePage("posttestAdd") }
@@ -168,7 +168,7 @@ export default function MasterSharingAdd({ onChangePage }) {
 
         <div className="card">
           <div className="card-header bg-outline-primary fw-medium text-black">
-            Add Sharing Expert
+            Tambah Sharing Expert
           </div>
           <div className="card-body p-4">
             <div className="row">
@@ -203,7 +203,7 @@ export default function MasterSharingAdd({ onChangePage }) {
         <div className="float my-4 mx-1">
           <Button
             classType="outline-secondary me-2 px-4 py-2"
-            label="Kemballi"
+            label="Kembali"
             onClick={() => onChangePage("courseAdd")}
           />
           <Button
