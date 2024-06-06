@@ -204,35 +204,40 @@ export default function KKDetailPublish({ onChangePage, withID }) {
               </div>
             </div>
           </div>
-          <h5 className="text-primary py-2">
+          <h5 className="text-primary pt-2">
             Daftar Program dalam Kelompok Keahlian{" "}
             <strong>{formData.nama}</strong>
           </h5>
-          <div className="row">
-            {listProgram.length > 0 ? (
-              listProgram[0].Message ? (
-                <p>Tidak Ada Program</p>
-              ) : (
-                listProgram.map((data) => (
-                  <div className="col-lg-4">
-                    <div className="card card-kategori-program mt-3">
-                      <div className="card-body">
-                        <div className="d-flex justify-content-between">
-                          <h6 className="card-title">{data["Nama Program"]}</h6>
-                        </div>
-                        <div className="d-flex mt-2">
-                          <div className="me-2 bg-primary ps-1"></div>
-                          <p className="card-subtitle">{data.Deskripsi}</p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                ))
-              )
-            ) : (
+          {listProgram.length > 0 ? (
+            listProgram[0].Message ? (
               <p>Tidak Ada Program</p>
-            )}
-          </div>
+            ) : (
+              listProgram.map((data, index) => (
+                <div
+                  key={data.Key}
+                  className="card card-program mt-3 border-secondary"
+                >
+                  <div className="card-body d-flex justify-content-between align-items-center border-bottom border-secondary">
+                    <p className="fw-medium mb-0" style={{ width: "20%" }}>
+                      {index + 1}
+                      {". "}
+                      {data["Nama Program"]}
+                    </p>
+                    <p
+                      className="mb-0 pe-3"
+                      style={{
+                        width: "80%",
+                      }}
+                    >
+                      {data.Deskripsi}
+                    </p>
+                  </div>
+                </div>
+              ))
+            )
+          ) : (
+            <p>Tidak Ada Program</p>
+          )}
         </div>
       </div>
       <div className="float-end my-4 mx-1">
