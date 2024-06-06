@@ -27,8 +27,8 @@
     "react-time-picker": "^7.0.0",
     "styled-components": "^6.1.11",
     "sweetalert": "^2.1.2",
-    "xlsx": "^0.18.5",
     "sweetalert2": "^11.11.0",
+    "xlsx": "^0.18.5",
     "yup": "^1.4.0"
   },
   "devDependencies": {

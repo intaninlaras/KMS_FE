@@ -18,7 +18,7 @@ export default function MasterProses() {
       case "index":
         return <MasterProsesIndex onChangePage={handleSetPageMode} withID={dataID}/>;
       case "pretestAdd":
-        return <MasterPreTestAdd onChangePage={handleSetPageMode} />;
+        return <MasterPreTestAdd onChangePage={handleSetPageMode} withID={dataID}/>;
       case "courseAdd":
         return <MasterCourseAdd onChangePage={handleSetPageMode} />;
       case "courseEdit":
