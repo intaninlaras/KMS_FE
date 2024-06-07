@@ -8,6 +8,7 @@ import * as XLSX from 'xlsx';
 import axios from 'axios';
 import { validateAllInputs, validateInput } from "../../util/ValidateForm";
 import { API_LINK } from "../../util/Constants";
+import FileUpload from "../../part/FileUpload";
 
 export default function MasterPreTestAdd({ onChangePage }) {
   const [formContent, setFormContent] = useState([]);
@@ -18,6 +19,7 @@ export default function MasterPreTestAdd({ onChangePage }) {
   const [selectedFile, setSelectedFile] = useState(null);
   const [timer, setTimer] = useState('');
   const [minimumScore, setMinimumScore] = useState();
+  const gambarInputRef = useRef(null);
 
   const handleChange = (name, value) => {
     setFormData((prevFormData) => ({
@@ -243,7 +245,7 @@ export default function MasterPreTestAdd({ onChangePage }) {
           : "answer"
         : question.options.length > 0
           ? "multiple_choice"
-          : "essay";
+          : "multiple_choice";
 
     updatedFormContent[index] = {
       ...question,
@@ -392,6 +394,31 @@ export default function MasterPreTestAdd({ onChangePage }) {
     
   };
 
+  // Fungsi untuk menangani perubahan nilai poin opsi
+const handleOptionPointChange = (e, questionIndex, optionIndex) => {
+  const { value } = e.target;
+  const updatedOptions = [...formContent[questionIndex].options]; // Salin opsi dari formContent
+
+  // Perbarui nilai poin opsi yang sesuai
+  updatedOptions[optionIndex] = {
+    ...updatedOptions[optionIndex],
+    point: parseInt(value), // Konversi nilai menjadi integer jika diperlukan
+  };
+
+  // Perbarui formContent dengan opsi yang diperbarui
+  const updatedFormContent = [...formContent];
+  updatedFormContent[questionIndex] = {
+    ...updatedFormContent[questionIndex],
+    options: updatedOptions,
+  };
+
+  // Update state formContent dengan nilai yang diperbarui
+  setFormContent(updatedFormContent);
+
+  handlePointChange(e, questionIndex);
+};
+
+
   const handleInputChange = async (e) => {
     const { name, value } = e.target;
     const validationError = await validateInput(name, value, userSchema);
@@ -435,6 +462,12 @@ export default function MasterPreTestAdd({ onChangePage }) {
           }
           .question-input {
             margin-bottom: 12px;
+          }
+          .file-upload-label {
+            font-size: 14px; /* Sesuaikan ukuran teks label */
+          }
+          .file-ket-label {
+            font-size: 10px; /* Sesuaikan ukuran teks label */
           }
         `}
       </style>
@@ -591,8 +624,10 @@ export default function MasterPreTestAdd({ onChangePage }) {
                       onChange={(e) => handleQuestionTypeChange(e, index)}>
                       <option value="essay">Essay</option>
                       <option value="multiple_choice">Pilihan Ganda</option>
+                      <option value="praktikum">Praktikum</option>
                     </select>
                   </div>
+                  
                 </div>
                 <div className="card-body p-4">
                   {question.type === "answer" ? (
@@ -633,23 +668,7 @@ export default function MasterPreTestAdd({ onChangePage }) {
                           ))}
                         </div>
 
-                        {/* Tampilkan input Correct Answer hanya jika tipe pertanyaan adalah essay */}
-                        {question.options.length === 0 && (
-                          <Input
-                            type="text"
-                            label="Correct Answer"
-                            value={correctAnswers[index] || ""}
-                            onChange={(e) => {
-                              const updatedCorrectAnswers = { ...correctAnswers };
-                              updatedCorrectAnswers[index] = e.target.value;
-                              setCorrectAnswers(updatedCorrectAnswers);
-                              // Update juga correctAnswer pada formContent
-                              const updatedFormContent = [...formContent];
-                              updatedFormContent[index].correctAnswer = e.target.value;
-                              setFormContent(updatedFormContent);
-                            }}
-                          />
-                        )}
+                        
                         <Input
                           type="number"
                           label="Point"
@@ -683,76 +702,91 @@ export default function MasterPreTestAdd({ onChangePage }) {
                           }));
                         }}
                       />
+
                     </div>
 
                       {/* Tampilkan tombol gambar dan PDF hanya jika type = essay */}
-                      {question.type === "essay" && (
-                        <div className="col-lg-2 d-flex align-items-center">
-                          <input
-                            type="file"
-                            id={`fileInput_${index}`}
-                            style={{ display: 'none' }}
-                            onChange={(e) => setSelectedFile(e.target.files[0])}
-                          />
-                          <Button
-                            iconName="picture"
-                            classType="btn-sm ms-2 px-3 py-1"
-                            onClick={() => document.getElementById(`fileInput_${index}`).click()}
-                          />
-                          <Button
-                            iconName="file-pdf"
-                            classType="btn-sm ms-2 px-3 py-1"
-                            onClick={() => document.getElementById(`fileInput_${index}`).click()}
-                          />
-                          <span className="file-name">{selectedFile && selectedFile.name}</span>
-                        </div>
-                      )}
-                      {question.type === "multiple_choice" && (
-                        <div className="col-lg-12">
-                          {question.options.map((option, optionIndex) => (
-                            <div key={optionIndex} className="form-check">
-                              <input
-                                type="radio"
-                                id={`option_${index}_${optionIndex}`}
-                                name={`option_${index}`}
-                                value={option.value}
-                                checked={selectedOptions[index] === option.value} // Memeriksa apakah nilai opsi ini sudah ada di selectedOptions
-                                onChange={(e) => handleOptionChange(e, index)} // Menggunakan fungsi handleOptionChange saat radio button dipilih
-                                style={{ marginRight: '5px' }}
-                              />
-                              <input
-                                type="text"
-                                value={option.label}
-                                onChange={(e) => handleOptionLabelChange(e, index, optionIndex)}
-                                className="option-input"
-                                readOnly={question.type === "answer"}
-                              />
-                              <Button
-                                iconName="delete"
-                                classType="btn-sm ms-2 px-2 py-0"
-                                onClick={() => handleDeleteOption(index, optionIndex)}
-                              />
-                            </div>
-                          ))}
+{(question.type === "essay" || question.type === "praktikum") && (
+  <div className="col-lg-12 d-flex align-items-center form-check">
+    <div className="d-flex flex-column w-100">
+      <FileUpload
+        ref={gambarInputRef}
+        forInput="que_gambar"
+        label={<span className="file-upload-label">Gambar (.jpg, .png)</span>}
+        formatFile=".jpg,.png"
+        onChange={() => handleFileChange(gambarInputRef, "jpg,png")}
+        errorMessage={errors.que_gambar}
+        style={{ fontSize: '12px' }} // Mengatur ukuran teks
+      />
+      <div className="mt-2"> {/* Memberikan margin atas kecil untuk jarak yang rapi */}
+        <Input
+          type="number"
+          label="Point"
+          value={question.point}
+          onChange={(e) => handlePointChange(e, index)}
+        />
+      </div>
+    </div>
+  </div>
+)}
 
-                          {question.type === "multiple_choice" && (
+                      {question.type === "multiple_choice" && (
+                      <div className="col-lg-12">
+                        {question.options.map((option, optionIndex) => (
+                          <div key={optionIndex} className="form-check" style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
+                            <input
+                              type="radio"
+                              id={`option_${index}_${optionIndex}`}
+                              name={`option_${index}`}
+                              value={option.value}
+                              checked={selectedOptions[index] === option.value} // Memeriksa apakah nilai opsi ini sudah ada di selectedOptions
+                              onChange={(e) => handleOptionChange(e, index)} // Menggunakan fungsi handleOptionChange saat radio button dipilih
+                              style={{ marginRight: '10px' }}
+                            />
+                            <input
+                              type="text"
+                              value={option.label}
+                              onChange={(e) => handleOptionLabelChange(e, index, optionIndex)}
+                              className="option-input"
+                              readOnly={question.type === "answer"}
+                              style={{ marginRight: '10px' }}
+                            />
+                            <Button
+                              iconName="delete"
+                              classType="btn-sm ms-2 px-2 py-0"
+                              onClick={() => handleDeleteOption(index, optionIndex)}
+                              style={{ marginRight: '10px' }}
+                            />
+                            <input
+                              type="number"
+                              value={option.point}
+                              className="btn-sm ms-2 px-2 py-0"
+                              onChange={(e) => handleOptionPointChange(e, index, optionIndex)}
+                              style={{ width: '50px' }}
+                            />
+                          </div>
+                        ))}
+
+
+
+
+                        {question.type === "multiple_choice" && (
+                          <div>
                             <Button
                               onClick={() => handleAddOption(index)}
                               iconName="add"
                               classType="success btn-sm ms-2 px-3 py-1"
-                              label="New Option"
+                              label="Opsi Baru"
                             />
-                          )}
+                            
+                          </div>
+                        )}
+
                         </div>
                       )}
                       <div className="d-flex justify-content-between my-2 mx-1">
                         <div>
-                          <Button
-                            iconName="check"
-                            classType="primary btn-sm ms-1 px-2 py-1"
-                            label="Kunci Jawaban"
-                            onClick={() => handleChangeQuestion(index)}
-                          />
+                          
                         </div>
                         <div>
                           <Button
