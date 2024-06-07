@@ -62,7 +62,7 @@ export default function MasterProsesIndex({ onChangePage, withID }) {
    // Default status
   });
   const kategori = withID;
-  console.log("kategori ID: " + kategori);
+  console.log("kategori di index: " + kategori);
   const searchQuery = useRef(null);
   const searchFilterSort = useRef(null);
   const searchFilterStatus = useRef(null);

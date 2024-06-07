@@ -10,7 +10,7 @@ import { validateAllInputs, validateInput } from "../../util/ValidateForm";
 import { API_LINK } from "../../util/Constants";
 import FileUpload from "../../part/FileUpload";
 
-export default function MasterPreTestAdd({ onChangePage }) {
+export default function MasterPreTestAdd({ onChangePage ,withID}) {
   const [formContent, setFormContent] = useState([]);
   const [selectedOptions, setSelectedOptions] = useState([]);
   const [errors, setErrors] = useState({});
@@ -20,6 +20,9 @@ export default function MasterPreTestAdd({ onChangePage }) {
   const [timer, setTimer] = useState('');
   const [minimumScore, setMinimumScore] = useState();
   const gambarInputRef = useRef(null);
+
+  const kategori = withID;
+  console.log("kategori di pretest: " + kategori);
 
   const handleChange = (name, value) => {
     setFormData((prevFormData) => ({
@@ -826,7 +829,7 @@ const handleOptionPointChange = (e, questionIndex, optionIndex) => {
           <Button
             classType="dark ms-3 px-4 py-2"
             label="Berikutnya"
-            onClick={() => onChangePage("courseAdd")}
+            onClick={() => onChangePage("courseAdd",kategori)}
           />
         </div>
       </form>
