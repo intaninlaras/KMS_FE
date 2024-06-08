@@ -30,56 +30,53 @@ export default function SubKKIndex({ onChangePage }) {
           throw new Error("Terjadi kesalahan: Gagal mengambil data Kelompok Keahlian.");
         }
   
-        const kkWithPrograms = await Promise.all(
-          kkData.map(async (kk) => {
-            const programData = await UseFetch(API_LINK + "Program/GetProgramByKK", { kk: kk.Key });
-            console.log("Program Data for KK:", kk.Key, programData);
+        const kkWithPrograms = [];
   
-            if (programData === "ERROR") {
-              throw new Error("Terjadi kesalahan: Gagal mengambil data Program.");
-            }
+        for (const kk of kkData) {
+          const programData = await UseFetch(API_LINK + "Program/GetProgramByKK", { kk: kk.Key });
+          console.log("Program Data for KK:", kk.Key, programData);
   
-            // Jumlah Data Anggota
-            const anggotaCountData = await UseFetch(API_LINK + "Program/CountAnggotaByKK", { p1: kk.Key });
-            console.log("Anggota Count Data for KK:", kk.Key, anggotaCountData);
+          if (programData === "ERROR") {
+            throw new Error("Terjadi kesalahan: Gagal mengambil data Program.");
+          }
   
-            if (anggotaCountData === "ERROR") {
-              throw new Error("Terjadi kesalahan: Gagal menghitung jumlah anggota.");
-            }
+          const anggotaCountData = await UseFetch(API_LINK + "Program/CountAnggotaByKK", { p1: kk.Key });
+          console.log("Anggota Count Data for KK:", kk.Key, anggotaCountData);
   
-            const anggotaCount = anggotaCountData.length;
-            console.log("Member Count for KK:", kk.Key, anggotaCount);
+          if (anggotaCountData === "ERROR") {
+            throw new Error("Terjadi kesalahan: Gagal menghitung jumlah anggota.");
+          }
   
-            // Jumlah Data Program
-            const programCountData = await UseFetch(API_LINK + "Program/CountProgramByKK", { p1: kk.Key });
-            console.log("Program Count Data for KK:", kk.Key, programCountData);
+          const anggotaCount = anggotaCountData.length;
+          console.log("Member Count for KK:", kk.Key, anggotaCount);
   
-            if (programCountData === "ERROR") {
-              throw new Error("Terjadi kesalahan: Gagal menghitung jumlah anggota.");
-            }
+          const programCountData = await UseFetch(API_LINK + "Program/CountProgramByKK", { p1: kk.Key });
+          console.log("Program Count Data for KK:", kk.Key, programCountData);
   
-            const programCount = programCountData.length;
-            console.log("Program Count for KK:", kk.Key, programCount);
+          if (programCountData === "ERROR") {
+            throw new Error("Terjadi kesalahan: Gagal menghitung jumlah anggota.");
+          }
   
-            const programsWithCategories = await Promise.all(
-              programData.map(async (program) => {
-                const categoryData = await UseFetch(API_LINK + "Program/GetKategoriByProgram", { p1: program.Key });
+          const programCount = programCountData.length;
+          console.log("Program Count for KK:", kk.Key, programCount);
   
-                // Count materials for each category (Asynchronous)
-                const categoriesWithMaterialCounts = await Promise.all(
-                  categoryData.map(async (category) => {
-                    const materialCountData = await UseFetch(API_LINK + "Program/CountMateriByKategori", { p1: category.Key });
-                    return { ...category, materialCount: materialCountData.length };
-                  })
-                );
+          const programsWithCategories = [];
   
-                return { ...program, categories: categoriesWithMaterialCounts };
+          for (const program of programData) {
+            const categoryData = await UseFetch(API_LINK + "Program/GetKategoriByProgram", { p1: program.Key });
+  
+            const categoriesWithMaterialCounts = await Promise.all(
+              categoryData.map(async (category) => {
+                const materialCountData = await UseFetch(API_LINK + "Program/CountMateriByKategori", { p1: category.Key });
+                return { ...category, materialCount: materialCountData.length };
               })
             );
   
-            return { ...kk, programs: programsWithCategories, AnggotaCount: anggotaCount, ProgramCount: programCount };
-          })
-        );
+            programsWithCategories.push({ ...program, categories: categoriesWithMaterialCounts });
+          }
+  
+          kkWithPrograms.push({ ...kk, programs: programsWithCategories, AnggotaCount: anggotaCount, ProgramCount: programCount });
+        }
   
         console.log("KK with Programs:", kkWithPrograms);
         setListKK(kkWithPrograms);
@@ -96,6 +93,7 @@ export default function SubKKIndex({ onChangePage }) {
       }
     }
   };
+  
   
   const isDataReadyTemp = "";
   const materiIdTemp = "";

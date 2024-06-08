@@ -86,46 +86,46 @@ export default function MasterCourseAdd({ onChangePage, withID }) {
 
   const handleAdd = async (e) => {
     e.preventDefault();
-
+  
     const validationErrors = await validateAllInputs(
       formDataRef.current,
       userSchema,
       setErrors
     );
-
+  
     if (Object.values(validationErrors).every((error) => !error)) {
       setIsLoading(true);
       setIsError((prevError) => {
         return { ...prevError, error: false };
       });
       setErrors({});
-
+  
       const uploadPromises = [];
-
-      console.log(fileInputRef.current.files[0])
-      if (fileInputRef.current.files.length > 0) {
+  
+      if (fileInputRef.current && fileInputRef.current.files.length > 0) {
         uploadPromises.push(
           uploadFile(fileInputRef.current).then((data) => {
             formDataRef.current["mat_file_pdf"] = data.newFileName;
           })
         );
       }
-
-      if (gambarInputRef.current.files.length > 0) {
+  
+      if (gambarInputRef.current && gambarInputRef.current.files.length > 0) {
         uploadPromises.push(
           uploadFile(gambarInputRef.current).then((data) => {
             formDataRef.current["mat_gambar"] = data.newFileName;
           })
         );
       }
-      if (vidioInputRef.current.files.length > 0) {
+  
+      if (vidioInputRef.current && vidioInputRef.current.files.length > 0) {
         uploadPromises.push(
           uploadFile(vidioInputRef.current).then((data) => {
             formDataRef.current["mat_file_video"] = data.newFileName;
           })
         );
       }
-
+  
       Promise.all(uploadPromises).then(() => {
         UseFetch(
           API_LINK + "Materis/SaveDataMateri",
@@ -146,13 +146,14 @@ export default function MasterCourseAdd({ onChangePage, withID }) {
                 "Data Materi berhasil disimpan",
                 "success"
               );
-              onChangePage("index",kategori)
+              onChangePage("index", kategori);
             }
           })
           .then(() => setIsLoading(false));
       });
     }
   };
+  
 
 
   useEffect(() => {
@@ -233,7 +234,7 @@ export default function MasterCourseAdd({ onChangePage, withID }) {
         </div>
 
         <div className="card">
-          <div className="card-header bg-outline-primary fw-medium text-white">
+          <div className="card-header bg-outline-primary fw-medium text-black">
             Tambah Materi Baru
           </div>
           <div className="card-body p-4">
