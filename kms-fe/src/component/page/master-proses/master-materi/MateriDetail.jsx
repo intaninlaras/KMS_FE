@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import Button from "../../part/Button";
-import Alert from "../../part/Alert";
+import Button from "../../../part/Button";
+import Alert from "../../../part/Alert";
 import { Stepper } from 'react-form-stepper';
 
 export default function MasterMateriDetail({ onChangePage, withID }) {
@@ -61,12 +61,12 @@ export default function MasterMateriDetail({ onChangePage, withID }) {
                     <div>
                         <Stepper
                             steps={[
-                                { label: 'Pretest', onClick: () => onChangePage("pretestAdd") },
-                                { label: 'Materi', onClick: () => onChangePage("courseAdd") },
-                                { label: 'Sharing Expert', onClick: () => onChangePage("sharingAdd") },
-                                { label: 'Forum', onClick: () => onChangePage("forumAdd") },
-                                { label: 'Post Test', onClick: () => onChangePage("posttestAdd") }
-                            ]}
+                                { label: 'Pretest', onClick: () => onChangePage("pretestDetail") },
+                                { label: 'Materi', onClick: () => onChangePage("courseDetail") },
+                                { label: 'Sharing Expert', onClick: () => onChangePage("sharingDetail") },
+                                { label: 'Forum', onClick: () => onChangePage("forumDetail") },
+                                { label: 'Post Test', onClick: () => onChangePage("posttestDetail") }
+                              ]}
                             activeStep={1}
                             styleConfig={{
                                 activeBgColor: '#67ACE9',
@@ -148,13 +148,23 @@ export default function MasterMateriDetail({ onChangePage, withID }) {
                             </div>
                         </div>
                     </div>
-                    <div className="d-flex justify-content-end my-4 mx-1">
+                    <div className="float my-4 mx-1">
                         <Button
-                            classType="btn btn-outline-secondary me-2 px-4 py-2"
+                            classType="outline-secondary me-2 px-4 py-2"
                             label="Kembali"
-                            onClick={() => onChangePage("index")}
+                            onClick={() => onChangePage("pretestDetail")}
                         />
-                    </div>
+                        <Button
+                            classType="primary ms-2 px-4 py-2"
+                            type="submit"
+                            label="Simpan"
+                        />
+                        <Button
+                            classType="dark ms-3 px-4 py-2"
+                            label="Berikutnya"
+                            onClick={() => onChangePage("sharingDetail")}
+                        />
+                        </div>
                 </form>
             )}
         </>

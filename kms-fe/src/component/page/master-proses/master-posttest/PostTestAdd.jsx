@@ -1,15 +1,15 @@
 import React, { useRef, useState, useEffect } from "react";
-import Button from "../../part/Button";
+import Button from "../../../part/Button";
 import { object, string } from "yup";
-import Input from "../../part/Input";
-import Loading from "../../part/Loading";
+import Input from "../../../part/Input";
+import Loading from "../../../part/Loading";
 import { Stepper } from 'react-form-stepper';
 import * as XLSX from 'xlsx';
 import axios from 'axios';
-import { validateAllInputs, validateInput } from "../../util/ValidateForm";
-import { API_LINK } from "../../util/Constants";
-import FileUpload from "../../part/FileUpload";
-import uploadFile from "../../util/UploadImageQuiz";
+import { validateAllInputs, validateInput } from "../../../util/ValidateForm";
+import { API_LINK } from "../../../util/Constants";
+import FileUpload from "../../../part/FileUpload";
+import uploadFile from "../../../util/UploadImageQuiz";
 
 export default function MasterPreTestAdd({ onChangePage }) {
   const [formContent, setFormContent] = useState([]);
@@ -63,7 +63,7 @@ export default function MasterPreTestAdd({ onChangePage }) {
     materiId: '1',
     quizJudul: 'Pemrograman 9',
     quizDeskripsi: '',
-    quizTipe: 'PreTest',
+    quizTipe: 'Posttest',
     tanggalAwal: '',
     tanggalAkhir: '',
     timer: '',
@@ -280,16 +280,16 @@ export default function MasterPreTestAdd({ onChangePage }) {
   // };
 
   const handleChangeQuestion = (index) => {
-  const updatedFormContent = [...formContent];
-  const question = updatedFormContent[index];
+    const updatedFormContent = [...formContent];
+    const question = updatedFormContent[index];
 
-  if (question.type === "essay") {
-    // Simpan jawaban benar untuk pertanyaan essay ke state
-    setCorrectAnswers((prevCorrectAnswers) => ({
-      ...prevCorrectAnswers,
-      [index]: question.correctAnswer,
-    }));
-  }
+    if (question.type === "essay") {
+      // Simpan jawaban benar untuk pertanyaan essay ke state
+      setCorrectAnswers((prevCorrectAnswers) => ({
+        ...prevCorrectAnswers,
+        [index]: question.correctAnswer,
+      }));
+    }
 
     const newType =
       question.type !== "answer"
@@ -300,15 +300,13 @@ export default function MasterPreTestAdd({ onChangePage }) {
           ? "multiple_choice"
           : "multiple_choice";
 
-  updatedFormContent[index] = {
-    ...question,
-    type: newType,
-    options: newType === "essay" ? [] : question.options,
-  };
+    updatedFormContent[index] = {
+      ...question,
+      type: newType,
+    };
 
-  setFormContent(updatedFormContent);
-  console.log(updatedFormContent)
-};
+    setFormContent(updatedFormContent);
+  };
 
   const handleDuplicateQuestion = (index) => {
     const duplicatedQuestion = { ...formContent[index] };
@@ -529,7 +527,7 @@ export default function MasterPreTestAdd({ onChangePage }) {
               { label: 'Forum', onClick: () => onChangePage("forumAdd") },
               { label: 'Post Test', onClick: () => onChangePage("posttestAdd") }
             ]}
-            activeStep={0}
+            activeStep={4}
             styleConfig={{
               activeBgColor: '#67ACE9',
               activeTextColor: '#FFFFFF',
@@ -555,7 +553,7 @@ export default function MasterPreTestAdd({ onChangePage }) {
         </div>
         <div className="card">
           <div className="card-header bg-outline-primary fw-medium text-black">
-            Tambah Pretest Baru
+            Tambah Posttest Baru
           </div>
           <div className="card-body p-4">
             <div className="row mb-4">
@@ -853,18 +851,14 @@ export default function MasterPreTestAdd({ onChangePage }) {
           <Button
             classType="outline-secondary me-2 px-4 py-2"
             label="Kembali"
-            onClick={() => onChangePage("index")}
+            onClick={() => onChangePage("forumAdd")}
           />
           <Button
             classType="primary ms-2 px-4 py-2"
             type="submit"
             label="Simpan"
           />
-          <Button
-            classType="dark ms-3 px-4 py-2"
-            label="Berikutnya"
-            onClick={() => onChangePage("courseAdd")}
-          />
+          
         </div>
       </form>
     </>

@@ -1,15 +1,15 @@
 import React, { useRef, useState, useEffect } from "react";
-import Button from "../../part/Button";
+import Button from "../../../part/Button";
 import { object, string } from "yup";
-import Input from "../../part/Input";
-import Loading from "../../part/Loading";
+import Input from "../../../part/Input";
+import Loading from "../../../part/Loading";
 import { Stepper } from 'react-form-stepper';
 import * as XLSX from 'xlsx';
 import axios from 'axios';
-import { validateAllInputs, validateInput } from "../../util/ValidateForm";
-import { API_LINK } from "../../util/Constants";
-import FileUpload from "../../part/FileUpload";
-import uploadFile from "../../util/UploadImageQuiz";
+import { validateAllInputs, validateInput } from "../../../util/ValidateForm";
+import { API_LINK } from "../../../util/Constants";
+import FileUpload from "../../../part/FileUpload";
+import uploadFile from "../../../util/UploadImageQuiz";
 
 export default function MasterPreTestAdd({ onChangePage }) {
   const [formContent, setFormContent] = useState([]);
@@ -521,11 +521,11 @@ export default function MasterPreTestAdd({ onChangePage }) {
         <div>
           <Stepper
             steps={[
-              { label: 'Pretest', onClick: () => onChangePage("pretestAdd") },
-              { label: 'Materi', onClick: () => onChangePage("courseAdd") },
-              { label: 'Sharing Expert', onClick: () => onChangePage("sharingAdd") },
-              { label: 'Forum', onClick: () => onChangePage("forumAdd") },
-              { label: 'Post Test', onClick: () => onChangePage("posttestAdd") }
+              { label: 'Pretest', onClick: () => onChangePage("pretestEdit") },
+              { label: 'Materi', onClick: () => onChangePage("courseEdit") },
+              { label: 'Sharing Expert', onClick: () => onChangePage("sharingEdit") },
+              { label: 'Forum', onClick: () => onChangePage("forumEdit") },
+              { label: 'Post Test', onClick: () => onChangePage("posttestEdit") }
             ]}
             activeStep={4}
             styleConfig={{
@@ -553,7 +553,7 @@ export default function MasterPreTestAdd({ onChangePage }) {
         </div>
         <div className="card">
           <div className="card-header bg-outline-primary fw-medium text-black">
-            Tambah Posttest Baru
+            Edit Posttest
           </div>
           <div className="card-body p-4">
             <div className="row mb-4">
@@ -851,18 +851,14 @@ export default function MasterPreTestAdd({ onChangePage }) {
           <Button
             classType="outline-secondary me-2 px-4 py-2"
             label="Kembali"
-            onClick={() => onChangePage("index")}
+            onClick={() => onChangePage("forumEdit")}
           />
           <Button
             classType="primary ms-2 px-4 py-2"
             type="submit"
             label="Simpan"
           />
-          <Button
-            classType="dark ms-3 px-4 py-2"
-            label="Berikutnya"
-            onClick={() => onChangePage("courseAdd")}
-          />
+          
         </div>
       </form>
     </>

@@ -1,18 +1,18 @@
 import { useRef, useState, useEffect } from "react";
 import { object, string } from "yup";
-import { API_LINK } from "../../util/Constants";
-import { validateAllInputs, validateInput } from "../../util/ValidateForm";
-import SweetAlert from "../../util/SweetAlert";
-import UseFetch from "../../util/UseFetch";
-import Button from "../../part/Button";
-import DropDown from "../../part/Dropdown"; // Make sure to import your DropDown component
-import Input from "../../part/Input";
-import FileUpload from "../../part/FileUpload";
-import Loading from "../../part/Loading";
-import Alert from "../../part/Alert";
+import { API_LINK } from "../../../util/Constants";
+import { validateAllInputs, validateInput } from "../../../util/ValidateForm";
+import SweetAlert from "../../../util/SweetAlert";
+import UseFetch from "../../../util/UseFetch";
+import Button from "../../../part/Button";
+import DropDown from "../../../part/Dropdown";
+import Input from "../../../part/Input";
+import FileUpload from "../../../part/FileUpload";
+import uploadFile from "../../../util/UploadFile";
+import Loading from "../../../part/Loading";
+import Alert from "../../../part/Alert";
 import { Stepper } from 'react-form-stepper';
-import uploadFile from "../../util/UploadFile";
-import AppContext_test from "./MasterContext";
+import AppContext_test from "../MasterContext";
 
 export default function MasterCourseAdd({ onChangePage, withID }) {
   const [errors, setErrors] = useState({});
@@ -72,7 +72,7 @@ export default function MasterCourseAdd({ onChangePage, withID }) {
       const validationError = await validateInput(name, value, userSchema);
       let error = "";
 
-      if (fileSize / 1024 / 1024 > 100) error = "berkas terlalu besar"; // Mengubah batas ukuran file menjadi 100MB
+      if (fileSize / 1024 / 1024 > 100) error = "berkas terlalu besar";
       else if (!extAllowed.split(",").includes(fileExt))
         error = "format berkas tidak valid";
 
@@ -126,15 +126,28 @@ export default function MasterCourseAdd({ onChangePage, withID }) {
           })
         );
       }
+      AppContext_test.materiId = withID;
   
       Promise.all(uploadPromises).then(() => {
-        console.log(formDataRef.current)
+        console.log(formDataRef.current);
         UseFetch(
           API_LINK + "Materis/SaveDataMateri",
           formDataRef.current
         )
           .then((data) => {
-            if (data === "ERROR") {
+            if (data.newID) {
+              // Data saved successfully
+              AppContext_test.materiId = data.newID;
+              console.log("Data Materi berhasil disimpan");
+              console.log("mat_id: " + data.newID);
+              SweetAlert(
+                "Sukses",
+                "Data Materi berhasil disimpan",
+                "success"
+              );
+              onChangePage("index", kategori);
+            } else {
+              // Error occurred
               setIsError((prevError) => {
                 return {
                   ...prevError,
@@ -142,13 +155,6 @@ export default function MasterCourseAdd({ onChangePage, withID }) {
                   message: "Terjadi kesalahan: Gagal menyimpan data Materi.",
                 };
               });
-            } else {
-              SweetAlert(
-                "Sukses",
-                "Data Materi berhasil disimpan",
-                "success"
-              );
-              onChangePage("index", kategori);
             }
           })
           .then(() => setIsLoading(false));

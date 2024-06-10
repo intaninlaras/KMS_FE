@@ -95,7 +95,7 @@ function CardMateri({
                       <button
                         className="btn btn-sm text-primary"
                         title="Edit Materi"
-                        onClick={() => onEdit("courseEdit", book)}
+                        onClick={() => onEdit("materiEdit", book)}
                       >
                         <i className="fas fa-edit"></i>
                       </button>
@@ -103,7 +103,7 @@ function CardMateri({
                     <button
                       className="btn btn-sm text-primary"
                       title="Detail Materi"
-                      onClick={() => onDetail("courseDetail", book)}
+                      onClick={() => onDetail("materiDetail", book)}
                     >
                       <i className="fas fa-list"></i>
                     </button>

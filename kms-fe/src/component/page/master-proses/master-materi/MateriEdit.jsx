@@ -1,18 +1,19 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { object, string } from "yup";
-import { API_LINK } from "../../util/Constants";
-import { validateAllInputs, validateInput } from "../../util/ValidateForm";
-import SweetAlert from "../../util/SweetAlert";
-import UseFetch from "../../util/UseFetch";
-import Button from "../../part/Button";
-import DropDown from "../../part/Dropdown";
-import Input from "../../part/Input";
-import FileUpload from "../../part/FileUpload";
-import Loading from "../../part/Loading";
-import Alert from "../../part/Alert";
+import { API_LINK } from "../../../util/Constants";
+import { validateAllInputs, validateInput } from "../../../util/ValidateForm";
+import SweetAlert from "../../../util/SweetAlert";
+import UseFetch from "../../../util/UseFetch";
+import Button from "../../../part/Button";
+import DropDown from "../../../part/Dropdown";
+import Input from "../../../part/Input";
+import FileUpload from "../../../part/FileUpload";
+import Loading from "../../../part/Loading";
+import Alert from "../../../part/Alert";
 import { Stepper } from 'react-form-stepper';
-import uploadFile from "../../util/UploadFile";
+import uploadFile from "../../../util/UploadFile";
+import AppContext_test from "../MasterContext";
 
 
 export default function MasterCourseEdit({onChangePage,withID}) {
@@ -28,9 +29,11 @@ export default function MasterCourseEdit({onChangePage,withID}) {
   const gambarInputRef = useRef(null);
   const videoInputRef = useRef(null);
 
+  const kategori = AppContext_test.kategoriId;
+  console.log("kategori di materi: " + AppContext_test.kategoriId);
   const formDataRef = useRef({
     mat_id:withID.Key,
-    kat_id:"",
+    kat_id: AppContext_test.kategoriId, 
     mat_judul: withID.Judul, 
     mat_file_pdf: withID.File_pdf,
     mat_file_video: withID.File_video,
@@ -107,30 +110,22 @@ export default function MasterCourseEdit({onChangePage,withID}) {
       setIsError((prevError) => ({ ...prevError, error: false }));
 
       try {
-        const data = await UseFetch(API_LINK + "Materis/GetListKategoriProgram", {
-          page: 1,
-          query: "",
-          sort: "[Nama Kategori] asc",
-          status: "Aktif",
+        const data = await UseFetch(API_LINK + "Program/GetKategoriKKById", {
+          kategori
         });
-        console.log("Kategori: " + JSON.stringify(data));
 
-        if (data === "ERROR") {
-          throw new Error("Terjadi kesalahan: Gagal mengambil daftar kategori program.");
-        } else {
-          // Mengubah data menjadi format yang diinginkan
-          const formattedData = data.map(item => ({
-            Value: item["Key"],
-            Text: item["Nama Kategori"]
-          }));
-          setListKategori(formattedData);
+        console.log("Raw data: ", data);
 
-          // Mencocokkan dengan nama Kategori Kelompok dari withID
-          const matchingItem = formattedData.find(item => item.Text === withID["Kategori"]);
-          if (matchingItem) {
-            formDataRef.current.kat_id = matchingItem.Value;
-          }
-        }
+        const mappedData = data.map(item => ({
+          value: item.Key,
+          label: item["Nama Kategori"],
+          idKK: item.idKK, 
+          namaKK: item.namaKK 
+        }));
+
+        console.log("Mapped data: ", mappedData);
+
+        setListKategori(mappedData);
       } catch (error) {
         setIsError((prevError) => ({
           ...prevError,
@@ -141,11 +136,7 @@ export default function MasterCourseEdit({onChangePage,withID}) {
       }
     };
     fetchDataKategori();
-  }, [withID]);
-
-  useEffect(() => {
-    console.log("kate: " + JSON.stringify(listKategori));
-  });
+  }, [kategori]);
 
 
   const handleAdd = async (e) => {
@@ -217,11 +208,11 @@ export default function MasterCourseEdit({onChangePage,withID}) {
         <div>
         <Stepper
            steps={[
-            { label: 'Pretest', onClick:() => onChangePage("pretestAdd")},
-            { label: 'Course' ,onClick:() => onChangePage("courseAdd")},
-            { label: 'Sharing Expert',onClick:() => onChangePage("sharingAdd")},
-            { label: 'Forum' ,onClick:() => onChangePage("forumAdd") },
-            { label: 'Post Test',onClick:() => onChangePage("posttestAdd") }
+            { label: 'Pretest', onClick: () => onChangePage("pretestEdit") },
+            { label: 'Materi', onClick: () => onChangePage("courseEdit") },
+            { label: 'Sharing Expert', onClick: () => onChangePage("sharingEdit") },
+            { label: 'Forum', onClick: () => onChangePage("forumEdit") },
+            { label: 'Post Test', onClick: () => onChangePage("posttestEdit") }
           ]}
             activeStep={1} 
             styleConfig={{
@@ -255,25 +246,22 @@ export default function MasterCourseEdit({onChangePage,withID}) {
           <div className="card-body p-4">
             <div className="row">
               <div className="col-lg-6">
-                <Input
-                  type="text"
-                  forInput="mat_judul"
-                  label="Kelompok Keahlian"
-                  placeholder="Kelompok Keahlian"
-                  value={formDataRef.current.mat_judul}
-                  onChange={handleInputChange}
-                  errorMessage={errors.mat_judul}
-                />
+              <Input
+                type="text"
+                forInput="namaKK"
+                label="Nama KK"
+                value={listKategori.find((item) => item.value === formDataRef.current.kat_id)?.namaKK || ""}
+                disabled
+                errorMessage={errors.namaKK}
+              />
               </div>
               <div className="col-lg-6">
-                <DropDown
+              <Input
+                  type="text"
                   forInput="kat_id"
-                  label="Kategori program"
-                  placeholder="Kategori program"
-                  arrData={listKategori}
-                  isRequired
-                  value={formDataRef.current.kat_id}
-                  onChange={handleInputChange}
+                  label="Kategori Program"
+                  value={listKategori.find((item) => item.value === formDataRef.current.kat_id)?.label || ""}
+                  disabled
                   errorMessage={errors.kat_id}
                 />
                 
@@ -381,7 +369,7 @@ export default function MasterCourseEdit({onChangePage,withID}) {
           <Button
             classType="outline-secondary me-2 px-4 py-2"
             label="Kembali"
-            onClick={() => onChangePage("pretestAdd")}
+            onClick={() => onChangePage("pretestEdit")}
           />
           <Button
             classType="primary ms-2 px-4 py-2"
@@ -391,7 +379,7 @@ export default function MasterCourseEdit({onChangePage,withID}) {
           <Button
             classType="dark ms-3 px-4 py-2"
             label="Berikutnya"
-            onClick={() => onChangePage("sharingAdd")}
+            onClick={() => onChangePage("sharingEdit")}
           />
         </div>
       </form>
