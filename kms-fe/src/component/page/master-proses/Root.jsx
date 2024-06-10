@@ -21,7 +21,7 @@ import MasterPostTestAdd from "./master-posttest/PostTestAdd";
 import MasterPostTestEdit from "./master-posttest/PostTestEdit";
 import MasterPostTestDetail from "./master-posttest/PostTestDetail";
 // Kelompok Keahlian
-import PilihKelompokKeahlian from ".  /Kelompok_Keahlian";
+import PilihKelompokKeahlian from "./Kelompok_Keahlian";
 //
 import "../../../index.css";
 
