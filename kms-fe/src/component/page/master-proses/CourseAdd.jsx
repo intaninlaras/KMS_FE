@@ -64,25 +64,26 @@ export default function MasterCourseAdd({ onChangePage, withID }) {
   };
 
   const handleFileChange = async (ref, extAllowed) => {
-    const { name, value } = ref.current;
-    const file = ref.current.files[0];
-    const fileName = file.name;
-    const fileSize = file.size;
-    const fileExt = fileName.split(".").pop();
-    const validationError = await validateInput(name, value, userSchema);
-    let error = "";
+      const { name, value } = ref.current;
+      const file = ref.current.files[0];
+      const fileName = file.name;
+      const fileSize = file.size;
+      const fileExt = fileName.split(".").pop();
+      const validationError = await validateInput(name, value, userSchema);
+      let error = "";
 
-    if (fileSize / 1024576 > 10) error = "berkas terlalu besar";
-    else if (!extAllowed.split(",").includes(fileExt))
-      error = "format berkas tidak valid";
+      if (fileSize / 1024 / 1024 > 100) error = "berkas terlalu besar"; // Mengubah batas ukuran file menjadi 100MB
+      else if (!extAllowed.split(",").includes(fileExt))
+        error = "format berkas tidak valid";
 
-    if (error) ref.current.value = "";
+      if (error) ref.current.value = "";
 
-    setErrors((prevErrors) => ({
-      ...prevErrors,
-      [validationError.name]: error,
-    }));
+      setErrors((prevErrors) => ({
+        ...prevErrors,
+        [validationError.name]: error,
+      }));
   };
+
 
   const handleAdd = async (e) => {
     e.preventDefault();

@@ -89,7 +89,7 @@ export default function MasterCourseEdit({onChangePage,withID}) {
     const validationError = await validateInput(name, value, userSchema);
     let error = "";
 
-    if (fileSize / 1024576 > 10) error = "berkas terlalu besar";
+    if (fileSize / 1024 / 1024 > 100) error = "berkas terlalu besar"; // Mengubah batas ukuran file menjadi 100MB
     else if (!extAllowed.split(",").includes(fileExt))
       error = "format berkas tidak valid";
 
@@ -99,7 +99,8 @@ export default function MasterCourseEdit({onChangePage,withID}) {
       ...prevErrors,
       [validationError.name]: error,
     }));
-  };
+};
+
 
   useEffect(() => {
     const fetchDataKategori = async () => {
