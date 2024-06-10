@@ -202,19 +202,6 @@ export default function MasterPreTestAdd({ onChangePage }) {
     setFormContent(updatedFormContent);
   };
 
-  const handleOptionChange = (e, index) => {
-    const { value } = e.target;
-  
-    // Update correctAnswer pada formContent
-    const updatedFormContent = [...formContent];
-    updatedFormContent[index].correctAnswer = value;
-    setFormContent(updatedFormContent);
-  
-    // Update selectedOptions untuk radio button yang dipilih
-    const updatedSelectedOptions = [...selectedOptions];
-    updatedSelectedOptions[index] = value;
-    setSelectedOptions(updatedSelectedOptions);
-  };
   
   const handleAddOption = (index) => {
     const updatedFormContent = [...formContent];
@@ -224,34 +211,70 @@ export default function MasterPreTestAdd({ onChangePage }) {
     }
   };
 
-  const handleChangeQuestion = (index) => {
-    const updatedFormContent = [...formContent];
-    const question = updatedFormContent[index];
+  
+  
+  const handleOptionChange = (e, index) => {
+  const { value } = e.target;
 
-    if (question.type === "essay") {
-      // Simpan jawaban benar untuk pertanyaan essay ke state
-      setCorrectAnswers((prevCorrectAnswers) => ({
-        ...prevCorrectAnswers,
-        [index]: question.correctAnswer,
-      }));
+  // Update correctAnswer pada formContent
+  const updatedFormContent = [...formContent];
+  updatedFormContent[index].correctAnswer = value;
+  setFormContent(updatedFormContent);
+
+  // Update selectedOptions untuk radio button yang dipilih
+  const updatedSelectedOptions = [...selectedOptions];
+  updatedSelectedOptions[index] = value;
+  setSelectedOptions(updatedSelectedOptions);
+
+  // Update nilai opsi yang dipilih dengan point dari pertanyaan
+  const updatedOptions = updatedFormContent[index].options.map((option) => {
+    if (option.value === value) {
+      return {
+        ...option,
+        value: updatedFormContent[index].point,
+      };
     }
-
-    const newType =
-      question.type !== "answer"
-        ? question.options.length > 0
-          ? "answer"
-          : "answer"
-        : question.options.length > 0
-          ? "multiple_choice"
-          : "essay";
-
-    updatedFormContent[index] = {
-      ...question,
-      type: newType,
+    return {
+      ...option,
+      value: "0", // Set value ke "0" untuk opsi yang tidak dipilih
     };
+  });
 
-    setFormContent(updatedFormContent);
+  updatedFormContent[index].options = updatedOptions;
+  setFormContent(updatedFormContent);
+  console.log(updatedFormContent)
+};
+
+  const handleChangeQuestion = (index) => {
+  const updatedFormContent = [...formContent];
+  const question = updatedFormContent[index];
+
+  if (question.type === "essay") {
+    // Simpan jawaban benar untuk pertanyaan essay ke state
+    setCorrectAnswers((prevCorrectAnswers) => ({
+      ...prevCorrectAnswers,
+      [index]: question.correctAnswer,
+    }));
+  }
+
+  const newType =
+    question.type !== "answer"
+      ? question.options.length > 0
+        ? "answer"
+        : "essay"
+      : question.options.length > 0
+        ? "multiple_choice"
+        : "essay";
+
+  updatedFormContent[index] = {
+    ...question,
+    type: newType,
+    options: newType === "essay" ? [] : question.options,
   };
+
+  setFormContent(updatedFormContent);
+  console.log(updatedFormContent)
+};
 
   const handleDuplicateQuestion = (index) => {
     const duplicatedQuestion = { ...formContent[index] };

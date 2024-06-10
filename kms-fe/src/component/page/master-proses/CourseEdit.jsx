@@ -26,27 +26,29 @@ export default function MasterCourseEdit({onChangePage,withID}) {
 
   const fileInputRef = useRef(null);
   const gambarInputRef = useRef(null);
-  const vidioInputRef = useRef(null);
+  const videoInputRef = useRef(null);
 
   const formDataRef = useRef({
     mat_id:withID.Key,
     kat_id:"",
     mat_judul: withID.Judul, 
     mat_file_pdf: withID.File_pdf,
-    mat_file_vidio: withID.File_vidio,
+    mat_file_video: withID.File_video,
     mat_pengenalan: withID.Pengenalan,
     mat_keterangan: withID.Keterangan,
-    kry_id: "1",
+    kry_id: "",
     mat_kata_kunci:withID["Kata Kunci"],
     mat_gambar: "",
   });
+
+  console.log(formDataRef)
 
   // const formUpdateRef = useRef({
   //   mat_id:withID.Key,
   //   kat_id:"",
   //   mat_judul: withID.Judul, 
   //   mat_file_pdf: withID.File_P,
-  //   mat_file_vidio: withID.File_vidio,
+  //   mat_file_video: withID.File_video,
   //   mat_pengenalan: withID.Pengenalan,
   //   mat_keterangan: withID.Keterangan,
   //   kry_id: "1",
@@ -59,7 +61,7 @@ export default function MasterCourseEdit({onChangePage,withID}) {
     kat_id: string(),
     mat_judul: string(),
     mat_file_pdf: string(),
-    mat_file_vidio: string(),
+    mat_file_video: string(),
     mat_pengenalan: string(),
     mat_keterangan: string(),
     kry_id: string(),
@@ -169,10 +171,10 @@ export default function MasterCourseEdit({onChangePage,withID}) {
           })
         );
       }
-      if (vidioInputRef.current.files.length > 0) {
+      if (videoInputRef.current.files.length > 0) {
         uploadPromises.push(
-          uploadFile(vidioInputRef.current).then((data) => {
-            formDataRef.current.mat_file_vidio = data.newFileName;
+          uploadFile(videoInputRef.current).then((data) => {
+            formDataRef.current.mat_file_video = data.newFileName;
           })
         );
       }
@@ -361,14 +363,14 @@ export default function MasterCourseEdit({onChangePage,withID}) {
               </div>
               <div className="col-lg-4">
                 <FileUpload
-                  ref={vidioInputRef}
-                  forInput="mat_file_vidio"
+                  ref={videoInputRef}
+                  forInput="mat_file_video"
                   label="File Materi (.mp4, .mov)"
                   formatFile=".mp4,.mov"
                   onChange={() =>
-                    handleFileChange(vidioInputRef, "mp4,mov")
+                    handleFileChange(videoInputRef, "mp4,mov")
                   }
-                  errorMessage={errors.mat_file_vidio}
+                  errorMessage={errors.mat_file_video}
                 />
               </div>
             </div>
