@@ -13,7 +13,7 @@ import { API_LINK } from "../../util/Constants";
 import '@fortawesome/fontawesome-free/css/all.css';
 import "../../../index.css";
 // Definisikan beberapa data contoh untuk tabel
-
+import AppContext_test from "./MasterContext";
 const inisialisasiData = [
   {
     Key: null,
@@ -61,6 +61,7 @@ export default function MasterProsesIndex({ onChangePage, withID }) {
     kategori:withID,
    // Default status
   });
+  AppContext_test.kategoriId = withID;
   const kategori = withID;
   console.log("kategori di index: " + kategori);
   const searchQuery = useRef(null);
@@ -257,7 +258,6 @@ export default function MasterProsesIndex({ onChangePage, withID }) {
 
     fetchData();
 }, [currentFilter]);
-
   return (
     <div className="container">
       <div className="row">
@@ -349,15 +349,8 @@ export default function MasterProsesIndex({ onChangePage, withID }) {
                 )}
               </div>
             )}
-            {currentData.length > 0 && currentData[0].Count > 20 && (
-              <Paging
-                totalItems={currentData[0].Count}
-                itemsPerPage={20}
-                currentPage={currentFilter.page}
-                onPageChange={handleSetCurrentPage}
-                className="mt-3"
-              />
-            )}
+            
+            {console.log("woi = "+ currentData[0].Count  )}
           </div>
         </div>
       </div>

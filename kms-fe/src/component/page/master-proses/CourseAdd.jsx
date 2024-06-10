@@ -12,7 +12,7 @@ import Loading from "../../part/Loading";
 import Alert from "../../part/Alert";
 import { Stepper } from 'react-form-stepper';
 import uploadFile from "../../util/UploadFile";
-
+import AppContext_test from "./MasterContext";
 
 export default function MasterCourseAdd({ onChangePage, withID }) {
   const [errors, setErrors] = useState({});
@@ -24,11 +24,11 @@ export default function MasterCourseAdd({ onChangePage, withID }) {
   const gambarInputRef = useRef(null);
   const vidioInputRef = useRef(null);
 
-  const kategori = withID;
-  console.log("kategori di materi: " + kategori);
+  const kategori = AppContext_test.kategoriId;
+  console.log("kategori di materi: " + AppContext_test.kategoriId);
 
   const formDataRef = useRef({
-    kat_id: kategori, 
+    kat_id: AppContext_test.kategoriId, 
     mat_judul: "",
     mat_file_pdf: "",
     mat_file_video: "",
@@ -127,6 +127,7 @@ export default function MasterCourseAdd({ onChangePage, withID }) {
       }
   
       Promise.all(uploadPromises).then(() => {
+        console.log(formDataRef.current)
         UseFetch(
           API_LINK + "Materis/SaveDataMateri",
           formDataRef.current
