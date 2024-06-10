@@ -42,14 +42,14 @@ const CardProgram = ({ program, onChangePage }) => {
         </div>
       </div>
       {isContentVisible && (
-        <div className="mt-3">
+        <div className="mt-3 card-kategori-program-container"> 
           {program.categories.map((kategori) => (
             <CardKategoriProgram 
               key={kategori.Key} 
               kategori={kategori} 
               onChangePage={onChangePage} 
             />
-          ))}
+          ))} {/* Added closing parenthesis here */}
         </div>
       )}
     </div>

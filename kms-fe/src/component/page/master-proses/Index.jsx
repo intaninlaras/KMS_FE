@@ -62,7 +62,7 @@ export default function MasterProsesIndex({ onChangePage, withID }) {
    // Default status
   });
   const kategori = withID;
-  console.log("kategori ID: " + kategori);
+  console.log("kategori di index: " + kategori);
   const searchQuery = useRef(null);
   const searchFilterSort = useRef(null);
   const searchFilterStatus = useRef(null);
@@ -141,77 +141,122 @@ export default function MasterProsesIndex({ onChangePage, withID }) {
 
   useEffect(() => {
     const fetchData = async () => {
-      setIsError(false);
-      setIsLoading(true);
+        setIsError(false);
+        setIsLoading(true);
 
-      console.log("Filter: " + JSON.stringify(currentFilter));
-      try {
-        const data = await UseFetch(
-          API_LINK + "Materis/GetDataMateriByKategori",
-          currentFilter
-        );
-        console.log("Fetched data:", data);
+        console.log("Filter: " + JSON.stringify(currentFilter));
+        try {
+            const data = await UseFetch(
+                API_LINK + "Materis/GetDataMateriByKategori",
+                currentFilter
+            );
+            console.log("Fetched data:", data);
 
-        if (data === "ERROR") {
-          setIsError(true);
-        } else if (data.length === 0) {
-          setCurrentData(inisialisasiData);
-        } else {
-          const formattedData = data.map((value) => ({
-            ...value,
-          }));
-          const promises = formattedData.map((value) => {
-            const filePromises = [];
+            if (data === "ERROR") {
+                setIsError(true);
+            } else if (data.length === 0) {
+                setCurrentData(inisialisasiData);
+            } else {
+                const formattedData = data.map((value) => ({
+                    ...value,
+                }));
+                const promises = formattedData.map((value) => {
+                    const filePromises = [];
 
-            if (value.Gambar) {
-              const gambarPromise = fetch(
-                API_LINK +
-                  `Utilities/Upload/DownloadFile?namaFile=${encodeURIComponent(
-                    value.Gambar
-                  )}`
-              )
-                .then((response) => response.blob())
-                .then((blob) => {
-                  const url = URL.createObjectURL(blob);
-                  value.gbr = value.Gambar;
-                  value.Gambar = url;
-                  return value;
-                })
-                .catch((error) => {
-                  console.error("Error fetching gambar:", error);
-                  return value;
+                    // Fetch image
+                    if (value.Gambar) {
+                        const gambarPromise = fetch(
+                            API_LINK +
+                            `Utilities/Upload/DownloadFile?namaFile=${encodeURIComponent(
+                                value.Gambar
+                            )}`
+                        )
+                            .then((response) => response.blob())
+                            .then((blob) => {
+                                const url = URL.createObjectURL(blob);
+                                value.gbr = value.Gambar;
+                                value.Gambar = url;
+                                return value;
+                            })
+                            .catch((error) => {
+                                console.error("Error fetching gambar:", error);
+                                return value;
+                            });
+                        filePromises.push(gambarPromise);
+                    }
+
+                    // Fetch video
+                    if (value.File_video) {
+                        const videoPromise = fetch(
+                            API_LINK +
+                            `Utilities/Upload/DownloadFile?namaFile=${encodeURIComponent(
+                                value.File_video
+                            )}`
+                        )
+                            .then((response) => response.blob())
+                            .then((blob) => {
+                                const url = URL.createObjectURL(blob);
+                                value.vid = value.File_video;
+                                value.File_video = url;
+                                return value;
+                            })
+                            .catch((error) => {
+                                console.error("Error fetching video:", error);
+                                return value;
+                            });
+                        filePromises.push(videoPromise);
+                    }
+
+                    // Fetch PDF
+                    if (value.File_pdf) {
+                        const pdfPromise = fetch(
+                            API_LINK +
+                            `Utilities/Upload/DownloadFile?namaFile=${encodeURIComponent(
+                                value.File_pdf
+                            )}`
+                        )
+                            .then((response) => response.blob())
+                            .then((blob) => {
+                                const url = URL.createObjectURL(blob);
+                                value.pdf = value.File_pdf;
+                                value.File_pdf = url;
+                                return value;
+                            })
+                            .catch((error) => {
+                                console.error("Error fetching PDF:", error);
+                                return value;
+                            });
+                        filePromises.push(pdfPromise);
+                    }
+
+                    return Promise.all(filePromises).then((results) => {
+                        const updatedValue = results.reduce(
+                            (acc, curr) => ({ ...acc, ...curr }),
+                            value
+                        );
+                        return updatedValue;
+                    });
                 });
-              filePromises.push(gambarPromise);
+
+                Promise.all(promises)
+                    .then((updatedData) => {
+                        console.log("Updated data with blobs:", updatedData);
+                        setCurrentData(updatedData);
+                    })
+                    .catch((error) => {
+                        console.error("Error updating currentData:", error);
+                    });
             }
-
-            return Promise.all(filePromises).then((results) => {
-              const updatedValue = results.reduce(
-                (acc, curr) => ({ ...acc, ...curr }),
-                value
-              );
-              return updatedValue;
-            });
-          });
-
-          Promise.all(promises)
-            .then((updatedData) => {
-              console.log("Updated data with blobs:", updatedData);
-              setCurrentData(updatedData);
-            })
-            .catch((error) => {
-              console.error("Error updating currentData:", error);
-            });
+        } catch (error) {
+            setIsError(true);
+            console.error("Fetch error:", error);
+        } finally {
+            setIsLoading(false);
         }
-      } catch (error) {
-        setIsError(true);
-        console.error("Fetch error:", error);
-      } finally {
-        setIsLoading(false);
-      }
     };
 
     fetchData();
-  }, [currentFilter]);
+}, [currentFilter]);
 
   return (
     <div className="container">
@@ -274,6 +319,8 @@ export default function MasterProsesIndex({ onChangePage, withID }) {
               <div className="row">
                 {currentFilter.status === "Semua" ? (
                   <>
+                  <div><b>Aktif</b></div>
+                  <hr />
                     <CardMateri
                       materis={currentData.filter(materi => materi.Status === "Aktif")}
                       onDetail={onChangePage}

@@ -16,25 +16,37 @@ export default function MasterProses() {
   function getPageMode() {
     switch (pageMode) {
       case "index":
-        return <MasterProsesIndex onChangePage={handleSetPageMode} withID={dataID}/>;
+        return <MasterProsesIndex 
+                onChangePage={handleSetPageMode} 
+                withID={dataID}/>;
       case "pretestAdd":
-        return <MasterPreTestAdd onChangePage={handleSetPageMode} withID={dataID}/>;
+        return <MasterPreTestAdd 
+                onChangePage={handleSetPageMode} 
+                withID={dataID}/>;
       case "courseAdd":
-        return <MasterCourseAdd onChangePage={handleSetPageMode} />;
+        return <MasterCourseAdd 
+                onChangePage={handleSetPageMode} 
+                withID={dataID}/>;
       case "courseEdit":
-        return <MasterCourseEdit onChangePage={handleSetPageMode}             withID={dataID}
-        />;
-        case "courseDetail":
-        return <MasterCourseDetail onChangePage={handleSetPageMode}             withID={dataID}
-        />;
+        return <MasterCourseEdit 
+              onChangePage={handleSetPageMode}             
+              withID={dataID}/>;
+      case "courseDetail":
+        return <MasterCourseDetail 
+                onChangePage={handleSetPageMode}             
+                withID={dataID}/>;
       case "forumAdd":
-        return <MasterForumAdd onChangePage={handleSetPageMode} />;
+        return <MasterForumAdd 
+                onChangePage={handleSetPageMode} />;
       case "posttestAdd":
-        return <MasterPostTestAdd onChangePage={handleSetPageMode} />;
+        return <MasterPostTestAdd 
+                onChangePage={handleSetPageMode} />;
       case "sharingAdd":
-          return <MasterSharingAdd onChangePage={handleSetPageMode} />;
+        return <MasterSharingAdd 
+                onChangePage={handleSetPageMode} />;
       case "kk":
-        return <PilihKelompokKeahlian onChangePage={handleSetPageMode} />;
+        return <PilihKelompokKeahlian 
+                onChangePage={handleSetPageMode} />;
     }
   }
 
