@@ -853,11 +853,6 @@ export default function MasterPreTestAdd({ onChangePage }) {
             label="Kembali"
             onClick={() => onChangePage("forumDetail")}
           />
-          <Button
-            classType="primary ms-2 px-4 py-2"
-            type="submit"
-            label="Simpan"
-          />
           
         </div>
       </form>

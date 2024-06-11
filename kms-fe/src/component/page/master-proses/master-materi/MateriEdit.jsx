@@ -181,7 +181,7 @@ export default function MasterCourseEdit({onChangePage,withID}) {
             } else {
               
               SweetAlert("Sukses", "Data Materi berhasil diedit", "success");
-              onChangePage("index");
+              onChangePage("index",AppContext_test.kategoriId);
             }
           })
           .catch((error) => {
