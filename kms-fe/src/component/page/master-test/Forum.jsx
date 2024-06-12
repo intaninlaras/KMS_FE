@@ -1,33 +1,16 @@
-import { useEffect, useState } from "react";
-import { PAGE_SIZE, API_LINK, ROOT_LINK } from "../../util/Constants";
-import UseFetch from "../../util/UseFetch";
-import Alert from "../../part/Alert";
-import profilePicture from "../../../assets/tes.jpg";
+import { useEffect, useState, useRef } from "react";
 import KMS_Rightbar from "../../backbone/KMS_RightBar";
 import { validateAllInputs, validateInput } from "../../util/ValidateForm";
 import axios from "axios";
 import Input from "../../part/Input";
 import { object, string } from "yup";
-import fetchData from "../../util/UseFetch";
-
-const inisialisasiData = [
-  {
-    Key: null,
-    No: null,
-    "Kode Test": null,
-    "Nama Test": null,
-    "Alamat Test": null,
-    Status: null,
-    Count: 0,
-  },
-];
-
-export default function Forum({ onChangePage }) {
+import AppContext_test from "./TestContext";
+export default function Forum({ onChangePage, isOpen }) {
   const [isError, setIsError] = useState(false);
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(true);
   const [currentData, setCurrentData] = useState([]);
-  const [marginRight, setMarginRight] = useState("48vh");
+  const [marginRight, setMarginRight] = useState("6vh");
   const [widthReply, setWidthReply] = useState("75%");
   const [replyMessage, setReplyMessage] = useState("");
   const [showReplyInput, setShowReplyInput] = useState(false);
@@ -52,6 +35,9 @@ export default function Forum({ onChangePage }) {
     setReplyMessage(`Membalas: ${item.IsiDetailForum}`); 
     setShowReplyInput(true); 
   };
+
+  const [visibleCommentIndex, setVisibleCommentIndex] = useState(0);
+  const [visibleReplies, setVisibleReplies] = useState([]);
 
   const handleCancelReply = () => {
     setReplyMessage(""); 
@@ -80,18 +66,6 @@ export default function Forum({ onChangePage }) {
     setMarginRight("48vh");
     setWidthReply("75%")
   }
-
-  const fetchForumData = async () => {
-    try {
-      const response = await axios.post("http://localhost:8080/Forum/GetDataForum", {
-        materiId: '1',
-      });
-      return response.data;
-    } catch (error) {
-      console.error("Error fetching forum data:", error);
-      throw error; 
-    }
-  };
   
   const handleSendReply = async (e) => {
     const validationErrors = await validateAllInputs(
@@ -113,35 +87,121 @@ export default function Forum({ onChangePage }) {
         "http://localhost:8080/Forum/SaveTransaksiForum",
         formDataRef.current
       );
-      const updatedForumData = await fetchForumData();
+      const updatedForumData = await fetchDataWithRetry();
       setCurrentData(updatedForumData); 
       formDataRef.current.isiDetailForum = "";
       handleCancelReply()
-    } catch (error) {
-      console.error("Error sending reply:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    const fetchData = async () => {
-      setIsError(false);
-      setIsLoading(true);
-
-      try {
-        const data = await fetchForumData();
-        setCurrentData(data);
       } catch (error) {
-        setIsError(true);
-        console.error("Fetch error:", error);
+        console.error("Error sending reply:", error);
       } finally {
         setIsLoading(false);
       }
     };
 
+  // useEffect(() => {
+  //   const fetchData = async () => {
+  //     setIsError(false);
+  //     setIsLoading(true);
+
+  //     try {
+  //       const data = await fetchForumData();
+  //       setCurrentData(data);
+  //     } catch (error) {
+  //       setIsError(true);
+  //       console.error("Fetch error:", error);
+  //     } finally {
+  //       setIsLoading(false);
+  //     }
+  //   };
+
+  //   fetchData();
+  // }, []);
+
+
+  // const fetchForumData = async (retries = 3, delay = 1000) => {
+  //   try {
+  //     const response = await axios.post("http://localhost:8080/Forum/GetDataForum", {
+  //       materiId: '1',
+  //     });
+  //     if (response.data.length != 0) {
+  //         return response.data;
+  //       }
+  //   } catch (error) {
+  //     console.error("Error fetching forum data:", error);
+  //     if (i < retries - 1) {
+  //         await new Promise(resolve => setTimeout(resolve, delay));
+  //       } else {
+  //         throw error;
+  //       }
+  //   }
+  // };
+
+  //// THIS IT /////
+  useEffect(() => {
+    let isMounted = true;
+
+    const fetchData = async () => {
+      setIsLoading(true);
+      try {
+        const data = await fetchDataWithRetry();
+        if (isMounted) {
+          if (data) {
+            if (Array.isArray(data)) {
+              if (data.length === 0) {
+              } else {
+                console.log(data)
+                setCurrentData(data);
+              }
+              return;
+            } else {
+              console.error("Data is not an array:", data);
+            }
+          } else {
+            console.error("Response data is undefined or null");
+          }
+        }
+      } catch (error) {
+        if (isMounted) {
+          setIsError(true);
+          console.error("Fetch error:", error);
+        }
+      } finally {
+        if (isMounted) {
+          setIsLoading(false);
+        }
+      }
+    };
+    // console.log(materiId)
+    
+
     fetchData();
+
+    return () => {
+      isMounted = false; // cleanup flag
+    };
   }, []);
+  // }, [materiId]);
+
+  const fetchDataWithRetry = async (retries = 10, delay = 1000) => {
+      for (let i = 0; i < retries; i++) {
+        try {
+          const response = await axios.post("http://localhost:8080/Forum/GetDataForum", {
+            materiId: AppContext_test.materiId,
+          });
+          if (response.data.length != 0) {
+            console.log(response.data)
+            return response.data;
+          }
+        } catch (error) {
+          console.error("Error fetching quiz data:", error);
+          if (i < retries - 1) {
+            await new Promise(resolve => setTimeout(resolve, delay));
+          } else {
+            throw error;
+          }
+        }
+      }
+    };
 
   const handleInputChange = async (e) => {
     const { name, value } = e.target;
@@ -153,10 +213,18 @@ export default function Forum({ onChangePage }) {
     }));
   };
 
+  const handleShowMoreReplies = () => {
+    setVisibleCommentIndex((prevIndex) => prevIndex + 3);
+  };
+
   const renderMessages = () => {
-    return currentData.map((item) => (
-      item.DetailId !== null && (
-        <div key={item.Key} className="text-right">
+  return currentData
+    .filter((item) => item.ChildDetailId === item.Key)
+    .map((item) => {
+      const replyCount = currentData.filter(reply => reply.ChildDetailId === item.DetailId).length;
+
+      return (
+        <div key={item.DetailId} className="text-right">
           <div className="card p-3 mb-3">
             <div className="d-flex align-items-center mb-3">
               <div
@@ -164,7 +232,6 @@ export default function Forum({ onChangePage }) {
                 style={{ ...circleStyle, ...profileStyle }}
               >
                 <img
-                  // src={profilePicture}
                   alt="Profile Picture"
                   className="align-self-start"
                   style={{
@@ -178,54 +245,148 @@ export default function Forum({ onChangePage }) {
               </div>
               <div>
                 <h6 className="mb-0" style={{ fontSize: "14px" }}>
-                  Membalas: 
-                  {(() => {
-                    const foundItem = currentData.find((dataItem) => dataItem.DetailId === item.ChildDetailId);
+                  {/* {item.ChildDetailId === null ? item.JudulForum : `Membalas: ${(() => {
+                    const foundItem = currentData.find(
+                      (dataItem) => dataItem.DetailId === item.ChildDetailId
+                    );
                     if (foundItem) {
-                      return " " + foundItem.IsiDetailForum;
+                      return foundItem.IsiDetailForum;
                     } else {
-                      return " " + item.JudulForum;
+                      return item.JudulForum;
                     }
-                  })()}
+                  })()}`} */}
                 </h6>
-                <h6 className="mb-0" style={nameStyle}>
+                
                   {item.CreatedByDetailForum} - {formatDate(item.CreatedDateDetailForum)}
-                </h6>
+                {/* <h6 className="mb-0" style={nameStyle}>
+                  {item.CreatedByDetailForum} - {formatDate(item.CreatedDateDetailForum)}
+                </h6> */}
               </div>
             </div>
-            <div className="d-flex justify-content-between align-items-center">
-              <p
-                className="mb-0"
-                style={{
-                  maxWidth: "1500px",
-                  marginBottom: "0px",
-                  fontSize: "14px",
-                  textAlign: "left",
-                  marginLeft: "10px",
-                  flex: 1
-                }}
-              >
-                {item.IsiDetailForum}
-              </p>
+            <p
+              className="mb-0"
+              style={{
+                maxWidth: "1500px",
+                marginBottom: "0px",
+                fontSize: "14px",
+                textAlign: "left",
+                marginLeft: "10px",
+                flex: 1
+              }}
+            >
+              {item.IsiDetailForum}
+            </p>
+            <div style={{ display: "flex", justifyContent: "flex-start", marginLeft: "10px", paddingTop:"10px", paddingBottom:"10px" }}>
               <button
                 className="btn btn-outline-primary btn-sm"
                 onClick={() => handleReply(item)}
-                style={{ marginLeft: "10px" }}
               >
                 Balas
               </button>
             </div>
-            
+
+            {currentData
+              .filter((reply) => reply.ChildDetailId === item.DetailId)
+              .map((reply) => (
+                <div key={reply.DetailId} style={{ marginLeft: "30px"}}>
+                  {visibleReplies.includes(reply.DetailId) && (
+                    <div style={{paddingBottom:"20px" }}>
+                      <div className="d-flex align-items-center " >
+                        <div
+                          className="rounded-circle overflow-hidden d-flex justify-content-center align-items-center"
+                          style={{ ...circleStyle, ...profileStyle }}
+                        >
+                          <img
+                            alt="Profile Picture"
+                            className="align-self-start"
+                            style={{
+                              width: "680%",
+                              height: "auto",
+                              position: "relative",
+                              right: "25px",
+                              bottom: "40px",
+                            }}
+                          />
+                        </div>
+                        <div>
+                          <h6 className="mb-1" style={{ fontSize: "14px" }}>
+                            {/* Membalas: {reply.IsiDetailForum} */}
+                            {reply.CreatedByDetailForum} - {formatDate(reply.CreatedDateDetailForum)}
+                          </h6>
+                          {/* <h6 className="mb-0" style={nameStyle}>
+                            {reply.CreatedByDetailForum} - {formatDate(reply.CreatedDateDetailForum)}
+                          </h6> */}
+                        </div>
+                      </div>
+                      <p
+                        className="mb-2"
+                        style={{
+                          maxWidth: "1500px",
+                          fontSize: "14px",
+                          textAlign: "left",
+                          marginLeft: "10px",
+                          flex: 1
+                        }}
+                      >
+                        {reply.IsiDetailForum}
+                      </p>
+                      <i
+                        className="btn btn-outline-primary btn-sm" 
+                        onClick={() => handleReply(reply)}
+                      >
+                        Balas
+                      </i>
+                    </div>
+                  )}
+                </div>
+              ))}
+
+            {currentData.some(
+              (reply) =>
+                reply.ChildDetailId === item.DetailId &&
+                !visibleReplies.includes(reply.DetailId)
+            ) ? (
+              <div style={{ display: "flex", alignItems: "center", cursor: "pointer" }} onClick={() => handleShowReplies(item.DetailId)}>
+                <hr style={{ flex: 1, borderColor: "#0000EE", color:"#0000EE"}} />
+                <span style={{ marginLeft: "10px", color: "#0000EE" }}>{`Balasan Lainnya (${replyCount})`}</span>
+              </div>
+            ) : (
+              <div style={{ display: "flex", alignItems: "center", cursor: "pointer" }} onClick={() => handleHideReplies(item.DetailId)}>
+                <hr style={{ flex: 1, borderColor: "#0000EE" }} />
+                <span style={{ marginLeft: "10px", color: "#0000EE" }}>Sembunyikan balasan</span>
+              </div>
+            )}
           </div>
         </div>
-      )
-    ));
-  };
+      );
+    });
+};
+
+const handleShowReplies = (detailId) => {
+  setVisibleReplies((prevReplies) => [
+    ...prevReplies,
+    ...currentData
+      .filter((reply) => reply.ChildDetailId === detailId)
+      .map((reply) => reply.DetailId),
+  ]);
+};
+
+const handleHideReplies = (detailId) => {
+  setVisibleReplies((prevReplies) =>
+    prevReplies.filter(
+      (replyId) =>
+        !currentData
+          .filter((reply) => reply.ChildDetailId === detailId)
+          .map((reply) => reply.DetailId)
+          .includes(replyId)
+    )
+  );
+};
 
   const renderJudulForum = () => {
     return currentData.slice(0,1).map((item) => (
       <div key={item.DetailId} className="text-right">
-        <div className="card p-3 mb-3">
+        <div className="card p-3 mb-3" style={{position:"sticky"}}>
           <div className="d-flex align-items-center mb-3">
             <div
               className="rounded-circle overflow-hidden d-flex justify-content-center align-items-center"

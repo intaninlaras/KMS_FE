@@ -357,19 +357,8 @@ export default function MasterProsesIndex({ onChangePage, withID }) {
               <div className="row">
                 {currentFilter.status === "Semua" ? (
                   <>
-                  <div><b>Aktif</b></div>
-                  <hr />
                     <CardMateri
-                      materis={currentData.filter(materi => materi.Status === "Aktif")}
-                      onDetail={onChangePage}
-                      onEdit={onChangePage}
-                      onStatus={handleSetStatus}
-                      isNonEdit={false}
-                    />
-                    <div><b>Tidak Aktif</b></div>
-                    <hr />
-                    <CardMateri
-                      materis={currentData.filter(materi => materi.Status === "Tidak Aktif")}
+                      materis={currentData}
                       onDetail={onChangePage}
                       onEdit={onChangePage}
                       onStatus={handleSetStatus}

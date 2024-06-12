@@ -13,8 +13,9 @@ import Loading from "../../../part/Loading";
 import Alert from "../../../part/Alert";
 import { Stepper } from 'react-form-stepper';
 import AppContext_test from "../MasterContext";
+import axios from "axios";
 import { Editor } from '@tinymce/tinymce-react';
-export default function MasterCourseAdd({ onChangePage, withID }) {
+export default function MasterCourseAdd({ onChangePage }) {
   const [errors, setErrors] = useState({});
   const [isError, setIsError] = useState({ error: false, message: "" });
   const [isLoading, setIsLoading] = useState(false);
@@ -64,45 +65,44 @@ export default function MasterCourseAdd({ onChangePage, withID }) {
   };
 
   const handleFileChange = async (ref, extAllowed) => {
-      const { name, value } = ref.current;
-      const file = ref.current.files[0];
-      const fileName = file.name;
-      const fileSize = file.size;
-      const fileExt = fileName.split(".").pop();
-      const validationError = await validateInput(name, value, userSchema);
-      let error = "";
+    const { name, value } = ref.current;
+    const file = ref.current.files[0];
+    const fileName = file.name;
+    const fileSize = file.size;
+    const fileExt = fileName.split(".").pop();
+    const validationError = await validateInput(name, value, userSchema);
+    let error = "";
 
-      if (fileSize / 1024 / 1024 > 100) error = "berkas terlalu besar";
-      else if (!extAllowed.split(",").includes(fileExt))
-        error = "format berkas tidak valid";
+    if (fileSize / 1024 / 1024 > 100) error = "berkas terlalu besar";
+    else if (!extAllowed.split(",").includes(fileExt))
+      error = "format berkas tidak valid";
 
-      if (error) ref.current.value = "";
+    if (error) ref.current.value = "";
 
-      setErrors((prevErrors) => ({
-        ...prevErrors,
-        [validationError.name]: error,
-      }));
+    setErrors((prevErrors) => ({
+      ...prevErrors,
+      [validationError.name]: error,
+    }));
   };
-
 
   const handleAdd = async (e) => {
     e.preventDefault();
-  
+
     const validationErrors = await validateAllInputs(
       formDataRef.current,
       userSchema,
       setErrors
     );
-  
+
     if (Object.values(validationErrors).every((error) => !error)) {
       setIsLoading(true);
       setIsError((prevError) => {
         return { ...prevError, error: false };
       });
       setErrors({});
-  
+
       const uploadPromises = [];
-  
+
       if (fileInputRef.current && fileInputRef.current.files.length > 0) {
         uploadPromises.push(
           uploadFile(fileInputRef.current).then((data) => {
@@ -110,7 +110,7 @@ export default function MasterCourseAdd({ onChangePage, withID }) {
           })
         );
       }
-  
+
       if (gambarInputRef.current && gambarInputRef.current.files.length > 0) {
         uploadPromises.push(
           uploadFile(gambarInputRef.current).then((data) => {
@@ -118,7 +118,7 @@ export default function MasterCourseAdd({ onChangePage, withID }) {
           })
         );
       }
-  
+
       if (vidioInputRef.current && vidioInputRef.current.files.length > 0) {
         uploadPromises.push(
           uploadFile(vidioInputRef.current).then((data) => {
@@ -126,72 +126,96 @@ export default function MasterCourseAdd({ onChangePage, withID }) {
           })
         );
       }
-      AppContext_test.materiId = withID;
-  
+
       Promise.all(uploadPromises).then(() => {
-        console.log(formDataRef.current)
-        UseFetch(
-          API_LINK + "Materis/SaveDataMateri",
-          formDataRef.current
-        )
-          .then((data) => {
-            if (data === "ERROR") {
-              setIsError((prevError) => {
-                return {
-                  ...prevError,
-                  error: true,
-                  message: "Terjadi kesalahan: Gagal menyimpan data Materi.",
-                };
-              });
+        console.log(formDataRef.current);
+        axios.post(API_LINK + "Materis/SaveDataMateri", formDataRef.current)
+        .then(response => {
+            const data = response.data;
+            console.log("ds",data)
+            if (data[0].hasil === "OK") { 
+                console.log("mat_id:", data[0].newID);
+                AppContext_test.dataIDMateri = data[0].newID;
+                console.log("context:",AppContext_test.dataIDMateri);
+                SweetAlert("Sukses", "Data Materi berhasil disimpan", "success");
             } else {
-              SweetAlert(
-                "Sukses",
-                "Data Materi berhasil disimpan",
-                "success"
-              );
-              onChangePage("index", kategori);
+                setIsError(prevError => ({
+                    ...prevError,
+                    error: true,
+                    message: "Terjadi kesalahan: Gagal menyimpan data Materi."
+                }));
             }
-          })
-          .then(() => setIsLoading(false));
-      });
+        })
+        .catch(error => {
+            console.error('Terjadi kesalahan:', error);
+            setIsError(prevError => ({
+                ...prevError,
+                error: true,
+                message: "Terjadi kesalahan: " + error.message
+            }));
+        })
+        .finally(() => setIsLoading(false));
+    });
     }
   };
-  
 
-
-  useEffect(() => {
-    const fetchDataKategori = async () => {
-      setIsError((prevError) => ({ ...prevError, error: false }));
-  
+  const fetchDataKategori = async (retries = 3, delay = 1000) => {
+    for (let i = 0; i < retries; i++) {
       try {
-        const data = await UseFetch(API_LINK + "Program/GetKategoriKKById", {
-          kategori
-        });
-  
+        const data = await UseFetch(API_LINK + "Program/GetKategoriKKById", { kategori });
         console.log("Raw data: ", data);
-  
+
         const mappedData = data.map(item => ({
           value: item.Key,
           label: item["Nama Kategori"],
-          idKK: item.idKK, 
-          namaKK: item.namaKK 
+          idKK: item.idKK,
+          namaKK: item.namaKK
         }));
-  
+
         console.log("Mapped data: ", mappedData);
-  
-        setListKategori(mappedData);
+
+        return mappedData;
       } catch (error) {
-        setIsError((prevError) => ({
-          ...prevError,
-          error: true,
-          message: error.message,
-        }));
-        setListKategori([]);
+        console.error("Error fetching kategori data:", error);
+        if (i < retries - 1) {
+          await new Promise(resolve => setTimeout(resolve, delay));
+        } else {
+          throw error;
+        }
+      }
+    }
+  };
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const fetchData = async () => {
+      setIsError({ error: false, message: '' });
+      setIsLoading(true);
+      try {
+        const data = await fetchDataKategori();
+        if (isMounted) {
+          setListKategori(data);
+        }
+      } catch (error) {
+        if (isMounted) {
+          setIsError({ error: true, message: error.message });
+          setListKategori([]);
+        }
+      } finally {
+        if (isMounted) {
+          setIsLoading(false);
+        }
       }
     };
-    fetchDataKategori();
+
+    fetchData();
+
+    return () => {
+      isMounted = false;
+    };
   }, [kategori]);
-  
+
   if (isLoading) return <Loading />;
 
   return (
@@ -243,14 +267,14 @@ export default function MasterCourseAdd({ onChangePage, withID }) {
           <div className="card-body p-4">
             <div className="row">
               <div className="col-lg-6">
-              <Input
-                type="text"
-                forInput="namaKK"
-                label="Nama KK"
-                value={listKategori.find((item) => item.value === formDataRef.current.kat_id)?.namaKK || ""}
-                disabled
-                errorMessage={errors.namaKK}
-              />
+                <Input
+                  type="text"
+                  forInput="namaKK"
+                  label="Nama KK"
+                  value={listKategori.find((item) => item.value === formDataRef.current.kat_id)?.namaKK || ""}
+                  disabled
+                  errorMessage={errors.namaKK}
+                />
               </div>
               <div className="col-lg-6">
                 <Input
@@ -271,6 +295,7 @@ export default function MasterCourseAdd({ onChangePage, withID }) {
                   value={formDataRef.current.mat_judul}
                   onChange={handleInputChange}
                   errorMessage={errors.mat_judul}
+                  isRequired
                 />
               </div>
               <div className="col-lg-6">
@@ -282,6 +307,7 @@ export default function MasterCourseAdd({ onChangePage, withID }) {
                   value={formDataRef.current.mat_kata_kunci}
                   onChange={handleInputChange}
                   errorMessage={errors.mat_kata_kunci}
+                  isRequired
                 />
               </div>
               <div className="col-lg-16">
@@ -342,6 +368,7 @@ export default function MasterCourseAdd({ onChangePage, withID }) {
                     handleFileChange(gambarInputRef, "jpg,png")
                   }
                   errorMessage={errors.mat_gambar}
+                  isRequired
                 />
               </div>
               <div className="col-lg-4">
@@ -354,6 +381,7 @@ export default function MasterCourseAdd({ onChangePage, withID }) {
                     handleFileChange(fileInputRef, "pdf")
                   }
                   errorMessage={errors.mat_file_pdf}
+                  isRequired
                 />
               </div>
               <div className="col-lg-4">
@@ -366,6 +394,7 @@ export default function MasterCourseAdd({ onChangePage, withID }) {
                     handleFileChange(vidioInputRef, "mp4,mov")
                   }
                   errorMessage={errors.mat_file_video}
+                  isRequired
                 />
               </div>
             </div>

@@ -10,6 +10,7 @@ function CardMateri({
   onDetail,
   MAX_DESCRIPTION_LENGTH = 50,
   isNonEdit,
+  onBacaMateri,
 }) {
 
   const [expandDeskripsi, setExpandDeskripsi] = useState({});
@@ -21,14 +22,23 @@ function CardMateri({
   };
 
   const handleStatusChange = (book) => {
-      console.log(`Status buku ${book.Key} diubah`);
+      // console.log(`Status buku ${book.Key} diubah`);
       onStatus(book.Key);
+  };
+
+  const handleBacaMateri = (book) => {
+    AppContext_test.materiId = book.Key;
+    onBacaMateri("pengenalan", true, book.Key, true);
   };
 
   return (
     <>
       {materis.map((book) => {
+        // console.log(book)
+        const isDataReadyTemp = true;
+        const materiIdTemp = book.Key;
 
+        const isOpenTemp = true;
         if (book.Key == null) {
           return null;
         }
@@ -59,7 +69,7 @@ function CardMateri({
                   <h5 className="card-title">{book.Judul}</h5>
                   <hr style={{ opacity: "0.1" }} />
                   <div>
-                    <p className="card-text p-0 m-0" style={{ fontSize: "12px", maxHeight: "75px", overflow: "hidden" }}> {/* Menambahkan maxHeight dan overflow */}
+                    <p className="card-text p-0 m-0" style={{ fontSize: "12px", maxHeight: "75px", overflow: "hidden", textAlign:'justify'}}> {/* Menambahkan maxHeight dan overflow */}
                       {book.Keterangan.length > MAX_DESCRIPTION_LENGTH && !expandDeskripsi[book.Key] ? (
                         <>
                           {book.Keterangan.slice(0, MAX_DESCRIPTION_LENGTH) + " ..."}

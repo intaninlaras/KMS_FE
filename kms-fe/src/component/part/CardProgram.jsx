@@ -1,12 +1,20 @@
 import React, { useState } from "react";
 import Button from "./Button";
 import CardKategoriProgram from "./CardKategoriProgram";
+import Icon from "./Icon";
+
+const MAX_DESCRIPTION_LENGTH = 200; // Sesuaikan dengan panjang maksimum yang diinginkan
 
 const CardProgram = ({ program, onChangePage }) => {
   const [isContentVisible, setIsContentVisible] = useState(false);
+  const [expandDeskripsi, setExpandDeskripsi] = useState(false);
 
   const toggleContentVisibility = () => {
     setIsContentVisible(!isContentVisible);
+  };
+
+  const handleExpandDescription = () => {
+    setExpandDeskripsi(!expandDeskripsi);
   };
 
   return (
@@ -16,16 +24,42 @@ const CardProgram = ({ program, onChangePage }) => {
           {program["Nama Program"]}
         </p>
         <p
-          className="mb-0"
+          className="lh-sm mb-0"
           style={{
             width: "70%",
-            display: isContentVisible ? "block" : "-webkit-box",
-            WebkitLineClamp: 1,
+            WebkitLineClamp: 2,
             WebkitBoxOrient: "vertical",
+            fontSize: "15px",
+            maxHeight: expandDeskripsi ? "none" : "75px",
             overflow: "hidden",
+            textAlign:'justify'
           }}
         >
-          {program.Deskripsi}
+          {program.Deskripsi.length > MAX_DESCRIPTION_LENGTH && !expandDeskripsi ? (
+            <>
+              {program.Deskripsi.slice(0, MAX_DESCRIPTION_LENGTH) + " ..."}
+              <a
+                className="btn btn-link text-decoration-none p-0"
+                onClick={handleExpandDescription}
+                style={{ fontSize: "12px" }}
+              >
+                Baca Selengkapnya <Icon name={"caret-down"} />
+              </a>
+            </>
+          ) : (
+            <>
+              {program.Deskripsi}
+              {expandDeskripsi && (
+                <a
+                  className="btn btn-link text-decoration-none p-0"
+                  onClick={handleExpandDescription}
+                  style={{ fontSize: "12px" }}
+                >
+                  Tutup <Icon name={"caret-up"} />
+                </a>
+              )}
+            </>
+          )}
         </p>
         <div
           className="ps-3"
@@ -49,7 +83,7 @@ const CardProgram = ({ program, onChangePage }) => {
               kategori={kategori} 
               onChangePage={onChangePage} 
             />
-          ))} {/* Added closing parenthesis here */}
+          ))}
         </div>
       )}
     </div>

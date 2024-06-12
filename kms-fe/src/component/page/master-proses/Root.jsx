@@ -29,6 +29,7 @@ import "../../../index.css";
 export default function MasterProses() {
   const [pageMode, setPageMode] = useState("kk");
   const [dataID, setDataID] = useState();
+  const [dataID2, setDataID2] = useState();
 
   function getPageMode() {
     switch (pageMode) {
@@ -62,30 +63,37 @@ export default function MasterProses() {
                 withID={dataID}/>;
       case "sharingAdd":
         return <MasterSharingAdd 
-                onChangePage={handleSetPageMode} />;
+                onChangePage={handleSetPageMode}
+                withID={dataID}
+                withIDKategori={dataID2}/>;
       case "sharingEdit":
         return <MasterSharingEdit 
-                onChangePage={handleSetPageMode} />;
+                onChangePage={handleSetPageMode}
+                withID={dataID}/>;
       case "sharingDetail":
         return <MasterSharingDetail 
                 onChangePage={handleSetPageMode} 
                 withID={dataID}/>;
       case "forumAdd":
         return <MasterForumAdd 
-                onChangePage={handleSetPageMode} />;
+                onChangePage={handleSetPageMode}
+                withID={dataID}/>;
       case "forumEdit":
         return <MasterForumEdit 
-                onChangePage={handleSetPageMode} />;
+                onChangePage={handleSetPageMode}
+                withID={dataID}/>;
       case "forumDetail":
         return <MasterForumDetail 
                 onChangePage={handleSetPageMode} 
                 withID={dataID}/>;
       case "posttestAdd":
         return <MasterPostTestAdd 
-                onChangePage={handleSetPageMode} />;
+                onChangePage={handleSetPageMode} 
+                withID={dataID}/>;
       case "posttestEdit":
         return <MasterPostTestEdit 
-                onChangePage={handleSetPageMode} />;
+                onChangePage={handleSetPageMode}
+                withID={dataID}/>;
       case "posttestDetail":
         return <MasterPostTestDetail 
                 onChangePage={handleSetPageMode} 
@@ -100,8 +108,9 @@ export default function MasterProses() {
     setPageMode(mode);
   }
 
-  function handleSetPageMode(mode, withID) {
+  function handleSetPageMode(mode, withID,withIDKategori) {
     setDataID(withID);
+    setDataID2(withIDKategori);
     setPageMode(mode);
   }
 

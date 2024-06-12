@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useContext } from "react";
 import { PAGE_SIZE, API_LINK, ROOT_LINK } from "../../util/Constants";
 import SweetAlert from "../../util/SweetAlert";
 import UseFetch from "../../util/UseFetch";
@@ -15,75 +15,17 @@ import KMS_Rightbar from "../../backbone/KMS_RightBar";
 import SideBar from "../../backbone/SideBar";
 import axios from "axios";
 import "../../../custom_index.css";
-export default function MasterTestIndex({ onChangePage, CheckDataReady, materiId }) {
+import AppContext_test from "./TestContext";
+export default function MasterTestPreTest({ onChangePage, CheckDataReady, materiId }) {
   const [isError, setIsError] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const [marginRight, setMarginRight] = useState("40vh");
-
-  function handlePreTestClick_close() {
-    setMarginRight("0vh");
-  }
-
-  function handlePreTestClick_open() {
-    setMarginRight("40vh");
-  }
-
-  const searchQuery = useRef();
-  const searchFilterSort = useRef();
-  const searchFilterStatus = useRef();
-
-  function handleSetCurrentPage(newCurrentPage) {
-    setIsLoading(true);
-    setCurrentFilter((prevFilter) => {
-      return {
-        ...prevFilter,
-        page: newCurrentPage,
-      };
-    });
-  }
-
-  function handleSearch() {
-    setIsLoading(true);
-    setCurrentFilter((prevFilter) => {
-      return {
-        ...prevFilter,
-        page: 1,
-        query: searchQuery.current.value,
-        sort: searchFilterSort.current.value,
-        status: searchFilterStatus.current.value,
-      };
-    });
-  }
-
-  function handleSetStatus(id) {
-    setIsLoading(true);
-    setIsError(false);
-    UseFetch(API_LINK + "MasterTest/SetStatusTest", {
-      idTest: id,
-    })
-      .then((data) => {
-        if (data === "ERROR" || data.length === 0) setIsError(true);
-        else {
-          SweetAlert(
-            "Sukses",
-            "Status data Test berhasil diubah menjadi " + data[0].Status,
-            "success"
-          );
-          handleSetCurrentPage(currentFilter.page);
-        }
-      })
-      .then(() => setIsLoading(false));
-  }
+  const [marginRight, setMarginRight] = useState("0vh");
+  const [receivedMateriId, setReceivedMateriId] = useState();
+  AppContext_test.refreshPage = true;
   function onStartTest() {
-    // onChangePage('test')
-    // window.location.href = ROOT_LINK + "/soal_pretest";
-    const quizType = "PreTest"; // Ganti dengan nilai yang sesuai
-    const quizId = "1"; // Ganti dengan nilai yang sesuai
-    const newUrl = `${ROOT_LINK}/master_test/soal-postTest?quizType=${encodeURIComponent(quizType)}&quizId=${encodeURIComponent(quizId)}`;
-    window.location.href = newUrl;
+    onChangePage("pengerjaantest", "Pretest", materiId);
   }
 
-  
   useEffect(() => {
     document.documentElement.style.setProperty('--responsiveContainer-margin-left', '0vw');
     const sidebarMenuElement = document.querySelector('.sidebarMenu');
@@ -91,55 +33,75 @@ export default function MasterTestIndex({ onChangePage, CheckDataReady, materiId
       sidebarMenuElement.classList.add('sidebarMenu-hidden');
     }
   }, []);
-
+    
   useEffect(() => {
-    let isMounted = true; 
-    // if (!CheckDataReady) return; 
-    const fetchData = async () => {
+    let isMounted = true;
+
+    const fetchData_pretest = async (retries = 10, delay = 1000) => {
+    for (let i = 0; i < retries; i++) {
       setIsLoading(true);
       try {
-        const response = await axios.post("http://localhost:8080/Quiz/GetDataResultQuiz", {
-          quizId: "1",
-          karyawanId: "1",
-          tipeQuiz: "Pretest",
-        });
-        
-        if (isMounted) { 
-          if (response.data) {
-              if (Array.isArray(response.data)) {
-              if (response.data.length == 0) {
-                
-              } else {
-                // onChangePage("hasiltest", true, response.data[0].IdQuiz);
-                window.location.href = ROOT_LINK + "/hasil_test";
+        const data = await fetchDataWithRetry_pretest();
+        if (isMounted) {
+          if (data) {
+            if (Array.isArray(data)) {
+              if (data.length != 0) {
+                onChangePage("hasiltest", "Pretest", data[0].IdQuiz);
+                AppContext_test.quizType = "Pretest";
               }
-              return;
             } else {
-              console.error("Data is not an array:", response.data);
+              console.error("Data is not an array:", data);
             }
           } else {
-            console.error("Response data is undefined or null");
+            // console.error("Response data is undefined or null");
           }
         }
       } catch (error) {
         if (isMounted) {
           setIsError(true);
           console.error("Fetch error:", error);
+          if (i < retries - 1) {
+            await new Promise(resolve => setTimeout(resolve, delay));
+          } else {
+            return;
+          }
         }
       } finally {
         if (isMounted) {
           setIsLoading(false);
-          console.log("Loading finished");
+        }
+      }
+    }
+    };
+  
+    const fetchDataWithRetry_pretest = async (retries = 10, delay = 5000) => {
+      for (let i = 0; i < retries; i++) {
+        try {
+          const response = await axios.post("http://localhost:8080/Quiz/GetDataResultQuiz", {
+            quizId: AppContext_test.materiId,
+            karyawanId: "1",
+            tipeQuiz: "Pretest",
+          });
+          if (response.data.length != 0) {
+            return response.data;
+          }
+        } catch (error) {
+          console.error("Error fetching quiz data:", error);
+          if (i < retries - 1) {
+            await new Promise(resolve => setTimeout(resolve, delay));
+          } else {
+            throw error;
+          }
         }
       }
     };
 
-    fetchData();
+    fetchData_pretest();
 
     return () => {
-      isMounted = false; // cleanup flag
+      isMounted = false; 
     };
-  }, []);
+  }, [AppContext_test.materiId]);
 
 
   const circleStyle = {
@@ -152,7 +114,7 @@ export default function MasterTestIndex({ onChangePage, CheckDataReady, materiId
   return (
     <>
       <div className="d-flex flex-column">
-        <KMS_Rightbar handlePreTestClick_close={handlePreTestClick_close} handlePreTestClick_open={handlePreTestClick_open}/>
+        {/* <KMS_Rightbar handlePreTestClick_close={handlePreTestClick_close} handlePreTestClick_open={handlePreTestClick_open}/> */}
         {isError && (
           <div className="flex-fill">
             <Alert
@@ -163,9 +125,9 @@ export default function MasterTestIndex({ onChangePage, CheckDataReady, materiId
         )}
         <div className="flex-fill"></div>
         <div className="mt-3">
-          {/* {isLoading ? (
+          {isLoading ? (
             <Loading />
-          ) : ( */}
+          ) : (
             <>
               <div style={{ marginRight: marginRight }}>
                 <div
@@ -213,7 +175,7 @@ export default function MasterTestIndex({ onChangePage, CheckDataReady, materiId
                 </div>
               </div>
             </>
-          {/* )} */}
+           )}
         </div>
       </div>
     </>
