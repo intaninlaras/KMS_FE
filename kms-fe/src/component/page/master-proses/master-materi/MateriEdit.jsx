@@ -15,6 +15,7 @@ import { Stepper } from 'react-form-stepper';
 import uploadFile from "../../../util/UploadFile";
 import AppContext_test from "../MasterContext";
 
+import { Editor } from '@tinymce/tinymce-react';
 
 export default function MasterCourseEdit({onChangePage,withID}) {
   // console.log("ID: " + JSON.stringify(withID));
@@ -288,7 +289,7 @@ export default function MasterCourseEdit({onChangePage,withID}) {
                   errorMessage={errors.mat_kata_kunci}
                 />
               </div>
-              <div className="col-lg-6">
+              <div className="col-lg-16">
                 <div className="form-group">
                   <label htmlFor="deskripsiMateri" className="form-label fw-bold">
                   Deskripsi Materi <span style={{color:"Red"}}> *</span>
@@ -307,22 +308,32 @@ export default function MasterCourseEdit({onChangePage,withID}) {
                   )}
                 </div>
               </div>
-              <div className="col-lg-6">
+              <div className="col-lg-16">
                 <div className="form-group">
-                  <label htmlFor="pengenalanMateri" className="form-label fw-bold">
-                  Pengenalan Materi <span style={{color:"Red"}}> *</span>
+                  <label htmlFor="deskripsiMateri" className="form-label fw-bold">
+                    Pengenalan Materi <span style={{ color: 'Red' }}> *</span>
                   </label>
-                  <textarea
-                    className="form-control mb-3"
+                  <Editor
                     id="mat_pengenalan"
-                    name="mat_pengenalan"
-                    forInput="mat_pengenalan"
                     value={formDataRef.current.mat_pengenalan}
-                    onChange={handleInputChange}
-                    required
+                    onEditorChange={(content) => handleInputChange({ target: { name: 'mat_pengenalan', value: content } })}
+                    apiKey='v5s2v6diqyjyw3k012z4k2o0epjmq6wil26i10xjh53bbk7y'
+                    init={{
+                      height: 300,
+                      menubar: false,
+                      plugins: [
+                        'advlist autolink lists link image charmap print preview anchor',
+                        'searchreplace visualblocks code fullscreen',
+                        'insertdatetime media table paste code help wordcount'
+                      ],
+                      toolbar:
+                        'undo redo | formatselect | bold italic backcolor | \
+                        alignleft aligncenter alignright alignjustify | \
+                        bullist numlist outdent indent | removeformat | help'
+                    }}
                   />
-                  {errors.deskripsiMateri && (
-                    <div className="invalid-feedback">{errors.pengenalanMateri}</div>
+                  {errors.mat_pengenalan && (
+                    <div className="invalid-feedback">{errors.mat_pengenalan}</div>
                   )}
                 </div>
               </div>
