@@ -12,23 +12,21 @@ import { Stepper } from 'react-form-stepper';
 import AppContext_test from "../MasterContext";
 import uploadFile from "../../../util/UploadFile";
 
-export default function MasterSharingAdd({ onChangePage }) {
+export default function MasterSharingAdd({ onChangePage}) {
   const [errors, setErrors] = useState({});
   const [isError, setIsError] = useState({ error: false, message: "" });
   const [isLoading, setIsLoading] = useState(false);
 
   const fileInputRef = useRef(null);
   const vidioInputRef = useRef(null);
-
-  const kategori = AppContext_test.kategoriId;
   const formDataRef = useRef({
-    mat_id: "1", 
+    mat_id: AppContext_test.dataIDMateri,
     mat_sharing_expert_pdf: "",
     mat_sharing_expert_video: "",
   });
 
   const userSchema = object({
-    mat_id: string(),
+    mat_id: string().required("ID Materi tidak boleh kosong"),
     mat_sharing_expert_pdf: string(),
     mat_sharing_expert_video: string(),
   });
@@ -69,13 +67,25 @@ export default function MasterSharingAdd({ onChangePage }) {
       setErrors
     );
 
-    if (Object.values(validationErrors).every((error) => !error)) {
+    const isPdfEmpty = !fileInputRef.current.files.length;
+    const isVideoEmpty = !vidioInputRef.current.files.length;
+
+    if (isPdfEmpty && isVideoEmpty) {
+      setErrors((prevErrors) => ({
+        ...prevErrors,
+        mat_sharing_expert_pdf: "Pilih salah satu antara PDF atau Video",
+        mat_sharing_expert_video: "Pilih salah satu antara PDF atau Video",
+      }));
+      return;
+    }
+
+    if (Object.values(validationErrors).every((error) => !error) && (!isPdfEmpty || !isVideoEmpty)) {
       setIsLoading(true);
       setIsError({ error: false, message: "" });
       setErrors({});
-  
+
       const uploadPromises = [];
-  
+
       if (fileInputRef.current && fileInputRef.current.files.length > 0) {
         uploadPromises.push(
           uploadFile(fileInputRef.current).then((data) => {
@@ -83,7 +93,7 @@ export default function MasterSharingAdd({ onChangePage }) {
           })
         );
       }
-  
+
       if (vidioInputRef.current && vidioInputRef.current.files.length > 0) {
         uploadPromises.push(
           uploadFile(vidioInputRef.current).then((data) => {
@@ -91,7 +101,7 @@ export default function MasterSharingAdd({ onChangePage }) {
           })
         );
       }
-  
+
       Promise.all(uploadPromises).then(() => {
         console.log("Form Data:", formDataRef.current);
         UseFetch(
@@ -103,7 +113,7 @@ export default function MasterSharingAdd({ onChangePage }) {
               setIsError({ error: true, message: "Terjadi kesalahan: Gagal menyimpan data Sharing." });
             } else {
               SweetAlert("Sukses", "Data Sharing Expert berhasil disimpan", "success");
-              onChangePage("index", kategori);
+              // onChangePage("index", kategori);
             }
           })
           .catch((err) => {
@@ -127,13 +137,13 @@ export default function MasterSharingAdd({ onChangePage }) {
         <div>
           <Stepper
             steps={[
-              { label: 'Pretest', onClick:() => onChangePage("pretestAdd") },
-              { label: 'Materi', onClick:() => onChangePage("courseAdd") },
-              { label: 'Sharing Expert', onClick:() => onChangePage("sharingAdd") },
-              { label: 'Forum', onClick:() => onChangePage("forumAdd") },
-              { label: 'Post Test', onClick:() => onChangePage("posttestAdd") }
+              { label: 'Pretest', onClick: () => onChangePage("pretestAdd") },
+              { label: 'Materi', onClick: () => onChangePage("courseAdd") },
+              { label: 'Sharing Expert', onClick: () => onChangePage("sharingAdd") },
+              { label: 'Forum', onClick: () => onChangePage("forumAdd") },
+              { label: 'Post Test', onClick: () => onChangePage("posttestAdd") }
             ]}
-            activeStep={2} 
+            activeStep={2}
             styleConfig={{
               activeBgColor: '#67ACE9',
               activeTextColor: '#FFFFFF',

@@ -862,7 +862,7 @@ export default function MasterPreTestAdd({ onChangePage,withID }) {
           <Button
             classType="dark ms-3 px-4 py-2"
             label="Berikutnya"
-            onClick={() => onChangePage("materiDetail",AppContext_test.DetailMateri)}
+            onClick={() => onChangePage("materiDetail",AppContext_test.KategoriIdByKK)}
           />
         </div>
       </form>

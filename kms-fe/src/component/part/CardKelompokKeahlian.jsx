@@ -3,7 +3,7 @@ import Button from "./Button";
 import Icon from "./Icon";
 import CardProgram from "./CardProgram";
 
-const MAX_DESCRIPTION_LENGTH = 200;
+const MAX_DESCRIPTION_LENGTH = 300;
 
 const CardKK = ({ kk, onChangePage }) => {
   const [isContentVisible, setIsContentVisible] = useState(false);
@@ -63,15 +63,16 @@ const CardKK = ({ kk, onChangePage }) => {
           </div>
           <hr style={{ opacity: "0.1" }} />
           <p
-            className="lh-sm" 
+            className="lh-sm mb-0"
             style={{
+              width: "95%",
               WebkitLineClamp: 2,
               WebkitBoxOrient: "vertical",
-              width: "100%",
               fontSize: "15px",
-              maxHeight: "75px",
-              overflow: "hidden"
-            }}
+              maxHeight: expandDeskripsi ? "none" : "75px",
+              overflow: "hidden",
+              textAlign:'justify'
+            }}  
           >
             {kk.Deskripsi.length > MAX_DESCRIPTION_LENGTH && !expandDeskripsi[kk.Key] ? (
               <>
