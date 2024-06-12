@@ -1,13 +1,15 @@
 import { useState } from "react";
 import Icon from "../part/Icon.jsx";
 import Button from "./Button.jsx";
-
+import AppContext_test from "../page/master-test/TestContext.jsx";
 function CardMateri({ 
   materis, 
   onStatus,
   onEdit,
   onDetail,
   MAX_DESCRIPTION_LENGTH = 50,
+  isNonEdit,
+  onBacaMateri,
 }) {
 
   const [expandDeskripsi, setExpandDeskripsi] = useState({});
@@ -19,14 +21,23 @@ function CardMateri({
   };
 
   const handleStatusChange = (book) => {
-      console.log(`Status buku ${book.Key} diubah`);
+      // console.log(`Status buku ${book.Key} diubah`);
       onStatus(book.Key);
+  };
+
+  const handleBacaMateri = (book) => {
+    AppContext_test.materiId = book.Key;
+    onBacaMateri("pengenalan", true, book.Key, true);
   };
 
   return (
     <>
       {materis.map((book) => {
+        // console.log(book)
+        const isDataReadyTemp = true;
+        const materiIdTemp = book.Key;
 
+        const isOpenTemp = true;
         if (book.Key == null) {
           return null;
         }
@@ -88,38 +99,51 @@ function CardMateri({
                 </div>
               </div>
               <div className="card-footer d-flex justify-content-end bg-white">
-                {book.Status === "Aktif" && (
+                {isNonEdit === false ? (
+                  <>
+                    {book.Status === "Aktif" && (
+                      <button
+                        className="btn btn-sm text-primary"
+                        title="Edit Materi"
+                        onClick={() => onEdit("courseEdit", book)}
+                      >
+                        <i className="fas fa-edit"></i>
+                      </button>
+                    )}
+                    <button
+                      className="btn btn-sm text-primary"
+                      title="Detail Materi"
+                      onClick={() => onDetail("courseDetail", book)}
+                    >
+                      <i className="fas fa-list"></i>
+                    </button>
+                    <button
+                      className="btn btn-circle"
+                      onClick={() => handleStatusChange(book)}
+                    >
+                      {book.Status === "Aktif" ? (
+                        <i
+                          className="fas fa-toggle-on text-primary"
+                          style={{ fontSize: '20px' }}
+                        ></i>
+                      ) : (
+                        <i
+                          className="fas fa-toggle-off text-red"
+                          style={{ fontSize: '20px' }}
+                        ></i>
+                      )}
+                    </button>
+                  </>
+                ) : (
                   <button
-                    className="btn btn-sm text-primary"
-                    title="Edit Materi"
-                    onClick={() => onEdit("courseEdit", book)}
+                    className="btn btn-outline-primary"
+                    type="button"
+                    onClick={() =>  handleBacaMateri(book)}
+                    style={{ }}
                   >
-                    <i className="fas fa-edit"></i>
+                    Baca Materi
                   </button>
                 )}
-                <button
-                  className="btn btn-sm text-primary"
-                  title="Detail Materi"
-                  onClick={() => onDetail("courseDetail", book)}
-                >
-                  <i className="fas fa-list"></i>
-                </button>
-                <button
-                  className="btn btn-circle"
-                  onClick={() => handleStatusChange(book)}
-                >
-                  {book.Status === "Aktif" ? (
-                    <i
-                      className="fas fa-toggle-on text-primary"
-                      style={{ fontSize: '20px' }}
-                    ></i>
-                  ) : (
-                    <i
-                      className="fas fa-toggle-off text-red"
-                      style={{ fontSize: '20px' }}
-                    ></i>
-                  )}
-                </button>
               </div>
             </div>
           </div>

@@ -127,12 +127,8 @@ export default function MasterCourseAdd({ onChangePage}) {
       }
 
       Promise.all(uploadPromises).then(() => {
-        // console.log(formDataRef.current.mat_gambar);
-        // console.log(formDataRef.current.mat_sharing_expert);
-        // console.log(formDataRef.current.mat_file);
-        // console.log(formDataRef.current.kat_id);
-        // console.log("Final formDataRef:", JSON.stringify(formDataRef.current));
         console.log("Filter: " + JSON.stringify(formDataRef.current));
+        console.log(formDataRef.current)
         UseFetch(
           API_LINK + "Materis/SaveDataMateri",
           formDataRef.current

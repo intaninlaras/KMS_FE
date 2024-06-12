@@ -108,7 +108,7 @@ export default function MasterPreTestAdd({ onChangePage }) {
     try {
       formData.timer = convertTimeToSeconds(timer)
 
-      const response = await axios.post(API_LINK + 'Quizs/SaveDataQuiz', formData);
+      const response = await axios.post(API_LINK + 'Quiz/SaveDataQuiz', formData);
 
       if (response.data.length === 0) {
         alert('Gagal menyimpan data');
@@ -443,7 +443,7 @@ export default function MasterPreTestAdd({ onChangePage }) {
           <Stepper
             steps={[
               { label: 'Pretest', onClick: () => onChangePage("pretestAdd") },
-              { label: 'Course', onClick: () => onChangePage("courseAdd") },
+              { label: 'Materi', onClick: () => onChangePage("courseAdd") },
               { label: 'Sharing Expert', onClick: () => onChangePage("sharingAdd") },
               { label: 'Forum', onClick: () => onChangePage("forumAdd") },
               { label: 'Post Test', onClick: () => onChangePage("posttestAdd") }
@@ -474,7 +474,7 @@ export default function MasterPreTestAdd({ onChangePage }) {
         </div>
         <div className="card">
           <div className="card-header bg-outline-primary fw-medium text-black">
-            Add New Pre Test
+            Tambah Pretest Baru
           </div>
           <div className="card-body p-4">
             <div className="row mb-4">
@@ -495,7 +495,7 @@ export default function MasterPreTestAdd({ onChangePage }) {
                 <Input
                   type="time"
                   name="timer"
-                  label="Timer (in minutes)"
+                  label="Durasi (dalam menit)"
                   forInput="timerInput"
                   value={timer}
                   onChange={handleTimerChange}
@@ -506,7 +506,7 @@ export default function MasterPreTestAdd({ onChangePage }) {
               <div className="col-lg-6">
               <Input
                 type="number"
-                label="Minimum Score"
+                label="Skor Minimal"
                 forInput="minimumScoreInput"
                 name="minimumScore"
                 //value={formData.minimumScore}
@@ -572,7 +572,7 @@ export default function MasterPreTestAdd({ onChangePage }) {
 
                 <Button
                   iconName="download"
-                  label="Download Template"
+                  label="Unduh Template"
                   classType="warning btn-sm px-3 py-1 mx-2"
                   onClick={handleDownloadTemplate}
 
@@ -583,14 +583,15 @@ export default function MasterPreTestAdd({ onChangePage }) {
             {formContent.map((question, index) => (
               <div key={index} className="card mb-4">
                 <div className="card-header bg-white fw-medium text-black d-flex justify-content-between align-items-center">
-                  <span>Question</span>
-                  <span>Point: {question.point}</span>
+                  <span>Pertanyaan</span>
+                  <span>Poin: {question.point}</span>
                   <div className="col-lg-2">
                     <select className="form-select" aria-label="Default select example"
                       value={question.type}
                       onChange={(e) => handleQuestionTypeChange(e, index)}>
                       <option value="essay">Essay</option>
-                      <option value="multiple_choice">Multiple Choice</option>
+                      <option value="multiple_choice">Pilihan Ganda</option>
+                      <option value="praktikum">Praktikum</option>
                     </select>
                   </div>
                 </div>
@@ -704,6 +705,7 @@ export default function MasterPreTestAdd({ onChangePage }) {
                             classType="btn-sm ms-2 px-3 py-1"
                             onClick={() => document.getElementById(`fileInput_${index}`).click()}
                           />
+                          
                           <span className="file-name">{selectedFile && selectedFile.name}</span>
                         </div>
                       )}
@@ -750,7 +752,7 @@ export default function MasterPreTestAdd({ onChangePage }) {
                           <Button
                             iconName="check"
                             classType="primary btn-sm ms-1 px-2 py-1"
-                            label="Answer Key"
+                            label="Kunci Jawaban"
                             onClick={() => handleChangeQuestion(index)}
                           />
                         </div>
@@ -781,17 +783,17 @@ export default function MasterPreTestAdd({ onChangePage }) {
         <div className="float my-4 mx-1">
           <Button
             classType="outline-secondary me-2 px-4 py-2"
-            label="Back"
+            label="Kembali"
             onClick={() => onChangePage("index")}
           />
           <Button
             classType="primary ms-2 px-4 py-2"
             type="submit"
-            label="Save"
+            label="Simpan"
           />
           <Button
             classType="dark ms-3 px-4 py-2"
-            label="Next"
+            label="Berikutnya"
             onClick={() => onChangePage("courseAdd")}
           />
         </div>

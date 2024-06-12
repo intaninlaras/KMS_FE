@@ -15,7 +15,7 @@ import profilePicture from "../../../assets/tes.jpg";
 import KMS_PDFViewer from "../../backbone/KMS_PDFViewer";
 import KMS_Rightbar from "../../backbone/KMS_RightBar";
 // import KMS_SB_RightBar from '../../backbone/KMS_SB_RightBar';
-
+import AppContext_test from "./TestContext";
 const inisialisasiData = [
   {
     Key: null,
@@ -50,22 +50,28 @@ export default function MasterTestIndex({ onChangePage }) {
     sort: "[Kode Test] asc",
     status: "Aktif",
   });
-  const [marginRight, setMarginRight] = useState("48vh");
+  const [marginRight, setMarginRight] = useState("5vh");
 
   const searchQuery = useRef();
   const searchFilterSort = useRef();
   const searchFilterStatus = useRef();
 
   const formUpdate = useRef({
-    materiId:"1",
+    materiId: AppContext_test.materiId,
     karyawanId: "1",
     totalProgress: "0", 
-    statusMateri_PDF: "Done",
+    statusMateri_PDF: "",
     statusMateri_Video: "",
     statusSharingExpert_PDF: "",
     statusSharingExpert_Video: "",
     createdBy: "Fahriel",
   });
+
+  if (AppContext_test.progresMateri == "materi_pdf") {
+    formUpdate.current.statusMateri_PDF = "Done";
+  } else {
+    formUpdate.current.statusSharingExpert_PDF = "Done";
+  }
 
   async function saveProgress() {
     try {
@@ -110,30 +116,6 @@ export default function MasterTestIndex({ onChangePage }) {
     setMarginRight("48vh");
   }
 
-  function handleSetStatus(id) {
-    setIsLoading(true);
-    setIsError(false);
-    UseFetch(API_LINK + "MasterTest/SetStatusTest", {
-      idTest: id,
-    })
-      .then((data) => {
-        if (data === "ERROR" || data.length === 0) setIsError(true);
-        else {
-          SweetAlert(
-            "Sukses",
-            "Status data Test berhasil diubah menjadi " + data[0].Status,
-            "success"
-          );
-          handleSetCurrentPage(currentFilter.page);
-        }
-      })
-      .then(() => setIsLoading(false));
-  }
-
-  function onStartTest() {
-    window.location.href = ROOT_LINK + "/master_test/soal-test";
-  }
-
   useEffect(() => {
     document.documentElement.style.setProperty('--responsiveContainer-margin-left', '0vw');
     const sidebarMenuElement = document.querySelector('.sidebarMenu');
@@ -141,34 +123,6 @@ export default function MasterTestIndex({ onChangePage }) {
       sidebarMenuElement.classList.add('sidebarMenu-hidden');
     }
   }, []);
-  useEffect(() => {
-    setIsError(false);
-    UseFetch(API_LINK + "MasterTest/GetDataTest", currentFilter)
-      .then((data) => {
-        if (data === "ERROR") 
-        //Harusnya true
-        setIsError(false);
-        else if (data.length === 0) setCurrentData(inisialisasiData);
-        else {
-          const formattedData = data.map((value) => {
-            return {
-              ...value,
-              Aksi: ["Toggle", "Detail", "Edit"],
-              Alignment: [
-                "center",
-                "center",
-                "left",
-                "left",
-                "center",
-                "center",
-              ],
-            };
-          });
-          setCurrentData(formattedData);
-        }
-      })
-      .then(() => setIsLoading(false));
-  }, [currentFilter]);
 
   const circleStyle = {
     width: '50px',
@@ -177,12 +131,12 @@ export default function MasterTestIndex({ onChangePage }) {
     marginRight: '20px'
   };
 
-  const pdfUrl = 'Draft Smart Parking Fix.pdf';
+  const pdfUrl = 'FILE_1716642860929.pdf';
   
   return (
     <>
       <div className="d-flex flex-column">
-        <KMS_Rightbar handlePreTestClick_close={handlePreTestClick_close} handlePreTestClick_open={handlePreTestClick_open}/>
+        {/* <KMS_Rightbar handlePreTestClick_close={handlePreTestClick_close} handlePreTestClick_open={handlePreTestClick_open}/> */}
         {isError && (
           <div className="flex-fill">
             <Alert

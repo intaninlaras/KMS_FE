@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { useLocation } from 'react-router-dom';
+import { useLocation} from 'react-router-dom';
 import { object, string } from "yup";
 import { API_LINK, ROOT_LINK } from "../../util/Constants";
 import { validateAllInputs, validateInput } from "../../util/ValidateForm";
@@ -18,22 +18,17 @@ import styled from 'styled-components';
 import KMS_Uploader from "../../part/KMS_Uploader";
 import axios from "axios";
 import Swal from 'sweetalert2';
+import AppContext_test from "./TestContext";
 
+const ButtonContainer = styled.div`
+  position: fixed;
+  bottom: 35px;
+  left: 30%;
+  transform: translateX(-50%);
+  z-index: 999;
+`;
 
-  const ButtonContainer = styled.div`
-    position: fixed;
-    bottom: 35px;
-    left: 30%;
-    transform: translateX(-50%);
-    z-index: 999;
-  `;
-
-  function useQuery() {
-    return new URLSearchParams(useLocation().search);
-  }
-  
-export default function PengerjaanTest({ onChangePage }) {
-  const [showSidebar, setShowSidebar] = useState(true);
+export default function PengerjaanTest({ onChangePage, quizType, materiId }) {
   const [errors, setErrors] = useState({});
   const [isError, setIsError] = useState({ error: false, message: "" });
   const [isLoading, setIsLoading] = useState(false);
@@ -43,22 +38,17 @@ export default function PengerjaanTest({ onChangePage }) {
   const [nilai, setNilai] = useState(0);
   const formDataRef = useRef({
     karyawanId:"1",
-    quizId: "",
+    quizId: AppContext_test.quizId,
     nilai: "", 
     status: "",
     answers: [],
     createdBy: "Fahriel",
   });
-  const query = useQuery();
-  const quizType = query.get("quizType");
-  const quizId = query.get("quizId");
+  
   useEffect(() => {
-    // Anda bisa menggunakan quizType di sini
-    console.log("quizType:", quizType);
-    console.log("quizId:", quizId);
-  }, [quizType, quizId]);
+  }, [quizType, materiId]);
   const formUpdate = useRef({
-    materiId:"1",
+    idMateri:AppContext_test.materiId,
     karyawanId: "1",
     totalProgress: "0", 
     statusMateri_PDF: "",
@@ -101,6 +91,15 @@ export default function PengerjaanTest({ onChangePage }) {
     });
   };
 
+  
+  useEffect(() => {
+    console.log("sidebar "+AppContext_test.timeRemaining)
+    if (AppContext_test.timeRemaining == true){
+        handleAdd();
+        handleSubmitAction();
+    }
+  }, [AppContext_test.timeRemaining]);
+
   const handleInputChange = async (e) => {
     const { name, value } = e.target;
     const validationError = await validateInput(name, value, userSchema);
@@ -112,8 +111,14 @@ export default function PengerjaanTest({ onChangePage }) {
   };
 
   function handleSubmitAction() {
-    window.location.href = ROOT_LINK + "/hasil_test";
+    // window.location.href = ROOT_LINK + "/hasil_test";
+    if (quizType == "Pretest"){
+      onChangePage("pretest", true, materiId)
+    } else if (quizType == "Posttest"){
+      onChangePage("posttest", true, materiId)
+    }
   }
+
 
   const handleFileChange = async (ref, extAllowed) => {
     const { name, value } = ref.current;
@@ -192,8 +197,6 @@ export default function PengerjaanTest({ onChangePage }) {
     }, 0);
     formDataRef.current.nilai = totalNilai;
     formDataRef.current.answers = submittedAnswers;
-    console.log("update: ",formUpdate.current)
-    console.log("insert: ",formDataRef.current)
     const response = await axios.post("http://localhost:8080/Quiz/SaveTransaksiQuiz", formDataRef.current);
     const saveProgress = await axios.post("http://localhost:8080/Materis/SaveProgresMateri", formUpdate.current);
   };
@@ -202,8 +205,9 @@ export default function PengerjaanTest({ onChangePage }) {
     if (selectedQuestion > 1) {
       setSelectedQuestion(selectedQuestion - 1);
     } else {
-      setSelectedQuestion(selectedQuestion + dummyData.length - 1);
+      setSelectedQuestion(selectedQuestion - 1);
     }
+    location.reload();
   };
 
   const selectNextQuestionOrSubmit = () => {
@@ -220,7 +224,7 @@ export default function PengerjaanTest({ onChangePage }) {
   const [answers, setAnswers] = useState([]);
   const [submittedAnswers, setSubmittedAnswers] = useState([]);
 
-  const handleValueAnswer = (urutan, idSoal, answer, nilaiSelected) => {
+  const handleValueAnswer = (urutan, idSoal, answer, nilaiSelected, index) => {
     setSelectedOption(answer);
     const updatedAnswers = [...answers];
     const submitAnswer = [...submittedAnswers];
@@ -236,11 +240,16 @@ export default function PengerjaanTest({ onChangePage }) {
     }
     setAnswers(updatedAnswers);
     setSubmittedAnswers(submitAnswer);
-
+    AppContext_test.indexTest = index;
   };
 
   useEffect(() => {
-  }, [answers]);
+    setAnswerStatus((prevStatus) => {
+      const newStatus = [...prevStatus];
+      newStatus[AppContext_test.indexTest - 1] = "answered";
+      return newStatus;
+    });
+  }, [answers, AppContext_test.indexTest]);
 
   const FileCard = ({ fileName }) => {
     return (
@@ -251,30 +260,21 @@ export default function PengerjaanTest({ onChangePage }) {
     );
   };
 
-  const dummyData = [
-    {
-      type: "pilgan",
-      question: "Berapa jumlah provinsi di Indonesia?",
-      options: ["30", "32", "34", "36"],
-      correctAnswer: "32",
-      answerStatus: "none",
-    },
-    {
-      type: "essay",
-      question: "Siapakah penemu relativitas umum?",
-      correctAnswer: "Albert Einstein",
-      answerStatus: "none",
-    },
-  ];
+  const [answerStatus, setAnswerStatus] = useState([]);
 
-  const [answerStatus, setAnswerStatus] = useState(
-    dummyData.map(() => "none")
-  );
+  useEffect(() => {
+    const initialAnswerStatus = Array(questionNumbers).fill(null);
+    setAnswerStatus(initialAnswerStatus);
+  }, [questionNumbers]);
 
-  const [currentAnswer, setCurrentAnswer] = useState(false);
+  const [answerIsChecked, setAnswerIsChecked] = useState(false);
 
-  const handleSelect = (answer) => {
-    setCurrentAnswer(answer);
+  const updateAnswerStatus = (index, isSelected) => {
+    setAnswerStatus((prevStatus) => {
+      const newStatus = [...prevStatus];
+      newStatus[index] = isSelected ? null : "answered";
+      return newStatus;
+    });
   };
 
   useEffect(() => {
@@ -282,13 +282,13 @@ export default function PengerjaanTest({ onChangePage }) {
       setIsLoading(true);
       try {
         const response = await axios.post("http://localhost:8080/Quiz/GetDataQuestion", {
-          quizId: quizId,
+          idMateri: AppContext_test.materiId,
           status: 'Aktif',
           quizType: quizType,
         });
-
+        // console.log(materiId+quizType)
         const checkIsDone = await axios.post("http://localhost:8080/Quiz/GetDataResultQuiz", {
-          quizId: quizId,
+          materiId: AppContext_test.materiId,
           karyawanId: "1",
         });
 
@@ -303,7 +303,7 @@ export default function PengerjaanTest({ onChangePage }) {
           
           const questionMap = new Map();
           const transformedData = response.data.map((item) => {
-            const { Soal, TipeSoal, Jawaban, UrutanJawaban, NilaiJawaban, ForeignKey} = item;
+            const { Soal, TipeSoal, Jawaban, UrutanJawaban, NilaiJawaban, ForeignKey, QuizId} = item;
             if (!questionMap.has(Soal)) {
               questionMap.set(Soal, true);
               if (TipeSoal === "Essay") {
@@ -333,11 +333,13 @@ export default function PengerjaanTest({ onChangePage }) {
                 };
               }
             }
-            formDataRef.current.quizId = ForeignKey;
+            AppContext_test.quizId = QuizId;
             return null;
           }).filter(item => item !== null);
           setQuestionNumbers(transformedData.length);
+          
           setCurrentData(transformedData);
+          
         } else {
           throw new Error("Data format is incorrect");
         }
@@ -355,6 +357,7 @@ export default function PengerjaanTest({ onChangePage }) {
   useEffect(() => {
   }, [IdQuiz]);
 
+
   useEffect(() => {
     document.documentElement.style.setProperty('--responsiveContainer-margin-left', '0vw');
     const sidebarMenuElement = document.querySelector('.sidebarMenu');
@@ -362,6 +365,9 @@ export default function PengerjaanTest({ onChangePage }) {
       sidebarMenuElement.classList.add('sidebarMenu-hidden');
     }
   }, []);
+
+  
+
   return (
     <>
       <div className="d-flex">
@@ -378,7 +384,7 @@ export default function PengerjaanTest({ onChangePage }) {
               const key = `${item.question}_${index}`;
               if (index + 1 !== selectedQuestion) return null;
               const currentIndex = index + 1;
-             
+              
               return (
                 <div key={key} className="mb-3" style={{ display: 'inline-block', verticalAlign: 'top', minWidth: '300px', marginRight: '20px' }}>
                   {/* Soal */}
@@ -415,7 +421,7 @@ export default function PengerjaanTest({ onChangePage }) {
                               type="radio"
                               id={`option-${option.urutan}`}
                               name={`question-${selectedQuestion}`}
-                              onChange={() => handleValueAnswer(option.urutan, option.nomorSoal, option.value, option.nilai)}
+                              onChange={() => handleValueAnswer(option.urutan, option.nomorSoal, option.value, option.nilai, currentIndex)}
                               checked={isSelected}
                               style={{ display: "none" }}
                             />

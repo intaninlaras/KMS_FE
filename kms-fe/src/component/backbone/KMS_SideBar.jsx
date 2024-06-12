@@ -1,15 +1,25 @@
 import React, { useState, useEffect } from "react";
 import Button from "../part/Button";
 import { ROOT_LINK } from "../util/Constants";
+import AppContext_test from "../page/master-test/TestContext";
 
-export default function KMS_Sidebar({ questionNumbers, selectedQuestion, setSelectedQuestion, answerStatus, checkMainContent}) {
-  const [remainingTime, setRemainingTime] = useState(1800);
+export default function KMS_Sidebar({ onChangePage, questionNumbers, selectedQuestion, setSelectedQuestion, answerStatus, checkMainContent, quizId, questionAnsweredStatus }) {
+  const [remainingTime, setRemainingTime] = useState(5);
   useEffect(() => {
-    const timer = setInterval(() => {
-      setRemainingTime(prevTime => prevTime - 1);
-    }, 1000);
+  const timer = setInterval(() => {
+    setRemainingTime(prevTime => {
+      if (prevTime <= 1) {
+        clearInterval(timer);
+        AppContext_test.timeRemaining = true;
+        return 0;
+      }
+      return prevTime - 1;
+    });
+  }, 1000);
+    
     return () => clearInterval(timer);
   }, []);
+  console.log("ds"+AppContext_test.timeRemaining)
 
   const formatTime = (time) => {
     const hours = Math.floor(time / 3600);
@@ -19,7 +29,7 @@ export default function KMS_Sidebar({ questionNumbers, selectedQuestion, setSele
   };
 
   function exitReview() {
-    window.location.href = ROOT_LINK + "/hasil_test";
+    onChangePage("pretest", true, quizId);
   }
 
   return (
@@ -47,10 +57,21 @@ export default function KMS_Sidebar({ questionNumbers, selectedQuestion, setSele
               textAlign: 'center',
               fontSize: '14px',
               cursor: 'pointer',
-              color: index + 1 === selectedQuestion ? 'white' : 'black',
-              
+              color: index + 1 === selectedQuestion 
+                ? "white"
+                : answerStatus[index] === "correct" 
+                    ? "#1abc9c"
+                    : answerStatus[index] === "incorrect" 
+                        ? "#e74c3c" 
+                        : answerStatus[index] === "none" 
+                            ? "black" 
+                            : answerStatus[index] === "answered" 
+                                ? "white"
+                                : "black",
+
+
               backgroundColor: index + 1 === selectedQuestion 
-                  ? "#2196F3" 
+                  ? "#106cfc" 
                   : answerStatus[index] 
                       ? answerStatus[index] === "correct" 
                           ? "#e9f7eb" 
@@ -58,10 +79,12 @@ export default function KMS_Sidebar({ questionNumbers, selectedQuestion, setSele
                               ? "#ffe3e6" 
                               : answerStatus[index] === "none" 
                                   ? "white"
-                                  : "white"
+                                      : answerStatus[AppContext_test.indexTest - 1] == "answered"
+                                          ? "#106cfc"          
+                                          : "white"
                       : "white", 
               borderColor: index + 1 === selectedQuestion 
-                  ? "#2196F3" 
+                  ? "#106cfc" 
                   : answerStatus[index] 
                       ? answerStatus[index] === "correct" 
                           ? "#28a745" 
@@ -69,7 +92,9 @@ export default function KMS_Sidebar({ questionNumbers, selectedQuestion, setSele
                               ? "#dc3545" 
                               : answerStatus[index] === "none" 
                                   ? "lightgray"
-                                  : "lightgray"
+                                      : answerStatus[index - 1] === "answered"
+                                          ? "#106cfc" 
+                                            : "lightgray"
                       : "lightgray", 
             }}
             onClick={() => setSelectedQuestion(index + 1)}

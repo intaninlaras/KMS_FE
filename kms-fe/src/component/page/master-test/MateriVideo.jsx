@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useContext } from "react";
 import axios from 'axios';
 import { PAGE_SIZE, API_LINK, ROOT_LINK } from "../../util/Constants";
 import SweetAlert from "../../util/SweetAlert";
@@ -16,7 +16,7 @@ import SideBar from "../../backbone/SideBar";
 import KMS_VideoPlayer from "../../backbone/KMS_VideoPlayer";
 import KMS_Rightbar from "../../backbone/KMS_RightBar";
 // import KMS_SB_RightBar from '../../backbone/KMS_SB_RightBar';
-
+import AppContext_test from "./TestContext";
   const inisialisasiData = [
     {
       Key: null,
@@ -29,20 +29,6 @@ import KMS_Rightbar from "../../backbone/KMS_RightBar";
     },
   ];
 
-
-
-const dataFilterSort = [
-  { Value: "[Kode Test] asc", Text: "Kode Test [↑]" },
-  { Value: "[Kode Test] desc", Text: "Kode Test [↓]" },
-  { Value: "[Nama Test] asc", Text: "Nama Test [↑]" },
-  { Value: "[Nama Test] desc", Text: "Nama Test [↓]" },
-];
-
-const dataFilterStatus = [
-  { Value: "Aktif", Text: "Aktif" },
-  { Value: "Tidak Aktif", Text: "Tidak Aktif" },
-];
-
 export default function MasterTestIndex({ onChangePage }) {
   const [isError, setIsError] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -54,21 +40,31 @@ export default function MasterTestIndex({ onChangePage }) {
     status: "Aktif",
   });
 
+  // console.log(materiId)
+  
   
   const formUpdate = useRef({
-    materiId:"1",
+    materiId: AppContext_test.materiId,
     karyawanId: "1",
     totalProgress: "0", 
     statusMateri_PDF: "",
-    statusMateri_Video: "Done",
+    statusMateri_Video: "",
     statusSharingExpert_PDF: "",
     statusSharingExpert_Video: "",
     createdBy: "Fahriel",
   });
 
+  if (AppContext_test.progresMateri == "materi_video") {
+    formUpdate.current.statusMateri_Video = "Done";
+  } else {
+    formUpdate.current.statusSharingExpert_Video = "Done";
+  }
+
   async function saveProgress() {
     try {
-      await axios.post("http://localhost:8080/Materis/SaveProgresMateri", formUpdate.current);
+      console.log(formUpdate.current)
+      const response = await axios.post("http://localhost:8080/Materis/SaveProgresMateri", formUpdate.current);
+      console.log(response)
     } catch (error) {
       console.error("Failed to save progress:", error);
     }
@@ -85,139 +81,15 @@ export default function MasterTestIndex({ onChangePage }) {
     saveProgress();
   }, []);
 
-  const [marginRight, setMarginRight] = useState("48vh");
+  const [marginRight, setMarginRight] = useState("5vh");
 
-  function handlePreTestClick_close() {
-    setMarginRight("0vh");
-  }
 
-  function handlePreTestClick_open() {
-    setMarginRight("48vh");
-  }
-
-  const searchQuery = useRef();
-  const searchFilterSort = useRef();
-  const searchFilterStatus = useRef();
-
-  function handleSetCurrentPage(newCurrentPage) {
-    setIsLoading(true);
-    setCurrentFilter((prevFilter) => {
-      return {
-        ...prevFilter,
-        page: newCurrentPage,
-      };
-    });
-  }
-
-  function handleSearch() {
-    setIsLoading(true);
-    setCurrentFilter((prevFilter) => {
-      return {
-        ...prevFilter,
-        page: 1,
-        query: searchQuery.current.value,
-        sort: searchFilterSort.current.value,
-        status: searchFilterStatus.current.value,
-      };
-    });
-  }
-
-  function handleSetStatus(id) {
-    setIsLoading(true);
-    setIsError(false);
-    UseFetch(API_LINK + "MasterTest/SetStatusTest", {
-      idTest: id,
-    })
-      .then((data) => {
-        if (data === "ERROR" || data.length === 0) setIsError(true);
-        else {
-          SweetAlert(
-            "Sukses",
-            "Status data Test berhasil diubah menjadi " + data[0].Status,
-            "success"
-          );
-          handleSetCurrentPage(currentFilter.page);
-        }
-      })
-      .then(() => setIsLoading(false));
-  }
-
-  function onStartTest() {
-    window.location.href = ROOT_LINK + "/master_test/soal-test";
-  }
-
-  useEffect(() => {
-    setIsError(false);
-    UseFetch(API_LINK + "MasterTest/GetDataTest", currentFilter)
-      .then((data) => {
-        if (data === "ERROR")
-          //Harusnya true
-          setIsError(false);
-        else if (data.length === 0) setCurrentData(inisialisasiData);
-        else {
-          const formattedData = data.map((value) => {
-            return {
-              ...value,
-              Aksi: ["Toggle", "Detail", "Edit"],
-              Alignment: [
-                "center",
-                "center",
-                "left",
-                "left",
-                "center",
-                "center",
-              ],
-            };
-          });
-          setCurrentData(formattedData);
-        }
-      })
-      .then(() => setIsLoading(false));
-  }, [currentFilter]);
-
-  const circleStyle = {
-    width: "50px",
-    height: "50px",
-    backgroundColor: "lightgray",
-    marginRight: "20px",
-  };
-
-  const dummyData = [
-    {
-      Key: 1,
-      No: 1,
-      TanggalUjian: "01-04-2024",
-      Persentase: "75%",
-      StatusTest: "Tidak Lulus",
-      Aksi: ["Detail"],
-      Alignment: ["center", "center", "center", "center", "center"],
-    },
-    {
-      Key: 2,
-      No: 2,
-      TanggalUjian: "02-04-2024",
-      Persentase: "90%",
-      StatusTest: "Lulus",
-      Aksi: ["Detail"],
-      Alignment: ["center", "center", "center", "center", "center"],
-    },
-    {
-      Key: 3,
-      No: 3,
-      TanggalUjian: "03-04-2024",
-      Persentase: "60%",
-      StatusTest: "Tidak Lulus",
-      Aksi: ["Detail"],
-      Alignment: ["center", "center", "center", "center", "center"],
-    },
-  ];
-
-  const videoUrl = 'https://youtu.be/5Hd1kBQV_PY?si=UU1es2CSjuPo86lk';
+  const videoUrl = 'VideoDummy.mp4';
 
   return (
     <>
       <div className="d-flex flex-column">
-        <KMS_Rightbar handlePreTestClick_close={handlePreTestClick_close} handlePreTestClick_open={handlePreTestClick_open}/>
+        {/* <KMS_Rightbar handlePreTestClick_close={handlePreTestClick_close} handlePreTestClick_open={handlePreTestClick_open}/> */}
         {isError && (
           <div className="flex-fill">
             <Alert
@@ -232,7 +104,7 @@ export default function MasterTestIndex({ onChangePage }) {
             <Loading />
           ) : ( */}
             <>
-              <div style={{ marginRight: marginRight, height: '70vh'}}>
+              <div style={{ marginRight: marginRight}}>
                 <div className="d-flex align-items-center mb-5" style={{ width: '100%', height:'100%'}}>
                   <KMS_VideoPlayer videoFileName={videoUrl} />
                 </div>

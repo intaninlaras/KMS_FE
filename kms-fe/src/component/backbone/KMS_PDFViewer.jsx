@@ -6,32 +6,45 @@ import "@react-pdf-viewer/core/lib/styles/index.css";
 import "@react-pdf-viewer/default-layout/lib/styles/index.css";
 import Alert from "../part/Alert";
 import Loading from "../part/Loading";
-
+import uploadFile from "../util/UploadFile";
+import axios from "axios";
+import AppContext_test from "../page/master-test/TestContext";
 export default function KMS_PDFViewer({ pdfFileName }) {
   const [isLoading, setIsLoading] = useState(true);
   const [isError, setIsError] = useState(false);
   const [pdfUrl, setPdfUrl] = useState(null);
+  const [fileName, setFileName] = useState(null); // State for storing file name
   const defaultLayoutPluginInstance = defaultLayoutPlugin();
+  
+  useEffect(() => {
+  if (AppContext_test.urlMateri) {
+    setIsLoading(true); // Set loading state to true
+    const fetchData = async () => {
+      
+      try {
+        const response = await axios.get(`${API_LINK}Utilities/Upload/PreviewFile`, { 
+          params: {
+            namaFile: AppContext_test.urlMateri 
+          },
+          responseType: 'arraybuffer' 
+        });  
+        const blob = new Blob([response.data], { type: response.headers['content-type'] });
+        const url = URL.createObjectURL(blob);
+        setPdfUrl(url);
+        setIsLoading(false); // Set loading state to false
+      } catch (error) {
+        setIsError(true);
+        setIsLoading(false);
+        console.error("Error fetching file:", error); 
+      }
+    };
 
-//   useEffect(() => {
-//     if (pdfUrl) {
-//       setIsLoading(false);
-//     } else {
-//       setIsError(true);
-//       setIsLoading(false);
-//     }
-//   }, [pdfUrl]);
-useEffect(() => {
-    if (pdfFileName) {
-      const url = `/${pdfFileName}`;
-      setPdfUrl(url);
-      setIsLoading(false);
-    } else {
-      setIsError(true);
-      setIsLoading(false);
-    }
-  }, [pdfFileName]);
-
+    fetchData(); // Call the function to fetch data
+  } else {
+    setIsError(true);
+    setIsLoading(false);
+  }
+}, [fileName]); 
   return (
     <>
       <div className="d-flex flex-column">
