@@ -1,7 +1,8 @@
 import { useState } from "react";
 import Icon from "../part/Icon.jsx";
 import Button from "./Button.jsx";
-import AppContext_test from "../page/master-test/TestContext.jsx";
+import AppContext_test from "../page/master-proses/MasterContext.jsx";
+
 function CardMateri({ 
   materis, 
   onStatus,
@@ -68,7 +69,7 @@ function CardMateri({
                   <h5 className="card-title">{book.Judul}</h5>
                   <hr style={{ opacity: "0.1" }} />
                   <div>
-                    <p className="card-text p-0 m-0" style={{ fontSize: "12px", maxHeight: "75px", overflow: "hidden" }}> {/* Menambahkan maxHeight dan overflow */}
+                    <p className="card-text p-0 m-0" style={{ fontSize: "12px", maxHeight: "75px", overflow: "hidden", textAlign:'justify'}}> {/* Menambahkan maxHeight dan overflow */}
                       {book.Keterangan.length > MAX_DESCRIPTION_LENGTH && !expandDeskripsi[book.Key] ? (
                         <>
                           {book.Keterangan.slice(0, MAX_DESCRIPTION_LENGTH) + " ..."}
@@ -105,7 +106,7 @@ function CardMateri({
                       <button
                         className="btn btn-sm text-primary"
                         title="Edit Materi"
-                        onClick={() => onEdit("courseEdit", book)}
+                        onClick={() => onEdit("materiEdit", book)}
                       >
                         <i className="fas fa-edit"></i>
                       </button>
@@ -113,8 +114,10 @@ function CardMateri({
                     <button
                       className="btn btn-sm text-primary"
                       title="Detail Materi"
-                      onClick={() => onDetail("courseDetail", book)}
+                      onClick={() => onDetail("pretestDetail", AppContext_test.DetailMateri = book)}
                     >
+                      {console.log("data context materi dari index:", AppContext_test.DetailMateri)}
+
                       <i className="fas fa-list"></i>
                     </button>
                     <button
@@ -138,7 +141,13 @@ function CardMateri({
                   <button
                     className="btn btn-outline-primary"
                     type="button"
-                    onClick={() =>  handleBacaMateri(book)}
+                    onClick={() => {
+                      onChangePage(
+                        "pretest",
+                        isDataReadyTemp,
+                        materiIdTemp
+                      );
+                    }}
                     style={{ }}
                   >
                     Baca Materi

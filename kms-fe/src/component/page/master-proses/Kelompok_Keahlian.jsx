@@ -1,162 +1,153 @@
-import { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import SweetAlert from "../../util/SweetAlert";
 import UseFetch from "../../util/UseFetch";
 import Button from "../../part/Button";
 import Input from "../../part/Input";
-import Table from "../../part/Table";
-import Paging from "../../part/Paging";
 import Filter from "../../part/Filter";
 import DropDown from "../../part/Dropdown";
 import Alert from "../../part/Alert";
 import Loading from "../../part/Loading";
 import Icon from "../../part/Icon";
-import CardProgram from "../../part/CardProgram";
+import CardKK from "../../part/CardKelompokKeahlian";
+import { API_LINK } from "../../util/Constants";
 
 export default function SubKKIndex({ onChangePage }) {
-  const [isOpen, setIsOpen] = useState(false);
-  const [isContentVisible, setIsContentVisible] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isError, setIsError] = useState({ error: false, message: "" });
+  const [listKK, setListKK] = useState([]);
 
-  const toggleContentVisibility = () => {
-    setIsContentVisible(!isContentVisible);
-    setIsOpen(!isOpen);
+  const getKKAndPrograms = async (retries = 3, delay = 1000) => {
+    for (let i = 0; i < retries; i++) {
+      try {
+        const username = "fadli.h";
+        setIsError({ error: false, message: "" });
+        setIsLoading(true);
+  
+        let kkData = await UseFetch(API_LINK + "Program/GetDataKKByPIC", { username });
+        console.log("KK Data:", kkData);
+  
+        if (kkData === "ERROR") {
+          throw new Error("Terjadi kesalahan: Gagal mengambil data Kelompok Keahlian.");
+        }
+  
+        const kkWithPrograms = [];
+  
+        for (const kk of kkData) {
+          const programData = await UseFetch(API_LINK + "Program/GetProgramByKK", { kk: kk.Key });
+          console.log("Program Data for KK:", kk.Key, programData);
+  
+          if (programData === "ERROR") {
+            throw new Error("Terjadi kesalahan: Gagal mengambil data Program.");
+          }
+  
+          const anggotaCountData = await UseFetch(API_LINK + "Program/CountAnggotaByKK", { p1: kk.Key });
+          console.log("Anggota Count Data for KK:", kk.Key, anggotaCountData);
+  
+          if (anggotaCountData === "ERROR") {
+            throw new Error("Terjadi kesalahan: Gagal menghitung jumlah anggota.");
+          }
+  
+          const anggotaCount = anggotaCountData.length;
+          console.log("Member Count for KK:", kk.Key, anggotaCount);
+  
+          const programCountData = await UseFetch(API_LINK + "Program/CountProgramByKK", { p1: kk.Key });
+          console.log("Program Count Data for KK:", kk.Key, programCountData);
+  
+          if (programCountData === "ERROR") {
+            throw new Error("Terjadi kesalahan: Gagal menghitung jumlah anggota.");
+          }
+  
+          const programCount = programCountData.length;
+          console.log("Program Count for KK:", kk.Key, programCount);
+  
+          const programsWithCategories = [];
+  
+          for (const program of programData) {
+            const categoryData = await UseFetch(API_LINK + "Program/GetKategoriByProgram", { p1: program.Key });
+  
+            const categoriesWithMaterialCounts = await Promise.all(
+              categoryData.map(async (category) => {
+                const materialCountData = await UseFetch(API_LINK + "Program/CountMateriByKategori", { p1: category.Key });
+                return { ...category, materialCount: materialCountData.length };
+              })
+            );
+  
+            programsWithCategories.push({ ...program, categories: categoriesWithMaterialCounts });
+          }
+  
+          kkWithPrograms.push({ ...kk, programs: programsWithCategories, AnggotaCount: anggotaCount, ProgramCount: programCount });
+        }
+  
+        console.log("KK with Programs:", kkWithPrograms);
+        setListKK(kkWithPrograms);
+        setIsLoading(false);
+        return kkWithPrograms; // Return the data if successful
+      } catch (error) {
+        console.error("Error fetching KK and Programs data:", error);
+        if (i < retries - 1) {
+          await new Promise(resolve => setTimeout(resolve, delay));
+        } else {
+          setIsLoading(false);
+          throw error;
+        }
+      }
+    }
   };
+  
+  
+  const isDataReadyTemp = "";
+  const materiIdTemp = "";
+  const isOpenTemp = true;
+  
+  useEffect(() => {
+    let isMounted = true;
+  
+    const fetchData = async () => {
+      setIsError(false);
+      setIsLoading(true);
+      try {
+        const data = await getKKAndPrograms(); // Call the updated function
+        if (isMounted) {
+          setListKK(data); // Update listKK state
+        }
+      } catch (error) {
+        if (isMounted) {
+          setIsError(true);
+        }
+        console.error("Fetch error:", error);
+      } finally {
+        if (isMounted) {
+          setIsLoading(false);
+        }
+      }
+    };
+  
+    fetchData();
+  
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+  
+  // useEffect(() => {
+  //   getKKAndPrograms();
+  // }, []);
 
   return (
     <>
+      {isLoading && <Loading />}
+      {isError.error && <Alert type="danger" message={isError.message} />}
       <div className="d-flex flex-column">
-        <div className="flex-fill">
-          <div className="input-group"> 
-            <Input
-              //   ref={searchQuery}
-              forInput="pencarianProduk"
-              placeholder="Cari"
-            />
-            <Button
-              iconName="search"
-              classType="primary px-4"
-              title="Cari"
-              //   onClick={handleSearch}
-            />
-            <Filter>
-              <DropDown
-                // ref={searchFilterSort}
-                forInput="ddUrut"
-                label="Urut Berdasarkan"
-                type="none"
-                // arrData={dataFilterSort}
-                defaultValue="[Kode Produk] asc"
-              />
-              <DropDown
-                // ref={searchFilterJenis}
-                forInput="ddJenis"
-                label="Jenis Produk"
-                type="semua"
-                // arrData={dataFilterJenis}
-                defaultValue=""
-              />
-              <DropDown
-                // ref={searchFilterStatus}
-                forInput="ddStatus"
-                label="Status"
-                type="none"
-                // arrData={dataFilterStatus}
-                defaultValue="Aktif"
-              />
-            </Filter>
+        {/* <div className="flex-fill">
+          <div className="input-group">
+            <Input forInput="pencarianProduk" placeholder="Cari" />
+            <Button iconName="search" classType="primary px-4" title="Search" />
           </div>
-          <div className="container">
-            <div className="row mt-3 gx-4">
-              {/* <CardProgram isOpen={isOpen} isOpenProgram={isOpenProgram} /> */}
-              <div className="col-md-12">
-                <div
-                  className="card p-0 mb-3"
-                  style={{
-                    border: "",
-                    borderRadius: "10px",
-                  }}
-                >
-                  <div className="card-body p-0">
-                    <h5
-                      className="card-title text-white px-3 py-2"
-                      style={{
-                        borderTopRightRadius: "10px",
-                        borderTopLeftRadius: "10px",
-                        backgroundColor: "#67ACE9",
-                      }}
-                    >
-                      Kelompok Keahlian
-                    </h5>
-                    <div className="card-body px-3">
-                      <div className="d-flex justify-content-between align-items-center">
-                        <h6 className="card-programtitle mb-0">
-                          <Icon
-                            name="align-left"
-                            type="Bold"
-                            cssClass="btn px-2 py-0 text-primary"
-                            title="Program"
-                          />
-                          <span>
-                            <a
-                              href=""
-                              className="text-decoration-underline text-dark"
-                            >
-                              3 Program
-                            </a>
-                          </span>
-                          <Icon
-                            name="users"
-                            type="Bold"
-                            cssClass="btn px-2 py-0 text-primary ms-3"
-                            title="Anggota Kelompok Keahlian"
-                          />
-                          <span>
-                            <a
-                              href=""
-                              className="text-decoration-underline text-dark"
-                            >
-                              5 Members
-                            </a>
-                          </span>
-                        </h6>
-                        <div className="action d-flex">
-                          {/* <Button
-                            iconName="list"
-                            classType="outline-primary btn-sm px-3 me-2"
-                            title="Detail Kelompok Keahlian"
-                            onClick={() => onChangePage("detail")}
-                          /> */}
-                          <Button
-                            iconName={
-                              isContentVisible ? "caret-up" : "caret-down"
-                            }
-                            classType="outline-primary btn-sm px-3"
-                            onClick={toggleContentVisibility}
-                            title="Detail Kelompok Keahlian"
-                          />
-                        </div>
-                      </div>
-                      <hr style={{ opacity: "0.1" }} />
-                      <p
-                        className="lh-sm"
-                        style={{
-                          display: isContentVisible ? "block" : "-webkit-box",
-                          WebkitLineClamp: 2,
-                          WebkitBoxOrient: "vertical",
-                          overflow: "hidden",
-                        }}
-                      >
-                        Manajemen Informatika adalah cabang dari manajemen yang berfokus pada pengelolaan sumber daya teknologi informasi (TI) 
-                        dalam suatu organisasi dengan tujuan meningkatkan efisiensi, efektivitas, dan nilai bisnis. Ini melibatkan perencanaan, 
-                        pengembangan, implementasi, dan pemeliharaan sistem informasi dan teknologi informasi yang digunakan dalam konteks organisasi.
-                      </p>
-                      <CardProgram isOpen={isOpen} onChangePage={onChangePage} />
-                      {/* <CardProgram isOpen={isOpen} onChangePage={onChangePage} /> */}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+        </div> */}
+        <div className="flex-fill d-flex flex-wrap justify-content-center align-items-center">
+          {listKK.map((kk, index) => (
+            <CardKK key={index} kk={kk} onChangePage={onChangePage} />
+          ))}
         </div>
       </div>
     </>

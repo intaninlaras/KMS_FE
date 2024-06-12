@@ -62,6 +62,7 @@ const arrMenu = [
     sub: [
       {
         title: "Materi",
+        title: "Materi",
         link: ROOT_LINK + "/master_proses",
       },
       {

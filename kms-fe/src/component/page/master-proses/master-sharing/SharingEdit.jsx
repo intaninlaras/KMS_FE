@@ -1,47 +1,43 @@
 import { useRef, useState } from "react";
 import { object, string } from "yup";
-import { API_LINK } from "../../util/Constants";
-import { validateAllInputs, validateInput } from "../../util/ValidateForm";
-import SweetAlert from "../../util/SweetAlert";
-import UseFetch from "../../util/UseFetch";
-import UploadFile from "../../util/UploadFile";
-import Button from "../../part/Button";
-import DropDown from "../../part/Dropdown";
-import Input from "../../part/Input";
-import FileUpload from "../../part/FileUpload";
-import Loading from "../../part/Loading";
-import Alert from "../../part/Alert";
+import { API_LINK } from "../../../util/Constants";
+import { validateAllInputs, validateInput } from "../../../util/ValidateForm";
+import SweetAlert from "../../../util/SweetAlert";
+import UseFetch from "../../../util/UseFetch";
+import UploadFile from "../../../util/UploadFile";
+import Button from "../../../part/Button";
+import DropDown from "../../../part/Dropdown";
+import Input from "../../../part/Input";
+import Loading from "../../../part/Loading";
+import Alert from "../../../part/Alert";
 import { Stepper } from 'react-form-stepper';
-
-const listJenisProduk = [
-  { Value: "Part", Text: "Part" },
-  { Value: "Unit", Text: "Unit" },
-  { Value: "Konstruksi", Text: "Konstruksi" },
-  { Value: "Mass Production", Text: "Mass Production" },
-  { Value: "Lainnya", Text: "Lainnya" },
-];
+import AppContext_test from "../MasterContext";
+// import uploadFile from "../../util/UploadFile";
+// import FileUpload from "../../part/FileUpload";
+import FileUpload from "../../../part/FileUpload";
+import uploadFile from "../../../util/UploadFile";
 
 export default function MasterSharingAdd({ onChangePage }) {
   const [errors, setErrors] = useState({});
   const [isError, setIsError] = useState({ error: false, message: "" });
   const [isLoading, setIsLoading] = useState(false);
 
+  const fileInputRef = useRef(null);
+  const gambarInputRef = useRef(null);
+  const vidioInputRef = useRef(null);
+
+  const kategori = AppContext_test.kategoriId;
+  console.log("kategori di materi: " + AppContext_test.kategoriId);
   const formDataRef = useRef({
-    namaProduk: "",
-    jenisProduk: "",
-    gambarProduk: "",
-    spesifikasi: "",
+    mat_id: "1", 
+    mat_sharing_expert_pdf: "",
+    mat_sharing_expert_video: "",
   });
 
-  const fileGambarRef = useRef(null);
-
   const userSchema = object({
-    namaProduk: string()
-      .max(100, "maksimum 100 karakter")
-      .required("harus diisi"),
-    jenisProduk: string().required("harus dipilih"),
-    gambarProduk: string(),
-    spesifikasi: string(),
+    mat_id: string(),
+    mat_sharing_expert_pdf: string(),
+    mat_sharing_expert_video: string(),
   });
 
   const handleInputChange = async (e) => {
@@ -63,7 +59,7 @@ export default function MasterSharingAdd({ onChangePage }) {
     const validationError = await validateInput(name, value, userSchema);
     let error = "";
 
-    if (fileSize / 1024576 > 10) error = "berkas terlalu besar";
+    if (fileSize / 1024 / 1024 > 100) error = "berkas terlalu besar";
     else if (!extAllowed.split(",").includes(fileExt))
       error = "format berkas tidak valid";
 
@@ -77,51 +73,58 @@ export default function MasterSharingAdd({ onChangePage }) {
 
   const handleAdd = async (e) => {
     e.preventDefault();
-
+  
     const validationErrors = await validateAllInputs(
       formDataRef.current,
       userSchema,
       setErrors
     );
-
+  
     if (Object.values(validationErrors).every((error) => !error)) {
       setIsLoading(true);
-      setIsError((prevError) => {
-        return { ...prevError, error: false };
-      });
+      setIsError({ error: false, message: "" });
       setErrors({});
-
+  
       const uploadPromises = [];
-
-      if (fileGambarRef.current.files.length > 0) {
+  
+      if (fileInputRef.current && fileInputRef.current.files.length > 0) {
         uploadPromises.push(
-          UploadFile(fileGambarRef.current).then(
-            (data) => (formDataRef.current["gambarProduk"] = data.Hasil)
-          )
+          uploadFile(fileInputRef.current).then((data) => {
+            formDataRef.current["mat_sharing_expert_pdf"] = data.newFileName;
+          })
         );
       }
-
+  
+      if (vidioInputRef.current && vidioInputRef.current.files.length > 0) {
+        uploadPromises.push(
+          uploadFile(vidioInputRef.current).then((data) => {
+            formDataRef.current["mat_sharing_expert_video"] = data.newFileName;
+          })
+        );
+      }
+  
       Promise.all(uploadPromises).then(() => {
-        UseFetch(API_LINK + "MasterProduk/CreateProduk", formDataRef.current)
+        console.log('Form Data:', formDataRef.current); // Debugging
+        UseFetch(
+          API_LINK + "SharingExperts/SaveDataSharing",
+          formDataRef.current
+        )
           .then((data) => {
             if (data === "ERROR") {
-              setIsError((prevError) => {
-                return {
-                  ...prevError,
-                  error: true,
-                  message: "Terjadi kesalahan: Gagal menyimpan data produk.",
-                };
-              });
+              setIsError({ error: true, message: "Terjadi kesalahan: Gagal menyimpan data Sharing." });
             } else {
-              SweetAlert("Sukses", "Data produk berhasil disimpan", "success");
-              onChangePage("forumAdd");
+              SweetAlert("Sukses", "Data Sharing Expert berhasil disimpan", "success");
+              onChangePage("index", kategori);
             }
           })
-          .then(() => setIsLoading(false));
+          .catch((err) => {
+            setIsError({ error: true, message: "Terjadi kesalahan: " + err.message });
+          })
+          .finally(() => setIsLoading(false));
       });
     }
   };
-
+  
   if (isLoading) return <Loading />;
 
   return (
@@ -135,11 +138,11 @@ export default function MasterSharingAdd({ onChangePage }) {
         <div>
         <Stepper
              steps={[
-              { label: 'Pretest', onClick:() => onChangePage("pretestAdd")},
-              { label: 'Course' ,onClick:() => onChangePage("courseAdd")},
-              { label: 'Sharing Expert',onClick:() => onChangePage("sharingAdd")},
-              { label: 'Forum' ,onClick:() => onChangePage("forumAdd") },
-              { label: 'Post Test',onClick:() => onChangePage("posttestAdd") }
+              { label: 'Pretest', onClick: () => onChangePage("pretestEdit") },
+              { label: 'Materi', onClick: () => onChangePage("courseEdit") },
+              { label: 'Sharing Expert', onClick: () => onChangePage("sharingEdit") },
+              { label: 'Forum', onClick: () => onChangePage("forumEdit") },
+              { label: 'Post Test', onClick: () => onChangePage("posttestEdit") }
             ]}
             activeStep={2} 
             styleConfig={{
@@ -168,33 +171,33 @@ export default function MasterSharingAdd({ onChangePage }) {
 
         <div className="card">
           <div className="card-header bg-outline-primary fw-medium text-black">
-            Add Sharing Expert
+            Edit Sharing Expert
           </div>
           <div className="card-body p-4">
             <div className="row">
               
               <div className="col-lg-6">
                 <FileUpload
-                  forInput="materiPdf"
-                  label="Sharing Expert (PDF)"
-                  formatFile=".pdf,.jpg,.png"
-                  ref={fileGambarRef}
+                  ref={fileInputRef}
+                  forInput="mat_sharing_expert_pdf"
+                  label="File Sharing Expert (.pdf)"
+                  formatFile=".pdf"
                   onChange={() =>
-                    handleFileChange(fileGambarRef, "pdf,jpg,png")
+                    handleFileChange(fileInputRef, "pdf")
                   }
-                  errorMessage={errors.materiPdf}
+                  errorMessage={errors.mat_sharing_expert_pdf}
                 />
               </div>
               <div className="col-lg-6">
                 <FileUpload
-                  forInput="materiPdf"
-                  label="Sharing Expert (Video)"
-                  formatFile=".pdf,.jpg,.png"
-                  ref={fileGambarRef}
+                  ref={vidioInputRef}
+                  forInput="mat_sharing_expert_video"
+                  label="Vidio Sharing Expert (.mp4, .mov)"
+                  formatFile=".mp4,.mov"
                   onChange={() =>
-                    handleFileChange(fileGambarRef, "pdf,jpg,png")
+                    handleFileChange(vidioInputRef, "mp4,mov")
                   }
-                  errorMessage={errors.materiPdf}
+                  errorMessage={errors.mat_sharing_expert_video}
                 />
               </div>
             </div>
@@ -203,19 +206,18 @@ export default function MasterSharingAdd({ onChangePage }) {
         <div className="float my-4 mx-1">
           <Button
             classType="outline-secondary me-2 px-4 py-2"
-            label="Kemballi"
-            onClick={() => onChangePage("courseAdd")}
+            label="Kembali"
+            onClick={() => onChangePage("materiEdit")}
           />
           <Button
             classType="primary ms-2 px-4 py-2"
             type="submit"
             label="Simpan"
-            onClick={() => onChangePage("forumAdd")}
           />
           <Button
             classType="dark ms-3 px-4 py-2"
             label="Berikutnya"
-            onClick={() => onChangePage("forumAdd")}
+            onClick={() => onChangePage("forumEdit")}
           />
         </div>
       </form>

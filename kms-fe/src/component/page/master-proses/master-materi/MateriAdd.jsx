@@ -1,20 +1,21 @@
-import { useRef, useState ,useEffect} from "react";
+import { useRef, useState, useEffect } from "react";
 import { object, string } from "yup";
-import { API_LINK } from "../../util/Constants";
-import { validateAllInputs, validateInput } from "../../util/ValidateForm";
-import SweetAlert from "../../util/SweetAlert";
-import UseFetch from "../../util/UseFetch";
-import Button from "../../part/Button";
-import DropDown from "../../part/Dropdown";
-import Input from "../../part/Input";
-import FileUpload from "../../part/FileUpload";
-import Loading from "../../part/Loading";
-import Alert from "../../part/Alert";
+import { API_LINK } from "../../../util/Constants";
+import { validateAllInputs, validateInput } from "../../../util/ValidateForm";
+import SweetAlert from "../../../util/SweetAlert";
+import UseFetch from "../../../util/UseFetch";
+import Button from "../../../part/Button";
+import DropDown from "../../../part/Dropdown";
+import Input from "../../../part/Input";
+import FileUpload from "../../../part/FileUpload";
+import uploadFile from "../../../util/UploadFile";
+import Loading from "../../../part/Loading";
+import Alert from "../../../part/Alert";
 import { Stepper } from 'react-form-stepper';
-import uploadFile from "../../util/UploadFile";
+import AppContext_test from "../MasterContext";
+import axios from "axios";
 
-
-export default function MasterCourseAdd({ onChangePage}) {
+export default function MasterCourseAdd({ onChangePage }) {
   const [errors, setErrors] = useState({});
   const [isError, setIsError] = useState({ error: false, message: "" });
   const [isLoading, setIsLoading] = useState(false);
@@ -24,11 +25,14 @@ export default function MasterCourseAdd({ onChangePage}) {
   const gambarInputRef = useRef(null);
   const vidioInputRef = useRef(null);
 
+  const kategori = AppContext_test.kategoriId;
+  console.log("kategori di materi: " + AppContext_test.kategoriId);
+
   const formDataRef = useRef({
-    kat_id:"",
-    mat_judul: "", 
+    kat_id: AppContext_test.kategoriId, 
+    mat_judul: "",
     mat_file_pdf: "",
-    mat_file_vidio: "",
+    mat_file_video: "",
     mat_pengenalan: "",
     mat_keterangan: "",
     kry_id: "1",
@@ -41,7 +45,7 @@ export default function MasterCourseAdd({ onChangePage}) {
     kat_id: string(),
     mat_judul: string(),
     mat_file_pdf: string(),
-    mat_file_vidio: string(),
+    mat_file_video: string(),
     mat_pengenalan: string(),
     mat_keterangan: string(),
     kry_id: string(),
@@ -69,17 +73,17 @@ export default function MasterCourseAdd({ onChangePage}) {
     const validationError = await validateInput(name, value, userSchema);
     let error = "";
 
-    if (fileSize / 1024576 > 10) error = "berkas terlalu besar";
-      else if (!extAllowed.split(",").includes(fileExt))
-        error = "format berkas tidak valid";
+    if (fileSize / 1024 / 1024 > 100) error = "berkas terlalu besar";
+    else if (!extAllowed.split(",").includes(fileExt))
+      error = "format berkas tidak valid";
 
-      if (error) ref.current.value = "";
+    if (error) ref.current.value = "";
 
-      setErrors((prevErrors) => ({
-        ...prevErrors,
-        [validationError.name]: error,
-      }));
-    };
+    setErrors((prevErrors) => ({
+      ...prevErrors,
+      [validationError.name]: error,
+    }));
+  };
 
   const handleAdd = async (e) => {
     e.preventDefault();
@@ -99,97 +103,119 @@ export default function MasterCourseAdd({ onChangePage}) {
 
       const uploadPromises = [];
 
-      console.log(fileInputRef.current.files[0])
-      if (fileInputRef.current.files.length > 0) {
+      if (fileInputRef.current && fileInputRef.current.files.length > 0) {
         uploadPromises.push(
           uploadFile(fileInputRef.current).then((data) => {
-            // console.log("File Upload Response:", JSON.stringify(data));
             formDataRef.current["mat_file_pdf"] = data.newFileName;
           })
         );
       }
 
-      if (gambarInputRef.current.files.length > 0) {
+      if (gambarInputRef.current && gambarInputRef.current.files.length > 0) {
         uploadPromises.push(
           uploadFile(gambarInputRef.current).then((data) => {
-            // console.log("Image Upload Response:", JSON.stringify(data));
             formDataRef.current["mat_gambar"] = data.newFileName;
           })
         );
       }
-      if (vidioInputRef.current.files.length > 0) {
+
+      if (vidioInputRef.current && vidioInputRef.current.files.length > 0) {
         uploadPromises.push(
           uploadFile(vidioInputRef.current).then((data) => {
-            // console.log("Image Upload Response:", JSON.stringify(data));
-            formDataRef.current["mat_file_vidio"] = data.newFileName;
+            formDataRef.current["mat_file_video"] = data.newFileName;
           })
         );
       }
 
       Promise.all(uploadPromises).then(() => {
-        console.log("Filter: " + JSON.stringify(formDataRef.current));
-        console.log(formDataRef.current)
-        UseFetch(
-          API_LINK + "Materis/SaveDataMateri",
-          formDataRef.current
-        )
-          .then((data) => {
-            if (data === "ERROR") {
-              setIsError((prevError) => {
-                return {
-                  ...prevError,
-                  error: true,
-                  message: "Terjadi kesalahan: Gagal menyimpan data Materi.",
-                };
-              });
+        console.log(formDataRef.current);
+        axios.post(API_LINK + "Materis/SaveDataMateri", formDataRef.current)
+        .then(response => {
+            const data = response.data;
+            console.log("ds",data)
+            if (data[0].hasil === "OK") { 
+                console.log("mat_id:", data[0].newID);
+                AppContext_test.dataIDMateri = data[0].newID;
+                console.log("context:",AppContext_test.dataIDMateri);
+                SweetAlert("Sukses", "Data Materi berhasil disimpan", "success");
             } else {
-              SweetAlert(
-                "Sukses",
-                "Data Materi berhasil disimpan",
-                "success"
-              );
-              onChangePage("index")
+                setIsError(prevError => ({
+                    ...prevError,
+                    error: true,
+                    message: "Terjadi kesalahan: Gagal menyimpan data Materi."
+                }));
             }
-          })
-          .then(() => setIsLoading(false));
-      });
+        })
+        .catch(error => {
+            console.error('Terjadi kesalahan:', error);
+            setIsError(prevError => ({
+                ...prevError,
+                error: true,
+                message: "Terjadi kesalahan: " + error.message
+            }));
+        })
+        .finally(() => setIsLoading(false));
+    });
+    }
+  };
+
+  const fetchDataKategori = async (retries = 3, delay = 1000) => {
+    for (let i = 0; i < retries; i++) {
+      try {
+        const data = await UseFetch(API_LINK + "Program/GetKategoriKKById", { kategori });
+        console.log("Raw data: ", data);
+
+        const mappedData = data.map(item => ({
+          value: item.Key,
+          label: item["Nama Kategori"],
+          idKK: item.idKK,
+          namaKK: item.namaKK
+        }));
+
+        console.log("Mapped data: ", mappedData);
+
+        return mappedData;
+      } catch (error) {
+        console.error("Error fetching kategori data:", error);
+        if (i < retries - 1) {
+          await new Promise(resolve => setTimeout(resolve, delay));
+        } else {
+          throw error;
+        }
+      }
     }
   };
 
   useEffect(() => {
-    const fetchDataKategori = async () => {
-      setIsError((prevError) => ({ ...prevError, error: false }));
+    let isMounted = true;
 
+    const fetchData = async () => {
+      setIsError({ error: false, message: '' });
+      setIsLoading(true);
       try {
-        const data = await UseFetch(API_LINK + "Materis/GetListKategoriProgram", {
-          page: 1,
-          query: "",
-          sort: "[Nama Kategori] asc",
-          status: "Aktif",
-        });
-
-        if (data === "ERROR") {
-          throw new Error("Terjadi kesalahan: Gagal mengambil daftar kategori program.");
-        } else {
-          // Mengubah data menjadi format yang diinginkan
-          const formattedData = data.map(item => ({
-            Value: item["Key"],
-            Text: item["Nama Kategori"]
-          }));
-          setListKategori(formattedData);
+        const data = await fetchDataKategori();
+        if (isMounted) {
+          setListKategori(data);
         }
       } catch (error) {
-        setIsError((prevError) => ({
-          ...prevError,
-          error: true,
-          message: error.message,
-        }));
-        setListKategori([]);
+        if (isMounted) {
+          setIsError({ error: true, message: error.message });
+          setListKategori([]);
+        }
+      } finally {
+        if (isMounted) {
+          setIsLoading(false);
+        }
       }
     };
-    fetchDataKategori();
-  }, []);
-    
+
+    fetchData();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [kategori]);
+
   if (isLoading) return <Loading />;
 
   return (
@@ -201,41 +227,41 @@ export default function MasterCourseAdd({ onChangePage}) {
       )}
       <form onSubmit={handleAdd}>
         <div>
-        <Stepper
-           steps={[
-            { label: 'Pretest', onClick:() => onChangePage("pretestAdd")},
-            { label: 'Course' ,onClick:() => onChangePage("courseAdd")},
-            { label: 'Sharing Expert',onClick:() => onChangePage("sharingAdd")},
-            { label: 'Forum' ,onClick:() => onChangePage("forumAdd") },
-            { label: 'Post Test',onClick:() => onChangePage("posttestAdd") }
-          ]}
-            activeStep={1} 
+          <Stepper
+            steps={[
+              { label: 'Pretest', onClick: () => onChangePage("pretestAdd") },
+              { label: 'Materi', onClick: () => onChangePage("courseAdd") },
+              { label: 'Sharing Expert', onClick: () => onChangePage("sharingAdd") },
+              { label: 'Forum', onClick: () => onChangePage("forumAdd") },
+              { label: 'Post Test', onClick: () => onChangePage("posttestAdd") }
+            ]}
+            activeStep={1}
             styleConfig={{
-              activeBgColor: '#67ACE9', // Warna latar belakang langkah aktif
-              activeTextColor: '#FFFFFF', // Warna teks langkah aktif
-              completedBgColor: '#67ACE9', // Warna latar belakang langkah selesai
-              completedTextColor: '#FFFFFF', // Warna teks langkah selesai
-              inactiveBgColor: '#E0E0E0', // Warna latar belakang langkah non-aktif
-              inactiveTextColor: '#000000', // Warna teks langkah non-aktif
-              size: '2em', // Ukuran langkah
-              circleFontSize: '1rem', // Ukuran font label langkah
-              labelFontSize: '0.875rem', // Ukuran font label langkah
-              borderRadius: '50%', // Radius sudut langkah
-              fontWeight: 500 // Ketebalan font label langkah
+              activeBgColor: '#67ACE9',
+              activeTextColor: '#FFFFFF',
+              completedBgColor: '#67ACE9',
+              completedTextColor: '#FFFFFF',
+              inactiveBgColor: '#E0E0E0',
+              inactiveTextColor: '#000000',
+              size: '2em',
+              circleFontSize: '1rem',
+              labelFontSize: '0.875rem',
+              borderRadius: '50%',
+              fontWeight: 500
             }}
             connectorStyleConfig={{
-              completedColor: '#67ACE9', // Warna penghubung selesai
-              activeColor: '#67ACE9', // Warna penghubung aktif
-              disabledColor: '#BDBDBD', // Warna penghubung non-aktif
-              size: 1, // Ketebalan penghubung
-              stepSize: '2em', // Ukuran langkah, digunakan untuk menghitung ruang yang dipadatkan antara langkah dan awal penghubung
-              style: 'solid' // Gaya penghubung
+              completedColor: '#67ACE9',
+              activeColor: '#67ACE9',
+              disabledColor: '#BDBDBD',
+              size: 1,
+              stepSize: '2em',
+              style: 'solid'
             }}
           />
         </div>
 
         <div className="card">
-          <div className="card-header bg-outline-primary fw-medium text-white">
+          <div className="card-header bg-outline-primary fw-medium text-black">
             Tambah Materi Baru
           </div>
           <div className="card-body p-4">
@@ -243,29 +269,25 @@ export default function MasterCourseAdd({ onChangePage}) {
               <div className="col-lg-6">
                 <Input
                   type="text"
-                  forInput="mat_judul"
-                  label="Kelompok Keahlian"
-                  placeholder="Kelompok Keahlian"
-                  value={formDataRef.current.mat_judul}
-                  onChange={handleInputChange}
-                  errorMessage={errors.mat_judul}
+                  forInput="namaKK"
+                  label="Nama KK"
+                  value={listKategori.find((item) => item.value === formDataRef.current.kat_id)?.namaKK || ""}
+                  disabled
+                  errorMessage={errors.namaKK}
                 />
               </div>
               <div className="col-lg-6">
-                <DropDown
+                <Input
+                  type="text"
                   forInput="kat_id"
-                  label="Kategori program"
-                  placeholder="Kategori program"
-                  arrData={listKategori}
-                  isRequired
-                  value={formDataRef.current.kat_id}
-                  onChange={handleInputChange}
+                  label="Kategori Program"
+                  value={listKategori.find((item) => item.value === formDataRef.current.kat_id)?.label || ""}
+                  disabled
                   errorMessage={errors.kat_id}
                 />
-                
               </div>
               <div className="col-lg-6">
-              <Input
+                <Input
                   type="text"
                   forInput="mat_judul"
                   label="Judul Materi"
@@ -273,10 +295,11 @@ export default function MasterCourseAdd({ onChangePage}) {
                   value={formDataRef.current.mat_judul}
                   onChange={handleInputChange}
                   errorMessage={errors.mat_judul}
+                  isRequired
                 />
               </div>
               <div className="col-lg-6">
-              <Input
+                <Input
                   type="text"
                   forInput="mat_kata_kunci"
                   label="Kata Kunci Materi"
@@ -284,12 +307,13 @@ export default function MasterCourseAdd({ onChangePage}) {
                   value={formDataRef.current.mat_kata_kunci}
                   onChange={handleInputChange}
                   errorMessage={errors.mat_kata_kunci}
+                  isRequired
                 />
               </div>
               <div className="col-lg-6">
                 <div className="form-group">
                   <label htmlFor="deskripsiMateri" className="form-label fw-bold">
-                  Deskripsi Materi <span style={{color:"Red"}}> *</span>
+                    Deskripsi Materi <span style={{color: "Red"}}> *</span>
                   </label>
                   <textarea
                     className="form-control mb-3"
@@ -300,15 +324,15 @@ export default function MasterCourseAdd({ onChangePage}) {
                     onChange={handleInputChange}
                     required
                   />
-                  {errors.deskripsiMateri && (
-                    <div className="invalid-feedback">{errors.deskripsiMateri}</div>
+                  {errors.mat_keterangan && (
+                    <div className="invalid-feedback">{errors.mat_keterangan}</div>
                   )}
                 </div>
               </div>
               <div className="col-lg-6">
                 <div className="form-group">
                   <label htmlFor="deskripsiMateri" className="form-label fw-bold">
-                  Pengenalan Materi <span style={{color:"Red"}}> *</span>
+                    Pengenalan Materi <span style={{color: "Red"}}> *</span>
                   </label>
                   <textarea
                     className="form-control mb-3"
@@ -319,8 +343,8 @@ export default function MasterCourseAdd({ onChangePage}) {
                     onChange={handleInputChange}
                     required
                   />
-                  {errors.deskripsiMateri && (
-                    <div className="invalid-feedback">{errors.deskripsiMateri}</div>
+                  {errors.mat_pengenalan && (
+                    <div className="invalid-feedback">{errors.mat_pengenalan}</div>
                   )}
                 </div>
               </div>
@@ -334,6 +358,7 @@ export default function MasterCourseAdd({ onChangePage}) {
                     handleFileChange(gambarInputRef, "jpg,png")
                   }
                   errorMessage={errors.mat_gambar}
+                  isRequired
                 />
               </div>
               <div className="col-lg-4">
@@ -346,18 +371,20 @@ export default function MasterCourseAdd({ onChangePage}) {
                     handleFileChange(fileInputRef, "pdf")
                   }
                   errorMessage={errors.mat_file_pdf}
+                  isRequired
                 />
               </div>
               <div className="col-lg-4">
                 <FileUpload
                   ref={vidioInputRef}
-                  forInput="mat_file_vidio"
+                  forInput="mat_file_video"
                   label="File Materi (.mp4, .mov)"
                   formatFile=".mp4,.mov"
                   onChange={() =>
                     handleFileChange(vidioInputRef, "mp4,mov")
                   }
-                  errorMessage={errors.mat_file_vidio}
+                  errorMessage={errors.mat_file_video}
+                  isRequired
                 />
               </div>
             </div>

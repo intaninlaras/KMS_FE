@@ -11,10 +11,9 @@ import CardMateri from "../../part/CardMateri";
 import UseFetch from "../../util/UseFetch";
 import { API_LINK } from "../../util/Constants";
 import '@fortawesome/fontawesome-free/css/all.css';
-import axios from "axios";
 import "../../../index.css";
 // Definisikan beberapa data contoh untuk tabel
-
+import AppContext_test from "./MasterContext";
 const inisialisasiData = [
   {
     Key: null,
@@ -27,6 +26,8 @@ const inisialisasiData = [
     Keterangan: null,
     "Kata Kunci": null,
     Gambar: null,
+    Sharing_pdf: null,
+    Sharing_vidio: null,
     Status: "Aktif",
     Count: 0,
   },
@@ -35,13 +36,6 @@ const inisialisasiData = [
 const dataFilterSort = [
   { Value: "[Judul] ASC", Text: "Nama Materi [↑]" },
   { Value: "[Judul] DESC", Text: "Nama Materi [↓]" },
-];
-
-const dataFilterJenis = [
-  { Value: "Pemrograman", Text: "Pemrograman" },
-  { Value: "Basis Data", Text: "Basis Data" },
-  { Value: "Jaringan Komputer", Text: "Jaringan Komputer" },
-  // Tambahkan jenis lainnya jika diperlukan
 ];
 
 const dataFilterStatus = [
@@ -59,9 +53,12 @@ export default function MasterProsesIndex({ onChangePage, withID }) {
     query: "",
     sort: "Judul",
     order: "asc",
+    kategori:withID,
    // Default status
   });
-
+  AppContext_test.kategoriId = withID;
+  const kategori = withID;
+  console.log("kategori di index: " + kategori);
   const searchQuery = useRef(null);
   const searchFilterSort = useRef(null);
   const searchFilterStatus = useRef(null);
@@ -140,77 +137,164 @@ export default function MasterProsesIndex({ onChangePage, withID }) {
 
   useEffect(() => {
     const fetchData = async () => {
-      setIsError(false);
-      setIsLoading(true);
+        setIsError(false);
+        setIsLoading(true);
 
-      console.log("Filter: " + JSON.stringify(currentFilter));
-      try {
-        const data = await UseFetch(
-          API_LINK + "Materis/GetDataMateri",
-          currentFilter
-        );
-        console.log("Fetched data:", data);
+        console.log("Filter: " + JSON.stringify(currentFilter));
+        try {
+            const data = await UseFetch(
+                API_LINK + "Materis/GetDataMateriByKategori",
+                currentFilter
+            );
+            console.log("Fetched data:", data);
 
-        if (data === "ERROR") {
-          setIsError(true);
-        } else if (data.length === 0) {
-          setCurrentData(inisialisasiData);
-        } else {
-          const formattedData = data.map((value) => ({
-            ...value,
-          }));
-          const promises = formattedData.map((value) => {
-            const filePromises = [];
+            if (data === "ERROR") {
+                setIsError(true);
+            } else if (data.length === 0) {
+                setCurrentData(inisialisasiData);
+            } else {
+                const formattedData = data.map((value) => ({
+                    ...value,
+                }));
+                const promises = formattedData.map((value) => {
+                    const filePromises = [];
 
-            if (value.Gambar) {
-              const gambarPromise = fetch(
-                API_LINK +
-                  `Utilities/Upload/DownloadFile?namaFile=${encodeURIComponent(
-                    value.Gambar
-                  )}`
-              )
-                .then((response) => response.blob())
-                .then((blob) => {
-                  const url = URL.createObjectURL(blob);
-                  value.gbr = value.Gambar;
-                  value.Gambar = url;
-                  return value;
-                })
-                .catch((error) => {
-                  console.error("Error fetching gambar:", error);
-                  return value;
+                    // Fetch image
+                    if (value.Gambar) {
+                        const gambarPromise = fetch(
+                            API_LINK +
+                            `Utilities/Upload/DownloadFile?namaFile=${encodeURIComponent(
+                                value.Gambar
+                            )}`
+                        )
+                            .then((response) => response.blob())
+                            .then((blob) => {
+                                const url = URL.createObjectURL(blob);
+                                value.gbr = value.Gambar;
+                                value.Gambar = url;
+                                return value;
+                            })
+                            .catch((error) => {
+                                console.error("Error fetching gambar:", error);
+                                return value;
+                            });
+                        filePromises.push(gambarPromise);
+                    }
+
+                    // Fetch video
+                    if (value.File_video) {
+                        const videoPromise = fetch(
+                            API_LINK +
+                            `Utilities/Upload/DownloadFile?namaFile=${encodeURIComponent(
+                                value.File_video
+                            )}`
+                        )
+                            .then((response) => response.blob())
+                            .then((blob) => {
+                                const url = URL.createObjectURL(blob);
+                                value.vid = value.File_video;
+                                value.File_video = url;
+                                return value;
+                            })
+                            .catch((error) => {
+                                console.error("Error fetching video:", error);
+                                return value;
+                            });
+                        filePromises.push(videoPromise);
+                    }
+
+                    // Fetch PDF
+                    if (value.File_pdf) {
+                        const pdfPromise = fetch(
+                            API_LINK +
+                            `Utilities/Upload/DownloadFile?namaFile=${encodeURIComponent(
+                                value.File_pdf
+                            )}`
+                        )
+                            .then((response) => response.blob())
+                            .then((blob) => {
+                                const url = URL.createObjectURL(blob);
+                                value.pdf = value.File_pdf;
+                                value.File_pdf = url;
+                                return value;
+                            })
+                            .catch((error) => {
+                                console.error("Error fetching PDF:", error);
+                                return value;
+                            });
+                        filePromises.push(pdfPromise);
+                    }
+
+                    // Fetch Sharing PDF
+                    if (value.Sharing_pdf) {
+                        const sharingPdfPromise = fetch(
+                            API_LINK +
+                            `Utilities/Upload/DownloadFile?namaFile=${encodeURIComponent(
+                                value.Sharing_pdf
+                            )}`
+                        )
+                            .then((response) => response.blob())
+                            .then((blob) => {
+                                const url = URL.createObjectURL(blob);
+                                value.Sharing_pdf = url;
+                                return value;
+                            })
+                            .catch((error) => {
+                                console.error("Error fetching sharing PDF:", error);
+                                return value;
+                            });
+                        filePromises.push(sharingPdfPromise);
+                    }
+
+                    // Fetch Sharing Video
+                    if (value.Sharing_video) {
+                        const sharingVideoPromise = fetch(
+                            API_LINK +
+                            `Utilities/Upload/DownloadFile?namaFile=${encodeURIComponent(
+                                value.Sharing_video
+                            )}`
+                        )
+                            .then((response) => response.blob())
+                            .then((blob) => {
+                                const url = URL.createObjectURL(blob);
+                                value.Sharing_video = url;
+                                return value;
+                            })
+                            .catch((error) => {
+                                console.error("Error fetching sharing video:", error);
+                                return value;
+                            });
+                        filePromises.push(sharingVideoPromise);
+                    }
+
+                    return Promise.all(filePromises).then((results) => {
+                        const updatedValue = results.reduce(
+                            (acc, curr) => ({ ...acc, ...curr }),
+                            value
+                        );
+                        return updatedValue;
+                    });
                 });
-              filePromises.push(gambarPromise);
+
+                Promise.all(promises)
+                    .then((updatedData) => {
+                        console.log("Updated data with blobs:", updatedData);
+                        setCurrentData(updatedData);
+                    })
+                    .catch((error) => {
+                        console.error("Error updating currentData:", error);
+                    });
             }
-
-            return Promise.all(filePromises).then((results) => {
-              const updatedValue = results.reduce(
-                (acc, curr) => ({ ...acc, ...curr }),
-                value
-              );
-              return updatedValue;
-            });
-          });
-
-          Promise.all(promises)
-            .then((updatedData) => {
-              console.log("Updated data with blobs:", updatedData);
-              setCurrentData(updatedData);
-            })
-            .catch((error) => {
-              console.error("Error updating currentData:", error);
-            });
+        } catch (error) {
+            setIsError(true);
+            console.error("Fetch error:", error);
+        } finally {
+            setIsLoading(false);
         }
-      } catch (error) {
-        setIsError(true);
-        console.error("Fetch error:", error);
-      } finally {
-        setIsLoading(false);
-      }
     };
 
     fetchData();
-  }, [currentFilter]);
+}, [currentFilter]);
 
   return (
     <div className="container">
@@ -231,7 +315,7 @@ export default function MasterProsesIndex({ onChangePage, withID }) {
                 classType="success"
                 title="Tambah Materi"
                 label="Tambah Materi"
-                onClick={() => onChangePage("pretestAdd")}
+                onClick={() => onChangePage("pretestAdd",AppContext_test.KategoriIdByKK)}
               />
               <Input
                 ref={searchQuery}
@@ -271,24 +355,29 @@ export default function MasterProsesIndex({ onChangePage, withID }) {
               <Loading />
             ) : (
               <div className="row">
-                <CardMateri
-                  materis={currentData}
-                  onDetail={onChangePage}
-                  onEdit={onChangePage}
-                  onStatus={handleSetStatus}
-                />
+                {currentFilter.status === "Semua" ? (
+                  <>
+                    <CardMateri
+                      materis={currentData}
+                      onDetail={onChangePage}
+                      onEdit={onChangePage}
+                      onStatus={handleSetStatus}
+                      isNonEdit={false}
+                    />
+                  </>
+                ) : (
+                  <CardMateri
+                    materis={currentData.filter(materi => materi.Status === currentFilter.status)}
+                    onDetail={onChangePage}
+                    onEdit={onChangePage}
+                    onStatus={handleSetStatus}
+                      isNonEdit={false}
+                  />
+                )}
               </div>
             )}
-
-            {currentData.length > 0 && currentData[0].Count > 20 && (
-              <Paging
-                totalItems={currentData[0].Count}
-                itemsPerPage={20}
-                currentPage={currentFilter.page}
-                onPageChange={handleSetCurrentPage}
-                className="mt-3"
-              />
-            )}
+            
+            {console.log("woi = "+ currentData[0].Count  )}
           </div>
         </div>
       </div>
@@ -299,6 +388,6 @@ export default function MasterProsesIndex({ onChangePage, withID }) {
           onClick={() => onChangePage("kk")}
         />
       </div>
-    </div>
+  </div>
   );
 }

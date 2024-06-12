@@ -1,11 +1,11 @@
 import { useState } from "react";
 import { object, string } from "yup";
-import { validateAllInputs, validateInput } from "../../util/ValidateForm";
-import SweetAlert from "../../util/SweetAlert";
-import Button from "../../part/Button";
-import Input from "../../part/Input";
-import Loading from "../../part/Loading";
-import Alert from "../../part/Alert";
+import { validateAllInputs, validateInput } from "../../../util/ValidateForm";
+import SweetAlert from "../../../util/SweetAlert";
+import Button from "../../../part/Button";
+import Input from "../../../part/Input";
+import Loading from "../../../part/Loading";
+import Alert from "../../../part/Alert";
 import { Stepper } from 'react-form-stepper';
 import axios from "axios";
 
@@ -108,11 +108,11 @@ export default function MasterForumAdd({ onChangePage }) {
         <div>
           <Stepper
             steps={[
-              { label: 'Pretest', onClick: () => onChangePage("pretestAdd") },
-              { label: 'Course', onClick: () => onChangePage("courseAdd") },
-              { label: 'Sharing Expert', onClick: () => onChangePage("sharingAdd") },
-              { label: 'Forum', onClick: () => onChangePage("forumAdd") },
-              { label: 'Post Test', onClick: () => onChangePage("posttestAdd") }
+              { label: 'Pretest', onClick: () => onChangePage("pretestEdit") },
+              { label: 'Materi', onClick: () => onChangePage("courseEdit") },
+              { label: 'Sharing Expert', onClick: () => onChangePage("sharingEdit") },
+              { label: 'Forum', onClick: () => onChangePage("forumEdit") },
+              { label: 'Post Test', onClick: () => onChangePage("posttestEdit") }
             ]}
             activeStep={3} 
             styleConfig={{
@@ -141,7 +141,7 @@ export default function MasterForumAdd({ onChangePage }) {
 
         <div className="card">
           <div className="card-header bg-outline-primary fw-medium text-black">
-            Add Forum
+            Edit Forum
           </div>
           <div className="card-body p-4">
             <div className="row">
@@ -149,7 +149,7 @@ export default function MasterForumAdd({ onChangePage }) {
                 <Input
                   type="text"
                   forInput="forumJudul"
-                  label="Forum Title"
+                  label="Judul Forum"
                   value={formData.forumJudul}
                   onChange={handleInputChange}
                   errorMessage={errors.forumJudul}
@@ -158,7 +158,7 @@ export default function MasterForumAdd({ onChangePage }) {
               <div className="col-lg-12">
                 <div className="form-group">
                   <label htmlFor="forumIsi" className="form-label fw-bold">
-                    Forum Contents
+                    Isi Forum
                   </label>
                   <textarea
                     id="forumIsi"
@@ -179,17 +179,17 @@ export default function MasterForumAdd({ onChangePage }) {
           <Button
             classType="outline-secondary me-2 px-4 py-2"
             label="Kembali"
-            onClick={() => onChangePage("sharingAdd")}
+            onClick={() => onChangePage("sharingEdit")}
           />
           <Button
             classType="primary ms-2 px-4 py-2"
             type="submit"
-            label="SImpan"
+            label="Simpan"
           />
           <Button
             classType="dark ms-3 px-4 py-2"
             label="Berikutnya"
-            onClick={() => onChangePage("posttestAdd")}
+            onClick={() => onChangePage("posttestEdit")}
           />
         </div>
       </form>
