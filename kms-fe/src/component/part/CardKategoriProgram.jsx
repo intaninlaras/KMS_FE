@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import Icon from "./Icon";
+import AppContext_test from "../page/master-proses/MasterContext.jsx";
 
 const CardKategoriProgram = ({ onChangePage, kategori }) => {
   const [showFullDescription, setShowFullDescription] = useState(false);
@@ -41,7 +42,7 @@ const CardKategoriProgram = ({ onChangePage, kategori }) => {
       <div className="card-kategori-program">
         <div
           className="card mt-3"
-           onClick={() => onChangePage("index", kategori.Key)}
+           onClick={() => onChangePage("index",AppContext_test.KategoriIdByKK = kategori.Key)}
         >
           <div className="card-body">
             <div className="d-flex justify-content-between">

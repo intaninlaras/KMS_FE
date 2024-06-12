@@ -10,6 +10,8 @@ import { validateAllInputs, validateInput } from "../../../util/ValidateForm";
 import { API_LINK } from "../../../util/Constants";
 import FileUpload from "../../../part/FileUpload";
 import uploadFile from "../../../util/UploadImageQuiz";
+import AppContext_test from "../MasterContext";
+
 
 export default function MasterPreTestAdd({ onChangePage }) {
   const [formContent, setFormContent] = useState([]);
@@ -863,7 +865,7 @@ export default function MasterPreTestAdd({ onChangePage }) {
           <Button
             classType="dark ms-3 px-4 py-2"
             label="Berikutnya"
-            onClick={() => onChangePage("materiAdd")}
+            onClick={() => onChangePage("materiAdd",AppContext_test.KategoriIdByKK)}
           />
         </div>
       </form>

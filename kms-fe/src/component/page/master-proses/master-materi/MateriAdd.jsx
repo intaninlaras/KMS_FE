@@ -129,25 +129,13 @@ export default function MasterCourseAdd({ onChangePage, withID }) {
       AppContext_test.materiId = withID;
   
       Promise.all(uploadPromises).then(() => {
-        console.log(formDataRef.current);
+        console.log(formDataRef.current)
         UseFetch(
           API_LINK + "Materis/SaveDataMateri",
           formDataRef.current
         )
           .then((data) => {
-            if (data.newID) {
-              // Data saved successfully
-              AppContext_test.materiId = data.newID;
-              console.log("Data Materi berhasil disimpan");
-              console.log("mat_id: " + data.newID);
-              SweetAlert(
-                "Sukses",
-                "Data Materi berhasil disimpan",
-                "success"
-              );
-              onChangePage("index", kategori);
-            } else {
-              // Error occurred
+            if (data === "ERROR") {
               setIsError((prevError) => {
                 return {
                   ...prevError,
@@ -155,6 +143,13 @@ export default function MasterCourseAdd({ onChangePage, withID }) {
                   message: "Terjadi kesalahan: Gagal menyimpan data Materi.",
                 };
               });
+            } else {
+              SweetAlert(
+                "Sukses",
+                "Data Materi berhasil disimpan",
+                "success"
+              );
+              onChangePage("index", kategori);
             }
           })
           .then(() => setIsLoading(false));

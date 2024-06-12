@@ -1,17 +1,34 @@
-import React, { useState } from "react";
+import React, { useState ,useEffect} from "react";
 import Button from "./Button";
 import Icon from "./Icon";
 import CardProgram from "./CardProgram";
 
+const MAX_DESCRIPTION_LENGTH = 200;
+
 const CardKK = ({ kk, onChangePage }) => {
   const [isContentVisible, setIsContentVisible] = useState(false);
-
+  const [expandDeskripsi, setExpandDeskripsi] = useState({});
+  const [cardHeight, setCardHeight] = useState("auto");
   const toggleContentVisibility = () => {
     setIsContentVisible(!isContentVisible);
   };
 
+  const handleExpandDescription = (key) => {
+    setExpandDeskripsi({ ...expandDeskripsi, [key]: !expandDeskripsi[key] });
+  };
+  useEffect(() => {
+    // Hitung panjang deskripsi
+    const descriptionLength = kk.Deskripsi.length;
+
+    // Tentukan tinggi kartu berdasarkan panjang deskripsi
+    if (descriptionLength > MAX_DESCRIPTION_LENGTH) {
+      setCardHeight("auto"); // Set tinggi kartu menjadi otomatis
+    } else {
+      setCardHeight("150px"); // Set tinggi kartu minimum
+    }
+  }, [kk.Deskripsi]);
   return (
-    <div className="card p-0 mb-3" style={{ borderRadius: "10px" }}>
+    <div className="card p-0 mb-3" style={{ borderRadius: "10px", height: cardHeight }}> {/* Set tinggi kartu */}
       <div className="card-body p-0">
         <h5
           className="card-title text-white px-3 py-2"
@@ -46,15 +63,41 @@ const CardKK = ({ kk, onChangePage }) => {
           </div>
           <hr style={{ opacity: "0.1" }} />
           <p
-            className="lh-sm"
+            className="lh-sm" 
             style={{
-              display: isContentVisible ? "block" : "-webkit-box",
               WebkitLineClamp: 2,
               WebkitBoxOrient: "vertical",
+              width: "100%",
+              fontSize: "15px",
+              maxHeight: "75px",
               overflow: "hidden"
             }}
           >
-            {kk.Deskripsi}
+            {kk.Deskripsi.length > MAX_DESCRIPTION_LENGTH && !expandDeskripsi[kk.Key] ? (
+              <>
+                {kk.Deskripsi.slice(0, MAX_DESCRIPTION_LENGTH) + " ..."}
+                <a
+                  className="btn btn-link text-decoration-none p-0"
+                  onClick={() => handleExpandDescription(kk.Key)}
+                  style={{ fontSize: "12px" }}
+                >
+                  Baca Selengkapnya <Icon name={"caret-down"} />
+                </a>
+              </>
+            ) : (
+              <>
+                {kk.Deskripsi}
+                {expandDeskripsi[kk.Key] && (
+                  <a
+                    className="btn btn-link text-decoration-none p-0"
+                    onClick={() => handleExpandDescription(kk.Key)}
+                    style={{ fontSize: "12px" }}
+                  >
+                    Tutup <Icon name={"caret-up"} />
+                  </a>
+                )}
+              </>
+            )}
           </p>
           {isContentVisible && (
             <>

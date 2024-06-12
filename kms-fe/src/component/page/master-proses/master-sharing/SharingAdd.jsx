@@ -4,15 +4,12 @@ import { API_LINK } from "../../../util/Constants";
 import { validateAllInputs, validateInput } from "../../../util/ValidateForm";
 import SweetAlert from "../../../util/SweetAlert";
 import UseFetch from "../../../util/UseFetch";
-import UploadFile from "../../../util/UploadFile";
 import Button from "../../../part/Button";
-import DropDown from "../../../part/Dropdown";
-import Input from "../../../part/Input";
+import FileUpload from "../../../part/FileUpload";
 import Loading from "../../../part/Loading";
 import Alert from "../../../part/Alert";
 import { Stepper } from 'react-form-stepper';
 import AppContext_test from "../MasterContext";
-import FileUpload from "../../../part/FileUpload";
 import uploadFile from "../../../util/UploadFile";
 
 export default function MasterSharingAdd({ onChangePage }) {
@@ -21,11 +18,9 @@ export default function MasterSharingAdd({ onChangePage }) {
   const [isLoading, setIsLoading] = useState(false);
 
   const fileInputRef = useRef(null);
-  const gambarInputRef = useRef(null);
   const vidioInputRef = useRef(null);
 
   const kategori = AppContext_test.kategoriId;
-  console.log("kategori di materi: " + AppContext_test.kategoriId);
   const formDataRef = useRef({
     mat_id: "1", 
     mat_sharing_expert_pdf: "",
@@ -49,35 +44,31 @@ export default function MasterSharingAdd({ onChangePage }) {
   };
 
   const handleFileChange = async (ref, extAllowed) => {
-    const { name, value } = ref.current;
     const file = ref.current.files[0];
     const fileName = file.name;
     const fileSize = file.size;
     const fileExt = fileName.split(".").pop();
-    const validationError = await validateInput(name, value, userSchema);
     let error = "";
 
     if (fileSize / 1024 / 1024 > 100) error = "berkas terlalu besar";
-    else if (!extAllowed.split(",").includes(fileExt))
-      error = "format berkas tidak valid";
+    else if (!extAllowed.split(",").includes(fileExt)) error = "format berkas tidak valid";
 
     if (error) ref.current.value = "";
 
     setErrors((prevErrors) => ({
       ...prevErrors,
-      [validationError.name]: error,
+      [ref.current.name]: error,
     }));
   };
 
   const handleAdd = async (e) => {
     e.preventDefault();
-  
     const validationErrors = await validateAllInputs(
       formDataRef.current,
       userSchema,
       setErrors
     );
-  
+
     if (Object.values(validationErrors).every((error) => !error)) {
       setIsLoading(true);
       setIsError({ error: false, message: "" });
@@ -88,7 +79,7 @@ export default function MasterSharingAdd({ onChangePage }) {
       if (fileInputRef.current && fileInputRef.current.files.length > 0) {
         uploadPromises.push(
           uploadFile(fileInputRef.current).then((data) => {
-            formDataRef.current["mat_sharing_expert_pdf"] = data.newFileName;
+            formDataRef.current.mat_sharing_expert_pdf = data.newFileName;
           })
         );
       }
@@ -96,13 +87,13 @@ export default function MasterSharingAdd({ onChangePage }) {
       if (vidioInputRef.current && vidioInputRef.current.files.length > 0) {
         uploadPromises.push(
           uploadFile(vidioInputRef.current).then((data) => {
-            formDataRef.current["mat_sharing_expert_video"] = data.newFileName;
+            formDataRef.current.mat_sharing_expert_video = data.newFileName;
           })
         );
       }
   
       Promise.all(uploadPromises).then(() => {
-        console.log('Form Data:', formDataRef.current); // Debugging
+        console.log("Form Data:", formDataRef.current);
         UseFetch(
           API_LINK + "SharingExperts/SaveDataSharing",
           formDataRef.current
@@ -122,7 +113,7 @@ export default function MasterSharingAdd({ onChangePage }) {
       });
     }
   };
-  
+
   if (isLoading) return <Loading />;
 
   return (
@@ -134,35 +125,35 @@ export default function MasterSharingAdd({ onChangePage }) {
       )}
       <form onSubmit={handleAdd}>
         <div>
-        <Stepper
-             steps={[
-              { label: 'Pretest', onClick:() => onChangePage("pretestAdd")},
-              { label: 'Materi' ,onClick:() => onChangePage("courseAdd")},
-              { label: 'Sharing Expert',onClick:() => onChangePage("sharingAdd")},
-              { label: 'Forum' ,onClick:() => onChangePage("forumAdd") },
-              { label: 'Post Test',onClick:() => onChangePage("posttestAdd") }
+          <Stepper
+            steps={[
+              { label: 'Pretest', onClick:() => onChangePage("pretestAdd") },
+              { label: 'Materi', onClick:() => onChangePage("courseAdd") },
+              { label: 'Sharing Expert', onClick:() => onChangePage("sharingAdd") },
+              { label: 'Forum', onClick:() => onChangePage("forumAdd") },
+              { label: 'Post Test', onClick:() => onChangePage("posttestAdd") }
             ]}
             activeStep={2} 
             styleConfig={{
-              activeBgColor: '#67ACE9', // Warna latar belakang langkah aktif
-              activeTextColor: '#FFFFFF', // Warna teks langkah aktif
-              completedBgColor: '#67ACE9', // Warna latar belakang langkah selesai
-              completedTextColor: '#FFFFFF', // Warna teks langkah selesai
-              inactiveBgColor: '#E0E0E0', // Warna latar belakang langkah non-aktif
-              inactiveTextColor: '#000000', // Warna teks langkah non-aktif
-              size: '2em', // Ukuran langkah
-              circleFontSize: '1rem', // Ukuran font label langkah
-              labelFontSize: '0.875rem', // Ukuran font label langkah
-              borderRadius: '50%', // Radius sudut langkah
-              fontWeight: 500 // Ketebalan font label langkah
+              activeBgColor: '#67ACE9',
+              activeTextColor: '#FFFFFF',
+              completedBgColor: '#67ACE9',
+              completedTextColor: '#FFFFFF',
+              inactiveBgColor: '#E0E0E0',
+              inactiveTextColor: '#000000',
+              size: '2em',
+              circleFontSize: '1rem',
+              labelFontSize: '0.875rem',
+              borderRadius: '50%',
+              fontWeight: 500
             }}
             connectorStyleConfig={{
-              completedColor: '#67ACE9', // Warna penghubung selesai
-              activeColor: '#67ACE9', // Warna penghubung aktif
-              disabledColor: '#BDBDBD', // Warna penghubung non-aktif
-              size: 1, // Ketebalan penghubung
-              stepSize: '2em', // Ukuran langkah, digunakan untuk menghitung ruang yang dipadatkan antara langkah dan awal penghubung
-              style: 'solid' // Gaya penghubung
+              completedColor: '#67ACE9',
+              activeColor: '#67ACE9',
+              disabledColor: '#BDBDBD',
+              size: 1,
+              stepSize: '2em',
+              style: 'solid'
             }}
           />
         </div>
@@ -173,16 +164,13 @@ export default function MasterSharingAdd({ onChangePage }) {
           </div>
           <div className="card-body p-4">
             <div className="row">
-              
               <div className="col-lg-6">
                 <FileUpload
                   ref={fileInputRef}
                   forInput="mat_sharing_expert_pdf"
                   label="File Sharing Expert (.pdf)"
                   formatFile=".pdf"
-                  onChange={() =>
-                    handleFileChange(fileInputRef, "pdf")
-                  }
+                  onChange={() => handleFileChange(fileInputRef, "pdf")}
                   errorMessage={errors.mat_sharing_expert_pdf}
                 />
               </div>
@@ -192,9 +180,7 @@ export default function MasterSharingAdd({ onChangePage }) {
                   forInput="mat_sharing_expert_video"
                   label="Vidio Sharing Expert (.mp4, .mov)"
                   formatFile=".mp4,.mov"
-                  onChange={() =>
-                    handleFileChange(vidioInputRef, "mp4,mov")
-                  }
+                  onChange={() => handleFileChange(vidioInputRef, "mp4,mov")}
                   errorMessage={errors.mat_sharing_expert_video}
                 />
               </div>

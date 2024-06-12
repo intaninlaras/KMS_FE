@@ -7,7 +7,8 @@ import Input from "../../../part/Input";
 import Loading from "../../../part/Loading";
 import Alert from "../../../part/Alert";
 import { Stepper } from 'react-form-stepper';
-import axios from "axios";
+import UseFetch from "../../../util/UseFetch";  // Import UseFetch
+import { API_LINK } from "../../../util/Constants";  // Import API_LINK
 
 const userSchema = object({
   forumJudul: string().max(100, "maksimum 100 karakter").required("harus diisi"),
@@ -18,80 +19,85 @@ export default function MasterForumAdd({ onChangePage }) {
   const [errors, setErrors] = useState({});
   const [isError, setIsError] = useState({ error: false, message: "" });
   const [isLoading, setIsLoading] = useState(false);
-  const [formData, setFormData] = useState({
-    materiId: "00003",
-    karyawanId: "1",
-    forumJudul: "",
-    forumIsi: "",
-    forumCreatedBy:"ika",
+  const formDataRef = useRef({
+    kat_id: AppContext_test.kategoriId, 
+    mat_judul: "",
+    mat_file_pdf: "",
+    mat_file_video: "",
+    mat_pengenalan: "",
+    mat_keterangan: "",
+    kry_id: "1",
+    mat_kata_kunci: "",
+    mat_gambar: "",
+    createBy: "dummy",
+  });
+
+  const userSchema = object({
+    kat_id: string(),
+    mat_judul: string(),
+    mat_file_pdf: string(),
+    mat_file_video: string(),
+    mat_pengenalan: string(),
+    mat_keterangan: string(),
+    kry_id: string(),
+    mat_kata_kunci: string(),
+    mat_gambar: string(),
+    createBy: string(),
   });
 
   const handleInputChange = async (e) => {
     const { name, value } = e.target;
     const validationError = await validateInput(name, value, userSchema);
-    setFormData((prevData) => ({
-      ...prevData,
-      [name]: value,
-    }));
+    formDataRef.current[name] = value;
     setErrors((prevErrors) => ({
       ...prevErrors,
       [validationError.name]: validationError.error,
     }));
   };
 
-  const resetForm = () => {
-    setFormData({
-      materiId: "00003",
-      karyawanId: "1",
-      forumJudul: "",
-      forumIsi: "",
-      forumStatus: "Aktif",
-    });
-    setErrors({});
-    setIsError({ error: false, message: "" });
-  };
-
   const handleAdd = async (e) => {
     e.preventDefault();
-
-    const validationErrors = await validateAllInputs(formData, userSchema, setErrors);
-    const isEmptyData = Object.values(formData).some(value => value === "");
-
-    if (isEmptyData) {
-      setIsError({
-        error: true,
-        message: "Data tidak boleh kosong",
-      });
-      return;
-    }
-
+  
+    const validationErrors = await validateAllInputs(
+      formDataRef.current,
+      userSchema,
+      setErrors
+    );
+  
     if (Object.values(validationErrors).every((error) => !error)) {
       setIsLoading(true);
-      setIsError({ error: false, message: "" });
-      setErrors({});
-    }
-
-    try {
-      console.log("Data yang dikirim ke backend:", formData);
-      const response = await axios.post("http://localhost:8080/Forums/SaveDataForum", formData);
-
-      if (response.status === 200) {
-        SweetAlert("Success", "Forum data has been successfully saved", "success");
-        resetForm();
-        setIsLoading(false);
-      } else {
-        setIsError({
-          error: true,
-          message: "Failed to save forum data: " + response.statusText,
-        });
-        setIsLoading(false); 
-      }
-    } catch (error) {
-      setIsError({
-        error: true,
-        message: "Failed to save forum data: " + error.message,
+      setIsError((prevError) => {
+        return { ...prevError, error: false };
       });
-      setIsLoading(false);
+      setErrors({});
+  
+      Promise.all(uploadPromises).then(() => {
+        console.log(formDataRef.current);
+        UseFetch(
+          API_LINK + "Forum/SaveDataForum",
+          formDataRef.current
+        )
+          .then((data) => {
+            if (data.newID) {
+              SweetAlert(
+                "Sukses",
+                "Data Materi berhasil disimpan",
+                "success"
+              );
+              onChangePage("index", kategori);
+            } else {
+              // Error occurred
+              setIsError((prevError) => {
+                return {
+                  ...prevError,
+                  error: true,
+                  message: "Terjadi kesalahan: Gagal menyimpan data Materi.",
+                };
+              });
+            }
+          })
+          .then(() => setIsLoading(false));
+      });
     }
   };
 

@@ -68,7 +68,8 @@ export default function MasterProses() {
                 onChangePage={handleSetPageMode} />;
       case "sharingDetail":
         return <MasterSharingDetail 
-                onChangePage={handleSetPageMode} />;
+                onChangePage={handleSetPageMode} 
+                withID={dataID}/>;
       case "forumAdd":
         return <MasterForumAdd 
                 onChangePage={handleSetPageMode} />;
@@ -77,7 +78,8 @@ export default function MasterProses() {
                 onChangePage={handleSetPageMode} />;
       case "forumDetail":
         return <MasterForumDetail 
-                onChangePage={handleSetPageMode} />;
+                onChangePage={handleSetPageMode} 
+                withID={dataID}/>;
       case "posttestAdd":
         return <MasterPostTestAdd 
                 onChangePage={handleSetPageMode} />;
@@ -86,7 +88,8 @@ export default function MasterProses() {
                 onChangePage={handleSetPageMode} />;
       case "posttestDetail":
         return <MasterPostTestDetail 
-                onChangePage={handleSetPageMode} />;
+                onChangePage={handleSetPageMode} 
+                withID={dataID}/>;
       case "kk":
         return <PilihKelompokKeahlian 
                 onChangePage={handleSetPageMode} />;

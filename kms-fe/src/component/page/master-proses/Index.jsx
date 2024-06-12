@@ -26,6 +26,8 @@ const inisialisasiData = [
     Keterangan: null,
     "Kata Kunci": null,
     Gambar: null,
+    Sharing_pdf: null,
+    Sharing_vidio: null,
     Status: "Aktif",
     Count: 0,
   },
@@ -34,13 +36,6 @@ const inisialisasiData = [
 const dataFilterSort = [
   { Value: "[Judul] ASC", Text: "Nama Materi [↑]" },
   { Value: "[Judul] DESC", Text: "Nama Materi [↓]" },
-];
-
-const dataFilterJenis = [
-  { Value: "Pemrograman", Text: "Pemrograman" },
-  { Value: "Basis Data", Text: "Basis Data" },
-  { Value: "Jaringan Komputer", Text: "Jaringan Komputer" },
-  // Tambahkan jenis lainnya jika diperlukan
 ];
 
 const dataFilterStatus = [
@@ -230,6 +225,48 @@ export default function MasterProsesIndex({ onChangePage, withID }) {
                         filePromises.push(pdfPromise);
                     }
 
+                    // Fetch Sharing PDF
+                    if (value.Sharing_pdf) {
+                        const sharingPdfPromise = fetch(
+                            API_LINK +
+                            `Utilities/Upload/DownloadFile?namaFile=${encodeURIComponent(
+                                value.Sharing_pdf
+                            )}`
+                        )
+                            .then((response) => response.blob())
+                            .then((blob) => {
+                                const url = URL.createObjectURL(blob);
+                                value.Sharing_pdf = url;
+                                return value;
+                            })
+                            .catch((error) => {
+                                console.error("Error fetching sharing PDF:", error);
+                                return value;
+                            });
+                        filePromises.push(sharingPdfPromise);
+                    }
+
+                    // Fetch Sharing Video
+                    if (value.Sharing_video) {
+                        const sharingVideoPromise = fetch(
+                            API_LINK +
+                            `Utilities/Upload/DownloadFile?namaFile=${encodeURIComponent(
+                                value.Sharing_video
+                            )}`
+                        )
+                            .then((response) => response.blob())
+                            .then((blob) => {
+                                const url = URL.createObjectURL(blob);
+                                value.Sharing_video = url;
+                                return value;
+                            })
+                            .catch((error) => {
+                                console.error("Error fetching sharing video:", error);
+                                return value;
+                            });
+                        filePromises.push(sharingVideoPromise);
+                    }
+
                     return Promise.all(filePromises).then((results) => {
                         const updatedValue = results.reduce(
                             (acc, curr) => ({ ...acc, ...curr }),
@@ -258,6 +295,7 @@ export default function MasterProsesIndex({ onChangePage, withID }) {
 
     fetchData();
 }, [currentFilter]);
+
   return (
     <div className="container">
       <div className="row">
@@ -277,7 +315,7 @@ export default function MasterProsesIndex({ onChangePage, withID }) {
                 classType="success"
                 title="Tambah Materi"
                 label="Tambah Materi"
-                onClick={() => onChangePage("pretestAdd",kategori)}
+                onClick={() => onChangePage("pretestAdd",AppContext_test.KategoriIdByKK)}
               />
               <Input
                 ref={searchQuery}

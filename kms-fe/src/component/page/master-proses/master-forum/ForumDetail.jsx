@@ -1,193 +1,128 @@
-import { useState } from "react";
-import { object, string } from "yup";
-import { validateAllInputs, validateInput } from "../../../util/ValidateForm";
-import SweetAlert from "../../../util/SweetAlert";
+import React, { useState, useEffect } from "react";
 import Button from "../../../part/Button";
-import Input from "../../../part/Input";
-import Loading from "../../../part/Loading";
-import Alert from "../../../part/Alert";
 import { Stepper } from 'react-form-stepper';
-import axios from "axios";
+import UseFetch from "../../../util/UseFetch"; 
+import AppContext_test from "../MasterContext";
+import { API_LINK } from "../../../util/Constants"; 
 
-const userSchema = object({
-  forumJudul: string().max(100, "maksimum 100 karakter").required("harus diisi"),
-  forumIsi: string().required("harus diisi"),
-});
+export default function DetailForum({ onChangePage, withID }) {
+  const [forumData, setForumData] = useState(null);
+  const [isError, setIsError] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
-export default function MasterForumAdd({ onChangePage }) {
-  const [errors, setErrors] = useState({});
-  const [isError, setIsError] = useState({ error: false, message: "" });
-  const [isLoading, setIsLoading] = useState(false);
-  const [formData, setFormData] = useState({
-    materiId: "00003",
-    karyawanId: "1",
-    forumJudul: "",
-    forumIsi: "",
-    forumCreatedBy:"ika",
-  });
-
-  const handleInputChange = async (e) => {
-    const { name, value } = e.target;
-    const validationError = await validateInput(name, value, userSchema);
-    setFormData((prevData) => ({
-      ...prevData,
-      [name]: value,
-    }));
-    setErrors((prevErrors) => ({
-      ...prevErrors,
-      [validationError.name]: validationError.error,
-    }));
-  };
-
-  const resetForm = () => {
-    setFormData({
-      materiId: "00003",
-      karyawanId: "1",
-      forumJudul: "",
-      forumIsi: "",
-      forumStatus: "Aktif",
-    });
-    setErrors({});
-    setIsError({ error: false, message: "" });
-  };
-
-  const handleAdd = async (e) => {
-    e.preventDefault();
-
-    const validationErrors = await validateAllInputs(formData, userSchema, setErrors);
-    const isEmptyData = Object.values(formData).some(value => value === "");
-
-    if (isEmptyData) {
-      setIsError({
-        error: true,
-        message: "Data tidak boleh kosong",
-      });
-      return;
-    }
-
-    if (Object.values(validationErrors).every((error) => !error)) {
+  useEffect(() => {
+    const fetchData = async () => {
+      setIsError(false);
       setIsLoading(true);
-      setIsError({ error: false, message: "" });
-      setErrors({});
-    }
 
-    try {
-      console.log("Data yang dikirim ke backend:", formData);
-      const response = await axios.post("http://localhost:8080/Forums/SaveDataForum", formData);
-
-      if (response.status === 200) {
-        SweetAlert("Success", "Forum data has been successfully saved", "success");
-        resetForm();
-        setIsLoading(false);
-      } else {
-        setIsError({
-          error: true,
-          message: "Failed to save forum data: " + response.statusText,
+      try {
+        const data = await UseFetch(API_LINK + "Forum/GetDataForumByMateri", {
+          p1: withID.Key
         });
-        setIsLoading(false); 
-      }
-    } catch (error) {
-      setIsError({
-        error: true,
-        message: "Failed to save forum data: " + error.message,
-      });
-      setIsLoading(false);
-    }
-  };
 
-  if (isLoading) return <Loading />;
+        if (data === "ERROR") {
+          setIsError(true);
+        } else {
+          setForumData(data.length > 0 ? data[0] : null);
+        }
+      } catch (error) {
+        setIsError(true);
+        console.error("Error fetching forum data:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [withID]);
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
+  if (isError) {
+    return <div>Error fetching data.</div>;
+  }
 
   return (
     <>
-      {isError.error && (
-        <div className="flex-fill">
-          <Alert type="danger" message={isError.message} />
-        </div>
-      )}
-      <form onSubmit={handleAdd}>
-        <div>
-          <Stepper
-            steps={[
-              { label: 'Pretest', onClick: () => onChangePage("pretestDetail") },
-              { label: 'Materi', onClick: () => onChangePage("courseDetail") },
-              { label: 'Sharing Expert', onClick: () => onChangePage("sharingDetail") },
-              { label: 'Forum', onClick: () => onChangePage("forumDetail") },
-              { label: 'Post Test', onClick: () => onChangePage("posttestDetail") }
-            ]}
-            activeStep={3} 
-            styleConfig={{
-              activeBgColor: '#67ACE9',
-              activeTextColor: '#FFFFFF',
-              completedBgColor: '#67ACE9',
-              completedTextColor: '#FFFFFF',
-              inactiveBgColor: '#E0E0E0',
-              inactiveTextColor: '#000000',
-              size: '2em',
-              circleFontSize: '1rem',
-              labelFontSize: '0.875rem',
-              borderRadius: '50%',
-              fontWeight: 500
-            }}
-            connectorStyleConfig={{
-              completedColor: '#67ACE9',
-              activeColor: '#67ACE9',
-              disabledColor: '#BDBDBD',
-              size: 1,
-              stepSize: '2em',
-              style: 'solid'
-            }}
-          />
-        </div>
+      {/* Tampilkan Stepper */}
+      <div>
+        <Stepper
+          steps={[
+            { label: 'Pretest', onClick: () => onChangePage("pretestDetail") },
+            { label: 'Materi', onClick: () => onChangePage("courseDetail") },
+            { label: 'Sharing Expert', onClick: () => onChangePage("sharingDetail") },
+            { label: 'Forum', onClick: () => onChangePage("forumDetail") },
+            { label: 'Post Test', onClick: () => onChangePage("posttestDetail") }
+          ]}
+          activeStep={3}
+          styleConfig={{
+            activeBgColor: '#67ACE9',
+            activeTextColor: '#FFFFFF',
+            completedBgColor: '#67ACE9',
+            completedTextColor: '#FFFFFF',
+            inactiveBgColor: '#E0E0E0',
+            inactiveTextColor: '#000000',
+            size: '2em',
+            circleFontSize: '1rem',
+            labelFontSize: '0.875rem',
+            borderRadius: '50%',
+            fontWeight: 500
+          }}
+          connectorStyleConfig={{
+            completedColor: '#67ACE9',
+            activeColor: '#67ACE9',
+            disabledColor: '#BDBDBD',
+            size: 1,
+            stepSize: '2em',
+            style: 'solid'
+          }}
+        />
+      </div>
 
-        <div className="card">
-          <div className="card-header bg-outline-primary fw-medium text-black">
-            Detail Forum
-          </div>
-          <div className="card-body p-4">
-            <div className="row">
+      {/* Tampilkan data forum jika sudah diambil */}
+      <div className="card">
+        <div className="card-header bg-outline-primary fw-medium text-black">
+          Detail Forum
+        </div>
+        <div className="card-body p-4">
+          <div className="row">
+            {forumData ? (
               <div className="col-lg-12">
-                <Input
-                  type="text"
-                  forInput="forumJudul"
-                  label="Judul Forum"
-                  value={formData.forumJudul}
-                  onChange={handleInputChange}
-                  errorMessage={errors.forumJudul}
-                />
+                {/* Tampilkan informasi forum */}
+                {console.log("data forum: ", forumData)}
+                <h6 className="mb-3 mt-0">Materi Forum</h6>
+                <p className="pb-3">{forumData["Judul Materi"]}</p>
+                <h6 className="mb-3 mt-0">Judul Forum</h6>
+                <p className="pb-3">{forumData["Nama Forum"]}</p>
+                <h6 className="mb-3 mt-0">Pembahasan Forum</h6>
+                <p className="pb-3">{forumData["Isi Forum"]}</p>
+                <h6 className="mb-3 mt-0">Penanggung Jawab</h6>
+                <p className="pb-3">{forumData.PIC}</p>
               </div>
-              <div className="col-lg-12">
-                <div className="form-group">
-                  <label htmlFor="forumIsi" className="form-label fw-bold">
-                    Isi Forum
-                  </label>
-                  <textarea
-                    id="forumIsi"
-                    name="forumIsi"
-                    className={`form-control ${errors.forumIsi ? 'is-invalid' : ''}`}
-                    value={formData.forumIsi}
-                    onChange={handleInputChange}
-                  />
-                  {errors.forumIsi && (
-                    <div className="invalid-feedback">{errors.forumIsi}</div>
-                  )}
-                </div>
+            ) : (
+              <div className="alert alert-warning" role="alert">
+                Tidak ada data forum yang tersedia.
               </div>
-            </div>
+            )}
           </div>
         </div>
-        <div className="float my-4 mx-1">
-          <Button
-            classType="outline-secondary me-2 px-4 py-2"
-            label="Kembali"
-            onClick={() => onChangePage("sharingDetail")}
-          />
-          <Button
-            classType="dark ms-3 px-4 py-2"
-            label="Berikutnya"
-            onClick={() => onChangePage("posttestDetail")}
-          />
-        </div>
-      </form>
+      </div>
+
+      {/* Tampilkan tombol navigasi */}
+      <div className="float my-4 mx-1">
+        <Button
+          classType="outline-secondary me-2 px-4 py-2"
+          label="Kembali"
+          onClick={() => onChangePage("sharingDetail", AppContext_test.DetailMateri)}
+        />
+        <Button
+          classType="dark ms-3 px-4 py-2"
+          label="Berikutnya"
+          onClick={() => onChangePage("posttestDetail", AppContext_test.DetailMateri)}
+        />
+      </div>
     </>
   );
 }

@@ -10,8 +10,10 @@ import { validateAllInputs, validateInput } from "../../../util/ValidateForm";
 import { API_LINK } from "../../../util/Constants";
 import FileUpload from "../../../part/FileUpload";
 import uploadFile from "../../../util/UploadImageQuiz";
+import AppContext_test from "../MasterContext";
 
-export default function MasterPreTestAdd({ onChangePage }) {
+
+export default function MasterPreTestAdd({ onChangePage,withID }) {
   const [formContent, setFormContent] = useState([]);
   const [selectedOptions, setSelectedOptions] = useState([]);
   const [errors, setErrors] = useState({});
@@ -21,6 +23,7 @@ export default function MasterPreTestAdd({ onChangePage }) {
   const [timer, setTimer] = useState('');
   const [minimumScore, setMinimumScore] = useState();
   const gambarInputRef = useRef(null);
+
 
   const handleChange = (name, value) => {
     setFormData((prevFormData) => ({
@@ -853,13 +856,13 @@ export default function MasterPreTestAdd({ onChangePage }) {
           <Button
             classType="outline-secondary me-2 px-4 py-2"
             label="Kembali"
-            onClick={() => onChangePage("index")}
+            onClick={() => onChangePage("index",AppContext_test.KategoriIdByKK)}
           />
           
           <Button
             classType="dark ms-3 px-4 py-2"
             label="Berikutnya"
-            onClick={() => onChangePage("courseDetail")}
+            onClick={() => onChangePage("materiDetail",AppContext_test.DetailMateri)}
           />
         </div>
       </form>

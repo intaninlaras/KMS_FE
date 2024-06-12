@@ -1,6 +1,7 @@
 import { useState } from "react";
 import Icon from "../part/Icon.jsx";
 import Button from "./Button.jsx";
+import AppContext_test from "../page/master-proses/MasterContext.jsx";
 
 function CardMateri({ 
   materis, 
@@ -103,8 +104,10 @@ function CardMateri({
                     <button
                       className="btn btn-sm text-primary"
                       title="Detail Materi"
-                      onClick={() => onDetail("materiDetail", book)}
+                      onClick={() => onDetail("pretestDetail", AppContext_test.DetailMateri = book)}
                     >
+                      {console.log("data context materi dari index:", AppContext_test.DetailMateri)}
+
                       <i className="fas fa-list"></i>
                     </button>
                     <button
