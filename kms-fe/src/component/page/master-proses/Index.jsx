@@ -13,7 +13,7 @@ import { API_LINK } from "../../util/Constants";
 import '@fortawesome/fontawesome-free/css/all.css';
 import "../../../index.css";
 // Definisikan beberapa data contoh untuk tabel
-
+import AppContext_test from "./MasterContext";
 const inisialisasiData = [
   {
     Key: null,
@@ -26,6 +26,8 @@ const inisialisasiData = [
     Keterangan: null,
     "Kata Kunci": null,
     Gambar: null,
+    Sharing_pdf: null,
+    Sharing_vidio: null,
     Status: "Aktif",
     Count: 0,
   },
@@ -34,13 +36,6 @@ const inisialisasiData = [
 const dataFilterSort = [
   { Value: "[Judul] ASC", Text: "Nama Materi [↑]" },
   { Value: "[Judul] DESC", Text: "Nama Materi [↓]" },
-];
-
-const dataFilterJenis = [
-  { Value: "Pemrograman", Text: "Pemrograman" },
-  { Value: "Basis Data", Text: "Basis Data" },
-  { Value: "Jaringan Komputer", Text: "Jaringan Komputer" },
-  // Tambahkan jenis lainnya jika diperlukan
 ];
 
 const dataFilterStatus = [
@@ -61,6 +56,7 @@ export default function MasterProsesIndex({ onChangePage, withID }) {
     kategori:withID,
    // Default status
   });
+  AppContext_test.kategoriId = withID;
   const kategori = withID;
   console.log("kategori di index: " + kategori);
   const searchQuery = useRef(null);
@@ -229,6 +225,48 @@ export default function MasterProsesIndex({ onChangePage, withID }) {
                         filePromises.push(pdfPromise);
                     }
 
+                    // Fetch Sharing PDF
+                    if (value.Sharing_pdf) {
+                        const sharingPdfPromise = fetch(
+                            API_LINK +
+                            `Utilities/Upload/DownloadFile?namaFile=${encodeURIComponent(
+                                value.Sharing_pdf
+                            )}`
+                        )
+                            .then((response) => response.blob())
+                            .then((blob) => {
+                                const url = URL.createObjectURL(blob);
+                                value.Sharing_pdf = url;
+                                return value;
+                            })
+                            .catch((error) => {
+                                console.error("Error fetching sharing PDF:", error);
+                                return value;
+                            });
+                        filePromises.push(sharingPdfPromise);
+                    }
+
+                    // Fetch Sharing Video
+                    if (value.Sharing_video) {
+                        const sharingVideoPromise = fetch(
+                            API_LINK +
+                            `Utilities/Upload/DownloadFile?namaFile=${encodeURIComponent(
+                                value.Sharing_video
+                            )}`
+                        )
+                            .then((response) => response.blob())
+                            .then((blob) => {
+                                const url = URL.createObjectURL(blob);
+                                value.Sharing_video = url;
+                                return value;
+                            })
+                            .catch((error) => {
+                                console.error("Error fetching sharing video:", error);
+                                return value;
+                            });
+                        filePromises.push(sharingVideoPromise);
+                    }
+
                     return Promise.all(filePromises).then((results) => {
                         const updatedValue = results.reduce(
                             (acc, curr) => ({ ...acc, ...curr }),
@@ -277,7 +315,7 @@ export default function MasterProsesIndex({ onChangePage, withID }) {
                 classType="success"
                 title="Tambah Materi"
                 label="Tambah Materi"
-                onClick={() => onChangePage("pretestAdd",kategori)}
+                onClick={() => onChangePage("pretestAdd",AppContext_test.KategoriIdByKK)}
               />
               <Input
                 ref={searchQuery}
@@ -319,19 +357,8 @@ export default function MasterProsesIndex({ onChangePage, withID }) {
               <div className="row">
                 {currentFilter.status === "Semua" ? (
                   <>
-                  <div><b>Aktif</b></div>
-                  <hr />
                     <CardMateri
-                      materis={currentData.filter(materi => materi.Status === "Aktif")}
-                      onDetail={onChangePage}
-                      onEdit={onChangePage}
-                      onStatus={handleSetStatus}
-                      isNonEdit={false}
-                    />
-                    <div><b>Tidak Aktif</b></div>
-                    <hr />
-                    <CardMateri
-                      materis={currentData.filter(materi => materi.Status === "Tidak Aktif")}
+                      materis={currentData}
                       onDetail={onChangePage}
                       onEdit={onChangePage}
                       onStatus={handleSetStatus}
@@ -349,15 +376,8 @@ export default function MasterProsesIndex({ onChangePage, withID }) {
                 )}
               </div>
             )}
-            {currentData.length > 0 && currentData[0].Count > 20 && (
-              <Paging
-                totalItems={currentData[0].Count}
-                itemsPerPage={20}
-                currentPage={currentFilter.page}
-                onPageChange={handleSetCurrentPage}
-                className="mt-3"
-              />
-            )}
+            
+            {console.log("woi = "+ currentData[0].Count  )}
           </div>
         </div>
       </div>

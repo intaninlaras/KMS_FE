@@ -67,35 +67,8 @@ export default function MasterTestIndex({  onChangePage, CheckDataReady, materiI
     for (let i = 0; i < retries; i++) {
       setIsLoading(true);
       try {
-        const data = await fetchDataWithRetry_posttest();
-        const dataQuiz = await getQuiz_posttest();
+        const dataQuiz = await getMateri();
         setCurrentData(dataQuiz);
-        if (isMounted) {
-          if (data != "") {
-            if (Array.isArray(data)) {
-              if (data.length != 0) {
-                setTableData(data.map((item, index) => ({
-                  Key: item.Key,
-                  No: index + 1,
-                  TanggalUjian: formatDate(item.CreatedDate),
-                  Persentase: item.Nilai,
-                  StatusTest: item.Nilai >= 70 ? "Lulus" : "Tidak Lulus",
-                  Aksi: ['Detail'],
-                  Alignment: ['center', 'center', 'center', 'center', 'center'],
-                })));
-              }
-            } else {
-              console.error("Data is not an array:", data);
-            }
-          } else {
-            console.log("alds")
-            setTableData([{
-              Key: '',
-              "": 'Anda belum memiliki riwayat ujian post test',
-              Alignment: ['center', 'center', 'center', 'center', 'center'], 
-            }]); 
-          }
-        }
       } catch (error) {
         if (isMounted) {
           setIsError(true);
@@ -113,37 +86,12 @@ export default function MasterTestIndex({  onChangePage, CheckDataReady, materiI
       }
     }
     };
-  
-    const fetchDataWithRetry_posttest = async (retries = 10, delay = 5000) => {
-      for (let i = 0; i < retries; i++) {
-        try {
-          const response = await axios.post("http://localhost:8080/Quiz/GetDataResultQuiz", {
-            quizId: AppContext_test.materiId,
-            karyawanId: "1",
-            tipeQuiz: "Posttest",
-          });
-          if (response.data.length != 0) {
-            return response.data;
-          }else{
-            return "";
-          }
-        } catch (error) {
-          console.error("Error fetching quiz data:", error);
-          if (i < retries - 1) {
-            await new Promise(resolve => setTimeout(resolve, delay));
-          } else {
-            throw error;
-          }
-        }
-      }
-    };
 
-    const getQuiz_posttest = async (retries = 10, delay = 5000) => {
+    const getMateri = async (retries = 10, delay = 5000) => {
       for (let i = 0; i < retries; i++) {
         try {
-          const response = await axios.post("http://localhost:8080/Quiz/GetDataQuiz", {
-            quizId: AppContext_test.materiId,
-            tipeQuiz: "Posttest",
+          const response = await axios.post("http://localhost:8080/Materis/GetDataMateriById", {
+            materiId: AppContext_test.materiId,
           });
           if (response.data.length != 0) {
             return response.data;
@@ -205,7 +153,7 @@ export default function MasterTestIndex({  onChangePage, CheckDataReady, materiI
             <>
             <div style={{ marginRight: marginRight }}>
                <div
-                  className="d-flex align-items-center mb-5"
+                  className="d-flex align-items-center mb-4"
                   >
                   <div
                     className="rounded-circle overflow-hidden d-flex justify-content-center align-items-center"
@@ -225,29 +173,11 @@ export default function MasterTestIndex({  onChangePage, CheckDataReady, materiI
                 
                   <h6 className="mb-0">{currentData[0].CreatedBy} - {formatDate(currentData[0].CreatedDate)}</h6>
                 </div>
-              <div className="text-center" style={{marginBottom: '100px'}}>
-                <h2 className="font-weight-bold mb-4 primary">Post Test - {currentData[0].JudulQuiz}</h2>
-                <p className="mb-5" style={{ maxWidth: '600px', margin: '0 auto', marginBottom: '60px' }}>
-                Tes ini terdiri dari {currentData[0].JumlahSoal} soal, nilai kelulusan minimal adalah 80% 
-                    dan Anda hanya memiliki waktu {currentData[0].Durasi} menit untuk mengerjakan semua soal, dimulai saat Anda mengklik tombol
-                    "Mulai Post Test" di bawah ini.
-                </p>
-                <Button
-                  classType="primary ms-2 px-4 py-2"
-                  label="Mulai Post Test"
-                  onClick={() => handleStartPostTest()}
-                /><div>
-              </div>
-              </div>
-
-              <hr />
+              <div className="text-left " style={{}}>
+                <div dangerouslySetInnerHTML={{ __html: currentData[0].pengenalanMateri }} />
                 <div>
-                  <h3 className="font-weight-bold">Riwayat</h3>
-                  <Table
-                    data={tableData}
-                    onDetail={handleDetailAction}
-                  />
-                </div>
+              </div>
+              </div>
             </div>
           </>
           )} 

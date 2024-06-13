@@ -1,7 +1,9 @@
 import { useState, useEffect } from "react";
-import Button from "../../part/Button";
-import Alert from "../../part/Alert";
+import Button from "../../../part/Button";
+import Alert from "../../../part/Alert";
 import { Stepper } from 'react-form-stepper';
+import AppContext_test from "../MasterContext";
+import Loading from "../../../part/Loading";
 
 export default function MasterMateriDetail({ onChangePage, withID }) {
     const [isError, setIsError] = useState({ error: false, message: "" });
@@ -26,14 +28,11 @@ export default function MasterMateriDetail({ onChangePage, withID }) {
         console.log("Video URL: ", withID.File_video);
         // Calculate the maximum height of the PDF viewer when image and video are loaded
         const calculatePdfHeight = () => {
-            const imageElement = document.getElementById("image");
             const videoElement = document.getElementById("video");
             
-            if (imageElement && videoElement) {
-                const imageHeight = imageElement.clientHeight;
+            if (videoElement) {
                 const videoHeight = videoElement.clientHeight;
-                const maxHeight = Math.max(imageHeight, videoHeight);
-                setPdfHeight(`${maxHeight}px`);
+                setPdfHeight(`${videoHeight}px`);
             }
         };
 
@@ -54,19 +53,20 @@ export default function MasterMateriDetail({ onChangePage, withID }) {
                     <Alert type="danger" message={isError.message} />
                 </div>
             )}
+
             {isLoading ? (
-                <div>Loading...</div>
+                <div> <Loading /></div>
             ) : (
                 <form>
                     <div>
                         <Stepper
                             steps={[
-                                { label: 'Pretest', onClick: () => onChangePage("pretestAdd") },
-                                { label: 'Materi', onClick: () => onChangePage("courseAdd") },
-                                { label: 'Sharing Expert', onClick: () => onChangePage("sharingAdd") },
-                                { label: 'Forum', onClick: () => onChangePage("forumAdd") },
-                                { label: 'Post Test', onClick: () => onChangePage("posttestAdd") }
-                            ]}
+                                { label: 'Pretest', onClick: () => onChangePage("pretestDetail") },
+                                { label: 'Materi', onClick: () => onChangePage("courseDetail") },
+                                { label: 'Sharing Expert', onClick: () => onChangePage("sharingDetail") },
+                                { label: 'Forum', onClick: () => onChangePage("forumDetail") },
+                                { label: 'Post Test', onClick: () => onChangePage("posttestDetail") }
+                              ]}
                             activeStep={1}
                             styleConfig={{
                                 activeBgColor: '#67ACE9',
@@ -98,42 +98,16 @@ export default function MasterMateriDetail({ onChangePage, withID }) {
                         </div>
                         <div className="card-body">
                             <div className="row">
-                                <div className="col-lg-6 d-flex flex-column align-items-center justify-content-center">
-                        <img
-                            id="image"
-                            src={withID.Gambar}
-                            alt="gambar"
-                            className="img-fluid"
-                            style={{ maxWidth: "100%", height: "auto", marginBottom: "10px" }}
-                        />
-                        {withID.File_video && isValidUrl(withID.File_video) ? (
-                            <video
-                                id="video"
-                                controls
-                                width="100%"
-                                height="auto"
-                                style={{ marginBottom: "10px" }}
-                            >
-                                <source src={withID.File_video} type="video/mp4" />
-                                Your browser does not support the video tag.
-                            </video>
-                        ) : (
-                            <p>Video tidak tersedia atau URL tidak valid.</p>
-                        )}
-                    </div>
-                    <div className="col-lg-6 d-flex flex-column align-items-center justify-content-center">
-                        <object
-                            data={withID.File_pdf}
-                            type="application/pdf"
-                            width="100%"
-                            style={{ height: pdfHeight }}
-                        >
-                            <p>Maaf, browser Anda tidak mendukung Preview File. Silakan <a href={withID.File_pdf}>unduh File</a> untuk melihatnya.</p>
-                        </object>
-                    </div>
-                            </div>
-                            <div className="row mt-3">
-                                <div className="col-md-12">
+                                <div className="col-lg-6">
+                                    <img
+                                        id="image"
+                                        src={withID.Gambar}
+                                        alt="gambar"
+                                        className="img-fluid"
+                                        style={{ maxWidth: "100%", height: "auto", marginBottom: "10px" }}
+                                    />
+                                </div>
+                                <div className="col-lg-6">
                                     <h4 className="mb-3 mt-0">Deskripsi</h4>
                                     <p className="pb-3">{withID.Keterangan}</p>
                                     <h4 className="mb-3 mt-0">Pengenalan</h4>
@@ -146,13 +120,47 @@ export default function MasterMateriDetail({ onChangePage, withID }) {
                                     </p>
                                 </div>
                             </div>
+                            <div className="row mt-3">
+                                <div className="col-lg-12">
+                                    {withID.File_video && isValidUrl(withID.File_video) ? (
+                                        <video
+                                            id="video"
+                                            controls
+                                            width="100%"
+                                            height="auto"
+                                            style={{ marginBottom: "10px" }}
+                                        >
+                                            <source src={withID.File_video} type="video/mp4" />
+                                            Your browser does not support the video tag.
+                                        </video>
+                                    ) : (
+                                        <p>Video tidak tersedia atau URL tidak valid.</p>
+                                    )}
+                                </div>
+                                <div className="col-lg-12">
+                                    <object
+                                        data={withID.File_pdf}
+                                        type="application/pdf"
+                                        width="100%"
+                                        style={{ height: pdfHeight }}
+                                    >
+                                        <p>Maaf, browser Anda tidak mendukung Preview File. Silakan <a href={withID.File_pdf}>unduh File</a> untuk melihatnya.</p>
+                                    </object>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    <div className="d-flex justify-content-end my-4 mx-1">
+                    <div className="float my-4 mx-1">
                         <Button
-                            classType="btn btn-outline-secondary me-2 px-4 py-2"
+                            classType="outline-secondary me-2 px-4 py-2"
                             label="Kembali"
-                            onClick={() => onChangePage("index")}
+                            onClick={() => onChangePage("pretestDetail",AppContext_test.DetailMateri)}
+                        />
+                        
+                        <Button
+                            classType="dark ms-3 px-4 py-2"
+                            label="Berikutnya"
+                            onClick={() => onChangePage("sharingDetail", AppContext_test.DetailMateri)}
                         />
                     </div>
                 </form>

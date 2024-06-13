@@ -25,7 +25,7 @@ const ButtonContainer = styled.div`
     z-index: 999;
   `;
 
-export default function PengerjaanTest({ onChangePage }) {
+export default function PengerjaanTest({ onChangePage, quizType, materiId, quizId}) {
   const [showSidebar, setShowSidebar] = useState(true);
   const [errors, setErrors] = useState({});
   const [isError, setIsError] = useState({ error: false, message: "" });
@@ -34,7 +34,6 @@ export default function PengerjaanTest({ onChangePage }) {
   const [questionNumbers, setQuestionNumbers] = useState(0);
   const [totalQuestion, setTotalQuestion] = useState();
   const [answerStatus, setAnswerStatus] = useState([]);
-
   const selectPreviousQuestion = () => {
     if (selectedQuestion > 1) {
       setSelectedQuestion(selectedQuestion - 1);
@@ -42,7 +41,6 @@ export default function PengerjaanTest({ onChangePage }) {
       setSelectedQuestion(selectedQuestion + totalQuestion - 1);
     }
   };
-
   const selectNextQuestion = () => {
     if (selectedQuestion < totalQuestion) {
       setSelectedQuestion(selectedQuestion + 1);
@@ -78,17 +76,19 @@ export default function PengerjaanTest({ onChangePage }) {
       try {
         // Fetch questions data
         const questionResponse = await axios.post("http://localhost:8080/Quiz/GetDataQuestion", {
-          quizId: '1',
+          id: materiId,
           status: 'Aktif',
-          quizType: '',
+          quizType: quizType,
         });
-
         // Fetch user answers data
         const answerResponse = await axios.post("http://localhost:8080/Quiz/GetDataResultQuiz", {
-          quizId: '1',
+          id: materiId,
           userId: '1', 
-          tipeQuiz: "Pretest",
+          tipeQuiz: quizType,
+          idQuiz: quizId,
         });
+
+        console.log(answerResponse)
 
         if (questionResponse.data && Array.isArray(questionResponse.data) &&
             answerResponse.data && Array.isArray(answerResponse.data)) {
@@ -166,24 +166,24 @@ export default function PengerjaanTest({ onChangePage }) {
     fetchData();
   }, []);
 
-  const updateAnswerStatus = (questions, jawabanPengguna) => {
-    const statusArray = questions.map((question, index) => {
-      if (question.type === "essay") {
-        return "none";
-      } else {
-        const userAnswerIndex = jawabanPengguna.soal.indexOf(index + 1);
-        const userAnswer = jawabanPengguna.value[userAnswerIndex];
-        const correctOption = question.options.find(option => option.nilai == 25);
-
-        if (userAnswer === correctOption.urutan) {
-          return "correct";
+    const updateAnswerStatus = (questions, jawabanPengguna) => {
+      const statusArray = questions.map((question, index) => {
+        if (question.type === "essay") {
+          return "none";
         } else {
-          return "incorrect";
+          const userAnswerIndex = jawabanPengguna.soal.indexOf(index + 1);
+          const userAnswer = jawabanPengguna.value[userAnswerIndex];
+          const correctOption = question.options.find(option => option.nilai == 25);
+
+          if (userAnswer === correctOption.urutan) {
+            return "correct";
+          } else {
+            return "incorrect";
+          }
         }
-      }
-    });
-    setAnswerStatus(statusArray);
-  };  
+      });
+      setAnswerStatus(statusArray);
+    };  
 
   const processOptions = (nomorSoal, jawabanPengguna_soal) => {
     let fix_jawabanPengguna_soal;
@@ -196,21 +196,18 @@ export default function PengerjaanTest({ onChangePage }) {
     return i ;
   };
 
-  useEffect(() => {
-    const cekQuestion = (nomorSoal, jawabanPengguna_soal) => {
-
-    }
-  }, []);
   
   return (
     <>
       <div className="d-flex">
       <KMS_Sidebar
+          onChangePage={onChangePage}
           questionNumbers={questionNumbers}
           selectedQuestion={selectedQuestion}
           setSelectedQuestion={setSelectedQuestion}
           answerStatus={answerStatus} 
           checkMainContent="detail_test"
+          quizId={materiId}
         />
         <div className="flex-fill p-3 d-flex flex-column"  style={{marginLeft:"21vw"}}>
           <div className="mb-3" style={{ overflowX: 'auto', whiteSpace: 'nowrap' }}> 
@@ -233,6 +230,7 @@ export default function PengerjaanTest({ onChangePage }) {
                       {item.options.map((option, index) => {
                         let i = 1;
                         i = processOptions(option.nomorSoal, item.jawabanPengguna_soal);
+                        console.log(item.jawabanPengguna_soal)
                         const isSelected = option.urutan == item.jawabanPengguna_value[i] ? true : false; 
                         const isCorrect = option.nilai == 25 ? true : false;
                         let borderColor1 = 'lightgray';

@@ -1,16 +1,15 @@
 import React, { useRef, useState, useEffect } from "react";
-import Button from "../../part/Button";
+import Button from "../../../part/Button";
 import { object, string } from "yup";
-import Input from "../../part/Input";
-import Loading from "../../part/Loading";
+import Input from "../../../part/Input";
+import Loading from "../../../part/Loading";
 import { Stepper } from 'react-form-stepper';
 import * as XLSX from 'xlsx';
 import axios from 'axios';
-import { validateAllInputs, validateInput } from "../../util/ValidateForm";
-import { API_LINK } from "../../util/Constants";
-import FileUpload from "../../part/FileUpload";
-import uploadFile from "../../util/UploadImageQuiz";
-import Swal from 'sweetalert2';
+import { validateAllInputs, validateInput } from "../../../util/ValidateForm";
+import { API_LINK } from "../../../util/Constants";
+import FileUpload from "../../../part/FileUpload";
+import uploadFile from "../../../util/UploadImageQuiz";
 
 export default function MasterPreTestAdd({ onChangePage }) {
   const [formContent, setFormContent] = useState([]);
@@ -49,7 +48,7 @@ export default function MasterPreTestAdd({ onChangePage }) {
   const addQuestion = (questionType) => {
     const newQuestion = {
       type: questionType,
-      text: `Pertanyaan ${formContent.length + 1}`,
+      text: `Question ${formContent.length + 1}`,
       options: [],
       point: 0,
       correctAnswer: "", // Default correctAnswer
@@ -64,7 +63,7 @@ export default function MasterPreTestAdd({ onChangePage }) {
     materiId: '1',
     quizJudul: 'Pemrograman 9',
     quizDeskripsi: '',
-    quizTipe: 'PreTest',
+    quizTipe: 'Posttest',
     tanggalAwal: '',
     tanggalAkhir: '',
     timer: '',
@@ -239,12 +238,11 @@ export default function MasterPreTestAdd({ onChangePage }) {
       // Tampilkan pesan sukses atau lakukan tindakan lain yang diperlukan setelah semua data berhasil disimpan
       Swal.fire({
         title: 'Berhasil!',
-        text: 'Pretest berhasil ditambahkan',
+        text: 'Posttest berhasil ditambahkan',
         icon: 'success',
         confirmButtonText: 'OK'
       });
 
-      // mereset semua form input setelah berhasil menambahkan data pretest
       setFormContent([]);
       setSelectedOptions([]);
       setErrors({});
@@ -257,7 +255,6 @@ export default function MasterPreTestAdd({ onChangePage }) {
       alert('Gagal menyimpan data');
     }
   };
-  
 
   // const handleQuestionTypeChange = (e, index) => {
   //   const { value } = e.target;
@@ -412,26 +409,9 @@ export default function MasterPreTestAdd({ onChangePage }) {
     const file = e.target.files[0];
     const updatedFormContent = [...formContent];
     updatedFormContent[index].selectedFile = file;
-  
-    // Buat objek FileReader
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const image = new Image();
-      image.onload = () => {
-        // Perbarui ukuran gambar dalam state
-        updatedFormContent[index].imageWidth = image.width;
-        updatedFormContent[index].imageHeight = image.height;
-        setFormContent(updatedFormContent);
-      };
-      image.src = event.target.result;
-    };
-    reader.readAsDataURL(file);
+    setFormContent(updatedFormContent);
   };
 
-  const handleFileExcel = (e) => {
-    const file = e.target.files[0];
-    setSelectedFile(file);
-  };
 
   const handleUploadFile = () => {
     if (selectedFile) {
@@ -574,7 +554,7 @@ export default function MasterPreTestAdd({ onChangePage }) {
               { label: 'Forum', onClick: () => onChangePage("forumAdd") },
               { label: 'Post Test', onClick: () => onChangePage("posttestAdd") }
             ]}
-            activeStep={0}
+            activeStep={4}
             styleConfig={{
               activeBgColor: '#67ACE9',
               activeTextColor: '#FFFFFF',
@@ -600,7 +580,7 @@ export default function MasterPreTestAdd({ onChangePage }) {
         </div>
         <div className="card">
           <div className="card-header bg-outline-primary fw-medium text-black">
-            Tambah Pretest Baru
+            Tambah Posttest Baru
           </div>
           <div className="card-body p-4">
             <div className="row mb-4">
@@ -608,7 +588,7 @@ export default function MasterPreTestAdd({ onChangePage }) {
               <div className="col-lg">
                 <Input
                   type="text"
-                  label="Deskripsi"
+                  label="Deskripsi Quiz"
                   forInput="quizDeskripsi"
                   value={formData.quizDeskripsi}
                   onChange={handleInputChange}
@@ -669,7 +649,6 @@ export default function MasterPreTestAdd({ onChangePage }) {
               </div>
               <div className="col-lg-4">
                 <Button
-                  title="Tambah Pertanyaan"
                   onClick={() => addQuestion("essay")}
                   iconName="plus"
                   classType="primary btn-sm px-3 py-1"
@@ -678,20 +657,19 @@ export default function MasterPreTestAdd({ onChangePage }) {
                   type="file"
                   id="fileInput"
                   style={{ display: 'none' }}
-                  onChange={handleFileExcel }
+                  onChange={handleFileChange}
                 />
                 <Button
-                  title="Tambah File Excel"
                   iconName="upload"
                   classType="primary btn-sm mx-2 px-3 py-1"
                   onClick={() => document.getElementById('fileInput').click()} // Memicu klik pada input file
                 />
                 {/* Tampilkan nama file yang dipilih */}
                 {selectedFile && <span>{selectedFile.name}</span>}
-                <br></br>
-                <br></br>
+
+              </div>
+              <div className="p-2">
                 <Button
-                  title="Unggah File Excel"
                   iconName="paper-plane"
                   classType="primary btn-sm px-3 py-1"
                   onClick={handleUploadFile}
@@ -703,9 +681,8 @@ export default function MasterPreTestAdd({ onChangePage }) {
                   label="Unduh Template"
                   classType="warning btn-sm px-3 py-1 mx-2"
                   onClick={handleDownloadTemplate}
-                  title="Unduh Template Excel"
-                />
 
+                />
               </div>
 
             </div>
@@ -782,13 +759,10 @@ export default function MasterPreTestAdd({ onChangePage }) {
                   ) : (
                     <div className="row">
                       <div className="col-lg-12 question-input">
-                      <label htmlFor="deskripsiMateri" className="form-label fw-bold">
-                      Pertanyaan <span style={{color:"Red"}}> *</span>
-                      </label>
-                        <textarea
-                          id={`pertanyaan_${index}`}
+                        <Input
+                          type="text"
+                          forInput={`pertanyaan_${index}`}
                           value={question.text}
-                          label="Pertanyaan"
                           onChange={(e) => {
                             const updatedFormContent = [...formContent];
                             updatedFormContent[index].text = e.target.value;
@@ -800,52 +774,32 @@ export default function MasterPreTestAdd({ onChangePage }) {
                               soal: e.target.value
                             }));
                           }}
-                          className="form-control" // Optional: Add any necessary CSS classes
-                          rows={4} // Optional: Adjust the number of rows for the textarea
                         />
+
                       </div>
 
                       {/* Tampilkan tombol gambar dan PDF hanya jika type = essay */}
                       {(question.type === "essay" || question.type === "praktikum") && (
-                        
-                        <div className="d-flex flex-column w-100">
-                          <FileUpload
-                            forInput={`fileInput_${index}`}
-                            formatFile=".jpg,.png"
-                            label={<span className="file-upload-label">Gambar (.jpg, .png)</span>}
-                            onChange={(e) => handleFileChange(e, index)} // Memanggil handleFileChange dengan indeks
-                            hasExisting={question.gambar}
-                            style={{ fontSize: '12px' }}
-                          />
-                          {/* Tampilkan preview gambar jika ada gambar yang dipilih */}
-                          {question.selectedFile && (
-                            <div style={{
-                              maxWidth: '300px', // Set maximum width for the image container
-                              maxHeight: '300px', // Set maximum height for the image container
-                              overflow: 'hidden', // Hide any overflow beyond the set dimensions
-                              marginLeft: '10px'
-                            }}>
-                              <img
-                                src={URL.createObjectURL(question.selectedFile)}
-                                alt="Preview Gambar"
-                                style={{
-                                  width: '100%', // Ensure image occupies full width of container
-                                  height: 'auto', // Maintain aspect ratio
-                                  objectFit: 'contain' // Fit image within container without distortion
-                                }}
+                        <div className="col-lg-12 d-flex align-items-center form-check">
+                          <div className="d-flex flex-column w-100">
+                            <FileUpload
+                              forInput={`fileInput_${index}`}
+                              formatFile=".jpg,.png"
+                              label={<span className="file-upload-label">Gambar (.jpg, .png)</span>}
+                              onChange={(e) => handleFileChange(e, index)} // Memanggil handleFileChange dengan indeks
+                              hasExisting={question.gambar}
+                              style={{ fontSize: '12px' }}
+                            />
+                            <div className="mt-2"> {/* Memberikan margin atas kecil untuk jarak yang rapi */}
+                              <Input
+                                type="number"
+                                label="Point"
+                                value={question.point}
+                                onChange={(e) => handlePointChange(e, index)}
                               />
                             </div>
-                          )}
-                          <div className="mt-2"> {/* Memberikan margin atas kecil untuk jarak yang rapi */}
-                            <Input
-                              type="number"
-                              label="Point"
-                              value={question.point}
-                              onChange={(e) => handlePointChange(e, index)}
-                            />
                           </div>
                         </div>
-                        
                       )}
                       {question.type === "multiple_choice" && (
                         <div className="col-lg-12">
@@ -907,6 +861,10 @@ export default function MasterPreTestAdd({ onChangePage }) {
                             classType="btn-sm ms-2 px-3 py-1"
                             onClick={() => handleDuplicateQuestion(index)}
                           />
+                          <Button
+                            iconName="menu-dots-vertical"
+                            classType="btn-sm ms-2 px-3 py-1"
+                          />
                         </div>
                       </div>
                     </div>
@@ -920,18 +878,14 @@ export default function MasterPreTestAdd({ onChangePage }) {
           <Button
             classType="outline-secondary me-2 px-4 py-2"
             label="Kembali"
-            onClick={() => onChangePage("index")}
+            onClick={() => onChangePage("forumAdd")}
           />
           <Button
             classType="primary ms-2 px-4 py-2"
             type="submit"
             label="Simpan"
           />
-          <Button
-            classType="dark ms-3 px-4 py-2"
-            label="Berikutnya"
-            onClick={() => onChangePage("courseAdd")}
-          />
+          
         </div>
       </form>
     </>

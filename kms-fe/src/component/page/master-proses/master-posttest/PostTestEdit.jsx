@@ -1,15 +1,15 @@
 import React, { useRef, useState, useEffect } from "react";
-import Button from "../../part/Button";
+import Button from "../../../part/Button";
 import { object, string } from "yup";
-import Input from "../../part/Input";
-import Loading from "../../part/Loading";
+import Input from "../../../part/Input";
+import Loading from "../../../part/Loading";
 import { Stepper } from 'react-form-stepper';
 import * as XLSX from 'xlsx';
 import axios from 'axios';
-import { validateAllInputs, validateInput } from "../../util/ValidateForm";
-import { API_LINK } from "../../util/Constants";
-import FileUpload from "../../part/FileUpload";
-import uploadFile from "../../util/UploadImageQuiz";
+import { validateAllInputs, validateInput } from "../../../util/ValidateForm";
+import { API_LINK } from "../../../util/Constants";
+import FileUpload from "../../../part/FileUpload";
+import uploadFile from "../../../util/UploadImageQuiz";
 
 export default function MasterPreTestAdd({ onChangePage }) {
   const [formContent, setFormContent] = useState([]);
@@ -121,34 +121,19 @@ export default function MasterPreTestAdd({ onChangePage }) {
 
   const handleAdd = async (e) => {
     e.preventDefault();
-  
-    // Hitung total point dari semua pertanyaan dan opsi
-    const totalQuestionPoint = formContent.reduce((total, question) => total + parseInt(question.point), 0);
-    const totalOptionPoint = formContent.reduce((total, question) => {
-      if (question.type === 'multiple_choice') {
-        return total + question.options.reduce((optionTotal, option) => optionTotal + parseInt(option.point || 0), 0);
-      }
-      return total;
-    }, 0);
-    
-    // Total point dari semua pertanyaan dan opsi tidak boleh melebihi 100
-    if (totalQuestionPoint + totalOptionPoint > 100) {
-      alert('Total point tidak boleh melebihi 100.');
-      return;
-    }
-  
+
     try {
       formData.timer = convertTimeToSeconds(timer)
-  
+
       const response = await axios.post(API_LINK + 'Quiz/SaveDataQuiz', formData);
-  
+
       if (response.data.length === 0) {
         alert('Gagal menyimpan data');
         return;
       }
-  
+
       const quizId = response.data[0].hasil;
-  
+
       for (let i = 0; i < formContent.length; i++) {
         const question = formContent[i];
         const formQuestion = {
@@ -160,7 +145,7 @@ export default function MasterPreTestAdd({ onChangePage }) {
           status: 'Aktif',
           quecreatedby: 'Admin',
         };
-  
+
         if (question.type === 'essay' || question.type === 'praktikum') {
           if (question.selectedFile) {
             try {
@@ -176,21 +161,21 @@ export default function MasterPreTestAdd({ onChangePage }) {
         } else if (question.type === 'multiple_choice') {
           formQuestion.gambar = '';
         }
-  
+
         console.log("hasil questionn")
         console.log(formQuestion);
-  
+
         try {
           const questionResponse = await axios.post(API_LINK + 'Questions/SaveDataQuestion', formQuestion);
           console.log('Pertanyaan berhasil disimpan:', questionResponse.data);
-  
+
           if (questionResponse.data.length === 0) {
             alert('Gagal menyimpan question')
             return
           }
-  
+
           const questionId = questionResponse.data[0].hasil;
-  
+
           if (question.type === 'essay' || question.type === 'praktikum') {
             const answerData = {
               urutanChoice: '',
@@ -199,7 +184,7 @@ export default function MasterPreTestAdd({ onChangePage }) {
               nilaiChoice: question.point,
               quecreatedby: 'Admin',
             };
-  
+
             try {
               const answerResponse = await axios.post(API_LINK + 'Choices/SaveDataChoice', answerData);
               console.log('Jawaban essay berhasil disimpan:', answerResponse.data);
@@ -216,10 +201,10 @@ export default function MasterPreTestAdd({ onChangePage }) {
                 nilaiChoice: option.point || 0,
                 quecreatedby: 'Admin',
               };
-  
+
               console.log("hasil multiple choice")
               console.log(answerData);
-  
+
               try {
                 const answerResponse = await axios.post(API_LINK + 'Choices/SaveDataChoice', answerData);
                 console.log('Jawaban multiple choice berhasil disimpan:', answerResponse.data);
@@ -234,22 +219,10 @@ export default function MasterPreTestAdd({ onChangePage }) {
           alert('Gagal menyimpan pertanyaan');
         }
       }
-  
-      // Tampilkan pesan sukses atau lakukan tindakan lain yang diperlukan setelah semua data berhasil disimpan
-      Swal.fire({
-        title: 'Berhasil!',
-        text: 'Posttest berhasil ditambahkan',
-        icon: 'success',
-        confirmButtonText: 'OK'
-      });
 
-      setFormContent([]);
-      setSelectedOptions([]);
-      setErrors({});
-      setSelectedFile(null);
-      setTimer('');
-      setMinimumScore(undefined);
-  
+      // Tampilkan pesan sukses atau lakukan tindakan lain yang diperlukan setelah semua data berhasil disimpan
+      alert('Kuis dan pertanyaan berhasil disimpan');
+
     } catch (error) {
       console.error('Gagal menyimpan data:', error);
       alert('Gagal menyimpan data');
@@ -548,11 +521,11 @@ export default function MasterPreTestAdd({ onChangePage }) {
         <div>
           <Stepper
             steps={[
-              { label: 'Pretest', onClick: () => onChangePage("pretestAdd") },
-              { label: 'Materi', onClick: () => onChangePage("courseAdd") },
-              { label: 'Sharing Expert', onClick: () => onChangePage("sharingAdd") },
-              { label: 'Forum', onClick: () => onChangePage("forumAdd") },
-              { label: 'Post Test', onClick: () => onChangePage("posttestAdd") }
+              { label: 'Pretest', onClick: () => onChangePage("pretestEdit") },
+              { label: 'Materi', onClick: () => onChangePage("courseEdit") },
+              { label: 'Sharing Expert', onClick: () => onChangePage("sharingEdit") },
+              { label: 'Forum', onClick: () => onChangePage("forumEdit") },
+              { label: 'Post Test', onClick: () => onChangePage("posttestEdit") }
             ]}
             activeStep={4}
             styleConfig={{
@@ -580,7 +553,7 @@ export default function MasterPreTestAdd({ onChangePage }) {
         </div>
         <div className="card">
           <div className="card-header bg-outline-primary fw-medium text-black">
-            Tambah Posttest Baru
+            Edit Posttest
           </div>
           <div className="card-body p-4">
             <div className="row mb-4">
@@ -670,7 +643,7 @@ export default function MasterPreTestAdd({ onChangePage }) {
               </div>
               <div className="p-2">
                 <Button
-                  iconName="paper-plane"
+                  iconName="upload"
                   classType="primary btn-sm px-3 py-1"
                   onClick={handleUploadFile}
                   label="Unggah File"
@@ -878,18 +851,14 @@ export default function MasterPreTestAdd({ onChangePage }) {
           <Button
             classType="outline-secondary me-2 px-4 py-2"
             label="Kembali"
-            onClick={() => onChangePage("index")}
+            onClick={() => onChangePage("forumEdit")}
           />
           <Button
             classType="primary ms-2 px-4 py-2"
             type="submit"
             label="Simpan"
           />
-          <Button
-            classType="dark ms-3 px-4 py-2"
-            label="Berikutnya"
-            onClick={() => onChangePage("courseAdd")}
-          />
+          
         </div>
       </form>
     </>

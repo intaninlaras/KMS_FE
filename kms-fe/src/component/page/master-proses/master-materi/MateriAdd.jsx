@@ -1,20 +1,21 @@
 import { useRef, useState, useEffect } from "react";
 import { object, string } from "yup";
-import { API_LINK } from "../../util/Constants";
-import { validateAllInputs, validateInput } from "../../util/ValidateForm";
-import SweetAlert from "../../util/SweetAlert";
-import UseFetch from "../../util/UseFetch";
-import Button from "../../part/Button";
-import DropDown from "../../part/Dropdown"; // Make sure to import your DropDown component
-import Input from "../../part/Input";
-import FileUpload from "../../part/FileUpload";
-import Loading from "../../part/Loading";
-import Alert from "../../part/Alert";
+import { API_LINK } from "../../../util/Constants";
+import { validateAllInputs, validateInput } from "../../../util/ValidateForm";
+import SweetAlert from "../../../util/SweetAlert";
+import UseFetch from "../../../util/UseFetch";
+import Button from "../../../part/Button";
+import DropDown from "../../../part/Dropdown";
+import Input from "../../../part/Input";
+import FileUpload from "../../../part/FileUpload";
+import uploadFile from "../../../util/UploadFile";
+import Loading from "../../../part/Loading";
+import Alert from "../../../part/Alert";
 import { Stepper } from 'react-form-stepper';
-import uploadFile from "../../util/UploadFile";
-
-
-export default function MasterCourseAdd({ onChangePage, withID }) {
+import AppContext_test from "../MasterContext";
+import axios from "axios";
+import { Editor } from '@tinymce/tinymce-react';
+export default function MasterCourseAdd({ onChangePage }) {
   const [errors, setErrors] = useState({});
   const [isError, setIsError] = useState({ error: false, message: "" });
   const [isLoading, setIsLoading] = useState(false);
@@ -24,11 +25,11 @@ export default function MasterCourseAdd({ onChangePage, withID }) {
   const gambarInputRef = useRef(null);
   const vidioInputRef = useRef(null);
 
-  const kategori = withID;
-  console.log("kategori di materi: " + kategori);
+  const kategori = AppContext_test.kategoriId;
+  console.log("kategori di materi: " + AppContext_test.kategoriId);
 
   const formDataRef = useRef({
-    kat_id: kategori, 
+    kat_id: AppContext_test.kategoriId, 
     mat_judul: "",
     mat_file_pdf: "",
     mat_file_video: "",
@@ -72,7 +73,7 @@ export default function MasterCourseAdd({ onChangePage, withID }) {
     const validationError = await validateInput(name, value, userSchema);
     let error = "";
 
-    if (fileSize / 1024576 > 10) error = "berkas terlalu besar";
+    if (fileSize / 1024 / 1024 > 100) error = "berkas terlalu besar";
     else if (!extAllowed.split(",").includes(fileExt))
       error = "format berkas tidak valid";
 
@@ -86,22 +87,22 @@ export default function MasterCourseAdd({ onChangePage, withID }) {
 
   const handleAdd = async (e) => {
     e.preventDefault();
-  
+
     const validationErrors = await validateAllInputs(
       formDataRef.current,
       userSchema,
       setErrors
     );
-  
+
     if (Object.values(validationErrors).every((error) => !error)) {
       setIsLoading(true);
       setIsError((prevError) => {
         return { ...prevError, error: false };
       });
       setErrors({});
-  
+
       const uploadPromises = [];
-  
+
       if (fileInputRef.current && fileInputRef.current.files.length > 0) {
         uploadPromises.push(
           uploadFile(fileInputRef.current).then((data) => {
@@ -109,7 +110,7 @@ export default function MasterCourseAdd({ onChangePage, withID }) {
           })
         );
       }
-  
+
       if (gambarInputRef.current && gambarInputRef.current.files.length > 0) {
         uploadPromises.push(
           uploadFile(gambarInputRef.current).then((data) => {
@@ -117,7 +118,7 @@ export default function MasterCourseAdd({ onChangePage, withID }) {
           })
         );
       }
-  
+
       if (vidioInputRef.current && vidioInputRef.current.files.length > 0) {
         uploadPromises.push(
           uploadFile(vidioInputRef.current).then((data) => {
@@ -125,70 +126,96 @@ export default function MasterCourseAdd({ onChangePage, withID }) {
           })
         );
       }
-  
+
       Promise.all(uploadPromises).then(() => {
-        UseFetch(
-          API_LINK + "Materis/SaveDataMateri",
-          formDataRef.current
-        )
-          .then((data) => {
-            if (data === "ERROR") {
-              setIsError((prevError) => {
-                return {
-                  ...prevError,
-                  error: true,
-                  message: "Terjadi kesalahan: Gagal menyimpan data Materi.",
-                };
-              });
+        console.log(formDataRef.current);
+        axios.post(API_LINK + "Materis/SaveDataMateri", formDataRef.current)
+        .then(response => {
+            const data = response.data;
+            console.log("ds",data)
+            if (data[0].hasil === "OK") { 
+                console.log("mat_id:", data[0].newID);
+                AppContext_test.dataIDMateri = data[0].newID;
+                console.log("context:",AppContext_test.dataIDMateri);
+                SweetAlert("Sukses", "Data Materi berhasil disimpan", "success");
             } else {
-              SweetAlert(
-                "Sukses",
-                "Data Materi berhasil disimpan",
-                "success"
-              );
-              onChangePage("index", kategori);
+                setIsError(prevError => ({
+                    ...prevError,
+                    error: true,
+                    message: "Terjadi kesalahan: Gagal menyimpan data Materi."
+                }));
             }
-          })
-          .then(() => setIsLoading(false));
-      });
+        })
+        .catch(error => {
+            console.error('Terjadi kesalahan:', error);
+            setIsError(prevError => ({
+                ...prevError,
+                error: true,
+                message: "Terjadi kesalahan: " + error.message
+            }));
+        })
+        .finally(() => setIsLoading(false));
+    });
     }
   };
-  
 
-
-  useEffect(() => {
-    const fetchDataKategori = async () => {
-      setIsError((prevError) => ({ ...prevError, error: false }));
-  
+  const fetchDataKategori = async (retries = 3, delay = 1000) => {
+    for (let i = 0; i < retries; i++) {
       try {
-        const data = await UseFetch(API_LINK + "Program/GetKategoriKKById", {
-          kategori
-        });
-  
+        const data = await UseFetch(API_LINK + "Program/GetKategoriKKById", { kategori });
         console.log("Raw data: ", data);
-  
+
         const mappedData = data.map(item => ({
           value: item.Key,
           label: item["Nama Kategori"],
-          idKK: item.idKK, 
-          namaKK: item.namaKK 
+          idKK: item.idKK,
+          namaKK: item.namaKK
         }));
-  
+
         console.log("Mapped data: ", mappedData);
-  
-        setListKategori(mappedData);
+
+        return mappedData;
       } catch (error) {
-        setIsError((prevError) => ({
-          ...prevError,
-          error: true,
-          message: error.message,
-        }));
-        setListKategori([]);
+        console.error("Error fetching kategori data:", error);
+        if (i < retries - 1) {
+          await new Promise(resolve => setTimeout(resolve, delay));
+        } else {
+          throw error;
+        }
+      }
+    }
+  };
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const fetchData = async () => {
+      setIsError({ error: false, message: '' });
+      setIsLoading(true);
+      try {
+        const data = await fetchDataKategori();
+        if (isMounted) {
+          setListKategori(data);
+        }
+      } catch (error) {
+        if (isMounted) {
+          setIsError({ error: true, message: error.message });
+          setListKategori([]);
+        }
+      } finally {
+        if (isMounted) {
+          setIsLoading(false);
+        }
       }
     };
-    fetchDataKategori();
+
+    fetchData();
+
+    return () => {
+      isMounted = false;
+    };
   }, [kategori]);
-  
+
   if (isLoading) return <Loading />;
 
   return (
@@ -240,14 +267,14 @@ export default function MasterCourseAdd({ onChangePage, withID }) {
           <div className="card-body p-4">
             <div className="row">
               <div className="col-lg-6">
-              <Input
-                type="text"
-                forInput="namaKK"
-                label="Nama KK"
-                value={listKategori.find((item) => item.value === formDataRef.current.kat_id)?.namaKK || ""}
-                disabled
-                errorMessage={errors.namaKK}
-              />
+                <Input
+                  type="text"
+                  forInput="namaKK"
+                  label="Nama KK"
+                  value={listKategori.find((item) => item.value === formDataRef.current.kat_id)?.namaKK || ""}
+                  disabled
+                  errorMessage={errors.namaKK}
+                />
               </div>
               <div className="col-lg-6">
                 <Input
@@ -268,6 +295,7 @@ export default function MasterCourseAdd({ onChangePage, withID }) {
                   value={formDataRef.current.mat_judul}
                   onChange={handleInputChange}
                   errorMessage={errors.mat_judul}
+                  isRequired
                 />
               </div>
               <div className="col-lg-6">
@@ -279,9 +307,10 @@ export default function MasterCourseAdd({ onChangePage, withID }) {
                   value={formDataRef.current.mat_kata_kunci}
                   onChange={handleInputChange}
                   errorMessage={errors.mat_kata_kunci}
+                  isRequired
                 />
               </div>
-              <div className="col-lg-6">
+              <div className="col-lg-16">
                 <div className="form-group">
                   <label htmlFor="deskripsiMateri" className="form-label fw-bold">
                     Deskripsi Materi <span style={{color: "Red"}}> *</span>
@@ -300,19 +329,29 @@ export default function MasterCourseAdd({ onChangePage, withID }) {
                   )}
                 </div>
               </div>
-              <div className="col-lg-6">
+              <div className="col-lg-16">
                 <div className="form-group">
                   <label htmlFor="deskripsiMateri" className="form-label fw-bold">
-                    Pengenalan Materi <span style={{color: "Red"}}> *</span>
+                    Pengenalan Materi <span style={{ color: 'Red' }}> *</span>
                   </label>
-                  <textarea
-                    className="form-control mb-3"
+                  <Editor
                     id="mat_pengenalan"
-                    name="mat_pengenalan"
-                    forInput="mat_pengenalan"
                     value={formDataRef.current.mat_pengenalan}
-                    onChange={handleInputChange}
-                    required
+                    onEditorChange={(content) => handleInputChange({ target: { name: 'mat_pengenalan', value: content } })}
+                    apiKey='v5s2v6diqyjyw3k012z4k2o0epjmq6wil26i10xjh53bbk7y'
+                    init={{
+                      height: 300,
+                      menubar: false,
+                      plugins: [
+                        'advlist autolink lists link image charmap print preview anchor',
+                        'searchreplace visualblocks code fullscreen',
+                        'insertdatetime media table paste code help wordcount'
+                      ],
+                      toolbar:
+                        'undo redo | formatselect | bold italic backcolor | \
+                        alignleft aligncenter alignright alignjustify | \
+                        bullist numlist outdent indent | removeformat | help'
+                    }}
                   />
                   {errors.mat_pengenalan && (
                     <div className="invalid-feedback">{errors.mat_pengenalan}</div>
@@ -329,6 +368,7 @@ export default function MasterCourseAdd({ onChangePage, withID }) {
                     handleFileChange(gambarInputRef, "jpg,png")
                   }
                   errorMessage={errors.mat_gambar}
+                  isRequired
                 />
               </div>
               <div className="col-lg-4">
@@ -341,6 +381,7 @@ export default function MasterCourseAdd({ onChangePage, withID }) {
                     handleFileChange(fileInputRef, "pdf")
                   }
                   errorMessage={errors.mat_file_pdf}
+                  isRequired
                 />
               </div>
               <div className="col-lg-4">
@@ -353,6 +394,7 @@ export default function MasterCourseAdd({ onChangePage, withID }) {
                     handleFileChange(vidioInputRef, "mp4,mov")
                   }
                   errorMessage={errors.mat_file_video}
+                  isRequired
                 />
               </div>
             </div>

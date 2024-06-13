@@ -62,12 +62,13 @@ const arrMenu = [
     sub: [
       {
         title: "Materi",
+        title: "Materi",
         link: ROOT_LINK + "/master_proses",
       },
-      // {
-      //   title: "Read Materi",
-      //   link: ROOT_LINK + "/master_test",
-      // },
+      {
+        title: "Baca Materi",
+        link: ROOT_LINK + "/master_test",
+      },
       // {
       //   title: "Post-Test",
       //   link: ROOT_LINK + "/master_produk",

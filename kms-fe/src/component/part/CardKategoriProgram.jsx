@@ -1,11 +1,14 @@
 import React, { useState } from "react";
 import Icon from "./Icon";
+import AppContext_test from "../page/master-proses/MasterContext.jsx";
+
+const MAX_DESCRIPTION_LENGTH = 100;
 
 const CardKategoriProgram = ({ onChangePage, kategori }) => {
-  const [showFullDescription, setShowFullDescription] = useState(false);
+  const [expandDeskripsi, setExpandDeskripsi] = useState(false);
 
-  const toggleDescription = () => {
-    setShowFullDescription(!showFullDescription);
+  const handleExpandDescription = () => {
+    setExpandDeskripsi(!expandDeskripsi);
   };
 
   return (
@@ -13,9 +16,9 @@ const CardKategoriProgram = ({ onChangePage, kategori }) => {
       <style jsx>{`
         .card-kategori-program {
           transition: transform 0.3s, box-shadow 0.3s;
-          flex: 1 1 0; 
-          min-width: 250px; 
-          margin: 10px; 
+          flex: 1 1 0;
+          min-width: 250px;
+          margin: 10px;
         }
         .card-kategori-program:hover {
           transform: translateY(-5px);
@@ -23,26 +26,12 @@ const CardKategoriProgram = ({ onChangePage, kategori }) => {
         }
         .card-kategori-program-container {
           display: flex;
-          flex-fill: wrap;
-        }
-        .short-description {
-          overflow: hidden;
-          text-overflow: ellipsis;
-          display: -webkit-box;
-          -webkit-line-clamp: 2; 
-          -webkit-box-orient: vertical;
-        }
-        .read-more {
-          cursor: pointer;
-          color: blue;
-          text-decoration: underline;
+          flex-wrap: wrap;
         }
       `}</style>
       <div className="card-kategori-program">
-        <div
-          className="card mt-3"
-           onClick={() => onChangePage("index", kategori.Key)}
-        >
+        <div className="card mt-3"
+        onClick={() => onChangePage("index",AppContext_test.KategoriIdByKK = kategori.Key)}>
           <div className="card-body">
             <div className="d-flex justify-content-between">
               <h6 className="card-title">{kategori["Nama Kategori Program"]}</h6>
@@ -58,22 +47,44 @@ const CardKategoriProgram = ({ onChangePage, kategori }) => {
             </div>
             <div className="d-flex mt-2">
               <div className="me-2 bg-primary ps-1"></div>
-              <div className="d-flex flex-column"> 
-                <p 
-                  className={`card-subtitle ${showFullDescription ? '' : 'short-description'}`} 
+              <div className="d-flex flex-column" style={{ width: "50%" }}>
+                <p
+                  className="lh-sm mb-0"
+                  style={{
+                    WebkitLineClamp: 2,
+                    WebkitBoxOrient: "vertical",
+                    fontSize: "15px",
+                    maxHeight: expandDeskripsi ? "none" : "75px",
+                    overflow: "hidden",
+                    textAlign:'justify'
+                  }}
                 >
-                  {kategori.Deskripsi}
+                  {kategori.Deskripsi.length > MAX_DESCRIPTION_LENGTH && !expandDeskripsi ? (
+                    <>
+                      {kategori.Deskripsi.slice(0, MAX_DESCRIPTION_LENGTH) + " ..."}
+                      <a
+                        className="btn btn-link text-decoration-none p-0"
+                        onClick={handleExpandDescription}
+                        style={{ fontSize: "12px" }}
+                      >
+                        Baca Selengkapnya <Icon name={"caret-down"} />
+                      </a>
+                    </>
+                  ) : (
+                    <>
+                      {kategori.Deskripsi}
+                      {expandDeskripsi && (
+                        <a
+                          className="btn btn-link text-decoration-none p-0"
+                          onClick={handleExpandDescription}
+                          style={{ fontSize: "12px" }}
+                        >
+                          Tutup <Icon name={"caret-up"} />
+                        </a>
+                      )}
+                    </>
+                  )}
                 </p>
-                {!showFullDescription && kategori.Deskripsi.length > 50 && (
-                  <span className="read-more" onClick={toggleDescription}>
-                    Baca Selengkapnya
-                  </span>
-                )}
-                {showFullDescription && (
-                  <span className="read-more" onClick={toggleDescription}>
-                    Tutup
-                  </span>
-                )}
               </div>
             </div>
           </div>
