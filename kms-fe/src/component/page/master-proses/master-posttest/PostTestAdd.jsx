@@ -10,6 +10,9 @@ import { validateAllInputs, validateInput } from "../../../util/ValidateForm";
 import { API_LINK } from "../../../util/Constants";
 import FileUpload from "../../../part/FileUpload";
 import uploadFile from "../../../util/UploadImageQuiz";
+import Swal from 'sweetalert2';
+import { Editor } from '@tinymce/tinymce-react';
+import AppContext_test from "../MasterContext";
 
 export default function MasterPreTestAdd({ onChangePage }) {
   const [formContent, setFormContent] = useState([]);
@@ -48,7 +51,7 @@ export default function MasterPreTestAdd({ onChangePage }) {
   const addQuestion = (questionType) => {
     const newQuestion = {
       type: questionType,
-      text: `Question ${formContent.length + 1}`,
+      text: `Pertanyaan ${formContent.length + 1}`,
       options: [],
       point: 0,
       correctAnswer: "", // Default correctAnswer
@@ -243,6 +246,7 @@ export default function MasterPreTestAdd({ onChangePage }) {
         confirmButtonText: 'OK'
       });
 
+      // mereset semua form input setelah berhasil menambahkan data pretest
       setFormContent([]);
       setSelectedOptions([]);
       setErrors({});
@@ -255,6 +259,7 @@ export default function MasterPreTestAdd({ onChangePage }) {
       alert('Gagal menyimpan data');
     }
   };
+  
 
   // const handleQuestionTypeChange = (e, index) => {
   //   const { value } = e.target;
@@ -307,16 +312,16 @@ export default function MasterPreTestAdd({ onChangePage }) {
   // };
 
   const handleChangeQuestion = (index) => {
-    const updatedFormContent = [...formContent];
-    const question = updatedFormContent[index];
+  const updatedFormContent = [...formContent];
+  const question = updatedFormContent[index];
 
-    if (question.type === "essay") {
-      // Simpan jawaban benar untuk pertanyaan essay ke state
-      setCorrectAnswers((prevCorrectAnswers) => ({
-        ...prevCorrectAnswers,
-        [index]: question.correctAnswer,
-      }));
-    }
+  if (question.type === "essay") {
+    // Simpan jawaban benar untuk pertanyaan essay ke state
+    setCorrectAnswers((prevCorrectAnswers) => ({
+      ...prevCorrectAnswers,
+      [index]: question.correctAnswer,
+    }));
+  }
 
     const newType =
       question.type !== "answer"
@@ -327,13 +332,15 @@ export default function MasterPreTestAdd({ onChangePage }) {
           ? "multiple_choice"
           : "multiple_choice";
 
-    updatedFormContent[index] = {
-      ...question,
-      type: newType,
-    };
-
-    setFormContent(updatedFormContent);
+  updatedFormContent[index] = {
+    ...question,
+    type: newType,
+    options: newType === "essay" ? [] : question.options,
   };
+
+  setFormContent(updatedFormContent);
+  console.log(updatedFormContent)
+};
 
   const handleDuplicateQuestion = (index) => {
     const duplicatedQuestion = { ...formContent[index] };
@@ -409,9 +416,26 @@ export default function MasterPreTestAdd({ onChangePage }) {
     const file = e.target.files[0];
     const updatedFormContent = [...formContent];
     updatedFormContent[index].selectedFile = file;
-    setFormContent(updatedFormContent);
+  
+    // Buat objek FileReader
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const image = new Image();
+      image.onload = () => {
+        // Perbarui ukuran gambar dalam state
+        updatedFormContent[index].imageWidth = image.width;
+        updatedFormContent[index].imageHeight = image.height;
+        setFormContent(updatedFormContent);
+      };
+      image.src = event.target.result;
+    };
+    reader.readAsDataURL(file);
   };
 
+  const handleFileExcel = (e) => {
+    const file = e.target.files[0];
+    setSelectedFile(file);
+  };
 
   const handleUploadFile = () => {
     if (selectedFile) {
@@ -588,7 +612,7 @@ export default function MasterPreTestAdd({ onChangePage }) {
               <div className="col-lg">
                 <Input
                   type="text"
-                  label="Deskripsi Quiz"
+                  label="Deskripsi"
                   forInput="quizDeskripsi"
                   value={formData.quizDeskripsi}
                   onChange={handleInputChange}
@@ -649,6 +673,7 @@ export default function MasterPreTestAdd({ onChangePage }) {
               </div>
               <div className="col-lg-4">
                 <Button
+                  title="Tambah Pertanyaan"
                   onClick={() => addQuestion("essay")}
                   iconName="plus"
                   classType="primary btn-sm px-3 py-1"
@@ -657,19 +682,20 @@ export default function MasterPreTestAdd({ onChangePage }) {
                   type="file"
                   id="fileInput"
                   style={{ display: 'none' }}
-                  onChange={handleFileChange}
+                  onChange={handleFileExcel }
                 />
                 <Button
+                  title="Tambah File Excel"
                   iconName="upload"
                   classType="primary btn-sm mx-2 px-3 py-1"
                   onClick={() => document.getElementById('fileInput').click()} // Memicu klik pada input file
                 />
                 {/* Tampilkan nama file yang dipilih */}
                 {selectedFile && <span>{selectedFile.name}</span>}
-
-              </div>
-              <div className="p-2">
+                <br></br>
+                <br></br>
                 <Button
+                  title="Unggah File Excel"
                   iconName="paper-plane"
                   classType="primary btn-sm px-3 py-1"
                   onClick={handleUploadFile}
@@ -681,8 +707,9 @@ export default function MasterPreTestAdd({ onChangePage }) {
                   label="Unduh Template"
                   classType="warning btn-sm px-3 py-1 mx-2"
                   onClick={handleDownloadTemplate}
-
+                  title="Unduh Template Excel"
                 />
+
               </div>
 
             </div>
@@ -759,10 +786,13 @@ export default function MasterPreTestAdd({ onChangePage }) {
                   ) : (
                     <div className="row">
                       <div className="col-lg-12 question-input">
-                        <Input
-                          type="text"
-                          forInput={`pertanyaan_${index}`}
+                      <label htmlFor="deskripsiMateri" className="form-label fw-bold">
+                      Pertanyaan <span style={{color:"Red"}}> *</span>
+                      </label>
+                        {/* <textarea
+                          id={`pertanyaan_${index}`}
                           value={question.text}
+                          label="Pertanyaan"
                           onChange={(e) => {
                             const updatedFormContent = [...formContent];
                             updatedFormContent[index].text = e.target.value;
@@ -774,32 +804,111 @@ export default function MasterPreTestAdd({ onChangePage }) {
                               soal: e.target.value
                             }));
                           }}
-                        />
+                          className="form-control" // Optional: Add any necessary CSS classes
+                          rows={4} // Optional: Adjust the number of rows for the textarea
+                        /> */}
+                        <Editor
+                          id={`pertanyaan_${index}`}
+                          value={question.text}
+                          label="Pertanyaan"
+                          onChange={(e) => {
+                            const updatedFormContent = [...formContent];
+                            updatedFormContent[index].text = e.target.value;
+                            setFormContent(updatedFormContent);
 
+                            // Update formQuestion.soal
+                            setFormQuestion((prevFormQuestion) => ({
+                              ...prevFormQuestion,
+                              soal: e.target.value
+                            }));
+                          }}
+                          apiKey='la2hd1ehvumeir6fa5kxxltae8u2whzvx1jptw6dqm4dgf2g'
+                          init={{
+                            height: 300,
+                            menubar: false,
+                            plugins: [
+                              'advlist autolink lists link image charmap print preview anchor',
+                              'searchreplace visualblocks code fullscreen',
+                              'insertdatetime media table paste code help wordcount'
+                            ],
+                            toolbar:
+                              'undo redo | formatselect | bold italic backcolor | \
+                              alignleft aligncenter alignright alignjustify | \
+                              bullist numlist outdent indent | removeformat | help'
+                          }}
+                        />
+                        {/* <Editor
+                        id={`pertanyaan_${index}`}
+                        value={question.text}
+                        onEditorChange={(content) => {
+                          const updatedFormContent = [...formContent];
+                          updatedFormContent[index].text = content;
+                          setFormContent(updatedFormContent);
+
+                          // Update formQuestion.soal
+                          setFormQuestion((prevFormQuestion) => ({
+                            ...prevFormQuestion,
+                            soal: content,
+                          }));
+                        }}
+                        apiKey="la2hd1ehvumeir6fa5kxxltae8u2whzvx1jptw6dqm4dgf2g"
+                        init={{
+                          height: 300,
+                          menubar: false,
+                          plugins: [
+                            'advlist autolink lists link image charmap print preview anchor',
+                            'searchreplace visualblocks code fullscreen',
+                            'insertdatetime media table paste code help wordcount',
+                          ],
+                          toolbar:
+                            'undo redo | formatselect | bold italic backcolor | ' +
+                            'alignleft aligncenter alignright alignjustify | ' +
+                            'bullist numlist outdent indent | removeformat | help',
+                        }}
+                      /> */}
                       </div>
 
                       {/* Tampilkan tombol gambar dan PDF hanya jika type = essay */}
                       {(question.type === "essay" || question.type === "praktikum") && (
-                        <div className="col-lg-12 d-flex align-items-center form-check">
-                          <div className="d-flex flex-column w-100">
-                            <FileUpload
-                              forInput={`fileInput_${index}`}
-                              formatFile=".jpg,.png"
-                              label={<span className="file-upload-label">Gambar (.jpg, .png)</span>}
-                              onChange={(e) => handleFileChange(e, index)} // Memanggil handleFileChange dengan indeks
-                              hasExisting={question.gambar}
-                              style={{ fontSize: '12px' }}
-                            />
-                            <div className="mt-2"> {/* Memberikan margin atas kecil untuk jarak yang rapi */}
-                              <Input
-                                type="number"
-                                label="Point"
-                                value={question.point}
-                                onChange={(e) => handlePointChange(e, index)}
+                        
+                        <div className="d-flex flex-column w-100">
+                          <FileUpload
+                            forInput={`fileInput_${index}`}
+                            formatFile=".jpg,.png"
+                            label={<span className="file-upload-label">Gambar (.jpg, .png)</span>}
+                            onChange={(e) => handleFileChange(e, index)} // Memanggil handleFileChange dengan indeks
+                            hasExisting={question.gambar}
+                            style={{ fontSize: '12px' }}
+                          />
+                          {/* Tampilkan preview gambar jika ada gambar yang dipilih */}
+                          {question.selectedFile && (
+                            <div style={{
+                              maxWidth: '300px', // Set maximum width for the image container
+                              maxHeight: '300px', // Set maximum height for the image container
+                              overflow: 'hidden', // Hide any overflow beyond the set dimensions
+                              marginLeft: '10px'
+                            }}>
+                              <img
+                                src={URL.createObjectURL(question.selectedFile)}
+                                alt="Preview Gambar"
+                                style={{
+                                  width: '100%', // Ensure image occupies full width of container
+                                  height: 'auto', // Maintain aspect ratio
+                                  objectFit: 'contain' // Fit image within container without distortion
+                                }}
                               />
                             </div>
+                          )}
+                          <div className="mt-2"> {/* Memberikan margin atas kecil untuk jarak yang rapi */}
+                            <Input
+                              type="number"
+                              label="Point"
+                              value={question.point}
+                              onChange={(e) => handlePointChange(e, index)}
+                            />
                           </div>
                         </div>
+                        
                       )}
                       {question.type === "multiple_choice" && (
                         <div className="col-lg-12">
@@ -861,10 +970,6 @@ export default function MasterPreTestAdd({ onChangePage }) {
                             classType="btn-sm ms-2 px-3 py-1"
                             onClick={() => handleDuplicateQuestion(index)}
                           />
-                          <Button
-                            iconName="menu-dots-vertical"
-                            classType="btn-sm ms-2 px-3 py-1"
-                          />
                         </div>
                       </div>
                     </div>
@@ -885,7 +990,11 @@ export default function MasterPreTestAdd({ onChangePage }) {
             type="submit"
             label="Simpan"
           />
-          
+          {/* <Button
+            classType="dark ms-3 px-4 py-2"
+            label="Berikutnya"
+            onClick={() => onChangePage("materiAdd",AppContext_test.KategoriIdByKK)}
+          /> */}
         </div>
       </form>
     </>

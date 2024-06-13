@@ -6,18 +6,12 @@ import Loading from "../../../part/Loading";
 import { Stepper } from 'react-form-stepper';
 import * as XLSX from 'xlsx';
 import axios from 'axios';
-// <<<<<<< HEAD:kms-fe/src/component/page/master-proses/PreTestAdd.jsx
-// import { validateAllInputs, validateInput } from "../../util/ValidateForm";
-// import { API_LINK } from "../../util/Constants";
-// import FileUpload from "../../part/FileUpload";
-// import uploadFile from "../../util/UploadImageQuiz";
-import Swal from 'sweetalert2';
-// =======
-// import { validateAllInputs, validateInput } from "../../../util/ValidateForm";
 import { validateAllInputs, validateInput } from "../../../util/ValidateForm";
 import { API_LINK } from "../../../util/Constants";
 import FileUpload from "../../../part/FileUpload";
 import uploadFile from "../../../util/UploadImageQuiz";
+import Swal from 'sweetalert2';
+import { Editor } from '@tinymce/tinymce-react';
 import AppContext_test from "../MasterContext";
 
 export default function MasterPreTestAdd({ onChangePage }) {
@@ -72,7 +66,7 @@ export default function MasterPreTestAdd({ onChangePage }) {
     materiId: '1',
     quizJudul: 'Pemrograman 9',
     quizDeskripsi: '',
-    quizTipe: 'PreTest',
+    quizTipe: 'Pretest',
     tanggalAwal: '',
     tanggalAkhir: '',
     timer: '',
@@ -795,7 +789,7 @@ export default function MasterPreTestAdd({ onChangePage }) {
                       <label htmlFor="deskripsiMateri" className="form-label fw-bold">
                       Pertanyaan <span style={{color:"Red"}}> *</span>
                       </label>
-                        <textarea
+                        {/* <textarea
                           id={`pertanyaan_${index}`}
                           value={question.text}
                           label="Pertanyaan"
@@ -812,7 +806,66 @@ export default function MasterPreTestAdd({ onChangePage }) {
                           }}
                           className="form-control" // Optional: Add any necessary CSS classes
                           rows={4} // Optional: Adjust the number of rows for the textarea
+                        /> */}
+                        <Editor
+                          id={`pertanyaan_${index}`}
+                          value={question.text}
+                          label="Pertanyaan"
+                          onChange={(e) => {
+                            const updatedFormContent = [...formContent];
+                            updatedFormContent[index].text = e.target.value;
+                            setFormContent(updatedFormContent);
+
+                            // Update formQuestion.soal
+                            setFormQuestion((prevFormQuestion) => ({
+                              ...prevFormQuestion,
+                              soal: e.target.value
+                            }));
+                          }}
+                          apiKey='la2hd1ehvumeir6fa5kxxltae8u2whzvx1jptw6dqm4dgf2g'
+                          init={{
+                            height: 300,
+                            menubar: false,
+                            plugins: [
+                              'advlist autolink lists link image charmap print preview anchor',
+                              'searchreplace visualblocks code fullscreen',
+                              'insertdatetime media table paste code help wordcount'
+                            ],
+                            toolbar:
+                              'undo redo | formatselect | bold italic backcolor | \
+                              alignleft aligncenter alignright alignjustify | \
+                              bullist numlist outdent indent | removeformat | help'
+                          }}
                         />
+                        {/* <Editor
+                        id={`pertanyaan_${index}`}
+                        value={question.text}
+                        onEditorChange={(content) => {
+                          const updatedFormContent = [...formContent];
+                          updatedFormContent[index].text = content;
+                          setFormContent(updatedFormContent);
+
+                          // Update formQuestion.soal
+                          setFormQuestion((prevFormQuestion) => ({
+                            ...prevFormQuestion,
+                            soal: content,
+                          }));
+                        }}
+                        apiKey="la2hd1ehvumeir6fa5kxxltae8u2whzvx1jptw6dqm4dgf2g"
+                        init={{
+                          height: 300,
+                          menubar: false,
+                          plugins: [
+                            'advlist autolink lists link image charmap print preview anchor',
+                            'searchreplace visualblocks code fullscreen',
+                            'insertdatetime media table paste code help wordcount',
+                          ],
+                          toolbar:
+                            'undo redo | formatselect | bold italic backcolor | ' +
+                            'alignleft aligncenter alignright alignjustify | ' +
+                            'bullist numlist outdent indent | removeformat | help',
+                        }}
+                      /> */}
                       </div>
 
                       {/* Tampilkan tombol gambar dan PDF hanya jika type = essay */}
