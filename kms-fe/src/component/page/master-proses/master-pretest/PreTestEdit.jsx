@@ -10,8 +10,9 @@ import { validateAllInputs, validateInput } from "../../../util/ValidateForm";
 import { API_LINK } from "../../../util/Constants";
 import FileUpload from "../../../part/FileUpload";
 import uploadFile from "../../../util/UploadImageQuiz";
+import AppContext_test from "../MasterContext";
 
-export default function MasterPreTestAdd({ onChangePage }) {
+export default function MasterPreTestAdd({ onChangePage,withID}) {
   const [formContent, setFormContent] = useState([]);
   const [selectedOptions, setSelectedOptions] = useState([]);
   const [errors, setErrors] = useState({});
@@ -48,7 +49,7 @@ export default function MasterPreTestAdd({ onChangePage }) {
   const addQuestion = (questionType) => {
     const newQuestion = {
       type: questionType,
-      text: `Question ${formContent.length + 1}`,
+      text: 'Question ${formContent.length + 1}',
       options: [],
       point: 0,
       correctAnswer: "", // Default correctAnswer
@@ -683,8 +684,8 @@ export default function MasterPreTestAdd({ onChangePage }) {
                       <div className="col-lg-12 question-input">
                         <Input
                           type="text"
-                          label={`Question ${index + 1}`}
-                          forInput={`questionText-${index}`}
+                          label={'Question ${index + 1}'}
+                          forInput={'questionText-${index}'}
                           value={question.text}
                           onChange={(e) => {
                             const updatedFormContent = [...formContent];
@@ -703,15 +704,15 @@ export default function MasterPreTestAdd({ onChangePage }) {
                             <div key={optionIndex} >
                               <input
                                 type="radio"
-                                id={`option_${index}_${optionIndex}`}
-                                name={`option_${index}`}
+                                id={'option_${index}_${optionIndex}'}
+                                name={'option_${index}'}
                                 value={option.value}
                                 // Checked hanya jika value di selectedOptions sama dengan value dari option
                                 checked={selectedOptions[index] === option.value}
                                 onChange={(e) => handleOptionChange(e, index)}
                                 style={{ marginRight: '5px' }}
                               />
-                              <label htmlFor={`option_${index}_${optionIndex}`}>{option.label}</label>
+                              <label htmlFor={'option_${index}_${optionIndex}'}>{option.label}</label>
                             </div>
                           ))}
                         </div>
@@ -736,7 +737,7 @@ export default function MasterPreTestAdd({ onChangePage }) {
                       <div className="col-lg-12 question-input">
                         <Input
                           type="text"
-                          forInput={`pertanyaan_${index}`}
+                          forInput={'pertanyaan_${index}'}
                           value={question.text}
                           onChange={(e) => {
                             const updatedFormContent = [...formContent];
@@ -758,7 +759,7 @@ export default function MasterPreTestAdd({ onChangePage }) {
                         <div className="col-lg-12 d-flex align-items-center form-check">
                           <div className="d-flex flex-column w-100">
                             <FileUpload
-                              forInput={`fileInput_${index}`}
+                              forInput={'fileInput_${index}'}
                               formatFile=".jpg,.png"
                               label={<span className="file-upload-label">Gambar (.jpg, .png)</span>}
                               onChange={(e) => handleFileChange(e, index)} // Memanggil handleFileChange dengan indeks
@@ -782,8 +783,8 @@ export default function MasterPreTestAdd({ onChangePage }) {
                             <div key={optionIndex} className="form-check" style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
                               <input
                                 type="radio"
-                                id={`option_${index}_${optionIndex}`}
-                                name={`option_${index}`}
+                                id={'option_${index}_${optionIndex}'}
+                                name={'option_${index}'}
                                 value={option.value}
                                 checked={selectedOptions[index] === option.value}
                                 onChange={(e) => handleOptionChange(e, index)}
@@ -805,7 +806,7 @@ export default function MasterPreTestAdd({ onChangePage }) {
                               />
                               <input
                                 type="number"
-                                id={`optionPoint_${index}_${optionIndex}`}
+                                id={'optionPoint_${index}_${optionIndex}'}
                                 value={option.point}
                                 className="btn-sm ms-2 px-2 py-0"
                                 onChange={(e) => handleOptionPointChange(e, index, optionIndex)}
@@ -863,10 +864,10 @@ export default function MasterPreTestAdd({ onChangePage }) {
           <Button
             classType="dark ms-3 px-4 py-2"
             label="Berikutnya"
-            onClick={() => onChangePage("materiEdit")}
+            onClick={() => onChangePage("materiEdit",AppContext_test.DetailMateriEdit)}
           />
         </div>
       </form>
-    </>
-  );
+  </>
+   );
 }

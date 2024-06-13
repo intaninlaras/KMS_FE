@@ -207,7 +207,7 @@ export default function MasterSharingAdd({ onChangePage }) {
           <Button
             classType="outline-secondary me-2 px-4 py-2"
             label="Kembali"
-            onClick={() => onChangePage("materiEdit")}
+            onClick={() => onChangePage("materiEdit",AppContext_test.DetailMateriEdit)}
           />
           <Button
             classType="primary ms-2 px-4 py-2"
@@ -217,7 +217,7 @@ export default function MasterSharingAdd({ onChangePage }) {
           <Button
             classType="dark ms-3 px-4 py-2"
             label="Berikutnya"
-            onClick={() => onChangePage("forumEdit")}
+            onClick={() => onChangePage("forumEdit",AppContext_test.DetailMateriEdit)}
           />
         </div>
       </form>

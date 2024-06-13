@@ -7,6 +7,7 @@ const Input = forwardRef(function Input(
     type = "text",
     placeholder = "",
     isRequired = false,
+    isDisabled = false,
     errorMessage,
     ...props
   },
@@ -25,27 +26,69 @@ const Input = forwardRef(function Input(
               ""
             )}
           </label>
-          <input
-            id={forInput}
-            name={forInput}
-            type={type}
-            className="form-control"
-            placeholder={placeholder}
-            ref={ref}
-            {...props}
-          />
+          {type === "textarea" && (
+            <textarea
+              rows="5"
+              id={forInput}
+              name={forInput}
+              className="form-control"
+              placeholder={placeholder}
+              ref={ref}
+              disabled={isDisabled}
+              {...props}
+            ></textarea>
+          )}
+          {type !== "textarea" && (
+            <input
+              id={forInput}
+              name={forInput}
+              type={type}
+              className="form-control"
+              placeholder={placeholder}
+              ref={ref}
+              disabled={isDisabled}
+              {...props}
+            />
+          )}
         </div>
       )}
       {label === "" && (
-        <input
-          id={forInput}
-          name={forInput}
-          type={type}
-          className="form-control"
-          placeholder={placeholder}
-          ref={ref}
-          {...props}
-        />
+        <>
+          {type === "textarea" && (
+            <textarea
+              rows="5"
+              id={forInput}
+              name={forInput}
+              className="form-control"
+              placeholder={placeholder}
+              ref={ref}
+              disabled={isDisabled}
+              {...props}
+            ></textarea>
+          )}
+          {type !== "textarea" && (
+            <input
+              id={forInput}
+              name={forInput}
+              type={type}
+              className="form-control"
+              placeholder={placeholder}
+              ref={ref}
+              disabled={isDisabled}
+              {...props}
+            />
+          )}
+          {errorMessage ? (
+            <span className="small ms-1 text-danger">
+              {placeholder.charAt(0).toUpperCase() +
+                placeholder.substr(1).toLowerCase() +
+                " " +
+                errorMessage}
+            </span>
+          ) : (
+            ""
+          )}
+        </>
       )}
     </>
   );

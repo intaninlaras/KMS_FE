@@ -88,39 +88,41 @@ export default function DetailSharingExpert({ onChangePage, withID }) {
           <div className="card-body p-4">
             {hasVideo || hasPDF ? (
               <div className="row">
-                <div className="col-lg-6">
-                  {hasVideo ? (
-                    <video
-                      id="video"
-                      controls
+              <div className="col-lg-12">
+                <div className="d-flex flex-column align-items-center justify-content-center">
+                  {hasPDF ? (
+                    <object
+                      data={withID.Sharing_pdf}
+                      type="application/pdf"
                       width="100%"
-                      height="auto"
-                      style={{ marginBottom: "10px" }}
+                      height="500"
+                      style={{ height: pdfHeight, marginBottom: "20px" }}  // Add marginBottom for spacing
                     >
-                      <source src={withID.Sharing_video} type="video/mp4" />
-                      Your browser does not support the video tag.
-                    </video>
+                      <p>Maaf, browser Anda tidak mendukung Preview File. Silakan <a href={withID.Sharing_pdf}>unduh File</a> untuk melihatnya.</p>
+                    </object>
                   ) : (
-                    <p>Video tidak tersedia atau URL tidak valid.</p>
+                    <p>PDF tidak tersedia atau URL tidak valid.</p>
                   )}
                 </div>
-                <div className="col-lg-6">
-                  <div className="d-flex flex-column align-items-center justify-content-center">
-                    {hasPDF ? (
-                      <object
-                        data={withID.Sharing_pdf}
-                        type="application/pdf"
-                        width="100%"
-                        style={{ height: pdfHeight }}
-                      >
-                        <p>Maaf, browser Anda tidak mendukung Preview File. Silakan <a href={withID.Sharing_pdf}>unduh File</a> untuk melihatnya.</p>
-                      </object>
-                    ) : (
-                      <p>PDF tidak tersedia atau URL tidak valid.</p>
-                    )}
-                  </div>
-                </div>
               </div>
+              <div className="col-lg-12">
+                {hasVideo ? (
+                  <video
+                    id="video"
+                    controls
+                    width="100%"
+                    height="500"
+                    style={{ marginBottom: "10px" }}
+                  >
+                    <source src={withID.Sharing_video} type="video/mp4" />
+                    Your browser does not support the video tag.
+                  </video>
+                ) : (
+                  <p>Video tidak tersedia atau URL tidak valid.</p>
+                )}
+              </div>
+              
+            </div>
             ) : (
               <div className="alert alert-warning" role="alert">
                 Tidak ada data sharing yang tersedia.

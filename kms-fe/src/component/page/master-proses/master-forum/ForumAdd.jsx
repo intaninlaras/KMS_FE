@@ -10,6 +10,7 @@ import { Stepper } from 'react-form-stepper';
 import UseFetch from "../../../util/UseFetch";  
 import { API_LINK } from "../../../util/Constants";  
 import AppContext_test from "../MasterContext";
+import { Editor } from '@tinymce/tinymce-react';
 
 const userSchema = object({
   forumJudul: string().max(100, "maksimum 100 karakter").required("harus diisi"),
@@ -155,7 +156,7 @@ export default function MasterForumAdd({ onChangePage }) {
                   isRequired 
                 />
               </div>
-              <div className="col-lg-12">
+              {/* <div className="col-lg-12">
                 <div className="form-group">
                   <label htmlFor="forumIsi" className="form-label fw-bold">
                     Isi Forum <span style={{color: "Red"}}> *</span>
@@ -166,6 +167,35 @@ export default function MasterForumAdd({ onChangePage }) {
                     className={`form-control ${errors.forumIsi ? 'is-invalid' : ''}`}
                     value={formData.forumIsi}
                     onChange={handleInputChange}
+                  />
+                  {errors.forumIsi && (
+                    <div className="invalid-feedback">{errors.forumIsi}</div>
+                  )}
+                </div>
+              </div> */}
+              <div className="col-lg-16">
+                <div className="form-group">
+                  <label htmlFor="forumIsi" className="form-label fw-bold">
+                    Isi Forum <span style={{ color: 'Red' }}> *</span>
+                  </label>
+                  <Editor
+                    id="forumIsi"
+                    value={formData.forumIsi}
+                    onEditorChange={(content) => handleInputChange({ target: { name: 'forumIsi', value: content } })}
+                    apiKey='v5s2v6diqyjyw3k012z4k2o0epjmq6wil26i10xjh53bbk7y'
+                    init={{
+                      height: 300,
+                      menubar: false,
+                      plugins: [
+                        'advlist autolink lists link image charmap print preview anchor',
+                        'searchreplace visualblocks code fullscreen',
+                        'insertdatetime media table paste code help wordcount'
+                      ],
+                      toolbar:
+                        'undo redo | formatselect | bold italic backcolor | \
+                        alignleft aligncenter alignright alignjustify | \
+                        bullist numlist outdent indent | removeformat | help'
+                    }}
                   />
                   {errors.forumIsi && (
                     <div className="invalid-feedback">{errors.forumIsi}</div>
