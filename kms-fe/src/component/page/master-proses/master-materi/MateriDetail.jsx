@@ -94,58 +94,53 @@ export default function MasterMateriDetail({ onChangePage, withID }) {
 
                     <div className="card mt-4" style={{ borderColor: "#67ACE9" }}>
                         <div className="card-header fw-medium text-white" style={{ backgroundColor: "#67ACE9" }}>
-                            <h3 className="card-title">{withID.Judul}</h3>
+                            {/* <h3 className="card-title">{withID.Judul}</h3> */}
                         </div>
                         <div className="card-body">
                             <div className="row">
-                                <div className="col-lg-6">
+                                <div className="col-lg-3 d-flex align-items-center justify-content-center">
                                     <img
-                                        id="image"
                                         src={withID.Gambar}
                                         alt="gambar"
                                         className="img-fluid"
-                                        style={{ maxWidth: "100%", height: "auto", marginBottom: "10px" }}
+                                        style={{ width: "300px", height: "500px", marginBottom:"10px" }}
                                     />
                                 </div>
-                                <div className="col-lg-6">
-                                    <h4 className="mb-3 mt-0">Deskripsi</h4>
-                                    <p className="pb-3">{withID.Keterangan}</p>
-                                    <h4 className="mb-3 mt-0">Pengenalan</h4>
-                                    <p className="pb-3">{withID.Pengenalan}</p>
-                                    <h4 className="mb-3 mt-0">Kata Kunci</h4>
-                                    <p className="text-dark fw-medium mb-0">
-                                        {Array.isArray(withID["Kata Kunci"])
-                                            ? withID["Kata Kunci"].join(", ")
-                                            : withID["Kata Kunci"]}
-                                    </p>
-                                </div>
-                            </div>
-                            <div className="row mt-3">
-                                <div className="col-lg-12">
-                                    {withID.File_video && isValidUrl(withID.File_video) ? (
+                                {withID.File_pdf && (
+                                    <div className="mt-0 col-lg-9 mb-2">
+                                        {/* <h4 className="mb-3">Pratinjau PDF</h4> */}
+                                        <object data={withID.File_pdf} type="application/pdf" width="100%" height="500">
+                                            <p>Maaf, browser Anda tidak mendukung Preview File. Silakan <a href={withID.File_pdf}>unduh File</a> untuk melihatnya.</p>
+                                        </object>
+                                    </div>
+                                )}
+                                {withID.File_video && isValidUrl(withID.File_video) && (
+                                    <div className={`mt-0 col-lg-9 mb-2 d-flex mx-auto text-center`}>
                                         <video
                                             id="video"
                                             controls
                                             width="100%"
-                                            height="auto"
+                                            height="500"
                                             style={{ marginBottom: "10px" }}
                                         >
                                             <source src={withID.File_video} type="video/mp4" />
                                             Your browser does not support the video tag.
                                         </video>
-                                    ) : (
-                                        <p>Video tidak tersedia atau URL tidak valid.</p>
-                                    )}
-                                </div>
-                                <div className="col-lg-12">
-                                    <object
-                                        data={withID.File_pdf}
-                                        type="application/pdf"
-                                        width="100%"
-                                        style={{ height: pdfHeight }}
-                                    >
-                                        <p>Maaf, browser Anda tidak mendukung Preview File. Silakan <a href={withID.File_pdf}>unduh File</a> untuk melihatnya.</p>
-                                    </object>
+                                    </div>
+                                )}
+                                <hr />
+                                <div className="col-md-9">
+                                    <h1 className="mb-3 mt-0">{withID.Judul}</h1>
+                                    <h4 className="mb-3 mt-0">Deskripsi</h4>
+                                    <p className="pb-3">{withID.Keterangan}</p>
+                                    <p className="text-dark fw-medium mb-0">Pengenalan</p>
+                                    <p className="pb-3">{withID.Pengenalan}</p>
+                                    <p className="text-dark fw-medium mb-0">Kata kunci </p>
+                                    <span>
+                                        {Array.isArray(withID["Kata Kunci"])
+                                            ? withID["Kata Kunci"].join(", ")
+                                            : withID["Kata Kunci"]}
+                                    </span>
                                 </div>
                             </div>
                         </div>

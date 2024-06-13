@@ -10,20 +10,18 @@ import { validateAllInputs, validateInput } from "../../../util/ValidateForm";
 import { API_LINK } from "../../../util/Constants";
 import FileUpload from "../../../part/FileUpload";
 import uploadFile from "../../../util/UploadImageQuiz";
-import { Editor } from '@tinymce/tinymce-react';
-import Swal from 'sweetalert2';
+import AppContext_test from "../MasterContext";
 
-export default function MasterPreTestEdit({ onChangePage, withID }) {
-    const [formContent, setFormContent] = useState([]);
-    const [selectedOptions, setSelectedOptions] = useState([]);
-    const [errors, setErrors] = useState({});
-    const [isError, setIsError] = useState({ error: false, message: "" });
-    const [isLoading, setIsLoading] = useState(false);
-    const [correctAnswers, setCorrectAnswers] = useState({});
-    const [selectedFile, setSelectedFile] = useState(null);
-    const [timer, setTimer] = useState('');
-    const [minimumScore, setMinimumScore] = useState();
-    const gambarInputRef = useRef(null);
+export default function MasterPreTestAdd({ onChangePage,withID}) {
+  const [formContent, setFormContent] = useState([]);
+  const [selectedOptions, setSelectedOptions] = useState([]);
+  const [errors, setErrors] = useState({});
+  const [isLoading, setIsLoading] = useState(false);
+  const [correctAnswers, setCorrectAnswers] = useState({});
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [timer, setTimer] = useState('');
+  const [minimumScore, setMinimumScore] = useState();
+  const gambarInputRef = useRef(null);
 
     const [formData, setFormData] = useState({
         quizId: '',

@@ -311,7 +311,16 @@ export default function MasterCourseAdd({ onChangePage }) {
                 />
               </div>
               <div className="col-lg-16">
-                <div className="form-group">
+                <Input
+                  type="textarea"
+                  forInput="mat_keterangan"
+                  label="Keterangan Materi"
+                  isRequired
+                  value={formDataRef.current.mat_keterangan}
+                  onChange={handleInputChange}
+                  errorMessage={errors.mat_keterangan}
+                />
+                {/* <div className="form-group">
                   <label htmlFor="deskripsiMateri" className="form-label fw-bold">
                     Deskripsi Materi <span style={{color: "Red"}}> *</span>
                   </label>
@@ -323,11 +332,11 @@ export default function MasterCourseAdd({ onChangePage }) {
                     value={formDataRef.current.mat_keterangan}
                     onChange={handleInputChange}
                     required
-                  />
-                  {errors.mat_keterangan && (
+                  /> */}
+                  {/* {errors.mat_keterangan && (
                     <div className="invalid-feedback">{errors.mat_keterangan}</div>
-                  )}
-                </div>
+                  )} */}
+                {/* </div> */}
               </div>
               <div className="col-lg-16">
                 <div className="form-group">
