@@ -1,10 +1,11 @@
 import { useRef, useState } from "react";
 import Button from "../../part/Button";
+import FilePreview from "../../part/FilePreview";
 
 export default function MasterDaftarPustakaDetail({ onChangePage, withID }) {
   const [isError, setIsError] = useState({ error: false, message: "" });
   const [isLoading, setIsLoading] = useState(true);
-  console.log("DA: " + withID);
+  console.log(withID);
 
   return (
     <>
@@ -28,18 +29,19 @@ export default function MasterDaftarPustakaDetail({ onChangePage, withID }) {
               />
             </div>
             {/* Preview PDF */}
-            <div className="mt-0 col-lg-9 mb-2">
+            {/* <div className="mt-0 col-lg-9 mb-2"> */}
               {/* <h4 className="mb-3">Pratinjau PDF</h4> */}
               {/* Ganti "file.pdf" dengan sumber PDF yang sesuai */}
-              <object
+              {/* <object
                 data={withID.File}
                 type="application/pdf"
                 width="100%"
                 height="500"
-              >
+              > */}
                 {/* <p>Maaf, browser Anda tidak mendukung Preview File. Silakan <a href={Video}>unduh File</a> untuk melihatnya.</p> */}
-              </object>
-            </div>
+              {/* </object> */}
+              <FilePreview file={withID.File} orginalFileName={withID.fls} />
+            {/* </div> */}
             <hr />
             <div className="col-md-12">
               <h1 className="mb-3 mt-0 text-center">{withID.Judul}</h1>

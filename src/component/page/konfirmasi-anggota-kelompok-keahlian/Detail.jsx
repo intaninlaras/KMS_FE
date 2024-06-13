@@ -101,9 +101,9 @@ export default function KonfirmasiAnggotaDetail({ onChangePage, withID }) {
           if (value["Lampiran"]) {
             const filePromise = fetch(
               API_LINK +
-                `Utilities/Upload/DownloadFile?namaFile=${encodeURIComponent(
-                  value["Lampiran"]
-                )}`
+              `Utilities/Upload/DownloadFile?namaFile=${encodeURIComponent(
+                value["Lampiran"]
+              )}`
             )
               .then((response) => response.blob())
               .then((blob) => {
@@ -237,7 +237,9 @@ export default function KonfirmasiAnggotaDetail({ onChangePage, withID }) {
                     <span>PIC : {formData.PIC}</span>
                   </div>
                   <hr className="mb-0" style={{ opacity: "0.2" }} />
-                  <p className="py-3">{formData.Deskripsi}</p>
+                  <p className="py-3" style={{
+                    textAlign: "justify"
+                  }}>{formData.Deskripsi}</p>
                 </div>
                 <div className="col-lg-5">
                   {/* <p>3 orang baru saja bergabung!</p> */}
@@ -384,7 +386,8 @@ export default function KonfirmasiAnggotaDetail({ onChangePage, withID }) {
                                   target="_blank"
                                   rel="noopener noreferrer"
                                 >
-                                  {listNamaFile[index].Lampiran}
+                                  {/* {listNamaFile[index].Lampiran} */}
+                                  Lampiran {index + 1} {withID["Nama Kelompok Keahlian"]}
                                 </a>
                               ) : (
                                 "-"
@@ -424,7 +427,7 @@ export default function KonfirmasiAnggotaDetail({ onChangePage, withID }) {
               </div>
             </div>
           </div>
-          
+
           <div className="float-end my-4 mx-1">
             <Button
               classType="secondary me-2 px-4 py-2"

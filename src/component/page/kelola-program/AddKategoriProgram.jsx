@@ -121,7 +121,7 @@ export default function KategoriProgramAdd({ onChangePage, withID }) {
                   <Input
                     type="text"
                     forInput="nama"
-                    label="Nama Program"
+                    label="Nama Kategori"
                     isRequired
                     placeholder="Nama Mata Kuliah (Kelompok Keilmuan)"
                     value={formDataRef.current.nama}
@@ -131,7 +131,7 @@ export default function KategoriProgramAdd({ onChangePage, withID }) {
                 </div>
                 <div className="col-lg-12">
                   <label style={{ paddingBottom: "5px", fontWeight: "bold" }}>
-                    Deskripsi/Penjelasan Singkat Mata Kuliah{" "}
+                    Deskripsi/Penjelasan Singkat Kategori{" "}
                     <span style={{ color: "red" }}> *</span>
                   </label>
                   <textarea

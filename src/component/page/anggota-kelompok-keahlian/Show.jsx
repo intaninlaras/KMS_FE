@@ -197,7 +197,7 @@ export default function AnggotaDetail({ onChangePage, withID }) {
       if (confirm) {
         UseFetch(API_LINK + "AnggotaKK/SetStatusAnggotaKK", {
           idAkk: id,
-          status: "Tidak Aktif",
+          status: "Dibatalkan",
         })
           .then((data) => {
             if (data === "ERROR" || data.length === 0) setIsError(true);
@@ -222,22 +222,34 @@ export default function AnggotaDetail({ onChangePage, withID }) {
     setIsLoading(true);
     setIsError(false);
 
-    UseFetch(API_LINK + "AnggotaKK/TambahAnggotaByPIC", {
-      idAkk: formDataRef.current.key,
-      kry: id,
-    })
-      .then((data) => {
-        if (data === "ERROR" || data.length === 0) setIsError(true);
-        else {
-          SweetAlert(
-            "Berhasil",
-            "Karyawan telah ditambahkan ke Anggota Keahlian.",
-            "success"
-          );
-          handleSetCurrentPage(currentFilter.page);
-        }
-      })
-      .finally(() => setIsLoading(false));
+    SweetAlert(
+      "Konfirmasi Tambah",
+      "Anda yakin ingin menambahkan anggota ini dari Keahlian?",
+      "info",
+      "Ya"
+    ).then((confirm) => {
+      if (confirm) {
+        UseFetch(API_LINK + "AnggotaKK/TambahAnggotaByPIC", {
+          idAkk: formDataRef.current.key,
+          kry: id,
+        })
+          .then((data) => {
+            if (data === "ERROR" || data.length === 0) setIsError(true);
+            else {
+              SweetAlert(
+                "Berhasil",
+                "Karyawan telah ditambahkan ke Anggota Keahlian.",
+                "success"
+              );
+              handleSetCurrentPage(currentFilter.page);
+            }
+          })
+          .finally(() => setIsLoading(false));
+      } else {
+        setIsLoading(false);
+        console.log("Penghapusan dibatalkan.");
+      }
+    });
   };
 
   const handleProdiChange = (e) => {

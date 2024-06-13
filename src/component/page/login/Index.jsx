@@ -61,7 +61,7 @@ export default function Login() {
 
       try {
         // Ensure the UseFetch function sends a POST request
-        const data = await UseFetch(
+        let data = await UseFetch(
           API_LINK + "Utilities/Login",
           formDataRef.current
         );

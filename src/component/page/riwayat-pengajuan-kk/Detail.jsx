@@ -209,7 +209,8 @@ export default function PengajuanDetail({ onChangePage, withID }) {
                                 target="_blank"
                                 rel="noopener noreferrer"
                               >
-                                {listNamaFile[index]?.Lampiran}
+                                {/* {listNamaFile[index]?.Lampiran} */}
+                                Lampiran {index + 1} {withID["Nama Kelompok Keahlian"]}
                               </a>
                             ) : (
                               "Tidak ada lampiran"

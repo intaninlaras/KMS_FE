@@ -45,7 +45,7 @@ const CardProgram = ({
           isActive ? "align-items-center border-bottom border-primary" : ""
         }`}
       >
-        <p className="fw-medium mb-0 text-center" style={{ width: "15%" }}>
+        <p className="fw-medium mb-0" style={{ width: "15%", borderRight: "solid grey 1px", }}>
           {data["Nama Program"]}
         </p>
         <p

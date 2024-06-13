@@ -225,7 +225,7 @@ export default function ProgramIndex({ onChangePage }) {
               setIsError({
                 error: true,
                 message:
-                  "Terjadi kesalahan: Gagal menghapus program karena sudah terdapat Draft Mata Kuliah.",
+                  "Terjadi kesalahan: Gagal menghapus program karena sudah terdapat Draft Kategori.",
               });
             } else {
               SweetAlert("Sukses", "Data berhasil dihapus.", "success");
@@ -268,7 +268,7 @@ export default function ProgramIndex({ onChangePage }) {
               setIsError({
                 error: true,
                 message:
-                  "Terjadi kesalahan: Gagal menonaktifkan program karena terdapat mata kuliah berstatus Aktif.",
+                  "Terjadi kesalahan: Gagal menonaktifkan Program karena terdapat kategori berstatus Aktif.",
               });
             } else {
               let message;
@@ -347,14 +347,14 @@ export default function ProgramIndex({ onChangePage }) {
               setIsError({
                 error: true,
                 message:
-                  "Terjadi kesalahan: Gagal publikasi mata kuliah karena Program masih berstatus Draft.",
+                  "Terjadi kesalahan: Gagal publikasi Kategori karena Program masih berstatus Draft.",
               });
             } else if (data[0].hasil === "ERROR PROGRAM TIDAK AKTIF") {
               console.log(data);
               setIsError({
                 error: true,
                 message:
-                  "Terjadi kesalahan: Gagal mengaktifkan mata kuliah karena Program berstatus Tidak aktif.",
+                  "Terjadi kesalahan: Gagal mengaktifkan Kategori karena Program berstatus Tidak aktif.",
               });
             } else {
               let message;

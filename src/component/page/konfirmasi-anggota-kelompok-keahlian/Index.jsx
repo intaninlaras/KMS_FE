@@ -10,6 +10,7 @@ import CardKonfirmasi from "../../part/CardKonfirmasi";
 import Icon from "../../part/Icon";
 import Loading from "../../part/Loading";
 import Alert from "../../part/Alert";
+import axios from 'axios';
 
 export default function KonfrimasiAnggotaIndex({ onChangePage }) {
   const [isError, setIsError] = useState({ error: false, message: "" });
@@ -42,30 +43,60 @@ export default function KonfrimasiAnggotaIndex({ onChangePage }) {
     }
   };
 
-  const getListAnggota = async (idKK, index) => {
-    try {
-      while (true) {
-        let data = await UseFetch(API_LINK + "AnggotaKK/GetAnggotaKK", {
-          page: 1,
-          query: "",
-          sort: "[Nama Anggota] ASC",
-          status: "",
-          kke_id: idKK,
-        });
+  const getListAnggotaOld = async (idKK, index) => {
+    setIsError({ error: false, message: "" });
+    setIsLoading(true);
 
-        if (data === "ERROR") {
-          throw new Error("Terjadi kesalahan: Gagal mengambil daftar anggota.");
-        } else if (data.length === 0) {
-          await new Promise((resolve) => setTimeout(resolve, 2000));
-        } else {
-          setListAnggota((prevListAnggota) => {
-            const newListAnggota = [...prevListAnggota];
-            newListAnggota[index] = data[0] === "data kosong" ? [] : data;
-            return newListAnggota;
-          });
-          break;
+    try {
+      let data = await await axios.post(API_LINK + "AnggotaKK/GetAnggotaKK", {
+        page: 1,
+        query: "",
+        sort: "[Nama Anggota] ASC",
+        status: "",
+        kke_id: idKK,
+      });
+
+      if (data.data[0] === "ERROR") {
+        throw new Error("Terjadi kesalahan: Gagal mengambil daftar anggota.");
+      } else if (data.data.length < 1) {
+        await new Promise((resolve) => setTimeout(resolve, 2000));
+        await getListAnggota(idKK, index);
+      } else {
+        setListAnggota((prevListAnggota) => {
+          const newListAnggota = [...prevListAnggota];
+          newListAnggota[index] = data.data[0] === "data kosong" ? [] : data.data;
+          return newListAnggota;
+        });
+        console.log("terpanggil " + idKK + "di index " + index)
+        if (currentData.length === index + 1) {
+          console.log("berenti")
+          setIsLoading(false);
         }
       }
+
+      // while (true) {
+      //   let data = await UseFetch(API_LINK + "AnggotaKK/GetAnggotaKK", {
+      //     page: 1,
+      //     query: "",
+      //     sort: "[Nama Anggota] ASC",
+      //     status: "",
+      //     kke_id: idKK,
+      //   });
+
+      //   if (data === "ERROR") {
+      //     throw new Error("Terjadi kesalahan: Gagal mengambil daftar anggota.");
+      //   } else if (data.length === 0) {
+      //     await new Promise((resolve) => setTimeout(resolve, 2000));
+      //   } else {
+      //     setListAnggota((prevListAnggota) => {
+      //       const newListAnggota = [...prevListAnggota];
+      //       newListAnggota[index] = data[0] === "data kosong" ? [] : data;
+      //       return newListAnggota;
+      //     });
+      //     console.log(data);
+      //     break;
+      //   }
+      // }
     } catch (e) {
       setIsLoading(false);
       console.log(e.message);
@@ -77,15 +108,67 @@ export default function KonfrimasiAnggotaIndex({ onChangePage }) {
     }
   };
 
+  const getListAnggota = (idKK, index) => {
+    return new Promise(async (resolve, reject) => {
+      setIsError({ error: false, message: "" });
+
+      try {
+        let data = await axios.post(API_LINK + "AnggotaKK/GetAnggotaKK", {
+          page: 1,
+          query: "",
+          sort: "[Nama Anggota] ASC",
+          status: "",
+          kke_id: idKK,
+        });
+
+        if (data.data === "ERROR") {
+          throw new Error("Terjadi kesalahan: Gagal mengambil daftar anggota.");
+        } else if (data.data.length < 1 || data.status === 500) {
+          await new Promise((resolve) => setTimeout(resolve, 2000));
+          await getListAnggota(idKK, index);
+        } else {
+          setListAnggota((prevListAnggota) => {
+            const newListAnggota = [...prevListAnggota];
+            newListAnggota[index] = data.data[0] === "data kosong" ? [] : data.data;
+            return newListAnggota;
+          });
+          console.log("terpanggil " + idKK + "di index " + index);
+        }
+
+        resolve();
+      } catch (e) {
+        console.log(e.message);
+        setIsError((prevError) => ({
+          ...prevError,
+          error: true,
+          message: e.message,
+        }));
+        reject(e);
+      }
+    });
+  };
+
+
   useEffect(() => {
     getListKK();
   }, []);
 
   useEffect(() => {
     if (currentData.length > 0) {
-      currentData.forEach((val, index) => {
-        getListAnggota(val.Key, index);
-      });
+      setIsLoading(true); 
+      const promises = currentData.map((val, index) => getListAnggota(val.Key, index));
+      Promise.all(promises)
+        .then(() => {
+          setIsLoading(false);
+        })
+        .catch((e) => {
+          console.log(e.message);
+          setIsError({
+            error: true,
+            message: e.message,
+          });
+          setIsLoading(false);
+        });
     }
   }, [currentData]);
 

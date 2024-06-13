@@ -235,9 +235,9 @@ export default function MasterDaftarPustakaAdd({ onChangePage, withID }) {
                 <FileUpload
                   ref={fileInputRef}
                   forInput="pus_file"
-                  label="File Pustaka (.pdf, .mp4)"
-                  formatFile=".pdf,.mp4"
-                  onChange={() => handleFileChange(fileInputRef, "pdf,mp4")}
+                  label="File Pustaka (.pdf, .docx, .xlsx, .pptx, .mp4)"
+                  formatFile=".pdf,.docx,.xlsx,.pptx,.mp4"
+                  onChange={() => handleFileChange(fileInputRef, "pdf,docx,xlsx,pptx,mp4")}
                   errorMessage={errors.pus_file}
                 />
               </div>
