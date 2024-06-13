@@ -23,6 +23,8 @@ import MasterPostTestEdit from "./master-posttest/PostTestEdit";
 import MasterPostTestDetail from "./master-posttest/PostTestDetail";
 // Kelompok Keahlian
 import PilihKelompokKeahlian from "./Kelompok_Keahlian";
+// import Masterpustakaa from "./pustaka";
+
 //
 import "../../../index.css";
 
@@ -70,7 +72,7 @@ export default function MasterProses() {
         return <MasterSharingAdd 
                 onChangePage={handleSetPageMode}
                 withID={dataID}
-                withIDKategori={dataID2}/>;
+               />;
       case "sharingEdit":
         return <MasterSharingEdit 
                 onChangePage={handleSetPageMode}
@@ -106,6 +108,9 @@ export default function MasterProses() {
       case "kk":
         return <PilihKelompokKeahlian 
                 onChangePage={handleSetPageMode} />;
+        //         case "pustaka":
+        // return <Masterpustakaa 
+        //         onChangePage={handleSetPageMode} />;
     }
   }
 

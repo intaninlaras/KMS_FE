@@ -23,23 +23,15 @@ function CardMateri({
   };
 
   const handleStatusChange = (book) => {
-      // console.log(`Status buku ${book.Key} diubah`);
-      onStatus(book.Key);
-  };
+    console.log(`Status buku ${book.Key} diubah`);
+    onStatus(book.Key);
+};
 
-  const handleBacaMateri = (book) => {
-    AppContext_test.materiId = book.Key;
-    onBacaMateri("pengenalan", true, book.Key, true);
-  };
 
   return (
     <>
       {materis.map((book) => {
-        // console.log(book)
-        const isDataReadyTemp = true;
-        const materiIdTemp = book.Key;
 
-        const isOpenTemp = true;
         if (book.Key == null) {
           return null;
         }
@@ -107,7 +99,7 @@ function CardMateri({
                       <button
                         className="btn btn-sm text-primary"
                         title="Edit Materi"
-                        onClick={() => onEdit("materiEdit", book)}
+                        onClick={() => onEdit("pretestEdit", AppContext_test.DetailMateriEdit = book)}
                       >
                         <i className="fas fa-edit"></i>
                       </button>
@@ -171,4 +163,4 @@ function CardMateri({
   );
 }
 
-export default CardMateri;
+export default  CardMateri;

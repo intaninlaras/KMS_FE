@@ -14,7 +14,6 @@ import Alert from "../../../part/Alert";
 import { Stepper } from 'react-form-stepper';
 import uploadFile from "../../../util/UploadFile";
 import AppContext_test from "../MasterContext";
-
 import { Editor } from '@tinymce/tinymce-react';
 
 export default function MasterCourseEdit({onChangePage,withID}) {
@@ -264,6 +263,7 @@ export default function MasterCourseEdit({onChangePage,withID}) {
                   value={listKategori.find((item) => item.value === formDataRef.current.kat_id)?.label || ""}
                   disabled
                   errorMessage={errors.kat_id}
+                  
                 />
                 
               </div>
@@ -276,6 +276,7 @@ export default function MasterCourseEdit({onChangePage,withID}) {
                   value={formDataRef.current.mat_judul}
                   onChange={handleInputChange}
                   errorMessage={errors.mat_judul}
+                  isRequired
                 />
               </div>
               <div className="col-lg-6">
@@ -287,10 +288,11 @@ export default function MasterCourseEdit({onChangePage,withID}) {
                   value={formDataRef.current.mat_kata_kunci}
                   onChange={handleInputChange}
                   errorMessage={errors.mat_kata_kunci}
+                  isRequired
                 />
               </div>
               <div className="col-lg-16">
-                <div className="form-group">
+                {/* <div className="form-group">
                   <label htmlFor="deskripsiMateri" className="form-label fw-bold">
                   Deskripsi Materi <span style={{color:"Red"}}> *</span>
                   </label>
@@ -306,7 +308,16 @@ export default function MasterCourseEdit({onChangePage,withID}) {
                   {errors.deskripsiMateri && (
                     <div className="invalid-feedback">{errors.deskripsiMateri}</div>
                   )}
-                </div>
+                </div> */}
+                <Input
+                  type="textarea"
+                  forInput="mat_keterangan"
+                  label="Keterangan Materi"
+                  isRequired
+                  value={formDataRef.current.mat_keterangan}
+                  onChange={handleInputChange}
+                  errorMessage={errors.mat_keterangan}
+                />
               </div>
               <div className="col-lg-16">
                 <div className="form-group">
@@ -347,6 +358,7 @@ export default function MasterCourseEdit({onChangePage,withID}) {
                     handleFileChange(gambarInputRef, "jpg,png")
                   }
                   errorMessage={errors.mat_gambar}
+                  isRequired
                 />
               </div>
               <div className="col-lg-4">
@@ -359,6 +371,7 @@ export default function MasterCourseEdit({onChangePage,withID}) {
                     handleFileChange(fileInputRef, "pdf")
                   }
                   errorMessage={errors.mat_file_pdf}
+                  isRequired
                 />
               </div>
               <div className="col-lg-4">
@@ -371,6 +384,7 @@ export default function MasterCourseEdit({onChangePage,withID}) {
                     handleFileChange(videoInputRef, "mp4,mov")
                   }
                   errorMessage={errors.mat_file_video}
+                  isRequired
                 />
               </div>
             </div>

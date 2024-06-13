@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from 'react';
 import Button from "../../../part/Button";
 import Alert from "../../../part/Alert";
 import { Stepper } from 'react-form-stepper';
@@ -9,7 +9,7 @@ export default function MasterMateriDetail({ onChangePage, withID }) {
     const [isError, setIsError] = useState({ error: false, message: "" });
     const [isLoading, setIsLoading] = useState(true);
     const [pdfHeight, setPdfHeight] = useState("500px");
-
+    const Materi = AppContext_test.DetailMateri;
     useEffect(() => {
         // Simulate a loading effect
         setTimeout(() => setIsLoading(false), 1000);
@@ -25,11 +25,8 @@ export default function MasterMateriDetail({ onChangePage, withID }) {
     };
 
     useEffect(() => {
-        console.log("Video URL: ", withID.File_video);
-        // Calculate the maximum height of the PDF viewer when image and video are loaded
         const calculatePdfHeight = () => {
             const videoElement = document.getElementById("video");
-            
             if (videoElement) {
                 const videoHeight = videoElement.clientHeight;
                 setPdfHeight(`${videoHeight}px`);
@@ -37,14 +34,17 @@ export default function MasterMateriDetail({ onChangePage, withID }) {
         };
 
         calculatePdfHeight();
-
-        // Re-calculate height when window is resized
         window.addEventListener("resize", calculatePdfHeight);
 
         return () => {
             window.removeEventListener("resize", calculatePdfHeight);
         };
-    }, [withID.File_video]);
+    }, [Materi.File_video]);
+
+    if (isLoading) return <Loading />;
+
+    const hasPDF = Materi.File_pdf;
+    const hasVideo = Materi.File_video && isValidUrl(Materi.File_video);
 
     return (
         <>
@@ -54,117 +54,112 @@ export default function MasterMateriDetail({ onChangePage, withID }) {
                 </div>
             )}
 
-            {isLoading ? (
-                <div> <Loading /></div>
-            ) : (
-                <form>
-                    <div>
-                        <Stepper
-                            steps={[
-                                { label: 'Pretest', onClick: () => onChangePage("pretestDetail") },
-                                { label: 'Materi', onClick: () => onChangePage("courseDetail") },
-                                { label: 'Sharing Expert', onClick: () => onChangePage("sharingDetail") },
-                                { label: 'Forum', onClick: () => onChangePage("forumDetail") },
-                                { label: 'Post Test', onClick: () => onChangePage("posttestDetail") }
-                              ]}
-                            activeStep={1}
-                            styleConfig={{
-                                activeBgColor: '#67ACE9',
-                                activeTextColor: '#FFFFFF',
-                                completedBgColor: '#67ACE9',
-                                completedTextColor: '#FFFFFF',
-                                inactiveBgColor: '#E0E0E0',
-                                inactiveTextColor: '#000000',
-                                size: '2em',
-                                circleFontSize: '1rem',
-                                labelFontSize: '0.875rem',
-                                borderRadius: '50%',
-                                fontWeight: 500
-                            }}
-                            connectorStyleConfig={{
-                                completedColor: '#67ACE9',
-                                activeColor: '#67ACE9',
-                                disabledColor: '#BDBDBD',
-                                size: 1,
-                                stepSize: '2em',
-                                style: 'solid'
-                            }}
-                        />
-                    </div>
+            <form>
+                <div>
+                    <Stepper
+                        steps={[
+                            { label: 'Pretest', onClick: () => onChangePage("pretestDetail") },
+                            { label: 'Materi', onClick: () => onChangePage("courseDetail") },
+                            { label: 'Sharing Expert', onClick: () => onChangePage("sharingDetail") },
+                            { label: 'Forum', onClick: () => onChangePage("forumDetail") },
+                            { label: 'Post Test', onClick: () => onChangePage("posttestDetail") }
+                        ]}
+                        activeStep={1}
+                        styleConfig={{
+                            activeBgColor: '#67ACE9',
+                            activeTextColor: '#FFFFFF',
+                            completedBgColor: '#67ACE9',
+                            completedTextColor: '#FFFFFF',
+                            inactiveBgColor: '#E0E0E0',
+                            inactiveTextColor: '#000000',
+                            size: '2em',
+                            circleFontSize: '1rem',
+                            labelFontSize: '0.875rem',
+                            borderRadius: '50%',
+                            fontWeight: 500
+                        }}
+                        connectorStyleConfig={{
+                            completedColor: '#67ACE9',
+                            activeColor: '#67ACE9',
+                            disabledColor: '#BDBDBD',
+                            size: 1,
+                            stepSize: '2em',
+                            style: 'solid'
+                        }}
+                    />
+                </div>
 
+                <div className="card mt-4" style={{ borderColor: "#67ACE9" }}>
+                    <div className="card-header fw-medium text-white" style={{ backgroundColor: "#67ACE9" }}>
+                        <h3 className="card-title">{Materi.Judul}</h3> 
+                    </div>
+                    <div className="card-body">
+                        <div className="row">
+                            <div className="col-lg-3 d-flex align-items-center justify-content-center">
+                                <img
+                                    src={Materi.Gambar}
+                                    alt="gambar"
+                                    className="img-fluid"
+                                    style={{ width: "100%", height: "auto", maxWidth: "300px", maxHeight: "300px" }}
+                                />
+                            </div>
+                            <div className="col-lg-9 mt-3 mt-lg-0">
+                                <h4>Deskripsi</h4>
+                                <p>{Materi.Keterangan}</p>
+                                <h5>Kata Kunci</h5>
+                                <p>{Array.isArray(Materi["Kata Kunci"]) ? Materi["Kata Kunci"].join(", ") : Materi["Kata Kunci"]}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {hasPDF ? (
                     <div className="card mt-4" style={{ borderColor: "#67ACE9" }}>
                         <div className="card-header fw-medium text-white" style={{ backgroundColor: "#67ACE9" }}>
-                            <h3 className="card-title">{withID.Judul}</h3>
+                            <h5 className="card-title">File Materi (PDF)</h5>
                         </div>
                         <div className="card-body">
-                            <div className="row">
-                                <div className="col-lg-6">
-                                    <img
-                                        id="image"
-                                        src={withID.Gambar}
-                                        alt="gambar"
-                                        className="img-fluid"
-                                        style={{ maxWidth: "100%", height: "auto", marginBottom: "10px" }}
-                                    />
-                                </div>
-                                <div className="col-lg-6">
-                                    <h4 className="mb-3 mt-0">Deskripsi</h4>
-                                    <p className="pb-3">{withID.Keterangan}</p>
-                                    <h4 className="mb-3 mt-0">Pengenalan</h4>
-                                    <p className="pb-3">{withID.Pengenalan}</p>
-                                    <h4 className="mb-3 mt-0">Kata Kunci</h4>
-                                    <p className="text-dark fw-medium mb-0">
-                                        {Array.isArray(withID["Kata Kunci"])
-                                            ? withID["Kata Kunci"].join(", ")
-                                            : withID["Kata Kunci"]}
-                                    </p>
-                                </div>
-                            </div>
-                            <div className="row mt-3">
-                                <div className="col-lg-12">
-                                    {withID.File_video && isValidUrl(withID.File_video) ? (
-                                        <video
-                                            id="video"
-                                            controls
-                                            width="100%"
-                                            height="auto"
-                                            style={{ marginBottom: "10px" }}
-                                        >
-                                            <source src={withID.File_video} type="video/mp4" />
-                                            Your browser does not support the video tag.
-                                        </video>
-                                    ) : (
-                                        <p>Video tidak tersedia atau URL tidak valid.</p>
-                                    )}
-                                </div>
-                                <div className="col-lg-12">
-                                    <object
-                                        data={withID.File_pdf}
-                                        type="application/pdf"
-                                        width="100%"
-                                        style={{ height: pdfHeight }}
-                                    >
-                                        <p>Maaf, browser Anda tidak mendukung Preview File. Silakan <a href={withID.File_pdf}>unduh File</a> untuk melihatnya.</p>
-                                    </object>
-                                </div>
-                            </div>
+                            <object data={Materi.File_pdf} type="application/pdf" width="100%" height={pdfHeight}>
+                                <p>Maaf, browser Anda tidak mendukung preview file. Silakan <a href={Materi.File_pdf}>unduh file</a> untuk melihatnya.</p>
+                            </object>
                         </div>
                     </div>
-                    <div className="float my-4 mx-1">
-                        <Button
-                            classType="outline-secondary me-2 px-4 py-2"
-                            label="Kembali"
-                            onClick={() => onChangePage("pretestDetail",AppContext_test.DetailMateri)}
-                        />
-                        
-                        <Button
-                            classType="dark ms-3 px-4 py-2"
-                            label="Berikutnya"
-                            onClick={() => onChangePage("sharingDetail", AppContext_test.DetailMateri)}
-                        />
+                ) : null}
+
+                {hasVideo ? (
+                    <div className="card mt-4" style={{ borderColor: "#67ACE9" }}>
+                        <div className="card-header fw-medium text-white" style={{ backgroundColor: "#67ACE9" }}>
+                            <h5 className="card-title">Video Materi</h5>
+                        </div>
+                        <div className="card-body">
+                            <video id="video" controls width="100%" height="auto">
+                                <source src={Materi.File_video} type="video/mp4" />
+                                Browser Anda tidak mendukung tag video.
+                            </video>
+                        </div>
                     </div>
-                </form>
-            )}
+                ) : null}
+
+                {!hasPDF && !hasVideo ? (
+                    <div className="alert alert-warning mt-4" role="alert">
+                        Tidak ada materi yang tersedia.
+                    </div>
+                ) : null}
+
+                <div className="float my-4 mx-1">
+                    <Button
+                        classType="outline-secondary me-2 px-4 py-2"
+                        label="Kembali"
+                        onClick={() => onChangePage("pretestDetail", AppContext_test.DetailMateri)}
+                    />
+                    <Button
+                        classType="dark ms-3 px-4 py-2"
+                        label="Berikutnya"
+                        onClick={() => onChangePage("sharingDetail", AppContext_test.DetailMateri)}
+                    />
+                </div>
+                
+            </form>
         </>
     );
 }
