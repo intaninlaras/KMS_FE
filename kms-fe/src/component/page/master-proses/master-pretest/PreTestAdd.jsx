@@ -6,20 +6,12 @@ import Loading from "../../../part/Loading";
 import { Stepper } from 'react-form-stepper';
 import * as XLSX from 'xlsx';
 import axios from 'axios';
-<<<<<<< HEAD:kms-fe/src/component/page/master-proses/PreTestAdd.jsx
-import { validateAllInputs, validateInput } from "../../util/ValidateForm";
-import { API_LINK } from "../../util/Constants";
-import FileUpload from "../../part/FileUpload";
-import uploadFile from "../../util/UploadImageQuiz";
-import Swal from 'sweetalert2';
-=======
 import { validateAllInputs, validateInput } from "../../../util/ValidateForm";
 import { API_LINK } from "../../../util/Constants";
 import FileUpload from "../../../part/FileUpload";
 import uploadFile from "../../../util/UploadImageQuiz";
 import AppContext_test from "../MasterContext";
 
->>>>>>> 9098503c3a3457f67c2ed131e18e247425ba711f:kms-fe/src/component/page/master-proses/master-pretest/PreTestAdd.jsx
 
 export default function MasterPreTestAdd({ onChangePage }) {
   const [formContent, setFormContent] = useState([]);
