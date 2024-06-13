@@ -11,6 +11,7 @@ function CardMateri({
   MAX_DESCRIPTION_LENGTH = 50,
   isNonEdit,
   onBacaMateri,
+  onReviewJawaban,
 }) {
 
   const [expandDeskripsi, setExpandDeskripsi] = useState({});
@@ -135,6 +136,14 @@ function CardMateri({
                           style={{ fontSize: '20px' }}
                         ></i>
                       )}
+                    </button>
+                    <button
+                      className="btn btn-sm text-primary"
+                      title="Detail Materi"
+                      onClick={() => onReviewJawaban("reviewjawaban", AppContext_test.DetailMateri = book)}
+                    >
+
+                      <i className="fas fa-file"></i>
                     </button>
                   </>
                 ) : (
