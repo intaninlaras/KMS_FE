@@ -83,32 +83,40 @@ export default function DetailForum({ onChangePage, withID }) {
 
       {/* Tampilkan data forum jika sudah diambil */}
       <div className="card">
-        <div className="card-header bg-outline-primary fw-medium text-black">
-          Detail Forum
-        </div>
-        <div className="card-body p-4">
-          <div className="row">
-            {forumData ? (
-              <div className="col-lg-12">
-                {/* Tampilkan informasi forum */}
-                {console.log("data forum: ", forumData)}
-                <h6 className="mb-3 mt-0">Materi Forum</h6>
-                <p className="pb-3">{forumData["Judul Materi"]}</p>
-                <h6 className="mb-3 mt-0">Judul Forum</h6>
-                <p className="pb-3">{forumData["Nama Forum"]}</p>
-                <h6 className="mb-3 mt-0">Pembahasan Forum</h6>
-                <p className="pb-3">{forumData["Isi Forum"]}</p>
-                <h6 className="mb-3 mt-0">Penanggung Jawab</h6>
-                <p className="pb-3">{forumData.PIC}</p>
-              </div>
-            ) : (
-              <div className="alert alert-warning" role="alert">
-                Tidak ada data forum yang tersedia.
-              </div>
-            )}
+  <div className="card-header bg-outline-primary fw-bold text-black">
+    Detail Forum
+  </div>
+  <div className="card-body">
+    {forumData ? (
+      <div className="row">
+        <div className="col-lg-12">
+          {/* Tampilkan informasi forum */}
+          <div className="mb-4">
+            <h6 className="mb-0">Materi Forum</h6>
+            <p>{forumData["Judul Materi"]}</p>
+          </div>
+          <div className="mb-4">
+            <h6 className="mb-0">Judul Forum</h6>
+            <p>{forumData["Nama Forum"]}</p>
+          </div>
+          <div className="mb-4">
+            <h6 className="mb-0">Pembahasan Forum</h6>
+            <p>{forumData["Isi Forum"]}</p>
+          </div>
+          <div className="mb-0">
+            <h6 className="mb-0">Penanggung Jawab</h6>
+            <p>{forumData.PIC}</p>
           </div>
         </div>
       </div>
+    ) : (
+      <div className="alert alert-warning" role="alert">
+        Tidak ada data forum yang tersedia.
+      </div>
+    )}
+  </div>
+</div>
+
 
       {/* Tampilkan tombol navigasi */}
       <div className="float my-4 mx-1">

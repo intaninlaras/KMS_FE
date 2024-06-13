@@ -67,7 +67,7 @@ export default function MasterProses() {
         return <MasterSharingAdd 
                 onChangePage={handleSetPageMode}
                 withID={dataID}
-                withIDKategori={dataID2}/>;
+               />;
       case "sharingEdit":
         return <MasterSharingEdit 
                 onChangePage={handleSetPageMode}

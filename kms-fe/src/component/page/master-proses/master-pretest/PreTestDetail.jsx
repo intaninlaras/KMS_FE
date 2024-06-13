@@ -13,7 +13,7 @@ import uploadFile from "../../../util/UploadImageQuiz";
 import AppContext_test from "../MasterContext";
 
 
-export default function MasterPreTestAdd({ onChangePage,withID }) {
+export default function MasterPreTestAdd({ onChangePage }) {
   const [formContent, setFormContent] = useState([]);
   const [selectedOptions, setSelectedOptions] = useState([]);
   const [errors, setErrors] = useState({});

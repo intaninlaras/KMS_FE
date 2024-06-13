@@ -930,7 +930,7 @@ export default function MasterPreTestAdd({ onChangePage }) {
           <Button
             classType="outline-secondary me-2 px-4 py-2"
             label="Kembali"
-            onClick={() => onChangePage("index")}
+            onClick={() => onChangePage("index",AppContext_test.MateriForm = "")}
           />
           <Button
             classType="primary ms-2 px-4 py-2"
