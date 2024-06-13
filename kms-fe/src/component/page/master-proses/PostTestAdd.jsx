@@ -121,19 +121,34 @@ export default function MasterPreTestAdd({ onChangePage }) {
 
   const handleAdd = async (e) => {
     e.preventDefault();
-
+  
+    // Hitung total point dari semua pertanyaan dan opsi
+    const totalQuestionPoint = formContent.reduce((total, question) => total + parseInt(question.point), 0);
+    const totalOptionPoint = formContent.reduce((total, question) => {
+      if (question.type === 'multiple_choice') {
+        return total + question.options.reduce((optionTotal, option) => optionTotal + parseInt(option.point || 0), 0);
+      }
+      return total;
+    }, 0);
+    
+    // Total point dari semua pertanyaan dan opsi tidak boleh melebihi 100
+    if (totalQuestionPoint + totalOptionPoint > 100) {
+      alert('Total point tidak boleh melebihi 100.');
+      return;
+    }
+  
     try {
       formData.timer = convertTimeToSeconds(timer)
-
+  
       const response = await axios.post(API_LINK + 'Quiz/SaveDataQuiz', formData);
-
+  
       if (response.data.length === 0) {
         alert('Gagal menyimpan data');
         return;
       }
-
+  
       const quizId = response.data[0].hasil;
-
+  
       for (let i = 0; i < formContent.length; i++) {
         const question = formContent[i];
         const formQuestion = {
@@ -145,7 +160,7 @@ export default function MasterPreTestAdd({ onChangePage }) {
           status: 'Aktif',
           quecreatedby: 'Admin',
         };
-
+  
         if (question.type === 'essay' || question.type === 'praktikum') {
           if (question.selectedFile) {
             try {
@@ -161,21 +176,21 @@ export default function MasterPreTestAdd({ onChangePage }) {
         } else if (question.type === 'multiple_choice') {
           formQuestion.gambar = '';
         }
-
+  
         console.log("hasil questionn")
         console.log(formQuestion);
-
+  
         try {
           const questionResponse = await axios.post(API_LINK + 'Questions/SaveDataQuestion', formQuestion);
           console.log('Pertanyaan berhasil disimpan:', questionResponse.data);
-
+  
           if (questionResponse.data.length === 0) {
             alert('Gagal menyimpan question')
             return
           }
-
+  
           const questionId = questionResponse.data[0].hasil;
-
+  
           if (question.type === 'essay' || question.type === 'praktikum') {
             const answerData = {
               urutanChoice: '',
@@ -184,7 +199,7 @@ export default function MasterPreTestAdd({ onChangePage }) {
               nilaiChoice: question.point,
               quecreatedby: 'Admin',
             };
-
+  
             try {
               const answerResponse = await axios.post(API_LINK + 'Choices/SaveDataChoice', answerData);
               console.log('Jawaban essay berhasil disimpan:', answerResponse.data);
@@ -201,10 +216,10 @@ export default function MasterPreTestAdd({ onChangePage }) {
                 nilaiChoice: option.point || 0,
                 quecreatedby: 'Admin',
               };
-
+  
               console.log("hasil multiple choice")
               console.log(answerData);
-
+  
               try {
                 const answerResponse = await axios.post(API_LINK + 'Choices/SaveDataChoice', answerData);
                 console.log('Jawaban multiple choice berhasil disimpan:', answerResponse.data);
@@ -219,10 +234,22 @@ export default function MasterPreTestAdd({ onChangePage }) {
           alert('Gagal menyimpan pertanyaan');
         }
       }
-
+  
       // Tampilkan pesan sukses atau lakukan tindakan lain yang diperlukan setelah semua data berhasil disimpan
-      alert('Kuis dan pertanyaan berhasil disimpan');
+      Swal.fire({
+        title: 'Berhasil!',
+        text: 'Posttest berhasil ditambahkan',
+        icon: 'success',
+        confirmButtonText: 'OK'
+      });
 
+      setFormContent([]);
+      setSelectedOptions([]);
+      setErrors({});
+      setSelectedFile(null);
+      setTimer('');
+      setMinimumScore(undefined);
+  
     } catch (error) {
       console.error('Gagal menyimpan data:', error);
       alert('Gagal menyimpan data');
@@ -643,7 +670,7 @@ export default function MasterPreTestAdd({ onChangePage }) {
               </div>
               <div className="p-2">
                 <Button
-                  iconName="upload"
+                  iconName="paper-plane"
                   classType="primary btn-sm px-3 py-1"
                   onClick={handleUploadFile}
                   label="Unggah File"

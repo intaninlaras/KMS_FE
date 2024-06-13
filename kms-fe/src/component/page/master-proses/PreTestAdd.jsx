@@ -10,6 +10,7 @@ import { validateAllInputs, validateInput } from "../../util/ValidateForm";
 import { API_LINK } from "../../util/Constants";
 import FileUpload from "../../part/FileUpload";
 import uploadFile from "../../util/UploadImageQuiz";
+import Swal from 'sweetalert2';
 
 export default function MasterPreTestAdd({ onChangePage }) {
   const [formContent, setFormContent] = useState([]);
@@ -48,7 +49,7 @@ export default function MasterPreTestAdd({ onChangePage }) {
   const addQuestion = (questionType) => {
     const newQuestion = {
       type: questionType,
-      text: `Question ${formContent.length + 1}`,
+      text: `Pertanyaan ${formContent.length + 1}`,
       options: [],
       point: 0,
       correctAnswer: "", // Default correctAnswer
@@ -121,19 +122,34 @@ export default function MasterPreTestAdd({ onChangePage }) {
 
   const handleAdd = async (e) => {
     e.preventDefault();
-
+  
+    // Hitung total point dari semua pertanyaan dan opsi
+    const totalQuestionPoint = formContent.reduce((total, question) => total + parseInt(question.point), 0);
+    const totalOptionPoint = formContent.reduce((total, question) => {
+      if (question.type === 'multiple_choice') {
+        return total + question.options.reduce((optionTotal, option) => optionTotal + parseInt(option.point || 0), 0);
+      }
+      return total;
+    }, 0);
+    
+    // Total point dari semua pertanyaan dan opsi tidak boleh melebihi 100
+    if (totalQuestionPoint + totalOptionPoint > 100) {
+      alert('Total point tidak boleh melebihi 100.');
+      return;
+    }
+  
     try {
       formData.timer = convertTimeToSeconds(timer)
-
+  
       const response = await axios.post(API_LINK + 'Quiz/SaveDataQuiz', formData);
-
+  
       if (response.data.length === 0) {
         alert('Gagal menyimpan data');
         return;
       }
-
+  
       const quizId = response.data[0].hasil;
-
+  
       for (let i = 0; i < formContent.length; i++) {
         const question = formContent[i];
         const formQuestion = {
@@ -145,7 +161,7 @@ export default function MasterPreTestAdd({ onChangePage }) {
           status: 'Aktif',
           quecreatedby: 'Admin',
         };
-
+  
         if (question.type === 'essay' || question.type === 'praktikum') {
           if (question.selectedFile) {
             try {
@@ -161,21 +177,21 @@ export default function MasterPreTestAdd({ onChangePage }) {
         } else if (question.type === 'multiple_choice') {
           formQuestion.gambar = '';
         }
-
+  
         console.log("hasil questionn")
         console.log(formQuestion);
-
+  
         try {
           const questionResponse = await axios.post(API_LINK + 'Questions/SaveDataQuestion', formQuestion);
           console.log('Pertanyaan berhasil disimpan:', questionResponse.data);
-
+  
           if (questionResponse.data.length === 0) {
             alert('Gagal menyimpan question')
             return
           }
-
+  
           const questionId = questionResponse.data[0].hasil;
-
+  
           if (question.type === 'essay' || question.type === 'praktikum') {
             const answerData = {
               urutanChoice: '',
@@ -184,7 +200,7 @@ export default function MasterPreTestAdd({ onChangePage }) {
               nilaiChoice: question.point,
               quecreatedby: 'Admin',
             };
-
+  
             try {
               const answerResponse = await axios.post(API_LINK + 'Choices/SaveDataChoice', answerData);
               console.log('Jawaban essay berhasil disimpan:', answerResponse.data);
@@ -201,10 +217,10 @@ export default function MasterPreTestAdd({ onChangePage }) {
                 nilaiChoice: option.point || 0,
                 quecreatedby: 'Admin',
               };
-
+  
               console.log("hasil multiple choice")
               console.log(answerData);
-
+  
               try {
                 const answerResponse = await axios.post(API_LINK + 'Choices/SaveDataChoice', answerData);
                 console.log('Jawaban multiple choice berhasil disimpan:', answerResponse.data);
@@ -219,15 +235,29 @@ export default function MasterPreTestAdd({ onChangePage }) {
           alert('Gagal menyimpan pertanyaan');
         }
       }
-
+  
       // Tampilkan pesan sukses atau lakukan tindakan lain yang diperlukan setelah semua data berhasil disimpan
-      alert('Kuis dan pertanyaan berhasil disimpan');
+      Swal.fire({
+        title: 'Berhasil!',
+        text: 'Pretest berhasil ditambahkan',
+        icon: 'success',
+        confirmButtonText: 'OK'
+      });
 
+      // mereset semua form input setelah berhasil menambahkan data pretest
+      setFormContent([]);
+      setSelectedOptions([]);
+      setErrors({});
+      setSelectedFile(null);
+      setTimer('');
+      setMinimumScore(undefined);
+  
     } catch (error) {
       console.error('Gagal menyimpan data:', error);
       alert('Gagal menyimpan data');
     }
   };
+  
 
   // const handleQuestionTypeChange = (e, index) => {
   //   const { value } = e.target;
@@ -382,9 +412,26 @@ export default function MasterPreTestAdd({ onChangePage }) {
     const file = e.target.files[0];
     const updatedFormContent = [...formContent];
     updatedFormContent[index].selectedFile = file;
-    setFormContent(updatedFormContent);
+  
+    // Buat objek FileReader
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const image = new Image();
+      image.onload = () => {
+        // Perbarui ukuran gambar dalam state
+        updatedFormContent[index].imageWidth = image.width;
+        updatedFormContent[index].imageHeight = image.height;
+        setFormContent(updatedFormContent);
+      };
+      image.src = event.target.result;
+    };
+    reader.readAsDataURL(file);
   };
 
+  const handleFileExcel = (e) => {
+    const file = e.target.files[0];
+    setSelectedFile(file);
+  };
 
   const handleUploadFile = () => {
     if (selectedFile) {
@@ -561,7 +608,7 @@ export default function MasterPreTestAdd({ onChangePage }) {
               <div className="col-lg">
                 <Input
                   type="text"
-                  label="Deskripsi Quiz"
+                  label="Deskripsi"
                   forInput="quizDeskripsi"
                   value={formData.quizDeskripsi}
                   onChange={handleInputChange}
@@ -622,6 +669,7 @@ export default function MasterPreTestAdd({ onChangePage }) {
               </div>
               <div className="col-lg-4">
                 <Button
+                  title="Tambah Pertanyaan"
                   onClick={() => addQuestion("essay")}
                   iconName="plus"
                   classType="primary btn-sm px-3 py-1"
@@ -630,20 +678,21 @@ export default function MasterPreTestAdd({ onChangePage }) {
                   type="file"
                   id="fileInput"
                   style={{ display: 'none' }}
-                  onChange={handleFileChange}
+                  onChange={handleFileExcel }
                 />
                 <Button
+                  title="Tambah File Excel"
                   iconName="upload"
                   classType="primary btn-sm mx-2 px-3 py-1"
                   onClick={() => document.getElementById('fileInput').click()} // Memicu klik pada input file
                 />
                 {/* Tampilkan nama file yang dipilih */}
                 {selectedFile && <span>{selectedFile.name}</span>}
-
-              </div>
-              <div className="p-2">
+                <br></br>
+                <br></br>
                 <Button
-                  iconName="upload"
+                  title="Unggah File Excel"
+                  iconName="paper-plane"
                   classType="primary btn-sm px-3 py-1"
                   onClick={handleUploadFile}
                   label="Unggah File"
@@ -654,8 +703,9 @@ export default function MasterPreTestAdd({ onChangePage }) {
                   label="Unduh Template"
                   classType="warning btn-sm px-3 py-1 mx-2"
                   onClick={handleDownloadTemplate}
-
+                  title="Unduh Template Excel"
                 />
+
               </div>
 
             </div>
@@ -732,10 +782,13 @@ export default function MasterPreTestAdd({ onChangePage }) {
                   ) : (
                     <div className="row">
                       <div className="col-lg-12 question-input">
-                        <Input
-                          type="text"
-                          forInput={`pertanyaan_${index}`}
+                      <label htmlFor="deskripsiMateri" className="form-label fw-bold">
+                      Pertanyaan <span style={{color:"Red"}}> *</span>
+                      </label>
+                        <textarea
+                          id={`pertanyaan_${index}`}
                           value={question.text}
+                          label="Pertanyaan"
                           onChange={(e) => {
                             const updatedFormContent = [...formContent];
                             updatedFormContent[index].text = e.target.value;
@@ -747,32 +800,52 @@ export default function MasterPreTestAdd({ onChangePage }) {
                               soal: e.target.value
                             }));
                           }}
+                          className="form-control" // Optional: Add any necessary CSS classes
+                          rows={4} // Optional: Adjust the number of rows for the textarea
                         />
-
                       </div>
 
                       {/* Tampilkan tombol gambar dan PDF hanya jika type = essay */}
                       {(question.type === "essay" || question.type === "praktikum") && (
-                        <div className="col-lg-12 d-flex align-items-center form-check">
-                          <div className="d-flex flex-column w-100">
-                            <FileUpload
-                              forInput={`fileInput_${index}`}
-                              formatFile=".jpg,.png"
-                              label={<span className="file-upload-label">Gambar (.jpg, .png)</span>}
-                              onChange={(e) => handleFileChange(e, index)} // Memanggil handleFileChange dengan indeks
-                              hasExisting={question.gambar}
-                              style={{ fontSize: '12px' }}
-                            />
-                            <div className="mt-2"> {/* Memberikan margin atas kecil untuk jarak yang rapi */}
-                              <Input
-                                type="number"
-                                label="Point"
-                                value={question.point}
-                                onChange={(e) => handlePointChange(e, index)}
+                        
+                        <div className="d-flex flex-column w-100">
+                          <FileUpload
+                            forInput={`fileInput_${index}`}
+                            formatFile=".jpg,.png"
+                            label={<span className="file-upload-label">Gambar (.jpg, .png)</span>}
+                            onChange={(e) => handleFileChange(e, index)} // Memanggil handleFileChange dengan indeks
+                            hasExisting={question.gambar}
+                            style={{ fontSize: '12px' }}
+                          />
+                          {/* Tampilkan preview gambar jika ada gambar yang dipilih */}
+                          {question.selectedFile && (
+                            <div style={{
+                              maxWidth: '300px', // Set maximum width for the image container
+                              maxHeight: '300px', // Set maximum height for the image container
+                              overflow: 'hidden', // Hide any overflow beyond the set dimensions
+                              marginLeft: '10px'
+                            }}>
+                              <img
+                                src={URL.createObjectURL(question.selectedFile)}
+                                alt="Preview Gambar"
+                                style={{
+                                  width: '100%', // Ensure image occupies full width of container
+                                  height: 'auto', // Maintain aspect ratio
+                                  objectFit: 'contain' // Fit image within container without distortion
+                                }}
                               />
                             </div>
+                          )}
+                          <div className="mt-2"> {/* Memberikan margin atas kecil untuk jarak yang rapi */}
+                            <Input
+                              type="number"
+                              label="Point"
+                              value={question.point}
+                              onChange={(e) => handlePointChange(e, index)}
+                            />
                           </div>
                         </div>
+                        
                       )}
                       {question.type === "multiple_choice" && (
                         <div className="col-lg-12">
@@ -833,10 +906,6 @@ export default function MasterPreTestAdd({ onChangePage }) {
                             iconName="duplicate"
                             classType="btn-sm ms-2 px-3 py-1"
                             onClick={() => handleDuplicateQuestion(index)}
-                          />
-                          <Button
-                            iconName="menu-dots-vertical"
-                            classType="btn-sm ms-2 px-3 py-1"
                           />
                         </div>
                       </div>
