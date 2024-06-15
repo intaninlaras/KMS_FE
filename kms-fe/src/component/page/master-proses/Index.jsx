@@ -363,6 +363,7 @@ export default function MasterProsesIndex({ onChangePage, withID }) {
                       onEdit={onChangePage}
                       onStatus={handleSetStatus}
                       isNonEdit={false}
+                      onReviewJawaban={onChangePage}
                     />
                   </>
                 ) : (
@@ -371,7 +372,8 @@ export default function MasterProsesIndex({ onChangePage, withID }) {
                     onDetail={onChangePage}
                     onEdit={onChangePage}
                     onStatus={handleSetStatus}
-                      isNonEdit={false}
+                    isNonEdit={false}
+                    onReviewJawaban={onChangePage}
                   />
                 )}
               </div>

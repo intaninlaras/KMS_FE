@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { object, string } from "yup";
 import { validateAllInputs, validateInput } from "../../../util/ValidateForm";
 import SweetAlert from "../../../util/SweetAlert";
@@ -9,13 +9,13 @@ import Alert from "../../../part/Alert";
 import { Stepper } from 'react-form-stepper';
 import axios from "axios";
 import { API_LINK } from "../../../util/Constants";
-import UseFetch from "../../../util/UseFetch";  
+import UseFetch from "../../../util/UseFetch";
 import AppContext_test from "../MasterContext";
 import { Editor } from '@tinymce/tinymce-react';
 
 const userSchema = object({
-  forumJudul: string().max(100, "maksimum 100 karakter").required("harus diisi"),
-  forumIsi: string().required("harus diisi"),
+  forumJudul: string().max(100, "Maksimum 100 karakter").required("Harus diisi"),
+  forumIsi: string().required("Harus diisi"),
 });
 
 export default function MasterForumAdd({ onChangePage, withID }) {
@@ -23,11 +23,23 @@ export default function MasterForumAdd({ onChangePage, withID }) {
   const [isError, setIsError] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [formData, setFormData] = useState({
-    materiId: withID.Key,
     forumJudul: "",
     forumIsi: "",
   });
-  
+
+  const handleInputChange = async (e) => {
+    const { name, value } = e.target;
+    setFormData((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
+    const validationError = await validateInput(name, value, userSchema);
+    setErrors((prevErrors) => ({
+      ...prevErrors,
+      [validationError.name]: validationError.error,
+    }));
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       setIsError(false);
@@ -42,11 +54,10 @@ export default function MasterForumAdd({ onChangePage, withID }) {
           setIsError(true);
         } else {
           if (data.length > 0) {
-            setFormData((prevData) => ({
-              ...prevData,
+            setFormData({
               forumJudul: data[0]["Nama Forum"] || "",
               forumIsi: data[0]["Isi Forum"] || "",
-            }));
+            });
           }
         }
       } catch (error) {
@@ -59,20 +70,6 @@ export default function MasterForumAdd({ onChangePage, withID }) {
 
     fetchData();
   }, [withID]);
-
-  const handleInputChange = async (e) => {
-    const { name, value } = e.target;
-    setFormData((prevData) => ({
-      ...prevData,
-      [name]: value,
-    }));
-    const validationError = await validateInput(name, value, userSchema);
-    setErrors((prevErrors) => ({
-      ...prevErrors,
-      [validationError.name]: validationError.error,
-    }));
-  };
-  
 
   const handleAdd = async (e) => {
     e.preventDefault();
@@ -87,11 +84,15 @@ export default function MasterForumAdd({ onChangePage, withID }) {
 
     try {
       console.log("FormData being sent:", formData);
-      const response = await axios.post(API_LINK + "Forum/EditDataForum", formData);
+      const response = await axios.post(API_LINK + "Forum/EditDataForum", {
+        p1: withID.Key,
+        p2: formData.forumJudul,
+        p3: formData.forumIsi,
+      });
 
       if (response.status === 200) {
         SweetAlert("Success", "Forum data has been successfully saved", "success");
-        onChangePage("forumEdit"); 
+        // onChangePage("forumEdit");
       } else {
         throw new Error("Failed to save forum data");
       }
@@ -165,7 +166,7 @@ export default function MasterForumAdd({ onChangePage, withID }) {
                   isRequired 
                 />
               </div>
-              <div className="col-lg-16">
+              <div className="col-lg-12">
                 <div className="form-group">
                   <label htmlFor="forumIsi" className="form-label fw-bold">
                     Isi Forum <span style={{ color: 'Red' }}> *</span>
@@ -173,7 +174,7 @@ export default function MasterForumAdd({ onChangePage, withID }) {
                   <Editor
                     id="forumIsi"
                     value={formData.forumIsi}
-                    onEditorChange={(content) => handleInputChange({ target: { name: 'forumIsi', value: content } })}
+                    onEditorChange={(content) => setFormData({ ...formData, forumIsi: content })}
                     apiKey='v5s2v6diqyjyw3k012z4k2o0epjmq6wil26i10xjh53bbk7y'
                     init={{
                       height: 300,
@@ -201,7 +202,7 @@ export default function MasterForumAdd({ onChangePage, withID }) {
           <Button
             classType="outline-secondary me-2 px-4 py-2"
             label="Kembali"
-            onClick={() => onChangePage("sharingEdit",AppContext_test.DetailMateriEdit)}
+            onClick={() => onChangePage("sharingEdit", AppContext_test.DetailMateriEdit)}
           />
           <Button
             classType="primary ms-2 px-4 py-2"
@@ -215,6 +216,6 @@ export default function MasterForumAdd({ onChangePage, withID }) {
           />
         </div>
       </form>
-  </>
+    </>
   );
 }

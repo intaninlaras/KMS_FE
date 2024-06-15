@@ -12,7 +12,7 @@ import { Stepper } from 'react-form-stepper';
 import AppContext_test from "../MasterContext";
 import uploadFile from "../../../util/UploadFile";
 
-export default function MasterSharingAdd({ onChangePage}) {
+export default function MasterSharingAdd({ onChangePage,withID}) {
   const [errors, setErrors] = useState({});
   const [isError, setIsError] = useState({ error: false, message: "" });
   const [isLoading, setIsLoading] = useState(false);
@@ -24,7 +24,7 @@ export default function MasterSharingAdd({ onChangePage}) {
     mat_sharing_expert_pdf: "",
     mat_sharing_expert_video: "",
   });
-
+  // console.log("Materi Form di sahring", AppContext_test.MateriForm)
   const userSchema = object({
     mat_id: string().required("ID Materi tidak boleh kosong"),
     mat_sharing_expert_pdf: string(),

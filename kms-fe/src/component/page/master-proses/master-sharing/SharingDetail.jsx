@@ -1,7 +1,7 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import Button from "../../../part/Button";
 import Alert from "../../../part/Alert";
-import { Stepper } from 'react-form-stepper';
+import { Stepper } from "react-form-stepper";
 import AppContext_test from "../MasterContext";
 import Loading from "../../../part/Loading";
 
@@ -15,10 +15,9 @@ export default function DetailSharingExpert({ onChangePage, withID }) {
   }, []);
 
   useEffect(() => {
-    console.log("Video URL: ", withID.Sharing_video);
     const calculatePdfHeight = () => {
       const videoElement = document.getElementById("video");
-      
+
       if (videoElement) {
         const videoHeight = videoElement.clientHeight;
         setPdfHeight(`${videoHeight}px`);
@@ -32,7 +31,7 @@ export default function DetailSharingExpert({ onChangePage, withID }) {
     return () => {
       window.removeEventListener("resize", calculatePdfHeight);
     };
-  }, [withID.Sharing_video]);
+  }, []);
 
   if (isLoading) return <Loading />;
 
@@ -50,86 +49,96 @@ export default function DetailSharingExpert({ onChangePage, withID }) {
         <div>
           <Stepper
             steps={[
-              { label: 'Pretest', onClick: () => onChangePage("pretestDetail") },
-              { label: 'Materi', onClick: () => onChangePage("courseDetail") },
-              { label: 'Sharing Expert', onClick: () => onChangePage("sharingDetail") },
-              { label: 'Forum', onClick: () => onChangePage("forumDetail") },
-              { label: 'Post Test', onClick: () => onChangePage("posttestDetail") }
+              { label: "Pretest", onClick: () => onChangePage("pretestDetail") },
+              { label: "Materi", onClick: () => onChangePage("courseDetail") },
+              { label: "Sharing Expert", onClick: () => onChangePage("sharingDetail") },
+              { label: "Forum", onClick: () => onChangePage("forumDetail") },
+              { label: "Post Test", onClick: () => onChangePage("posttestDetail") },
             ]}
             activeStep={2}
             styleConfig={{
-              activeBgColor: '#67ACE9',
-              activeTextColor: '#FFFFFF',
-              completedBgColor: '#67ACE9',
-              completedTextColor: '#FFFFFF',
-              inactiveBgColor: '#E0E0E0',
-              inactiveTextColor: '#000000',
-              size: '2em',
-              circleFontSize: '1rem',
-              labelFontSize: '0.875rem',
-              borderRadius: '50%',
-              fontWeight: 500
+              activeBgColor: "#67ACE9",
+              activeTextColor: "#FFFFFF",
+              completedBgColor: "#67ACE9",
+              completedTextColor: "#FFFFFF",
+              inactiveBgColor: "#E0E0E0",
+              inactiveTextColor: "#000000",
+              size: "2em",
+              circleFontSize: "1rem",
+              labelFontSize: "0.875rem",
+              borderRadius: "50%",
+              fontWeight: 500,
             }}
             connectorStyleConfig={{
-              completedColor: '#67ACE9',
-              activeColor: '#67ACE9',
-              disabledColor: '#BDBDBD',
+              completedColor: "#67ACE9",
+              activeColor: "#67ACE9",
+              disabledColor: "#BDBDBD",
               size: 1,
-              stepSize: '2em',
-              style: 'solid'
+              stepSize: "2em",
+              style: "solid",
             }}
           />
         </div>
 
-        <div className="card mt-4">
-          <div className="card-header bg-outline-primary fw-medium text-black">
-            Detail Sharing Expert
-          </div>
-          <div className="card-body p-4">
-            {hasVideo || hasPDF ? (
-              <div className="row">
+        {hasVideo || hasPDF ? (
+          <div className="row">
+            
+
+            {hasPDF ? (
               <div className="col-lg-12">
-                <div className="d-flex flex-column align-items-center justify-content-center">
-                  {hasPDF ? (
-                    <object
-                      data={withID.Sharing_pdf}
-                      type="application/pdf"
-                      width="100%"
-                      height="500"
-                      style={{ height: pdfHeight, marginBottom: "20px" }}  // Add marginBottom for spacing
-                    >
-                      <p>Maaf, browser Anda tidak mendukung Preview File. Silakan <a href={withID.Sharing_pdf}>unduh File</a> untuk melihatnya.</p>
-                    </object>
-                  ) : (
-                    <p>PDF tidak tersedia atau URL tidak valid.</p>
-                  )}
+                <div className="card mt-4" style={{ borderColor: "#67ACE9" }}>
+                  <div className="card-header fw-medium text-white" style={{ backgroundColor: "#67ACE9" }}>
+                    <h5 className="card-title">Sharing Expert (PDF)</h5>
+                  </div>
+                  <div className="card-body">
+                    <div className="d-flex flex-column align-items-center justify-content-center">
+                      <object
+                        data={withID.Sharing_pdf}
+                        type="application/pdf"
+                        width="100%"
+                        height={pdfHeight}
+                        style={{ maxHeight: "70vh", marginBottom: "20px" }}
+                      >
+                        <p>
+                          Maaf, browser Anda tidak mendukung preview file. Silakan{" "}
+                          <a href={withID.Sharing_pdf}>unduh file</a> untuk melihatnya.
+                        </p>
+                      </object>
+                    </div>
+                  </div>
                 </div>
               </div>
+            ) : null}
+            {hasVideo ? (
               <div className="col-lg-12">
-                {hasVideo ? (
-                  <video
-                    id="video"
-                    controls
-                    width="100%"
-                    height="500"
-                    style={{ marginBottom: "10px" }}
-                  >
-                    <source src={withID.Sharing_video} type="video/mp4" />
-                    Your browser does not support the video tag.
-                  </video>
-                ) : (
-                  <p>Video tidak tersedia atau URL tidak valid.</p>
-                )}
+                <div className="card mt-4" style={{ borderColor: "#67ACE9" }}>
+                  <div className="card-header fw-medium text-white" style={{ backgroundColor: "#67ACE9" }}>
+                    <h5 className="card-title">Sharing Expert Video</h5>
+                  </div>
+                  <div className="card-body">
+                    <div className="d-flex flex-column align-items-center justify-content-center">
+                      <video
+                        id="video"
+                        controls
+                        width="100%"
+                        height="auto"
+                        style={{ maxWidth: "100%", marginBottom: "20px" }}
+                      >
+                        <source src={withID.Sharing_video} type="video/mp4" />
+                        Your browser does not support the video tag.
+                      </video>
+                    </div>
+                  </div>
+                </div>
               </div>
-              
-            </div>
-            ) : (
-              <div className="alert alert-warning" role="alert">
-                Tidak ada data sharing yang tersedia.
-              </div>
-            )}
+            ) : null}
           </div>
-        </div>
+        ) : (
+          <div className="alert alert-warning mt-4" role="alert">
+            Tidak ada data sharing yang tersedia.
+          </div>
+        )}
+
         <div className="float my-4 mx-1">
           <Button
             classType="outline-secondary me-2 px-4 py-2"

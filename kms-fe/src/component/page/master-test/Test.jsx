@@ -267,6 +267,10 @@ export default function PengerjaanTest({ onChangePage, quizType, materiId }) {
     setAnswerStatus(initialAnswerStatus);
   }, [questionNumbers]);
 
+  useEffect(() => {
+    console.log(AppContext_test.quizId)
+  }, [AppContext_test.quizId]);
+
   const [answerIsChecked, setAnswerIsChecked] = useState(false);
 
   const updateAnswerStatus = (index, isSelected) => {
@@ -291,7 +295,6 @@ export default function PengerjaanTest({ onChangePage, quizType, materiId }) {
           materiId: AppContext_test.materiId,
           karyawanId: "1",
         });
-
         if (checkIsDone.data && Array.isArray(checkIsDone.data)) {
           if (checkIsDone.data.length == 0) {
           } else {
@@ -338,6 +341,7 @@ export default function PengerjaanTest({ onChangePage, quizType, materiId }) {
           }).filter(item => item !== null);
           setQuestionNumbers(transformedData.length);
           
+        console.log(checkIsDone)
           setCurrentData(transformedData);
           
         } else {
