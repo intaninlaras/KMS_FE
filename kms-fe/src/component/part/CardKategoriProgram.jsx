@@ -41,69 +41,6 @@ const CardKategoriProgram = ({ onChangePage, kategori }) => {
         }
       `}</style>
       <div className="card-kategori-program-container"  style={{ width: "50%" }}> 
-        {/* <div className="card-kategori-program">
-          <div className="card mt-3">
-            <div className="card-body">
-              <div className="d-flex justify-content-between">
-                <h6
-                  className="card-title"
-                  onClick={() => onChangePage("index", AppContext_test.KategoriIdByKK = kategori.Key)}
-                >
-                  {kategori["Nama Kategori Program"]}
-                </h6>
-                <div>
-                  <Icon
-                    name="file"
-                    type="Bold"
-                    cssClass="btn px-2 py-0"
-                    title="Materi"
-                  />
-                  <span>{kategori.materialCount || 0}</span>
-                </div>
-              </div>
-              <div className="description-container mt-2">
-                <div className="me-2 bg-primary ps-1"></div>
-                <div className="description-text">
-                  <p
-                    className="lh-sm mb-0"
-                    style={{
-                      WebkitLineClamp: 2,
-                      WebkitBoxOrient: "vertical",
-                      maxHeight: expandDeskripsi ? "none" : "75px",
-                      overflow: "hidden",
-                    }}
-                  >
-                    {kategori.Deskripsi.length > MAX_DESCRIPTION_LENGTH && !expandDeskripsi ? (
-                      <>
-                        {kategori.Deskripsi.slice(0, MAX_DESCRIPTION_LENGTH) + " ..."}
-                        <a
-                          className="btn btn-link text-decoration-none p-0"
-                          onClick={handleExpandDescription}
-                          style={{ fontSize: "12px" }}
-                        >
-                          Baca Selengkapnya <Icon name={"caret-down"} />
-                        </a>
-                      </>
-                    ) : (
-                      <>
-                        {kategori.Deskripsi}
-                        {expandDeskripsi && (
-                          <a
-                            className="btn btn-link text-decoration-none p-0"
-                            onClick={handleExpandDescription}
-                            style={{ fontSize: "12px" }}
-                          >
-                            Tutup <Icon name={"caret-up"} />
-                          </a>
-                        )}
-                      </>
-                    )}
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div> */}
         <div className="card-kategori-program">
           <div className="card mt-3">
             <div className="card-body">

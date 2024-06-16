@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { object, string } from "yup";
 import { validateAllInputs, validateInput } from "../../../util/ValidateForm";
 import SweetAlert from "../../../util/SweetAlert";
@@ -22,10 +22,10 @@ export default function MasterForumAdd({ onChangePage }) {
   const [isError, setIsError] = useState({ error: false, message: "" });
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
-    materiId:  AppContext_test.dataIDMateri,
+    materiId: AppContext_test.dataIDMateri,
     karyawanId: "040",
-    forumJudul: "",
-    forumIsi: "",
+    forumJudul: AppContext_test.ForumForm?.forumJudul || "",
+    forumIsi: AppContext_test.ForumForm?.forumIsi || "",
     forumCreatedBy: "ika",
     forumStatus: "Aktif",
   });
@@ -45,7 +45,7 @@ export default function MasterForumAdd({ onChangePage }) {
 
   const resetForm = () => {
     setFormData({
-      materiId:  AppContext_test.dataIDMateri,
+      materiId: AppContext_test.dataIDMateri,
       karyawanId: "040",
       forumJudul: "",
       forumIsi: "",
@@ -156,23 +156,6 @@ export default function MasterForumAdd({ onChangePage }) {
                   isRequired 
                 />
               </div>
-              {/* <div className="col-lg-12">
-                <div className="form-group">
-                  <label htmlFor="forumIsi" className="form-label fw-bold">
-                    Isi Forum <span style={{color: "Red"}}> *</span>
-                  </label>
-                  <textarea
-                    id="forumIsi"
-                    name="forumIsi"
-                    className={`form-control ${errors.forumIsi ? 'is-invalid' : ''}`}
-                    value={formData.forumIsi}
-                    onChange={handleInputChange}
-                  />
-                  {errors.forumIsi && (
-                    <div className="invalid-feedback">{errors.forumIsi}</div>
-                  )}
-                </div>
-              </div> */}
               <div className="col-lg-16">
                 <div className="form-group">
                   <label htmlFor="forumIsi" className="form-label fw-bold">
@@ -209,7 +192,8 @@ export default function MasterForumAdd({ onChangePage }) {
           <Button
             classType="outline-secondary me-2 px-4 py-2"
             label="Kembali"
-            onClick={() => onChangePage("sharingAdd")}
+            // onClick={() => onChangePage("sharingAdd")}
+            onClick={() => onChangePage("sharingAdd", AppContext_test.ForumForm = formData)}
           />
           <Button
             classType="primary ms-2 px-4 py-2"
@@ -219,7 +203,7 @@ export default function MasterForumAdd({ onChangePage }) {
           <Button
             classType="dark ms-3 px-4 py-2"
             label="Berikutnya"
-            onClick={() => onChangePage("posttestAdd")}
+            onClick={() => onChangePage("posttestAdd", AppContext_test.ForumForm = formData)}
           />
         </div>
       </form>

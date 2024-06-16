@@ -11,6 +11,7 @@ import MasterMateriDetail from "./master-materi/MateriDetail";
 import MasterMateriReviewJawaban from "./master-materi/MateriReviewJawaban";
 // Sharing Expert
 import MasterSharingAdd from "./master-sharing/SharingAdd";
+import MasterSharingAddNot from "./master-sharing/SharingAddNot";
 import MasterSharingEdit from "./master-sharing/SharingEdit";
 import MasterSharingDetail from "./master-sharing/SharingDetail";
 // Forum
@@ -70,6 +71,11 @@ export default function MasterProses() {
                 withID={dataID}/>;
       case "sharingAdd":
         return <MasterSharingAdd 
+                onChangePage={handleSetPageMode}
+                withID={dataID}
+               />;
+      case "sharingAddNot":
+        return <MasterSharingAddNot 
                 onChangePage={handleSetPageMode}
                 withID={dataID}
                />;

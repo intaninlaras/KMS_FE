@@ -993,7 +993,7 @@ export default function MasterPreTestAdd({ onChangePage }) {
           <Button
             classType="outline-secondary me-2 px-4 py-2"
             label="Kembali"
-            onClick={() => onChangePage("materiAdd",AppContext_test.KategoriIdByKK)}
+            onClick={() => onChangePage("materiAdd")}
           />
           <Button
             classType="primary ms-2 px-4 py-2"
@@ -1003,7 +1003,7 @@ export default function MasterPreTestAdd({ onChangePage }) {
           <Button
             classType="dark ms-3 px-4 py-2"
             label="Berikutnya"
-            onClick={() => onChangePage("sharingAdd",AppContext_test.KategoriIdByKK)}
+            onClick={() => onChangePage("sharingAdd")}
           />
         </div>
       </form>

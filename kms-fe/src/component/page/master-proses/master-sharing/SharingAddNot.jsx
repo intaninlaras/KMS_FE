@@ -12,7 +12,7 @@ import { Stepper } from 'react-form-stepper';
 import AppContext_test from "../MasterContext";
 import uploadFile from "../../../util/UploadFile";
 
-export default function MasterSharingAdd({ onChangePage}) {
+export default function MasterSharingAddNot({ onChangePage,withID}) {
   const [errors, setErrors] = useState({});
   const [isError, setIsError] = useState({ error: false, message: "" });
   const [isLoading, setIsLoading] = useState(false);
@@ -30,8 +30,6 @@ export default function MasterSharingAdd({ onChangePage}) {
     mat_sharing_expert_pdf: string(),
     mat_sharing_expert_video: string(),
   });
-
-  console.log("forum di sharing",AppContext_test.ForumForm)
 
   const handleInputChange = async (e) => {
     const { name, value } = e.target;
@@ -203,7 +201,7 @@ export default function MasterSharingAdd({ onChangePage}) {
           <Button
             classType="outline-secondary me-2 px-4 py-2"
             label="Kembali"
-            onClick={() => onChangePage("pretestAdd")}
+            onClick={() => onChangePage("pretestDetail")}
           />
           <Button
             classType="primary ms-2 px-4 py-2"
@@ -213,7 +211,7 @@ export default function MasterSharingAdd({ onChangePage}) {
           <Button
             classType="dark ms-3 px-4 py-2"
             label="Berikutnya"
-            onClick={() => onChangePage("forumAdd")}
+            onClick={() => onChangePage("forumDetail")}
           />
         </div>
       </form>
