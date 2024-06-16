@@ -77,7 +77,7 @@ export default function MasterPreTestAdd({ onChangePage }) {
   const [formQuestion, setFormQuestion] = useState({
     quizId: '',
     soal: '',
-    tipeQuestion: 'essay',
+    tipeQuestion: 'Essay',
     gambar: '',
     questionDeskripsi: '',
     status: 'Aktif',
@@ -101,7 +101,7 @@ export default function MasterPreTestAdd({ onChangePage }) {
   const initialFormQuestion = {
     quizId: '',
     soal: '',
-    tipeQuestion: 'essay',
+    tipeQuestion: 'Essay',
     gambar: '',
     questionDeskripsi: '',
     status: 'Aktif',
@@ -116,7 +116,7 @@ export default function MasterPreTestAdd({ onChangePage }) {
 
   const handleAddOption = (index) => {
     const updatedFormContent = [...formContent];
-    if (updatedFormContent[index].type === "multiple_choice") {
+    if (updatedFormContent[index].type === "Pilgan") {
       updatedFormContent[index].options.push({ label: "", value: "", point: 0 });
       setFormContent(updatedFormContent);
     }
@@ -128,7 +128,7 @@ export default function MasterPreTestAdd({ onChangePage }) {
     // Hitung total point dari semua pertanyaan dan opsi
     const totalQuestionPoint = formContent.reduce((total, question) => total + parseInt(question.point), 0);
     const totalOptionPoint = formContent.reduce((total, question) => {
-      if (question.type === 'multiple_choice') {
+      if (question.type === 'Pilgan') {
         return total + question.options.reduce((optionTotal, option) => optionTotal + parseInt(option.point || 0), 0);
       }
       return total;
@@ -164,7 +164,7 @@ export default function MasterPreTestAdd({ onChangePage }) {
           quecreatedby: 'Admin',
         };
   
-        if (question.type === 'essay' || question.type === 'praktikum') {
+        if (question.type === 'Essay' || question.type === 'Praktikum') {
           if (question.selectedFile) {
             try {
               const uploadResult = await uploadFile(question.selectedFile);
@@ -176,7 +176,7 @@ export default function MasterPreTestAdd({ onChangePage }) {
               return;
             }
           }
-        } else if (question.type === 'multiple_choice') {
+        } else if (question.type === 'Pilgan') {
           formQuestion.gambar = '';
         }
   
@@ -194,7 +194,7 @@ export default function MasterPreTestAdd({ onChangePage }) {
   
           const questionId = questionResponse.data[0].hasil;
   
-          if (question.type === 'essay' || question.type === 'praktikum') {
+          if (question.type === 'Essay' || question.type === 'Praktikum') {
             const answerData = {
               urutanChoice: '',
               answerText: question.correctAnswer, // Pastikan menggunakan correctAnswer dari question
@@ -205,12 +205,12 @@ export default function MasterPreTestAdd({ onChangePage }) {
   
             try {
               const answerResponse = await axios.post(API_LINK + 'Choices/SaveDataChoice', answerData);
-              console.log('Jawaban essay berhasil disimpan:', answerResponse.data);
+              console.log('Jawaban Essay berhasil disimpan:', answerResponse.data);
             } catch (error) {
-              console.error('Gagal menyimpan jawaban essay:', error);
-              alert('Gagal menyimpan jawaban essay');
+              console.error('Gagal menyimpan jawaban Essay:', error);
+              alert('Gagal menyimpan jawaban Essay');
             }
-          } else if (question.type === 'multiple_choice') {
+          } else if (question.type === 'Pilgan') {
             for (const [optionIndex, option] of question.options.entries()) {
               const answerData = {
                 urutanChoice: optionIndex + 1,
@@ -268,7 +268,7 @@ export default function MasterPreTestAdd({ onChangePage }) {
   //   updatedFormContent[index] = {
   //     ...updatedFormContent[index],
   //     type: value,
-  //     options: value === "essay" ? [] : updatedFormContent[index].options,
+  //     options: value === "Essay" ? [] : updatedFormContent[index].options,
   //   };
   //   setFormContent(updatedFormContent);
 
@@ -306,7 +306,7 @@ export default function MasterPreTestAdd({ onChangePage }) {
 
   // const handleAddOption = (index) => {
   //   const updatedFormContent = [...formContent];
-  //   if (updatedFormContent[index].type === "multiple_choice") {
+  //   if (updatedFormContent[index].type === "Pilgan") {
   //     updatedFormContent[index].options.push({ label: "", value: "" });
   //     setFormContent(updatedFormContent);
   //   }
@@ -316,8 +316,8 @@ export default function MasterPreTestAdd({ onChangePage }) {
   const updatedFormContent = [...formContent];
   const question = updatedFormContent[index];
 
-  if (question.type === "essay") {
-    // Simpan jawaban benar untuk pertanyaan essay ke state
+  if (question.type === "Essay") {
+    // Simpan jawaban benar untuk pertanyaan Essay ke state
     setCorrectAnswers((prevCorrectAnswers) => ({
       ...prevCorrectAnswers,
       [index]: question.correctAnswer,
@@ -330,13 +330,13 @@ export default function MasterPreTestAdd({ onChangePage }) {
           ? "answer"
           : "answer"
         : question.options.length > 0
-          ? "multiple_choice"
-          : "multiple_choice";
+          ? "Pilgan"
+          : "Pilgan";
 
   updatedFormContent[index] = {
     ...question,
     type: newType,
-    options: newType === "essay" ? [] : question.options,
+    options: newType === "Essay" ? [] : question.options,
   };
 
   setFormContent(updatedFormContent);
@@ -384,7 +384,7 @@ export default function MasterPreTestAdd({ onChangePage }) {
       const options = row[3] ? row[3].split(',') : [];
       return {
         text: row[1],
-        type: row[2].toLowerCase() === 'essay' ? 'essay' : 'multiple_choice',
+        type: row[2].toLowerCase() === 'Essay' ? 'Essay' : 'Pilgan',
         options: options.map((option, idx) => ({ label: option, value: String.fromCharCode(65 + idx) })),
         point: row[4],
         correctAnswer: row[5],
@@ -392,7 +392,7 @@ export default function MasterPreTestAdd({ onChangePage }) {
     }).filter(Boolean); // Filter out null values
 
     const initialSelectedOptions = questions.map((question, index) => {
-      if (question.type === 'multiple_choice') {
+      if (question.type === 'Pilgan') {
         // Temukan indeks jawaban benar di dalam options
         const correctIndex = question.options.findIndex((option) => option.value === question.correctAnswer);
 
@@ -681,7 +681,7 @@ export default function MasterPreTestAdd({ onChangePage }) {
               <div className="col-lg-4">
                 <Button
                   title="Tambah Pertanyaan"
-                  onClick={() => addQuestion("essay")}
+                  onClick={() => addQuestion("Essay")}
                   iconName="plus"
                   classType="primary btn-sm px-3 py-1"
                 />
@@ -878,8 +878,8 @@ export default function MasterPreTestAdd({ onChangePage }) {
                       /> */}
                       </div>
 
-                      {/* Tampilkan tombol gambar dan PDF hanya jika type = essay */}
-                      {(question.type === "essay" || question.type === "praktikum") && (
+                      {/* Tampilkan tombol gambar dan PDF hanya jika type = Essay */}
+                      {(question.type === "Essay" || question.type === "Praktikum") && (
                         
                         <div className="d-flex flex-column w-100">
                           <FileUpload
@@ -920,7 +920,7 @@ export default function MasterPreTestAdd({ onChangePage }) {
                         </div>
                         
                       )}
-                      {question.type === "multiple_choice" && (
+                      {question.type === "Pilgan" && (
                         <div className="col-lg-12">
                           {question.options.map((option, optionIndex) => (
                             <div key={optionIndex} className="form-check" style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
