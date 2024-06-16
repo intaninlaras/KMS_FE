@@ -2,67 +2,78 @@ import { useState } from "react";
 import Icon from "../part/Icon.jsx";
 import Button from "./Button.jsx";
 import AppContext_test from "../page/master-proses/MasterContext.jsx";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faUser } from '@fortawesome/free-solid-svg-icons';
 
 function CardMateri({ 
   materis, 
   onStatus,
   onEdit,
   onDetail,
-  MAX_DESCRIPTION_LENGTH = 50,
+  MAX_DESCRIPTION_LENGTH = 100,
   isNonEdit,
-  onBacaMateri,
-  onReviewJawaban,
 }) {
-
   const [expandDeskripsi, setExpandDeskripsi] = useState({});
+  
   const handleExpandDescription = (bookId) => {
-      setExpandDeskripsi((prevState) => ({
-          ...prevState,
-          [bookId]: !prevState[bookId]
-      }));
+    setExpandDeskripsi((prevState) => ({
+      ...prevState,
+      [bookId]: !prevState[bookId]
+    }));
   };
 
   const handleStatusChange = (book) => {
     console.log(`Status buku ${book.Key} diubah`);
     onStatus(book.Key);
-};
-
+  };
 
   return (
     <>
       {materis.map((book) => {
-
         if (book.Key == null) {
           return null;
         }
         return (
-          <div key={book.Key} className="col-lg-6 mb-4">
-            <div className="card h-100"> {/* Menambahkan kelas h-100 untuk memastikan kartu memiliki tinggi maksimum */}
-              <div
-                className="card-header d-flex justify-content-between align-items-center"
-                style={{
-                  backgroundColor: book.Status === "Aktif" ? '#67ACE9' : '#A6A6A6',
-                  color: 'white',
-                }}
-              >
-                <span>{book["Kategori"]}</span>
-              </div>
-              <div className="card-body bg-white d-flex">
+          <div className="mt-4 col-lg-6" key={book.Key}>
+            <div className="card" style={{ borderColor: "#67ACE9", height: "auto" }}>
+            <div className="card-body d-flex align-items-start position-relative">
                 <img
                   src={book.Gambar}
-                  alt={book["Kategori"]}
-                  className="img-thumbnail me-3"
+                  alt="gambar"
                   style={{
-                    width: '150px',
-                    height: '150px',
-                    objectFit: 'cover',
+                    width: "120px",
+                    height: "120px",
+                    minWidth: "120px",
+                    marginRight: "15px",
                   }}
                 />
-                <div>
-                  <h5 className="card-title">{book.Judul}</h5>
-                  <hr style={{ opacity: "0.1" }} />
+                <div
+                  style={{
+                    position: "absolute",
+                    left: "140px", // Menyesuaikan dengan lebar gambar
+                    top: "15px",
+                    bottom: "15px",
+                    width: "2px",
+                    backgroundColor: "#ccc"
+                  }}
+                ></div>
+                <div style={{ paddingLeft: "25px" }}>
+                  <button className="btn btn-link p-0 text-decoration-none" onClick={() =>  onDetail("materiDetail", AppContext_test.DetailMateri = book)}>
+                    <h5 className="card-title mb-1">{book.Judul}</h5>
+                  </button>
+                  <div className="mb-1" style={{fontSize:"12px"}}>
+                    <span
+                      className="bg-primary me-2"
+                      style={{ padding: "2px" }}
+                    ></span>
+                    <span>{book.Kategori}</span>
+                  </div>
+                  <div className="mb-1">
+                    <FontAwesomeIcon icon={faUser} style={{ marginRight: "10px", color: "gray" }} />
+                    <span style={{ fontSize: "12px" }}> {book.Uploader} • {book.Creadate.slice(0, 10)}</span>
+                  </div>
                   <div>
-                    <p className="card-text p-0 m-0" style={{ fontSize: "12px", maxHeight: "75px", overflow: "hidden", textAlign:'justify'}}> {/* Menambahkan maxHeight dan overflow */}
+                    <p className="card-text p-0 m-0" style={{ fontSize: "12px", maxHeight: "75px", overflow: "hidden", textAlign: 'justify' }}>
                       {book.Keterangan.length > MAX_DESCRIPTION_LENGTH && !expandDeskripsi[book.Key] ? (
                         <>
                           {book.Keterangan.slice(0, MAX_DESCRIPTION_LENGTH) + " ..."}
@@ -83,7 +94,7 @@ function CardMateri({
                               onClick={() => handleExpandDescription(book.Key)}
                               style={{ fontSize: "12px" }}
                             >
-                              Tutup <Icon name={"caret-up"}/>
+                              Tutup <Icon name={"caret-up"} />
                             </a>
                           )}
                         </>
@@ -92,6 +103,8 @@ function CardMateri({
                   </div>
                 </div>
               </div>
+              <hr className="m-0 p-0" style={{ color: "#67ACE9" }} />
+
               <div className="card-footer d-flex justify-content-end bg-white">
                 {isNonEdit === false ? (
                   <>
@@ -99,20 +112,19 @@ function CardMateri({
                       <button
                         className="btn btn-sm text-primary"
                         title="Edit Materi"
-                        onClick={() => onEdit("pretestEdit", AppContext_test.DetailMateriEdit = book)}
+                        onClick={() => onEdit("materiEdit", AppContext_test.DetailMateriEdit = book)}
                       >
                         <i className="fas fa-edit"></i>
                       </button>
                     )}
-                    <button
+                    {/* <button
                       className="btn btn-sm text-primary"
                       title="Detail Materi"
-                      onClick={() => onDetail("pretestDetail", AppContext_test.DetailMateri = book)}
+                      onClick={() =>
                     >
                       {console.log("data context materi dari index:", AppContext_test.DetailMateri)}
-
                       <i className="fas fa-list"></i>
-                    </button>
+                    </button> */}
                     <button
                       className="btn btn-circle"
                       onClick={() => handleStatusChange(book)}
@@ -129,14 +141,6 @@ function CardMateri({
                         ></i>
                       )}
                     </button>
-                    <button
-                      className="btn btn-sm text-primary"
-                      title="Detail Materi"
-                      onClick={() => onReviewJawaban("reviewjawaban", AppContext_test.DetailMateri = book)}
-                    >
-
-                      <i className="fas fa-file"></i>
-                    </button>
                   </>
                 ) : (
                   <button
@@ -149,7 +153,6 @@ function CardMateri({
                         materiIdTemp
                       );
                     }}
-                    style={{ }}
                   >
                     Baca Materi
                   </button>
@@ -163,4 +166,4 @@ function CardMateri({
   );
 }
 
-export default  CardMateri;
+export default CardMateri;

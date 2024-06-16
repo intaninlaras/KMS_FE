@@ -256,13 +256,13 @@ export default function MasterCourseAdd({ onChangePage }) {
         <div>
           <Stepper
             steps={[
-              { label: 'Pretest', onClick: () => onChangePage("pretestAdd") },
               { label: 'Materi', onClick: () => onChangePage("courseAdd") },
+              { label: 'Pretest', onClick: () => onChangePage("pretestAdd") },
               { label: 'Sharing Expert', onClick: () => onChangePage("sharingAdd") },
               { label: 'Forum', onClick: () => onChangePage("forumAdd") },
               { label: 'Post Test', onClick: () => onChangePage("posttestAdd") }
             ]}
-            activeStep={1}
+            activeStep={0}
             styleConfig={{
               activeBgColor: '#67ACE9',
               activeTextColor: '#FFFFFF',
@@ -431,7 +431,7 @@ export default function MasterCourseAdd({ onChangePage }) {
           <Button
             classType="outline-secondary me-2 px-4 py-2"
             label="Kembali"
-            onClick={() => onChangePage("pretestAdd", AppContext_test.MateriForm = formDataRef)}
+            onClick={() => onChangePage("index",AppContext_test.MateriForm = "")}
           />
           <Button
             classType="primary ms-2 px-4 py-2"
@@ -442,7 +442,7 @@ export default function MasterCourseAdd({ onChangePage }) {
           <Button
             classType="dark ms-3 px-4 py-2"
             label="Berikutnya"
-            onClick={() => onChangePage("sharingAdd", AppContext_test.MateriForm = formDataRef)}
+            onClick={() => onChangePage("pretestAdd", AppContext_test.MateriForm = formDataRef)}
           />
         </div>
       </form>

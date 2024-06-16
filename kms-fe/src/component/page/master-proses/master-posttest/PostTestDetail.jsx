@@ -59,7 +59,7 @@ export default function MasterPreTestAdd({ onChangePage, withId }) {
     try {
       while (true) {
         const data = await axios.post(API_LINK + 'Quiz/GetQuizByID', {
-          id: withID
+          id: withId.Key
         });
 
         if (data === "ERROR") {
@@ -161,13 +161,13 @@ export default function MasterPreTestAdd({ onChangePage, withId }) {
         <div>
           <Stepper
             steps={[
-              { label: 'Pretest', onClick: () => onChangePage("pretestAdd") },
               { label: 'Materi', onClick: () => onChangePage("courseAdd") },
+              { label: 'Pretest', onClick: () => onChangePage("pretestAdd") },
               { label: 'Sharing Expert', onClick: () => onChangePage("sharingAdd") },
               { label: 'Forum', onClick: () => onChangePage("forumAdd") },
               { label: 'Post Test', onClick: () => onChangePage("posttestAdd") }
             ]}
-            activeStep={0}
+            activeStep={4}
             styleConfig={{
               activeBgColor: '#67ACE9',
               activeTextColor: '#FFFFFF',

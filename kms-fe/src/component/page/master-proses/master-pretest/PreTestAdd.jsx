@@ -134,9 +134,9 @@ export default function MasterPreTestAdd({ onChangePage }) {
       return total;
     }, 0);
     
-    // Total point dari semua pertanyaan dan opsi tidak boleh melebihi 100
-    if (totalQuestionPoint + totalOptionPoint > 100) {
-      alert('Total point tidak boleh melebihi 100.');
+    // Total point dari semua pertanyaan dan opsi harus berjumlah 100, tidak kurang dan tidak lebih
+    if (totalQuestionPoint + totalOptionPoint !== 100) {
+      alert('Total skor harus berjumlah 100');
       return;
     }
   
@@ -245,7 +245,7 @@ export default function MasterPreTestAdd({ onChangePage }) {
         icon: 'success',
         confirmButtonText: 'OK'
       });
-
+  
       // mereset semua form input setelah berhasil menambahkan data pretest
       setFormContent([]);
       setSelectedOptions([]);
@@ -259,6 +259,7 @@ export default function MasterPreTestAdd({ onChangePage }) {
       alert('Gagal menyimpan data');
     }
   };
+  
   
 
   // const handleQuestionTypeChange = (e, index) => {
@@ -449,6 +450,12 @@ export default function MasterPreTestAdd({ onChangePage }) {
         parseExcelData(parsedData);
       };
       reader.readAsBinaryString(selectedFile);
+      Swal.fire({
+        title: 'Berhasil!',
+        text: 'File Excel berhasil ditambahkan',
+        icon: 'success',
+        confirmButtonText: 'OK'
+      });
     } else {
       alert("Pilih file Excel terlebih dahulu!");
     }
@@ -572,13 +579,13 @@ export default function MasterPreTestAdd({ onChangePage }) {
         <div>
           <Stepper
             steps={[
-              { label: 'Pretest', onClick: () => onChangePage("pretestAdd") },
               { label: 'Materi', onClick: () => onChangePage("courseAdd") },
+              { label: 'Pretest', onClick: () => onChangePage("pretestAdd") },
               { label: 'Sharing Expert', onClick: () => onChangePage("sharingAdd") },
               { label: 'Forum', onClick: () => onChangePage("forumAdd") },
               { label: 'Post Test', onClick: () => onChangePage("posttestAdd") }
             ]}
-            activeStep={0}
+            activeStep={1}
             styleConfig={{
               activeBgColor: '#67ACE9',
               activeTextColor: '#FFFFFF',
@@ -716,19 +723,22 @@ export default function MasterPreTestAdd({ onChangePage }) {
             {formContent.map((question, index) => (
               <div key={index} className="card mb-4">
                 <div className="card-header bg-white fw-medium text-black d-flex justify-content-between align-items-center">
-                  <span>Pertanyaan</span>
-                  <span>Poin: {question.point}</span>
-                  <div className="col-lg-2">
-                    <select className="form-select" aria-label="Default select example"
-                      value={question.type}
-                      onChange={(e) => handleQuestionTypeChange(e, index)}>
-                      <option value="Essay">Essay</option>
-                      <option value="Pilgan">Pilihan Ganda</option>
-                      <option value="Praktikum">Praktikum</option>
-                    </select>
-                  </div>
+  <span>Pertanyaan</span>
+  <span>
+    Skor: {parseInt(question.point) + (question.type === 'multiple_choice' ? (question.options || []).reduce((acc, option) => acc + parseInt(option.point), 0) : 0)}
+  </span>
+  <div className="col-lg-2">
+    <select className="form-select" aria-label="Default select example"
+      value={question.type}
+      onChange={(e) => handleQuestionTypeChange(e, index)}>
+      <option value="essay">Essay</option>
+      <option value="multiple_choice">Pilihan Ganda</option>
+      <option value="praktikum">Praktikum</option>
+    </select>
+  </div>
+</div>
 
-                </div>
+
                 <div className="card-body p-4">
                   {question.type === "answer" ? (
                     <div className="row">
@@ -902,7 +912,7 @@ export default function MasterPreTestAdd({ onChangePage }) {
                           <div className="mt-2"> {/* Memberikan margin atas kecil untuk jarak yang rapi */}
                             <Input
                               type="number"
-                              label="Point"
+                              label="Skor"
                               value={question.point}
                               onChange={(e) => handlePointChange(e, index)}
                             />
@@ -983,7 +993,7 @@ export default function MasterPreTestAdd({ onChangePage }) {
           <Button
             classType="outline-secondary me-2 px-4 py-2"
             label="Kembali"
-            onClick={() => onChangePage("index",AppContext_test.MateriForm = "")}
+            onClick={() => onChangePage("materiAdd",AppContext_test.KategoriIdByKK)}
           />
           <Button
             classType="primary ms-2 px-4 py-2"
@@ -993,7 +1003,7 @@ export default function MasterPreTestAdd({ onChangePage }) {
           <Button
             classType="dark ms-3 px-4 py-2"
             label="Berikutnya"
-            onClick={() => onChangePage("materiAdd",AppContext_test.KategoriIdByKK)}
+            onClick={() => onChangePage("sharingAdd",AppContext_test.KategoriIdByKK)}
           />
         </div>
       </form>

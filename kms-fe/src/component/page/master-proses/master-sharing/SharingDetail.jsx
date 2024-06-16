@@ -49,8 +49,8 @@ export default function DetailSharingExpert({ onChangePage, withID }) {
         <div>
           <Stepper
             steps={[
-              { label: "Pretest", onClick: () => onChangePage("pretestDetail") },
-              { label: "Materi", onClick: () => onChangePage("courseDetail") },
+              { label: 'Materi', onClick: () => onChangePage("courseAdd") },
+              { label: 'Pretest', onClick: () => onChangePage("pretestAdd") },
               { label: "Sharing Expert", onClick: () => onChangePage("sharingDetail") },
               { label: "Forum", onClick: () => onChangePage("forumDetail") },
               { label: "Post Test", onClick: () => onChangePage("posttestDetail") },
@@ -82,8 +82,6 @@ export default function DetailSharingExpert({ onChangePage, withID }) {
 
         {hasVideo || hasPDF ? (
           <div className="row">
-            
-
             {hasPDF ? (
               <div className="col-lg-12">
                 <div className="card mt-4" style={{ borderColor: "#67ACE9" }}>
@@ -134,8 +132,16 @@ export default function DetailSharingExpert({ onChangePage, withID }) {
             ) : null}
           </div>
         ) : (
-          <div className="alert alert-warning mt-4" role="alert">
-            Tidak ada data sharing yang tersedia.
+          <div className="card" style={{ borderColor: "#67ACE9" }}>
+            <div className="card-header fw-medium text-white" style={{ backgroundColor: "#67ACE9" }}>
+              Detail Sharng Expert
+            </div>
+            <div className="card-body">
+              <Alert type="info" message={"Data Sharing Expert belum ditambahkan"} />
+              {/* <div className="alert alert-warning" role="alert">
+                
+              </div> */}
+            </div>
           </div>
         )}
 
@@ -143,7 +149,7 @@ export default function DetailSharingExpert({ onChangePage, withID }) {
           <Button
             classType="outline-secondary me-2 px-4 py-2"
             label="Kembali"
-            onClick={() => onChangePage("materiDetail", AppContext_test.DetailMateri)}
+            onClick={() => onChangePage("pretestDetail", AppContext_test.DetailMateri)}
           />
           <Button
             classType="dark ms-3 px-4 py-2"

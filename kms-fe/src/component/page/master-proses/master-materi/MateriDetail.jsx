@@ -58,13 +58,13 @@ export default function MasterMateriDetail({ onChangePage, withID }) {
                 <div>
                     <Stepper
                         steps={[
-                            { label: 'Pretest', onClick: () => onChangePage("pretestDetail") },
-                            { label: 'Materi', onClick: () => onChangePage("courseDetail") },
+                            { label: 'Materi', onClick: () => onChangePage("courseAdd") },
+                            { label: 'Pretest', onClick: () => onChangePage("pretestAdd") },
                             { label: 'Sharing Expert', onClick: () => onChangePage("sharingDetail") },
                             { label: 'Forum', onClick: () => onChangePage("forumDetail") },
                             { label: 'Post Test', onClick: () => onChangePage("posttestDetail") }
                         ]}
-                        activeStep={1}
+                        activeStep={0}
                         styleConfig={{
                             activeBgColor: '#67ACE9',
                             activeTextColor: '#FFFFFF',
@@ -150,12 +150,12 @@ export default function MasterMateriDetail({ onChangePage, withID }) {
                     <Button
                         classType="outline-secondary me-2 px-4 py-2"
                         label="Kembali"
-                        onClick={() => onChangePage("pretestDetail", AppContext_test.DetailMateri)}
-                    />
+                        onClick={() => onChangePage("index")}
+                        />
                     <Button
                         classType="dark ms-3 px-4 py-2"
                         label="Berikutnya"
-                        onClick={() => onChangePage("sharingDetail", AppContext_test.DetailMateri)}
+                        onClick={() => onChangePage("pretestDetail", AppContext_test.DetailMateri)}
                     />
                 </div>
                 

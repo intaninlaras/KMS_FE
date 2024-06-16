@@ -612,13 +612,13 @@ export default function MasterPostTestAdd({ onChangePage, withID }) {
                 <div>
                     <Stepper
                         steps={[
-                            { label: 'Pretest', onClick: () => onChangePage("pretestAdd") },
                             { label: 'Materi', onClick: () => onChangePage("courseAdd") },
+                            { label: 'Pretest', onClick: () => onChangePage("pretestAdd") },
                             { label: 'Sharing Expert', onClick: () => onChangePage("sharingAdd") },
                             { label: 'Forum', onClick: () => onChangePage("forumAdd") },
                             { label: 'Post Test', onClick: () => onChangePage("posttestAdd") }
                         ]}
-                        activeStep={0}
+                        activeStep={4}
                         styleConfig={{
                             activeBgColor: '#67ACE9',
                             activeTextColor: '#FFFFFF',
@@ -747,19 +747,20 @@ export default function MasterPostTestAdd({ onChangePage, withID }) {
                         {formContent.map((question, index) => (
                             <div key={index} className="card mb-4">
                                 <div className="card-header bg-white fw-medium text-black d-flex justify-content-between align-items-center">
-                                    <span>Pertanyaan</span>
-                                    <span>Poin: {question.point}</span>
-                                    <div className="col-lg-2">
-                                        <select className="form-select" aria-label="Default select example"
-                                            value={question.type}
-                                            onChange={(e) => handleQuestionTypeChange(e, index)}>
-                                            <option value="Essay">Essay</option>
-                                            <option value="Pilgan">Pilihan Ganda</option>
-                                            <option value="praktikum">Praktikum</option>
-                                        </select>
-                                    </div>
-
-                                </div>
+  <span>Pertanyaan</span>
+  <span>
+    Poin: {parseInt(question.point) + (question.type === 'multiple_choice' ? (question.options || []).reduce((acc, option) => acc + parseInt(option.point), 0) : 0)}
+  </span>
+  <div className="col-lg-2">
+    <select className="form-select" aria-label="Default select example"
+      value={question.type}
+      onChange={(e) => handleQuestionTypeChange(e, index)}>
+      <option value="essay">Essay</option>
+      <option value="multiple_choice">Pilihan Ganda</option>
+      <option value="praktikum">Praktikum</option>
+    </select>
+  </div>
+</div>
                                 <div className="card-body p-4">
 
                                         <div className="row">
@@ -903,7 +904,7 @@ export default function MasterPostTestAdd({ onChangePage, withID }) {
                     <Button
                         classType="outline-secondary me-2 px-4 py-2"
                         label="Kembali"
-                        onClick={() => onChangePage("index")}
+                        onClick={() => onChangePage("forumEdit", AppContext_test.DetailMateriEdit)}
                     />
                     <Button
                         classType="primary ms-2 px-4 py-2"
@@ -913,7 +914,7 @@ export default function MasterPostTestAdd({ onChangePage, withID }) {
                     <Button
                         classType="dark ms-3 px-4 py-2"
                         label="Berikutnya"
-                        onClick={() => onChangePage("materiEdit", book.Key)}
+                        onClick={() => onChangePage("forumEdit", AppContext_test.DetailMateriEdit)}
                     />
                 </div>
             </form>
