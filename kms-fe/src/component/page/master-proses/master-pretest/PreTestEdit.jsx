@@ -187,7 +187,7 @@ export default function MasterPreTestAdd({ onChangePage,withID}) {
               quemodifby: 'Admin',
             };
             console.log(question.key)
-            if (question.type === 'Essay' || question.type === 'praktikum') {
+            if (question.type === 'Essay' || question.type === 'Praktikum') {
               if (question.selectedFile) {
                 try {
                   const uploadResult = await uploadFile(question.selectedFile);
@@ -220,7 +220,7 @@ export default function MasterPreTestAdd({ onChangePage,withID}) {
     
               const questionId = questionResponse.data[0].hasil;
               console.log("ques id : "+questionId)
-              if (question.type === 'Essay' || question.type === 'praktikum') {
+              if (question.type === 'Essay' || question.type === 'Praktikum') {
                 const answerData = {
                   urutanChoice: '',
                   answerText: question.correctAnswer, // Pastikan menggunakan correctAnswer dari question
@@ -231,10 +231,10 @@ export default function MasterPreTestAdd({ onChangePage,withID}) {
     
                 try {
                   const answerResponse = await axios.post(API_LINK + 'Choices/UpdateDataChoice', answerData);
-                //   console.log('Jawaban essay berhasil disimpan:', answerResponse.data);
+                //   console.log('Jawaban Essay berhasil disimpan:', answerResponse.data);
                 } catch (error) {
-                  console.error('Gagal menyimpan jawaban essay:', error);
-                  alert('Gagal menyimpan jawaban essay');
+                  console.error('Gagal menyimpan jawaban Essay:', error);
+                  alert('Gagal menyimpan jawaban Essay');
                 }
               } else if (question.type === 'Pilgan') {
                 for (const [optionIndex, option] of question.options.entries()) {
@@ -465,15 +465,15 @@ export default function MasterPreTestAdd({ onChangePage,withID}) {
         const minutes = Math.floor((seconds % 3600) / 60).toString().padStart(2, '0');
         return `${hours}:${minutes}`;
     };
-
     const getDataQuiz = async () => {
         setIsLoading(true);
 
         try {
             while (true) {
                 const data = await axios.post(API_LINK + 'Quiz/GetQuizByID', {
-                    id: withID
+                    id: withID.Key
                 });
+                 console.log("halo", withID)
 
                 if (data === "ERROR") {
                     throw new Error("Terjadi kesalahan: Gagal mengambil data quiz.");
@@ -494,11 +494,11 @@ export default function MasterPreTestAdd({ onChangePage,withID}) {
         } catch (e) {
             setIsLoading(false);
             console.log(e.message);
-            setIsError((prevError) => ({
-                ...prevError,
-                error: true,
-                message: e.message,
-            }));
+            // setIsError((prevError) => ({
+            //     ...prevError,
+            //     error: true,
+            //     message: e.message,
+            // }));
         }
     };
 
@@ -510,7 +510,7 @@ export default function MasterPreTestAdd({ onChangePage,withID}) {
                 const data = await axios.post(API_LINK + 'Quiz/GetDataQuestion', {
                     id: formData.quizId, status: 'Aktif'
                 });
-                console.log(data)
+                console.log("question: ", data)
                 if (data === "ERROR") {
                     throw new Error("Terjadi kesalahan: Gagal mengambil data quiz.");
                 } else if (data.length === 0) {
@@ -754,7 +754,7 @@ export default function MasterPreTestAdd({ onChangePage,withID}) {
                                             onChange={(e) => handleQuestionTypeChange(e, index)}>
                                             <option value="Essay">Essay</option>
                                             <option value="Pilgan">Pilihan Ganda</option>
-                                            <option value="praktikum">Praktikum</option>
+                                            <option value="Praktikum">Praktikum</option>
                                         </select>
                                     </div>
 
@@ -798,8 +798,8 @@ export default function MasterPreTestAdd({ onChangePage,withID}) {
                       />
                                             </div>
 
-                                            {/* Tampilkan tombol gambar dan PDF hanya jika type = essay */}
-                                            {(question.type === "Essay" || question.type === "praktikum") && (
+                                            {/* Tampilkan tombol gambar dan PDF hanya jika type = Essay */}
+                                            {(question.type === "Essay" || question.type === "Praktikum") && (
                                                 <div className="col-lg-12 d-flex align-items-center form-check">
                                                     <div className="d-flex flex-column w-100">
                                                         <FileUpload
