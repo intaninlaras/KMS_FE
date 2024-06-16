@@ -746,19 +746,20 @@ export default function MasterPreTestAdd({ onChangePage,withID}) {
                         {formContent.map((question, index) => (
                             <div key={index} className="card mb-4">
                                 <div className="card-header bg-white fw-medium text-black d-flex justify-content-between align-items-center">
-                                    <span>Pertanyaan</span>
-                                    <span>Poin: {question.point}</span>
-                                    <div className="col-lg-2">
-                                        <select className="form-select" aria-label="Default select example"
-                                            value={question.type}
-                                            onChange={(e) => handleQuestionTypeChange(e, index)}>
-                                            <option value="Essay">Essay</option>
-                                            <option value="Pilgan">Pilihan Ganda</option>
-                                            <option value="praktikum">Praktikum</option>
-                                        </select>
-                                    </div>
-
-                                </div>
+  <span>Pertanyaan</span>
+  <span>
+    Poin: {parseInt(question.point) + (question.type === 'multiple_choice' ? (question.options || []).reduce((acc, option) => acc + parseInt(option.point), 0) : 0)}
+  </span>
+  <div className="col-lg-2">
+    <select className="form-select" aria-label="Default select example"
+      value={question.type}
+      onChange={(e) => handleQuestionTypeChange(e, index)}>
+      <option value="essay">Essay</option>
+      <option value="multiple_choice">Pilihan Ganda</option>
+      <option value="praktikum">Praktikum</option>
+    </select>
+  </div>
+</div>
                                 <div className="card-body p-4">
 
                                         <div className="row">
