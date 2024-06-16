@@ -82,8 +82,6 @@ export default function DetailSharingExpert({ onChangePage, withID }) {
 
         {hasVideo || hasPDF ? (
           <div className="row">
-            
-
             {hasPDF ? (
               <div className="col-lg-12">
                 <div className="card mt-4" style={{ borderColor: "#67ACE9" }}>
@@ -134,8 +132,16 @@ export default function DetailSharingExpert({ onChangePage, withID }) {
             ) : null}
           </div>
         ) : (
-          <div className="alert alert-warning mt-4" role="alert">
-            Tidak ada data sharing yang tersedia.
+          <div className="card" style={{ borderColor: "#67ACE9" }}>
+            <div className="card-header fw-medium text-white" style={{ backgroundColor: "#67ACE9" }}>
+              Detail Sharng Expert
+            </div>
+            <div className="card-body">
+              <Alert type="info" message={"Data Sharing Expert belum ditambahkan"} />
+              {/* <div className="alert alert-warning" role="alert">
+                
+              </div> */}
+            </div>
           </div>
         )}
 

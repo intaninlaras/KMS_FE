@@ -59,7 +59,7 @@ export default function MasterPreTestAdd({ onChangePage, withId }) {
     try {
       while (true) {
         const data = await axios.post(API_LINK + 'Quiz/GetQuizByID', {
-          id: withID
+          id: withId.Key
         });
 
         if (data === "ERROR") {
