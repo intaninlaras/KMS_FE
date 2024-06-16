@@ -51,8 +51,8 @@ export default function DetailForum({ onChangePage, withID }) {
       <div>
         <Stepper
           steps={[
-            { label: 'Pretest', onClick: () => onChangePage("pretestDetail") },
-            { label: 'Materi', onClick: () => onChangePage("courseDetail") },
+            { label: 'Materi', onClick: () => onChangePage("courseAdd") },
+            { label: 'Pretest', onClick: () => onChangePage("pretestAdd") },
             { label: 'Sharing Expert', onClick: () => onChangePage("sharingDetail") },
             { label: 'Forum', onClick: () => onChangePage("forumDetail") },
             { label: 'Post Test', onClick: () => onChangePage("posttestDetail") }

@@ -315,7 +315,7 @@ export default function MasterProsesIndex({ onChangePage, withID }) {
                 classType="success"
                 title="Tambah Materi"
                 label="Tambah Materi"
-                onClick={() => onChangePage("pretestAdd",AppContext_test.KategoriIdByKK)}
+                onClick={() => onChangePage("materiAdd",AppContext_test.KategoriIdByKK)}
               />
               <Input
                 ref={searchQuery}

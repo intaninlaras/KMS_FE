@@ -49,8 +49,8 @@ export default function DetailSharingExpert({ onChangePage, withID }) {
         <div>
           <Stepper
             steps={[
-              { label: "Pretest", onClick: () => onChangePage("pretestDetail") },
-              { label: "Materi", onClick: () => onChangePage("courseDetail") },
+              { label: 'Materi', onClick: () => onChangePage("courseAdd") },
+              { label: 'Pretest', onClick: () => onChangePage("pretestAdd") },
               { label: "Sharing Expert", onClick: () => onChangePage("sharingDetail") },
               { label: "Forum", onClick: () => onChangePage("forumDetail") },
               { label: "Post Test", onClick: () => onChangePage("posttestDetail") },
@@ -149,7 +149,7 @@ export default function DetailSharingExpert({ onChangePage, withID }) {
           <Button
             classType="outline-secondary me-2 px-4 py-2"
             label="Kembali"
-            onClick={() => onChangePage("materiDetail", AppContext_test.DetailMateri)}
+            onClick={() => onChangePage("pretestDetail", AppContext_test.DetailMateri)}
           />
           <Button
             classType="dark ms-3 px-4 py-2"

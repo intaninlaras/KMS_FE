@@ -208,13 +208,13 @@ export default function MasterCourseEdit({onChangePage,withID}) {
         <div>
         <Stepper
            steps={[
-            { label: 'Pretest', onClick: () => onChangePage("pretestEdit") },
-            { label: 'Materi', onClick: () => onChangePage("courseEdit") },
+            { label: 'Materi', onClick: () => onChangePage("courseAdd") },
+            { label: 'Pretest', onClick: () => onChangePage("pretestAdd") },
             { label: 'Sharing Expert', onClick: () => onChangePage("sharingEdit") },
             { label: 'Forum', onClick: () => onChangePage("forumEdit") },
             { label: 'Post Test', onClick: () => onChangePage("posttestEdit") }
           ]}
-            activeStep={1} 
+            activeStep={0} 
             styleConfig={{
               activeBgColor: '#67ACE9', // Warna latar belakang langkah aktif
               activeTextColor: '#FFFFFF', // Warna teks langkah aktif
@@ -394,7 +394,7 @@ export default function MasterCourseEdit({onChangePage,withID}) {
           <Button
             classType="outline-secondary me-2 px-4 py-2"
             label="Kembali"
-            onClick={() => onChangePage("pretestEdit")}
+            onClick={() => onChangePage("index")}
           />
           <Button
             classType="primary ms-2 px-4 py-2"
@@ -404,7 +404,7 @@ export default function MasterCourseEdit({onChangePage,withID}) {
           <Button
             classType="dark ms-3 px-4 py-2"
             label="Berikutnya"
-            onClick={() => onChangePage("sharingEdit")}
+            onClick={() => onChangePage("pretestEdit")}
           />
         </div>
       </form>

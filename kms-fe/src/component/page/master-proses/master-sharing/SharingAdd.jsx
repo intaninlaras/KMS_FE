@@ -137,8 +137,8 @@ export default function MasterSharingAdd({ onChangePage,withID}) {
         <div>
           <Stepper
             steps={[
-              { label: 'Pretest', onClick: () => onChangePage("pretestAdd") },
               { label: 'Materi', onClick: () => onChangePage("courseAdd") },
+              { label: 'Pretest', onClick: () => onChangePage("pretestAdd") },
               { label: 'Sharing Expert', onClick: () => onChangePage("sharingAdd") },
               { label: 'Forum', onClick: () => onChangePage("forumAdd") },
               { label: 'Post Test', onClick: () => onChangePage("posttestAdd") }
@@ -201,7 +201,7 @@ export default function MasterSharingAdd({ onChangePage,withID}) {
           <Button
             classType="outline-secondary me-2 px-4 py-2"
             label="Kembali"
-            onClick={() => onChangePage("materiAdd")}
+            onClick={() => onChangePage("pretestAdd")}
           />
           <Button
             classType="primary ms-2 px-4 py-2"

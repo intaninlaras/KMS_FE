@@ -572,8 +572,8 @@ export default function MasterPreTestAdd({ onChangePage }) {
         <div>
           <Stepper
             steps={[
-              { label: 'Pretest', onClick: () => onChangePage("pretestAdd") },
               { label: 'Materi', onClick: () => onChangePage("courseAdd") },
+              { label: 'Pretest', onClick: () => onChangePage("pretestAdd") },
               { label: 'Sharing Expert', onClick: () => onChangePage("sharingAdd") },
               { label: 'Forum', onClick: () => onChangePage("forumAdd") },
               { label: 'Post Test', onClick: () => onChangePage("posttestAdd") }

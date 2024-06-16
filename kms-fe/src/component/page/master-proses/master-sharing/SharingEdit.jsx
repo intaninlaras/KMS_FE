@@ -138,8 +138,8 @@ export default function MasterSharingAdd({ onChangePage }) {
         <div>
         <Stepper
              steps={[
-              { label: 'Pretest', onClick: () => onChangePage("pretestEdit") },
-              { label: 'Materi', onClick: () => onChangePage("courseEdit") },
+              { label: 'Materi', onClick: () => onChangePage("courseAdd") },
+              { label: 'Pretest', onClick: () => onChangePage("pretestAdd") },
               { label: 'Sharing Expert', onClick: () => onChangePage("sharingEdit") },
               { label: 'Forum', onClick: () => onChangePage("forumEdit") },
               { label: 'Post Test', onClick: () => onChangePage("posttestEdit") }
@@ -207,7 +207,7 @@ export default function MasterSharingAdd({ onChangePage }) {
           <Button
             classType="outline-secondary me-2 px-4 py-2"
             label="Kembali"
-            onClick={() => onChangePage("materiEdit",AppContext_test.DetailMateriEdit)}
+            onClick={() => onChangePage("pretestEdit",AppContext_test.DetailMateriEdit)}
           />
           <Button
             classType="primary ms-2 px-4 py-2"

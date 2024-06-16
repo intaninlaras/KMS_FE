@@ -118,8 +118,8 @@ export default function MasterForumAdd({ onChangePage, withID }) {
         <div>
           <Stepper
             steps={[
-              { label: 'Pretest', onClick: () => onChangePage("pretestEdit") },
-              { label: 'Materi', onClick: () => onChangePage("courseEdit") },
+              { label: 'Materi', onClick: () => onChangePage("courseAdd") },
+              { label: 'Pretest', onClick: () => onChangePage("pretestAdd") },
               { label: 'Sharing Expert', onClick: () => onChangePage("sharingEdit") },
               { label: 'Forum', onClick: () => onChangePage("forumEdit") },
               { label: 'Post Test', onClick: () => onChangePage("posttestEdit") }

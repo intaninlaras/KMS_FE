@@ -579,13 +579,13 @@ export default function MasterPreTestAdd({ onChangePage }) {
         <div>
           <Stepper
             steps={[
-              { label: 'Pretest', onClick: () => onChangePage("pretestAdd") },
               { label: 'Materi', onClick: () => onChangePage("courseAdd") },
+              { label: 'Pretest', onClick: () => onChangePage("pretestAdd") },
               { label: 'Sharing Expert', onClick: () => onChangePage("sharingAdd") },
               { label: 'Forum', onClick: () => onChangePage("forumAdd") },
               { label: 'Post Test', onClick: () => onChangePage("posttestAdd") }
             ]}
-            activeStep={0}
+            activeStep={1}
             styleConfig={{
               activeBgColor: '#67ACE9',
               activeTextColor: '#FFFFFF',
@@ -993,7 +993,7 @@ export default function MasterPreTestAdd({ onChangePage }) {
           <Button
             classType="outline-secondary me-2 px-4 py-2"
             label="Kembali"
-            onClick={() => onChangePage("index",AppContext_test.MateriForm = "")}
+            onClick={() => onChangePage("materiAdd",AppContext_test.KategoriIdByKK)}
           />
           <Button
             classType="primary ms-2 px-4 py-2"
@@ -1003,7 +1003,7 @@ export default function MasterPreTestAdd({ onChangePage }) {
           <Button
             classType="dark ms-3 px-4 py-2"
             label="Berikutnya"
-            onClick={() => onChangePage("materiAdd",AppContext_test.KategoriIdByKK)}
+            onClick={() => onChangePage("sharingAdd",AppContext_test.KategoriIdByKK)}
           />
         </div>
       </form>
