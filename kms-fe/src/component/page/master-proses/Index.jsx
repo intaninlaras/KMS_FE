@@ -154,7 +154,8 @@ export default function MasterProsesIndex({ onChangePage }) {
                 //Mengosongkan isi form materi&forum
                 AppContext_test.MateriForm = "";
                 AppContext_test.ForumForm = "";
-                AppContext_test.formSaved = false; 
+                AppContext_test.formSavedMateri = false; 
+                AppContext_test.formSavedForum = false; 
                 const formattedData = data.map((value) => ({
                     ...value,
                 }));

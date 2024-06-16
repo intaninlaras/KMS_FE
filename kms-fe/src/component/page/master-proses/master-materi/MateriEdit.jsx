@@ -197,10 +197,6 @@ useEffect(() => {
       });
     }
   };
-  
-
-  
-    
   if (isLoading) return <Loading />;
 
   return (
