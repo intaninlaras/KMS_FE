@@ -325,7 +325,7 @@ if (isLoading) return <Loading />;
                 <Input
                   type="text"
                   forInput="namaKK"
-                  label="Nama KK"
+                  label="Kelompok Keahlian"
                   value={listKategori.find((item) => item.value === formDataRef.current.kat_id)?.namaKK || ""}
                   disabled
                   errorMessage={errors.namaKK}

@@ -38,7 +38,7 @@ function CardMateri({
             <div className="card" style={{ borderColor: "#67ACE9", height: "auto" }}>
             <div className="card-body d-flex align-items-start position-relative">
                 <img
-                  src={book.Gambar}
+                  src={book.Gambar_url}
                   alt="gambar"
                   style={{
                     width: "120px",

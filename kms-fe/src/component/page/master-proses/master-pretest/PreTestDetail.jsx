@@ -4,8 +4,10 @@ import Loading from "../../../part/Loading";
 import { Stepper } from 'react-form-stepper';
 import axios from 'axios';
 import { API_LINK } from "../../../util/Constants";
+import AppContext_test from "../MasterContext";
 
-export default function MasterPreTestDetail({ onChangePage, withID }) {
+
+export default function MasterPreTestDetail({ onChangePage,withID }) {
   const [formContent, setFormContent] = useState([]);
   const [errors, setErrors] = useState({});
   const [isError, setIsError] = useState({ error: false, message: "" });
@@ -288,7 +290,7 @@ export default function MasterPreTestDetail({ onChangePage, withID }) {
           <Button
             classType="dark ms-3 px-4 py-2"
             label="Berikutnya"
-            onClick={() => onChangePage("materiEdit", formData.quizId)}
+            onClick={() => onChangePage("sharingDetail")}
           />
         </div>
       </form>

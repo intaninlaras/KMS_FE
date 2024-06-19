@@ -12,7 +12,7 @@ import FileUpload from "../../../part/FileUpload";
 import uploadFile from "../../../util/UploadImageQuiz";
 import AppContext_test from "../MasterContext";
 
-export default function MasterPostTestAdd({ onChangePage, withID }) {
+export default function MasterPostTestEdit({ onChangePage, withID }) {
     const [formContent, setFormContent] = useState([]);
     const [selectedOptions, setSelectedOptions] = useState([]);
     const [errors, setErrors] = useState({});
@@ -963,11 +963,7 @@ export default function MasterPostTestAdd({ onChangePage, withID }) {
                         type="submit"
                         label="Simpan"
                     />
-                    <Button
-                        classType="dark ms-3 px-4 py-2"
-                        label="Berikutnya"
-                        onClick={() => onChangePage("materiEdit", book.Key)}
-                    />
+                    
                 </div>
             </form>
         </>

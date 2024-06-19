@@ -5,7 +5,7 @@ import { Stepper } from 'react-form-stepper';
 import AppContext_test from "../MasterContext";
 import Loading from "../../../part/Loading";
 
-export default function MasterMateriDetail({ onChangePage, withID }) {
+export default function MasterMateriDetail({ onChangePage }) {
     const [isError, setIsError] = useState({ error: false, message: "" });
     const [isLoading, setIsLoading] = useState(true);
     const [pdfHeight, setPdfHeight] = useState("500px");
@@ -23,6 +23,7 @@ export default function MasterMateriDetail({ onChangePage, withID }) {
             return false;
         }
     };
+    console.log('deyail mat',AppContext_test.DetailMateri)
 
     useEffect(() => {
         const calculatePdfHeight = () => {
@@ -43,7 +44,7 @@ export default function MasterMateriDetail({ onChangePage, withID }) {
 
     if (isLoading) return <Loading />;
 
-    const hasPDF = Materi.File_pdf;
+    const hasPDF = Materi.File_pdf_url;
     const hasVideo = Materi.File_video && isValidUrl(Materi.File_video);
 
     return (
@@ -97,7 +98,7 @@ export default function MasterMateriDetail({ onChangePage, withID }) {
                         <div className="row">
                             <div className="col-lg-3 d-flex align-items-center justify-content-center">
                                 <img
-                                    src={Materi.Gambar}
+                                    src={Materi.Gambar_url}
                                     alt="gambar"
                                     className="img-fluid"
                                     style={{ width: "100%", height: "auto", maxWidth: "300px", maxHeight: "300px" }}
@@ -119,8 +120,8 @@ export default function MasterMateriDetail({ onChangePage, withID }) {
                             <h5 className="card-title">File Materi (PDF)</h5>
                         </div>
                         <div className="card-body">
-                            <object data={Materi.File_pdf} type="application/pdf" width="100%" height={pdfHeight}>
-                                <p>Maaf, browser Anda tidak mendukung preview file. Silakan <a href={Materi.File_pdf}>unduh file</a> untuk melihatnya.</p>
+                            <object data={Materi.File_pdf_url} type="application/pdf" width="100%" height={pdfHeight}>
+                                <p>Maaf, browser Anda tidak mendukung preview file. Silakan <a href={Materi.File_pdf_url}>unduh file</a> untuk melihatnya.</p>
                             </object>
                         </div>
                     </div>
@@ -155,7 +156,7 @@ export default function MasterMateriDetail({ onChangePage, withID }) {
                     <Button
                         classType="dark ms-3 px-4 py-2"
                         label="Berikutnya"
-                        onClick={() => onChangePage("pretestDetail", AppContext_test.DetailMateri)}
+                        onClick={() => onChangePage("pretestDetail")}
                     />
                 </div>
                 
