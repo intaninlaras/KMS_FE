@@ -19,7 +19,8 @@ export default function MasterPostTestDetail({ onChangePage,withID }) {
     materiId: '',
     quizJudul: '',
     quizDeskripsi: '',
-    quizTipe: 'PreTest',
+    gambar: '',
+    quizTipe: 'Posttest',
     tanggalAwal: '',
     tanggalAkhir: '',
     timer: '',
@@ -85,72 +86,100 @@ export default function MasterPostTestDetail({ onChangePage,withID }) {
     }
   };
 
+  const stripHtmlTags = (str) => {
+    return str.replace(/<\/?[^>]+(>|$)/g, "");
+  };
+
   const getDataQuestion = async () => {
     setIsLoading(true);
 
     try {
-      while (true) {
-        const data = await axios.post(API_LINK + 'Quiz/GetDataQuestion', {
-          id: formData.quizId, status: 'Aktif'
-        });
-
-        if (data === "ERROR") {
-          throw new Error("Terjadi kesalahan: Gagal mengambil data quiz.");
-        } else if (data.length === 0) {
-          await new Promise((resolve) => setTimeout(resolve, 2000));
-        } else {
-          const formattedQuestions = {};
-          data.data.forEach((question) => {
-            if (question.Key in formattedQuestions) {
-              formattedQuestions[question.Key].options.push({
-                id: question.JawabanId,
-                label: question.Jawaban,
-                point: question.NilaiJawaban || 0,
-              });
+        while (true) {
+            const { data } = await axios.post(API_LINK + 'Quiz/GetDataQuestion', {
+                id: formData.quizId, status: 'Aktif'
+            });
+            console.log(data);
+            if (data === "ERROR") {
+                throw new Error("Terjadi kesalahan: Gagal mengambil data quiz.");
+            } else if (data.length === 0) {
+                await new Promise((resolve) => setTimeout(resolve, 2000));
             } else {
-              formattedQuestions[question.Key] = {
-                type: question.TipeSoal,
-                text: question.Soal,
-                options: [], 
-                point: question.NilaiJawaban || 0,
-              };
+                const formattedQuestions = {};
+                const filePromises = [];
 
-              if (question.TipeSoal === 'multiple_choice') {
-                formattedQuestions[question.Key].options.push({
-                  id: question.JawabanId,
-                  label: question.Jawaban,
-                  point: question.NilaiJawaban || 0,
+                data.forEach((question) => {
+                    if (question.Key in formattedQuestions) {
+                        formattedQuestions[question.Key].options.push({
+                            id: question.JawabanId,
+                            label: question.Jawaban,
+                            point: question.NilaiJawaban || 0,
+                            key: question.Key,
+                        });
+                    } else {
+                        formattedQuestions[question.Key] = {
+                            type: question.TipeSoal,
+                            text: question.Soal,
+                            options: [],
+                            gambar: question.Gambar ? question.Gambar : '',
+                            point: question.NilaiJawaban || 0,
+                            key: question.Key,
+                        };
+
+                        if (question.TipeSoal === 'Pilgan') {
+                            formattedQuestions[question.Key].options.push({
+                                id: question.JawabanId,
+                                label: question.Jawaban,
+                                point: question.NilaiJawaban || 0,
+                                key: question.Key,
+                            });
+                        }
+
+                        if (question.Gambar) {
+                            const gambarPromise = fetch(
+                                API_LINK + `Utilities/Upload/DownloadFile?namaFile=${encodeURIComponent(question.Gambar)}`
+                            )
+                                .then((response) => response.blob())
+                                .then((blob) => {
+                                    const url = URL.createObjectURL(blob);
+                                    formattedQuestions[question.Key].gbr = question.Gambar;
+                                    formattedQuestions[question.Key].gambar = url;
+                                })
+                                .catch((error) => {
+                                    console.error("Error fetching gambar:", error);
+                                });
+                            filePromises.push(gambarPromise);
+                        }
+                    }
                 });
-              }
-            }
-          });
-          const formattedQuestionsArray = Object.values(formattedQuestions);
-          setFormContent(formattedQuestionsArray);
-          setIsLoading(false);
-          break;
-        }
-      }
-    } catch (e) {
-      setIsLoading(false);
-      console.log(e.message);
-      setIsError((prevError) => ({
-        ...prevError,
-        error: true,
-        message: e.message,
-      }));
-    }
-  };
 
+                await Promise.all(filePromises);
+
+                const formattedQuestionsArray = Object.values(formattedQuestions);
+                setFormContent(formattedQuestionsArray);
+                setIsLoading(false);
+                break;
+            }
+        }
+    } catch (e) {
+        setIsLoading(false);
+        console.log(e.message);
+        setIsError((prevError) => ({
+            ...prevError,
+            error: true,
+            message: e.message,
+        }));
+    }
+};  
   useEffect(() => {
     getDataQuiz();
   }, [withID]);
-
+  
   useEffect(() => {
     if (formData.quizId) getDataQuestion();
   }, [formData.quizId]);
-
+  
   if (isLoading) return <Loading />;
-
+  
   return (
     <>
       <form id="myForm">
@@ -196,6 +225,10 @@ export default function MasterPostTestDetail({ onChangePage,withID }) {
               <div className="col-md-12">
                 <h4 className="mb-3 mt-0">Deskripsi</h4>
                 <p className="pb-3">{formData.quizDeskripsi}</p>
+                <h4 className="mb-3 mt-0">Tipe Quiz</h4>
+                <p className="pb-3">{formData.quizTipe}</p>
+                <h4 className="mb-3 mt-0">Durasi</h4>
+                <p className="pb-3">{formData.timer}</p>
                 <h4 className="mb-3 mt-0">Tanggal Dimulai</h4>
                 <p className="pb-3">{formatDateIndonesian(formData.tanggalAwal)}</p>
                 <h4 className="mb-3 mt-0">Tanggal Berakhir</h4>
@@ -210,14 +243,18 @@ export default function MasterPostTestDetail({ onChangePage,withID }) {
                     <p>{index + 1}. {question.text}</p>
                     
                     {question.type === "Pilgan" && (
-                      <ul>
+                      <ul style={{ listStyleType: 'none', padding: 0 }}>
                         {question.options.map((option, optionIndex) => (
-                          <li key={optionIndex}>{option.label}</li>
+                          <li key={optionIndex}>
+                            <input type="radio" disabled /> {option.label}
+                            <span style={{ fontSize: '0.75em', marginLeft: '10px', color: 'gray' }}>({option.point} poin)</span>
+                          </li>
                         ))}
                       </ul>
                     )}
                     
                   </div>
+                  
                 ))}
               </div>
             </div>
