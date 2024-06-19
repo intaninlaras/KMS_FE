@@ -16,8 +16,8 @@ import uploadFile from "../../../util/UploadFile";
 import AppContext_test from "../MasterContext";
 import { Editor } from '@tinymce/tinymce-react';
 
-export default function MasterCourseEdit({onChangePage,withID}) {
-  // console.log("ID: " + JSON.stringify(withID));
+export default function MasterCourseEdit({onChangePage}) {
+  // console.log("ID: " + JSON.stringify(Materi));
   console.log("onChangePage prop:", onChangePage);
 
   const [errors, setErrors] = useState({});
@@ -28,34 +28,37 @@ export default function MasterCourseEdit({onChangePage,withID}) {
   const fileInputRef = useRef(null);
   const gambarInputRef = useRef(null);
   const videoInputRef = useRef(null);
+  
+  const kategori = AppContext_test.KategoriIdByKK;
+  const Materi = AppContext_test.DetailMateriEdit;
 
-  const kategori = AppContext_test.kategoriId;
-  console.log("kategori di materi: " + AppContext_test.kategoriId);
+
+  console.log("kategori di materi: " + AppContext_test.KategoriIdByKK);
   const formDataRef = useRef({
-    mat_id:withID.Key,
-    kat_id: AppContext_test.kategoriId, 
-    mat_judul: withID.Judul, 
-    mat_file_pdf: withID.File_pdf,
-    mat_file_video: withID.File_video,
-    mat_pengenalan: withID.Pengenalan,
-    mat_keterangan: withID.Keterangan,
+    mat_id:Materi.Key,
+    kat_id: AppContext_test.KategoriIdByKK, 
+    mat_judul: Materi.Judul, 
+    mat_file_pdf: Materi.File_pdf,
+    mat_file_video: Materi.File_video,
+    mat_pengenalan: Materi.Pengenalan,
+    mat_keterangan: Materi.Keterangan,
     kry_id: "",
-    mat_kata_kunci:withID["Kata Kunci"],
+    mat_kata_kunci:Materi["Kata Kunci"],
     mat_gambar: "",
   });
 
   console.log(formDataRef)
 
   // const formUpdateRef = useRef({
-  //   mat_id:withID.Key,
+  //   mat_id:Materi.Key,
   //   kat_id:"",
-  //   mat_judul: withID.Judul, 
-  //   mat_file_pdf: withID.File_P,
-  //   mat_file_video: withID.File_video,
-  //   mat_pengenalan: withID.Pengenalan,
-  //   mat_keterangan: withID.Keterangan,
+  //   mat_judul: Materi.Judul, 
+  //   mat_file_pdf: Materi.File_P,
+  //   mat_file_video: Materi.File_video,
+  //   mat_pengenalan: Materi.Pengenalan,
+  //   mat_keterangan: Materi.Keterangan,
   //   kry_id: "1",
-  //   mat_kata_kunci:withID["Kata Kunci"],
+  //   mat_kata_kunci:Materi["Kata Kunci"],
   //   mat_gambar: "FILE_1717049166708.jpg",
   // });
 
@@ -105,38 +108,41 @@ export default function MasterCourseEdit({onChangePage,withID}) {
 };
 
 
-  useEffect(() => {
-    const fetchDataKategori = async () => {
-      setIsError((prevError) => ({ ...prevError, error: false }));
-
+useEffect(() => {
+  const fetchDataKategori = async (retries = 3, delay = 1000) => {
+    for (let i = 0; i < retries; i++) {
       try {
-        const data = await UseFetch(API_LINK + "Program/GetKategoriKKById", {
-          kategori
-        });
-
-        console.log("Raw data: ", data);
-
+        const data = await UseFetch(API_LINK + "Program/GetKategoriKKById", { kategori });
         const mappedData = data.map(item => ({
           value: item.Key,
           label: item["Nama Kategori"],
-          idKK: item.idKK, 
-          namaKK: item.namaKK 
+          idKK: item.idKK,
+          namaKK: item.namaKK
         }));
 
         console.log("Mapped data: ", mappedData);
-
         setListKategori(mappedData);
+        return;
       } catch (error) {
-        setIsError((prevError) => ({
-          ...prevError,
-          error: true,
-          message: error.message,
-        }));
-        setListKategori([]);
+        console.error("Error fetching kategori data:", error);
+        if (i < retries - 1) {
+          await new Promise(resolve => setTimeout(resolve, delay));
+        } else {
+          setIsError((prevError) => ({
+            ...prevError,
+            error: true,
+            message: error.message,
+          }));
+          setListKategori([]);
+        }
       }
-    };
-    fetchDataKategori();
-  }, [kategori]);
+    }
+  };
+
+  setIsError((prevError) => ({ ...prevError, error: false }));
+  fetchDataKategori();
+}, [kategori]);
+
 
 
   const handleAdd = async (e) => {
@@ -191,10 +197,6 @@ export default function MasterCourseEdit({onChangePage,withID}) {
       });
     }
   };
-  
-
-  
-    
   if (isLoading) return <Loading />;
 
   return (

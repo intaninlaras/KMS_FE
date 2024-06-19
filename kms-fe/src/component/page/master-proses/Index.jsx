@@ -14,6 +14,7 @@ import '@fortawesome/fontawesome-free/css/all.css';
 import "../../../index.css";
 // Definisikan beberapa data contoh untuk tabel
 import AppContext_test from "./MasterContext";
+
 const inisialisasiData = [
   {
     Key: null,
@@ -43,7 +44,7 @@ const dataFilterStatus = [
   { Value: "Tidak Aktif", Text: "Tidak Aktif" },
 ];
 
-export default function MasterProsesIndex({ onChangePage, withID }) {
+export default function MasterProsesIndex({ onChangePage }) {
   const [isError, setIsError] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [currentData, setCurrentData] = useState(inisialisasiData);
@@ -53,12 +54,9 @@ export default function MasterProsesIndex({ onChangePage, withID }) {
     query: "",
     sort: "Judul",
     order: "asc",
-    kategori:withID,
-   // Default status
+    kategori:AppContext_test.KategoriIdByKK,
   });
-  AppContext_test.kategoriId = withID;
-  const kategori = withID;
-  console.log("kategori di index: " + kategori);
+  console.log("kategori di index: " + AppContext_test.KategoriIdByKK);
   const searchQuery = useRef(null);
   const searchFilterSort = useRef(null);
   const searchFilterStatus = useRef(null);
@@ -153,6 +151,11 @@ export default function MasterProsesIndex({ onChangePage, withID }) {
             } else if (data.length === 0) {
                 setCurrentData(inisialisasiData);
             } else {
+                //Mengosongkan isi form materi&forum
+                AppContext_test.MateriForm = "";
+                AppContext_test.ForumForm = "";
+                AppContext_test.formSavedMateri = false; 
+                AppContext_test.formSavedForum = false; 
                 const formattedData = data.map((value) => ({
                     ...value,
                 }));
@@ -315,7 +318,7 @@ export default function MasterProsesIndex({ onChangePage, withID }) {
                 classType="success"
                 title="Tambah Materi"
                 label="Tambah Materi"
-                onClick={() => onChangePage("materiAdd",AppContext_test.KategoriIdByKK)}
+                onClick={() => onChangePage("materiAdd")}
               />
               <Input
                 ref={searchQuery}

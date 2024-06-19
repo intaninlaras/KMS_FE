@@ -10,18 +10,20 @@ import { validateAllInputs, validateInput } from "../../../util/ValidateForm";
 import { API_LINK } from "../../../util/Constants";
 import FileUpload from "../../../part/FileUpload";
 import uploadFile from "../../../util/UploadImageQuiz";
-import AppContext_test from "../MasterContext";
+import { Editor } from '@tinymce/tinymce-react';
+import Swal from 'sweetalert2';
 
-export default function MasterPreTestAdd({ onChangePage,withID}) {
-  const [formContent, setFormContent] = useState([]);
-  const [selectedOptions, setSelectedOptions] = useState([]);
-  const [errors, setErrors] = useState({});
-  const [isLoading, setIsLoading] = useState(false);
-  const [correctAnswers, setCorrectAnswers] = useState({});
-  const [selectedFile, setSelectedFile] = useState(null);
-  const [timer, setTimer] = useState('');
-  const [minimumScore, setMinimumScore] = useState();
-  const gambarInputRef = useRef(null);
+export default function MasterPreTestEdit({ onChangePage, withID }) {
+    const [formContent, setFormContent] = useState([]);
+    const [selectedOptions, setSelectedOptions] = useState([]);
+    const [errors, setErrors] = useState({});
+    const [isError, setIsError] = useState({ error: false, message: "" });
+    const [isLoading, setIsLoading] = useState(false);
+    const [correctAnswers, setCorrectAnswers] = useState({});
+    const [selectedFile, setSelectedFile] = useState(null);
+    const [timer, setTimer] = useState('');
+    const [minimumScore, setMinimumScore] = useState();
+    const gambarInputRef = useRef(null);
 
     const [formData, setFormData] = useState({
         quizId: '',
@@ -92,14 +94,16 @@ export default function MasterPreTestAdd({ onChangePage,withID}) {
             ...prevFormChoice,
             nilaiChoice: value,
         }));
+
+        console.log(formContent)
     };
 
     const handleOptionPointChange = (e, questionIndex, optionIndex) => {
         const { value } = e.target;
-    
+
         // Parse value to integer
         const pointValue = parseInt(value, 10) || 0;
-    
+
         // Create a copy of formContent
         const updatedFormContent = formContent.map((question, qIndex) => {
             if (qIndex === questionIndex) {
@@ -113,10 +117,10 @@ export default function MasterPreTestAdd({ onChangePage,withID}) {
                     }
                     return option;
                 });
-    
+
                 // Calculate total points for the question
                 const totalPoints = updatedOptions.reduce((acc, opt) => acc + opt.point, 0);
-    
+
                 // Return updated question with updated options and total points
                 return {
                     ...question,
@@ -126,11 +130,11 @@ export default function MasterPreTestAdd({ onChangePage,withID}) {
             }
             return question;
         });
-    
+
         // Update formContent state
         setFormContent(updatedFormContent);
     };
-    
+
 
     const addQuestion = (questionType) => {
         const newQuestion = {
@@ -160,127 +164,141 @@ export default function MasterPreTestAdd({ onChangePage,withID}) {
 
     const handleAdd = async (e) => {
         e.preventDefault();
-    
-        try {
-          formData.timer = convertTimeToSeconds(timer)
-            console.log(formData)
-          const response = await axios.post(API_LINK + 'Quiz/UpdateDataQuiz', formData);
-            console.log("api 1 = ", response)
-          if (response.data.length === 0) {
-            alert('Gagal menyimpan data');
-            return;
-          }
-    
-          const quizId = response.data[0].hasil;
-          console.log("quizId = "+quizId)
-          for (let i = 0; i < formContent.length; i++) {
-            const question = formContent[i];
-            console.log("formvontetn", formContent[i])
-            const formQuestion = {
-              questionId: question.key,
-              quizId: quizId,
-              soal: question.text,
-              tipeQuestion: question.type,
-              gambar: question.gambar,
-              questionDeskripsi: '',
-              status: 'Aktif',
-              quemodifby: 'Admin',
-            };
-            console.log(question.key)
-            if (question.type === 'Essay' || question.type === 'Praktikum') {
-              if (question.selectedFile) {
-                try {
-                  const uploadResult = await uploadFile(question.selectedFile);
-                  console.log("Image Upload Response:", JSON.stringify(uploadResult.newFileName));
-                  formQuestion.gambar = uploadResult.newFileName;   
-                } catch (uploadError) {
-                  console.error('Gagal mengunggah gambar:', uploadError);
-                  alert('Gagal mengunggah gambar untuk pertanyaan: ' + question.text);
-                  return;
-                }
-              }else{
-                formQuestion.gambar = '';
-              }
-            } else if (question.type === 'Pilgan') {
-              formQuestion.gambar = '';
-            }
-            formQuestion.gambar = '';
-            // console.log("hasil questionn")
-            // console.log(formQuestion);
-    
-            try {
-                console.log("ini soal",formQuestion)
-              const questionResponse = await axios.post(API_LINK + 'Questions/UpdateDataQuestion', formQuestion);
-            //   console.log('Pertanyaan berhasil disimpan:', questionResponse.data);
-    
-              if (questionResponse.data.length === 0) {
-                alert('Gagal menyimpan question')
-                return
-              }
-    
-              const questionId = questionResponse.data[0].hasil;
-              console.log("ques id : "+questionId)
-              if (question.type === 'Essay' || question.type === 'Praktikum') {
-                const answerData = {
-                  urutanChoice: '',
-                  answerText: question.correctAnswer, // Pastikan menggunakan correctAnswer dari question
-                  questionId: questionId,
-                  nilaiChoice: question.point,
-                  quemodifby: 'Admin',
-                };
-    
-                try {
-                  const answerResponse = await axios.post(API_LINK + 'Choices/UpdateDataChoice', answerData);
-                //   console.log('Jawaban Essay berhasil disimpan:', answerResponse.data);
-                } catch (error) {
-                  console.error('Gagal menyimpan jawaban Essay:', error);
-                  alert('Gagal menyimpan jawaban Essay');
-                }
-              } else if (question.type === 'Pilgan') {
-                for (const [optionIndex, option] of question.options.entries()) {
-                  const answerData = {
-                    urutanChoice: optionIndex + 1,
-                    answerText: option.label,
-                    questionId: questionId,
-                    nilaiChoice: option.point || 0,
-                    quemodifby: 'Admin',
-                  };
-    
-                //   console.log("hasil multiple choice")
-                //   console.log(answerData);
-    
-                  try {
-                    console.log(answerData)
-                    const answerResponse = await axios.post(API_LINK + 'Choices/UpdateDataChoice', answerData);
-                    // console.log('Jawaban multiple choice berhasil disimpan:', answerResponse.data);
-                  } catch (error) {
-                    console.error('Gagal menyimpan jawaban multiple choice:', error);
-                    alert('Gagal menyimpan jawaban multiple choice');
-                  }
-                }
-              }
-            } catch (error) {
-              console.error('Gagal menyimpan pertanyaan:', error);
-              alert('Gagal menyimpan pertanyaan');
-            }
-          }
-    
-          // Tampilkan pesan sukses atau lakukan tindakan lain yang diperlukan setelah semua data berhasil disimpan
-          Swal.fire({
-            title: 'Berhasil!',
-            text: 'Pretest berhasil diubah',
-            icon: 'success',
-            confirmButtonText: 'OK'
-             }).then(() => {
-            // Redirect to index page
-            window.location.href = '/master_proses'; // Ganti '/index' dengan URL tujuan Anda
-        });
-    
-        } catch (error) {
-          console.error('Gagal menyimpan data:', error);
-          alert('Gagal menyimpan data');
+
+        const totalQuestionPoint = formContent.reduce((total, question) => total + parseInt(question.point), 0);
+        const totalOptionPoint = formContent.reduce((total, question) => {
+        if (question.type === 'Pilgan') {
+            return total + question.options.reduce((optionTotal, option) => optionTotal + parseInt(option.point || 0), 0);
         }
-      };
+        return total;
+        }, 0);
+        
+        // Total point dari semua pertanyaan dan opsi harus berjumlah 100, tidak kurang dan tidak lebih
+        if (totalQuestionPoint + totalOptionPoint !== 100) {
+        alert('Total skor harus berjumlah 100');
+        return;
+        }
+
+        try {
+            formData.timer = convertTimeToSeconds(timer)
+            console.log(formData)
+            const response = await axios.post(API_LINK + 'Quiz/UpdateDataQuiz', formData);
+            console.log("api 1 = ", response)
+            if (response.data.length === 0) {
+                alert('Gagal menyimpan data');
+                return;
+            }
+
+            const quizId = response.data[0].hasil;
+            console.log("quizId = " + quizId)
+            for (let i = 0; i < formContent.length; i++) {
+                const question = formContent[i];
+                console.log("formvontetn", formContent[i])
+                const formQuestion = {
+                    questionId: question.key,
+                    quizId: quizId,
+                    soal: question.text,
+                    tipeQuestion: question.type,
+                    gambar: question.selectedFile,
+                    questionDeskripsi: '',
+                    status: 'Aktif',
+                    quemodifby: 'Admin',
+                };
+                console.log(question.key)
+                if (question.type === 'Essay' || question.type === 'Praktikum') {
+                    if (question.selectedFile) {
+                        try {
+                            const uploadResult = await uploadFile(question.selectedFile);
+                            console.log("Image Upload Response:", JSON.stringify(uploadResult.newFileName));
+                            formQuestion.gambar = uploadResult.newFileName;
+                        } catch (uploadError) {
+                            console.error('Gagal mengunggah gambar:', uploadError);
+                            alert('Gagal mengunggah gambar untuk pertanyaan: ' + question.text);
+                            return;
+                        }
+                    } else {
+                        formQuestion.gambar = '';
+                    }
+                } else if (question.type === 'Pilgan') {
+                    formQuestion.gambar = '';
+                }
+                // console.log("hasil questionn")
+                // console.log(formQuestion);
+
+                try {
+                    console.log("ini soal", formQuestion)
+                    const questionResponse = await axios.post(API_LINK + 'Questions/UpdateDataQuestion', formQuestion);
+                    //   console.log('Pertanyaan berhasil disimpan:', questionResponse.data);
+
+                    if (questionResponse.data.length === 0) {
+                        alert('Gagal menyimpan question')
+                        return
+                    }
+
+                    const questionId = questionResponse.data[0].hasil;
+                    console.log("ques id : " + questionId)
+                    if (question.type === 'Essay' || question.type === 'Praktikum') {
+                        const answerData = {
+                            urutanChoice: '1', // Pastikan menggunakan correctAnswer dari question
+                            questionId: questionId,
+                            nilaiChoice: question.point,
+                            quemodifby: 'Admin',
+                            type: 'Essay'
+                        };
+                        console.log(answerData)
+
+                        try {
+                            const answerResponse = await axios.post(API_LINK + 'Choices/UpdateDataChoice', answerData);
+                            //   console.log('Jawaban essay berhasil disimpan:', answerResponse.data);
+                        } catch (error) {
+                            console.error('Gagal menyimpan jawaban essay:', error);
+                            alert('Gagal menyimpan jawaban essay');
+                        }
+                    } else if (question.type === 'Pilgan') {
+                        for (const [optionIndex, option] of question.options.entries()) {
+                            const answerData = {
+                                urutanChoice: optionIndex + 1,
+                                answerText: option.label,
+                                questionId: questionId,
+                                nilaiChoice: option.point || 0,
+                                quemodifby: 'Admin',
+                            };
+
+                            //   console.log("hasil multiple choice")
+                            //   console.log(answerData);
+
+                            try {
+                                console.log(answerData)
+                                const answerResponse = await axios.post(API_LINK + 'Choices/UpdateDataChoice', answerData);
+                                // console.log('Jawaban multiple choice berhasil disimpan:', answerResponse.data);
+                            } catch (error) {
+                                console.error('Gagal menyimpan jawaban multiple choice:', error);
+                                alert('Gagal menyimpan jawaban multiple choice');
+                            }
+                        }
+                    }
+                } catch (error) {
+                    console.error('Gagal menyimpan pertanyaan:', error);
+                    alert('Gagal menyimpan pertanyaan');
+                }
+            }
+
+            // Tampilkan pesan sukses atau lakukan tindakan lain yang diperlukan setelah semua data berhasil disimpan
+            Swal.fire({
+                title: 'Berhasil!',
+                text: 'Pretest berhasil diubah',
+                icon: 'success',
+                confirmButtonText: 'OK'
+            }).then(() => {
+                // Redirect to index page
+                window.location.href = '/master_proses'; // Ganti '/index' dengan URL tujuan Anda
+            });
+
+        } catch (error) {
+            console.error('Gagal menyimpan data:', error);
+            alert('Gagal menyimpan data');
+        }
+    };
 
     const handleOptionLabelChange = (e, questionIndex, optionIndex) => {
         const { value } = e.target;
@@ -364,7 +382,7 @@ export default function MasterPreTestAdd({ onChangePage,withID}) {
                     return "";
                 }
             } else {
-                // Tidak ada pilihan awal untuk pertanyaan Essay
+                // Tidak ada pilihan awal untuk pertanyaan essay
                 return "";
             }
         });
@@ -377,6 +395,8 @@ export default function MasterPreTestAdd({ onChangePage,withID}) {
         const file = e.target.files[0];
         const updatedFormContent = [...formContent];
         updatedFormContent[index].selectedFile = file;
+        console.log("handle file change")
+        console.log(updatedFormContent);
         setFormContent(updatedFormContent);
     };
 
@@ -403,7 +423,7 @@ export default function MasterPreTestAdd({ onChangePage,withID}) {
         link.download = 'template.xlsx';
         link.click();
     };
-  
+
     const convertTimeToSeconds = (time) => {
         console.log("ini time" + time)
         // Pastikan nilai time dalam bentuk string dengan format "HH:MM"
@@ -429,13 +449,6 @@ export default function MasterPreTestAdd({ onChangePage,withID}) {
 
         // Kembalikan total detik dari waktu yang diberikan
         return hours * 3600 + minutes * 60;
-    };
-
-    const updateFormQuestion = (name, value) => {
-        setFormQuestion((prevFormQuestion) => ({
-            ...prevFormQuestion,
-            [name]: value,
-        }));
     };
 
     const handleTimerChange = (e) => {
@@ -465,15 +478,15 @@ export default function MasterPreTestAdd({ onChangePage,withID}) {
         const minutes = Math.floor((seconds % 3600) / 60).toString().padStart(2, '0');
         return `${hours}:${minutes}`;
     };
+
     const getDataQuiz = async () => {
         setIsLoading(true);
 
         try {
             while (true) {
                 const data = await axios.post(API_LINK + 'Quiz/GetQuizByID', {
-                    id: withID.Key
+                    id: withID, tipe: "Pretest"
                 });
-                 console.log("halo", withID)
 
                 if (data === "ERROR") {
                     throw new Error("Terjadi kesalahan: Gagal mengambil data quiz.");
@@ -494,30 +507,32 @@ export default function MasterPreTestAdd({ onChangePage,withID}) {
         } catch (e) {
             setIsLoading(false);
             console.log(e.message);
-            // setIsError((prevError) => ({
-            //     ...prevError,
-            //     error: true,
-            //     message: e.message,
-            // }));
+            setIsError((prevError) => ({
+                ...prevError,
+                error: true,
+                message: e.message,
+            }));
         }
     };
 
     const getDataQuestion = async () => {
         setIsLoading(true);
-
+    
         try {
             while (true) {
-                const data = await axios.post(API_LINK + 'Quiz/GetDataQuestion', {
+                const { data } = await axios.post(API_LINK + 'Quiz/GetDataQuestion', {
                     id: formData.quizId, status: 'Aktif'
                 });
-                console.log("question: ", data)
+                console.log(data);
                 if (data === "ERROR") {
                     throw new Error("Terjadi kesalahan: Gagal mengambil data quiz.");
                 } else if (data.length === 0) {
                     await new Promise((resolve) => setTimeout(resolve, 2000));
                 } else {
                     const formattedQuestions = {};
-                    data.data.forEach((question) => {
+                    const filePromises = [];
+    
+                    data.forEach((question) => {
                         if (question.Key in formattedQuestions) {
                             formattedQuestions[question.Key].options.push({
                                 id: question.JawabanId,
@@ -529,11 +544,12 @@ export default function MasterPreTestAdd({ onChangePage,withID}) {
                             formattedQuestions[question.Key] = {
                                 type: question.TipeSoal,
                                 text: question.Soal,
-                                options: [], 
+                                options: [],
+                                gambar: question.Gambar ? question.Gambar : '',
                                 point: question.NilaiJawaban || 0,
                                 key: question.Key,
                             };
-
+    
                             if (question.TipeSoal === 'Pilgan') {
                                 formattedQuestions[question.Key].options.push({
                                     id: question.JawabanId,
@@ -542,8 +558,27 @@ export default function MasterPreTestAdd({ onChangePage,withID}) {
                                     key: question.Key,
                                 });
                             }
+    
+                            if (question.Gambar) {
+                                const gambarPromise = fetch(
+                                    API_LINK + `Utilities/Upload/DownloadFile?namaFile=${encodeURIComponent(question.Gambar)}`
+                                )
+                                    .then((response) => response.blob())
+                                    .then((blob) => {
+                                        const url = URL.createObjectURL(blob);
+                                        formattedQuestions[question.Key].gbr = question.Gambar;
+                                        formattedQuestions[question.Key].gambar = url;
+                                    })
+                                    .catch((error) => {
+                                        console.error("Error fetching gambar:", error);
+                                    });
+                                filePromises.push(gambarPromise);
+                            }
                         }
                     });
+    
+                    await Promise.all(filePromises);
+    
                     const formattedQuestionsArray = Object.values(formattedQuestions);
                     setFormContent(formattedQuestionsArray);
                     setIsLoading(false);
@@ -559,8 +594,9 @@ export default function MasterPreTestAdd({ onChangePage,withID}) {
                 message: e.message,
             }));
         }
-    };
+    };   
 
+    
     useEffect(() => {
         getDataQuiz();
     }, [withID]);
@@ -573,7 +609,6 @@ export default function MasterPreTestAdd({ onChangePage,withID}) {
 
     return (
         <>
-            
             <style>
                 {`
             .form-check input[type="radio"] {
@@ -611,13 +646,13 @@ export default function MasterPreTestAdd({ onChangePage,withID}) {
                 <div>
                     <Stepper
                         steps={[
-                            { label: 'Materi', onClick: () => onChangePage("courseAdd") },
                             { label: 'Pretest', onClick: () => onChangePage("pretestAdd") },
+                            { label: 'Materi', onClick: () => onChangePage("courseAdd") },
                             { label: 'Sharing Expert', onClick: () => onChangePage("sharingAdd") },
                             { label: 'Forum', onClick: () => onChangePage("forumAdd") },
                             { label: 'Post Test', onClick: () => onChangePage("posttestAdd") }
                         ]}
-                        activeStep={1}
+                        activeStep={0}
                         styleConfig={{
                             activeBgColor: '#67ACE9',
                             activeTextColor: '#FFFFFF',
@@ -659,7 +694,7 @@ export default function MasterPreTestAdd({ onChangePage,withID}) {
                             </div>
                         </div>
                         <div className="row mb-4">
-                            <div className="col-lg-6">
+                            <div className="col-lg-4">
                                 <Input
                                     type="time"
                                     name="timer"
@@ -670,22 +705,7 @@ export default function MasterPreTestAdd({ onChangePage,withID}) {
                                     isRequired={true}
                                 />
                             </div>
-                            <div className="col-lg-6">
-                                <Input
-                                    type="number"
-                                    label="Skor Minimal"
-                                    forInput="minimumScoreInput"
-                                    name="minimumScore"
-                                    //value={formData.minimumScore}
-                                    value="100"
-                                    //onChange={handleInputChange}
-                                    isRequired={true}
-                                />
-
-                            </div>
-                        </div>
-                        <div className="row mb-4">
-                            <div className="col-lg-6">
+                            <div className="col-lg-4">
                                 <Input
                                     label="Tanggal Dimulai:"
                                     type="date"
@@ -694,7 +714,7 @@ export default function MasterPreTestAdd({ onChangePage,withID}) {
                                     isRequired={true}
                                 />
                             </div>
-                            <div className="col-lg-6">
+                            <div className="col-lg-4">
                                 <Input
                                     label="Tanggal Berakhir:"
                                     type="date"
@@ -704,6 +724,7 @@ export default function MasterPreTestAdd({ onChangePage,withID}) {
                                 />
                             </div>
                         </div>
+
                         <div className="row mb-4">
                             <div className="mb-2">
                             </div>
@@ -746,154 +767,187 @@ export default function MasterPreTestAdd({ onChangePage,withID}) {
                         {formContent.map((question, index) => (
                             <div key={index} className="card mb-4">
                                 <div className="card-header bg-white fw-medium text-black d-flex justify-content-between align-items-center">
-  <span>Pertanyaan</span>
-  <span>
-    Poin: {parseInt(question.point) + (question.type === 'multiple_choice' ? (question.options || []).reduce((acc, option) => acc + parseInt(option.point), 0) : 0)}
-  </span>
-  <div className="col-lg-2">
-    <select className="form-select" aria-label="Default select example"
-      value={question.type}
-      onChange={(e) => handleQuestionTypeChange(e, index)}>
-      <option value="essay">Essay</option>
-      <option value="multiple_choice">Pilihan Ganda</option>
-      <option value="praktikum">Praktikum</option>
-    </select>
-  </div>
-</div>
+                                    <span>Pertanyaan</span>
+                                    <span>
+                                        Skor: {parseInt(question.point) + (question.type === 'Pilgan' ? (question.options || []).reduce((acc, option) => acc + parseInt(option.point), 0) : 0)}
+                                    </span>                                    <div className="col-lg-2">
+                                        <select className="form-select" aria-label="Default select example"
+                                            value={question.type}
+                                            onChange={(e) => handleQuestionTypeChange(e, index)}>
+                                            <option value="Essay">Essay</option>
+                                            <option value="Pilgan">Pilihan Ganda</option>
+                                            <option value="Praktikum">Praktikum</option>
+                                        </select>
+                                    </div>
+
+                                </div>
                                 <div className="card-body p-4">
 
-                                        <div className="row">
-                                            <div className="col-lg-12 question-input">
-                                                
+                                    <div className="row">
+                                        <div className="col-lg-12 question-input">
+
                                             <label htmlFor="deskripsiMateri" className="form-label fw-bold">
-                                            Pertanyaan <span style={{color:"Red"}}> *</span>
+                                                Pertanyaan <span style={{ color: "Red" }}> *</span>
                                             </label>
                                             <Editor
-                        forInput={'pertanyaan_${index}'}
-                        value={question.text}
-                        onEditorChange={(content) => {
-                          const updatedFormContent = [...formContent];
-                          updatedFormContent[index].text = content;
-                          setFormContent(updatedFormContent);
+                                                forInput={'pertanyaan_${index}'}
+                                                value={question.text}
+                                                onEditorChange={(content) => {
+                                                    const updatedFormContent = [...formContent];
+                                                    updatedFormContent[index].text = content;
+                                                    setFormContent(updatedFormContent);
 
-                          // Update formQuestion.soal
-                          setFormQuestion((prevFormQuestion) => ({
-                            ...prevFormQuestion,
-                            soal: content,
-                          }));
-                        }}
-                        apiKey="la2hd1ehvumeir6fa5kxxltae8u2whzvx1jptw6dqm4dgf2g"
-                        init={{
-                          height: 300,
-                          menubar: false,
-                          plugins: [
-                            'advlist autolink lists link image charmap print preview anchor',
-                            'searchreplace visualblocks code fullscreen',
-                            'insertdatetime media table paste code help wordcount',
-                          ],
-                          toolbar:
-                            'undo redo | formatselect | bold italic backcolor | ' +
-                            'alignleft aligncenter alignright alignjustify | ' +
-                            'bullist numlist outdent indent | removeformat | help',
-                        }}
-                      />
-                                            </div>
+                                                    // Update formQuestion.soal
+                                                    setFormQuestion((prevFormQuestion) => ({
+                                                        ...prevFormQuestion,
+                                                        soal: content,
+                                                    }));
+                                                }}
+                                                apiKey="la2hd1ehvumeir6fa5kxxltae8u2whzvx1jptw6dqm4dgf2g"
+                                                init={{
+                                                    height: 300,
+                                                    menubar: false,
+                                                    plugins: [
+                                                        'advlist autolink lists link image charmap print preview anchor',
+                                                        'searchreplace visualblocks code fullscreen',
+                                                        'insertdatetime media table paste code help wordcount',
+                                                    ],
+                                                    toolbar:
+                                                        'undo redo | formatselect | bold italic backcolor | ' +
+                                                        'alignleft aligncenter alignright alignjustify | ' +
+                                                        'bullist numlist outdent indent | removeformat | help',
+                                                }}
+                                            />
+                                        </div>
 
-                                            {/* Tampilkan tombol gambar dan PDF hanya jika type = Essay */}
-                                            {(question.type === "Essay" || question.type === "Praktikum") && (
-                                                <div className="col-lg-12 d-flex align-items-center form-check">
-                                                    <div className="d-flex flex-column w-100">
-                                                        <FileUpload
-                                                            forInput={`fileInput_${index}`}
-                                                            formatFile=".jpg,.png"
-                                                            label={<span className="file-upload-label">Gambar (.jpg, .png)</span>}
-                                                            onChange={(e) => handleFileChange(e, index)} // Memanggil handleFileChange dengan indeks
-                                                            hasExisting={question.gambar}
-                                                            style={{ fontSize: '12px' }}
-                                                        />
-                                                        <div className="mt-2">
-                                                        <label className="form-label fw-bold">
-                                                            Point <span style={{color:"Red"}}> *</span>
-                                                            </label> {/* Memberikan margin atas kecil untuk jarak yang rapi */}
-                                                            <Input
-                                                                type="number" 
-                                                                value={question.point}
-                                                                onChange={(e) => handlePointChange(e, index)}
+                                        {/* Tampilkan tombol gambar dan PDF hanya jika type = essay */}
+                                        {(question.type === "Essay" || question.type === "Praktikum") && (
+                                            <div className="col-lg-12 d-flex align-items-center form-check">
+                                                <div className="d-flex flex-column w-100">
+                                                    <FileUpload
+                                                        forInput={`fileInput_${index}`}
+                                                        formatFile=".jpg,.png"
+                                                        label={<span className="file-upload-label">Gambar (.jpg, .png)</span>}
+                                                        onChange={(e) => handleFileChange(e, index)} // Memanggil handleFileChange dengan indeks
+                                                        hasExisting={question.gambar}
+                                                        style={{ fontSize: '12px' }}
+                                                    />{/* Tampilkan preview gambar jika ada gambar yang dipilih */}
+                                                    {question.selectedFile && (
+                                                        <div style={{
+                                                            maxWidth: '300px', // Set maximum width for the image container
+                                                            maxHeight: '300px', // Set maximum height for the image container
+                                                            overflow: 'hidden', // Hide any overflow beyond the set dimensions
+                                                            marginLeft: '10px'
+                                                        }}>
+                                                            <img
+                                                                src={URL.createObjectURL(question.selectedFile)}
+                                                                alt="Preview Gambar"
+                                                                style={{
+                                                                    width: '100%', // Ensure image occupies full width of container
+                                                                    height: 'auto', // Maintain aspect ratio
+                                                                    objectFit: 'contain' // Fit image within container without distortion
+                                                                }}
                                                             />
                                                         </div>
+                                                    )}
+                                                    {question.gambar && !question.selectedFile && (
+                                                        <div style={{
+                                                            maxWidth: '300px', // Set maximum width for the image container
+                                                            maxHeight: '300px', // Set maximum height for the image container
+                                                            overflow: 'hidden', // Hide any overflow beyond the set dimensions
+                                                            marginLeft: '10px'
+                                                        }}>
+                                                            <img
+                                                                src={question.gambar}
+                                                                alt="Preview Gambar"
+                                                                style={{
+                                                                    width: '100%', // Ensure image occupies full width of container
+                                                                    height: 'auto', // Maintain aspect ratio
+                                                                    objectFit: 'contain' // Fit image within container without distortion
+                                                                }}
+                                                            />
+                                                        </div>
+                                                    )}
+                                                    <div className="mt-2">
+                                                        <label className="form-label fw-bold">
+                                                            Point <span style={{ color: "Red" }}> *</span>
+                                                        </label> {/* Memberikan margin atas kecil untuk jarak yang rapi */}
+                                                        <Input
+                                                            type="number"
+                                                            value={question.point}
+                                                            onChange={(e) => handlePointChange(e, index)}
+                                                        />
                                                     </div>
                                                 </div>
-                                            )}
-                                            {question.type === "Pilgan" && (
-                                                <div className="col-lg-12">
-                                                    {question.options.map((option, optionIndex) => (
-                                                        <div key={optionIndex} className="form-check" style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
-                                                            
-                                                            <input
-                                                                type="radio"
-                                                                id={`option_${index}_${optionIndex}`}
-                                                                name={`option_${index}`}
-                                                                value={option.value}
-                                                                checked={selectedOptions[index] === option.value}
-                                                                onChange={(e) => handleOptionChange(e, index)}
-                                                                style={{ marginRight: '10px' }}
-                                                            />
-                                                            <input
-                                                                type="text"
-                                                                value={option.label}
-                                                                onChange={(e) => handleOptionLabelChange(e, index, optionIndex)}
-                                                                className="option-input"
-                                                                readOnly={question.type === "answer"}
-                                                                style={{ marginRight: '10px' }}
-                                                            />
-                                                            <Button
-                                                                iconName="delete"
-                                                                classType="btn-sm ms-2 px-2 py-0"
-                                                                onClick={() => handleDeleteOption(index, optionIndex)}
-                                                                style={{ marginRight: '10px' }}
-                                                            />
-                                                            <input
-                                                                type="number"
-                                                                id={`optionPoint_${index}_${optionIndex}`}
-                                                                value={option.point}
-                                                                className="btn-sm ms-2 px-2 py-0"
-                                                                onChange={(e) => handleOptionPointChange(e, index, optionIndex)}
-                                                                style={{ width: '50px' }}
-                                                            />
-                                                           
-                                                        </div>
-                                                    ))}
-                                                    <Button
-                                                        onClick={() => handleAddOption(index)}
-                                                        iconName="add"
-                                                        classType="success btn-sm ms-2 px-3 py-1"
-                                                        label="Opsi Baru"
-                                                    />
-                                                </div>
-                                            )}
-                                            <div className="d-flex justify-content-between my-2 mx-1">
-                                                <div>
+                                            </div>
+                                        )}
+                                        {question.type === "Pilgan" && (
+                                            <div className="col-lg-12">
+                                                {question.options.map((option, optionIndex) => (
+                                                    <div key={optionIndex} className="form-check" style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
 
-                                                </div>
-                                                <div>
-                                                    <Button
-                                                        iconName="trash"
-                                                        classType="btn-sm ms-2 px-3 py-1"
-                                                        onClick={() => handleDeleteQuestion(index)}
-                                                    />
-                                                    <Button
-                                                        iconName="duplicate"
-                                                        classType="btn-sm ms-2 px-3 py-1"
-                                                        onClick={() => handleDuplicateQuestion(index)}
-                                                    />
-                                                    <Button
-                                                        iconName="menu-dots-vertical"
-                                                        classType="btn-sm ms-2 px-3 py-1"
-                                                    />
-                                                </div>
+                                                        <input
+                                                            type="radio"
+                                                            id={`option_${index}_${optionIndex}`}
+                                                            name={`option_${index}`}
+                                                            value={option.value}
+                                                            checked={selectedOptions[index] === option.value}
+                                                            onChange={(e) => handleOptionChange(e, index)}
+                                                            style={{ marginRight: '10px' }}
+                                                        />
+                                                        <input
+                                                            type="text"
+                                                            value={option.label}
+                                                            onChange={(e) => handleOptionLabelChange(e, index, optionIndex)}
+                                                            className="option-input"
+                                                            readOnly={question.type === "answer"}
+                                                            style={{ marginRight: '10px' }}
+                                                        />
+                                                        <Button
+                                                            iconName="delete"
+                                                            classType="btn-sm ms-2 px-2 py-0"
+                                                            onClick={() => handleDeleteOption(index, optionIndex)}
+                                                            style={{ marginRight: '10px' }}
+                                                        />
+                                                        <input
+                                                            type="number"
+                                                            id={`optionPoint_${index}_${optionIndex}`}
+                                                            value={option.point}
+                                                            className="btn-sm ms-2 px-2 py-0"
+                                                            onChange={(e) => handleOptionPointChange(e, index, optionIndex)}
+                                                            style={{ width: '50px' }}
+                                                        />
+
+                                                    </div>
+                                                ))}
+                                                <Button
+                                                    onClick={() => handleAddOption(index)}
+                                                    iconName="add"
+                                                    classType="success btn-sm ms-2 px-3 py-1"
+                                                    label="Opsi Baru"
+                                                />
+                                            </div>
+                                        )}
+                                        <div className="d-flex justify-content-between my-2 mx-1">
+                                            <div>
+
+                                            </div>
+                                            <div>
+                                                <Button
+                                                    iconName="trash"
+                                                    classType="btn-sm ms-2 px-3 py-1"
+                                                    onClick={() => handleDeleteQuestion(index)}
+                                                />
+                                                <Button
+                                                    iconName="duplicate"
+                                                    classType="btn-sm ms-2 px-3 py-1"
+                                                    onClick={() => handleDuplicateQuestion(index)}
+                                                />
+
                                             </div>
                                         </div>
-                                    
+                                    </div>
+
                                 </div>
                             </div>
                         ))}
@@ -903,7 +957,7 @@ export default function MasterPreTestAdd({ onChangePage,withID}) {
                     <Button
                         classType="outline-secondary me-2 px-4 py-2"
                         label="Kembali"
-                        onClick={() => onChangePage("materiEdit")}
+                        onClick={() => onChangePage("index")}
                     />
                     <Button
                         classType="primary ms-2 px-4 py-2"
@@ -913,7 +967,7 @@ export default function MasterPreTestAdd({ onChangePage,withID}) {
                     <Button
                         classType="dark ms-3 px-4 py-2"
                         label="Berikutnya"
-                        onClick={() => onChangePage("sharingEdit",AppContext_test.DetailMateriEdit)}
+                        onClick={() => onChangePage("materiEdit", book.Key)}
                     />
                 </div>
             </form>

@@ -134,12 +134,15 @@ export default function DetailSharingExpert({ onChangePage, withID }) {
         ) : (
           <div className="card" style={{ borderColor: "#67ACE9" }}>
             <div className="card-header fw-medium text-white" style={{ backgroundColor: "#67ACE9" }}>
-              Detail Sharng Expert
+              Detail Sharing Expert
             </div>
             <div className="card-body">
-              <Alert type="info" message={"Data Sharing Expert belum ditambahkan"} />
+              <Alert type="info" message={(
+                <span>
+                  Data Sharing Expert belum ditambahkan. <a onClick={() => onChangePage("sharingAddNot", AppContext_test.DetailMateri)} className="text-primary">Tambah Data</a>
+                </span>
+              )} />
               {/* <div className="alert alert-warning" role="alert">
-                
               </div> */}
             </div>
           </div>

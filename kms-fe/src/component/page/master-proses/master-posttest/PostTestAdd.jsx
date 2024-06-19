@@ -14,7 +14,7 @@ import Swal from 'sweetalert2';
 import { Editor } from '@tinymce/tinymce-react';
 import AppContext_test from "../MasterContext";
 
-export default function MasterPreTestAdd({ onChangePage }) {
+export default function MasterPostTestAdd({ onChangePage }) {
   const [formContent, setFormContent] = useState([]);
   const [selectedOptions, setSelectedOptions] = useState([]);
   const [errors, setErrors] = useState({});
@@ -22,8 +22,8 @@ export default function MasterPreTestAdd({ onChangePage }) {
   const [correctAnswers, setCorrectAnswers] = useState({});
   const [selectedFile, setSelectedFile] = useState(null);
   const [timer, setTimer] = useState('');
-  const [minimumScore, setMinimumScore] = useState();
   const gambarInputRef = useRef(null);
+  const [isButtonDisabled, setIsButtonDisabled] = useState(false);
 
   const handleChange = (name, value) => {
     setFormData((prevFormData) => ({
@@ -47,7 +47,6 @@ export default function MasterPreTestAdd({ onChangePage }) {
     }));
   };
 
-
   const addQuestion = (questionType) => {
     const newQuestion = {
       type: questionType,
@@ -60,11 +59,9 @@ export default function MasterPreTestAdd({ onChangePage }) {
     setSelectedOptions([...selectedOptions, ""]);
   };
 
-
-
   const [formData, setFormData] = useState({
-    materiId: '1',
-    quizJudul: 'Pemrograman 9',
+    materiId: AppContext_test.dataIDMateri,
+    quizJudul: '',
     quizDeskripsi: '',
     quizTipe: 'Posttest',
     tanggalAwal: '',
@@ -77,8 +74,8 @@ export default function MasterPreTestAdd({ onChangePage }) {
   const [formQuestion, setFormQuestion] = useState({
     quizId: '',
     soal: '',
-    tipeQuestion: 'essay',
-    gambar: '',
+    tipeQuestion: 'Essay',
+    gambar: null,
     questionDeskripsi: '',
     status: 'Aktif',
     quecreatedby: 'Admin',
@@ -101,8 +98,8 @@ export default function MasterPreTestAdd({ onChangePage }) {
   const initialFormQuestion = {
     quizId: '',
     soal: '',
-    tipeQuestion: 'essay',
-    gambar: '',
+    tipeQuestion: 'Essay',
+    gambar: null,
     questionDeskripsi: '',
     status: 'Aktif',
     quecreatedby: 'Admin',
@@ -116,7 +113,7 @@ export default function MasterPreTestAdd({ onChangePage }) {
 
   const handleAddOption = (index) => {
     const updatedFormContent = [...formContent];
-    if (updatedFormContent[index].type === "multiple_choice") {
+    if (updatedFormContent[index].type === "Pilgan") {
       updatedFormContent[index].options.push({ label: "", value: "", point: 0 });
       setFormContent(updatedFormContent);
     }
@@ -128,15 +125,15 @@ export default function MasterPreTestAdd({ onChangePage }) {
     // Hitung total point dari semua pertanyaan dan opsi
     const totalQuestionPoint = formContent.reduce((total, question) => total + parseInt(question.point), 0);
     const totalOptionPoint = formContent.reduce((total, question) => {
-      if (question.type === 'multiple_choice') {
+      if (question.type === 'Pilgan') {
         return total + question.options.reduce((optionTotal, option) => optionTotal + parseInt(option.point || 0), 0);
       }
       return total;
     }, 0);
     
-    // Total point dari semua pertanyaan dan opsi tidak boleh melebihi 100
-    if (totalQuestionPoint + totalOptionPoint > 100) {
-      alert('Total point tidak boleh melebihi 100.');
+    // Total point dari semua pertanyaan dan opsi harus berjumlah 100, tidak kurang dan tidak lebih
+    if (totalQuestionPoint + totalOptionPoint !== 100) {
+      alert('Total skor harus berjumlah 100');
       return;
     }
   
@@ -164,7 +161,7 @@ export default function MasterPreTestAdd({ onChangePage }) {
           quecreatedby: 'Admin',
         };
   
-        if (question.type === 'essay' || question.type === 'praktikum') {
+        if (question.type === 'Essay' || question.type === 'Praktikum') {
           if (question.selectedFile) {
             try {
               const uploadResult = await uploadFile(question.selectedFile);
@@ -175,8 +172,11 @@ export default function MasterPreTestAdd({ onChangePage }) {
               alert('Gagal mengunggah gambar untuk pertanyaan: ' + question.text);
               return;
             }
+          } else {
+            // Jika tidak ada file yang dipilih, atur question.gambar menjadi null
+            formQuestion.gambar = null;
           }
-        } else if (question.type === 'multiple_choice') {
+        } else if (question.type === 'Pilgan') {
           formQuestion.gambar = '';
         }
   
@@ -194,7 +194,7 @@ export default function MasterPreTestAdd({ onChangePage }) {
   
           const questionId = questionResponse.data[0].hasil;
   
-          if (question.type === 'essay' || question.type === 'praktikum') {
+          if (question.type === 'Essay' || question.type === 'Praktikum') {
             const answerData = {
               urutanChoice: '',
               answerText: question.correctAnswer, // Pastikan menggunakan correctAnswer dari question
@@ -205,12 +205,12 @@ export default function MasterPreTestAdd({ onChangePage }) {
   
             try {
               const answerResponse = await axios.post(API_LINK + 'Choices/SaveDataChoice', answerData);
-              console.log('Jawaban essay berhasil disimpan:', answerResponse.data);
+              console.log('Jawaban Essay berhasil disimpan:', answerResponse.data);
             } catch (error) {
-              console.error('Gagal menyimpan jawaban essay:', error);
-              alert('Gagal menyimpan jawaban essay');
+              console.error('Gagal menyimpan jawaban Essay:', error);
+              alert('Gagal menyimpan jawaban Essay');
             }
-          } else if (question.type === 'multiple_choice') {
+          } else if (question.type === 'Pilgan') {
             for (const [optionIndex, option] of question.options.entries()) {
               const answerData = {
                 urutanChoice: optionIndex + 1,
@@ -244,22 +244,28 @@ export default function MasterPreTestAdd({ onChangePage }) {
         text: 'Posttest berhasil ditambahkan',
         icon: 'success',
         confirmButtonText: 'OK'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          setFormContent([]);
+          setSelectedOptions([]);
+          setErrors({});
+          setSelectedFile(null);
+          setTimer('');
+          setIsButtonDisabled(true);
+          onChangePage("index");
+        }
       });
-
-      // mereset semua form input setelah berhasil menambahkan data pretest
-      setFormContent([]);
-      setSelectedOptions([]);
-      setErrors({});
-      setSelectedFile(null);
-      setTimer('');
-      setMinimumScore(undefined);
   
     } catch (error) {
       console.error('Gagal menyimpan data:', error);
-      alert('Gagal menyimpan data');
+      Swal.fire({
+        title: 'Gagal!',
+        text: 'Terjadi kesalahan saat menyimpan data.',
+        icon: 'error',
+        confirmButtonText: 'OK'
+      });
     }
   };
-  
 
   // const handleQuestionTypeChange = (e, index) => {
   //   const { value } = e.target;
@@ -267,7 +273,7 @@ export default function MasterPreTestAdd({ onChangePage }) {
   //   updatedFormContent[index] = {
   //     ...updatedFormContent[index],
   //     type: value,
-  //     options: value === "essay" ? [] : updatedFormContent[index].options,
+  //     options: value === "Essay" ? [] : updatedFormContent[index].options,
   //   };
   //   setFormContent(updatedFormContent);
 
@@ -305,7 +311,7 @@ export default function MasterPreTestAdd({ onChangePage }) {
 
   // const handleAddOption = (index) => {
   //   const updatedFormContent = [...formContent];
-  //   if (updatedFormContent[index].type === "multiple_choice") {
+  //   if (updatedFormContent[index].type === "Pilgan") {
   //     updatedFormContent[index].options.push({ label: "", value: "" });
   //     setFormContent(updatedFormContent);
   //   }
@@ -315,8 +321,8 @@ export default function MasterPreTestAdd({ onChangePage }) {
   const updatedFormContent = [...formContent];
   const question = updatedFormContent[index];
 
-  if (question.type === "essay") {
-    // Simpan jawaban benar untuk pertanyaan essay ke state
+  if (question.type === "Essay") {
+    // Simpan jawaban benar untuk pertanyaan Essay ke state
     setCorrectAnswers((prevCorrectAnswers) => ({
       ...prevCorrectAnswers,
       [index]: question.correctAnswer,
@@ -329,13 +335,13 @@ export default function MasterPreTestAdd({ onChangePage }) {
           ? "answer"
           : "answer"
         : question.options.length > 0
-          ? "multiple_choice"
-          : "multiple_choice";
+          ? "Pilgan"
+          : "Pilgan";
 
   updatedFormContent[index] = {
     ...question,
     type: newType,
-    options: newType === "essay" ? [] : question.options,
+    options: newType === "Essay" ? [] : question.options,
   };
 
   setFormContent(updatedFormContent);
@@ -383,7 +389,7 @@ export default function MasterPreTestAdd({ onChangePage }) {
       const options = row[3] ? row[3].split(',') : [];
       return {
         text: row[1],
-        type: row[2].toLowerCase() === 'essay' ? 'essay' : 'multiple_choice',
+        type: row[2].toLowerCase() === 'Essay' ? 'Essay' : 'Pilgan',
         options: options.map((option, idx) => ({ label: option, value: String.fromCharCode(65 + idx) })),
         point: row[4],
         correctAnswer: row[5],
@@ -391,7 +397,7 @@ export default function MasterPreTestAdd({ onChangePage }) {
     }).filter(Boolean); // Filter out null values
 
     const initialSelectedOptions = questions.map((question, index) => {
-      if (question.type === 'multiple_choice') {
+      if (question.type === 'Pilgan') {
         // Temukan indeks jawaban benar di dalam options
         const correctIndex = question.options.findIndex((option) => option.value === question.correctAnswer);
 
@@ -449,6 +455,12 @@ export default function MasterPreTestAdd({ onChangePage }) {
         parseExcelData(parsedData);
       };
       reader.readAsBinaryString(selectedFile);
+      Swal.fire({
+        title: 'Berhasil!',
+        text: 'File Excel berhasil ditambahkan',
+        icon: 'success',
+        confirmButtonText: 'OK'
+      });
     } else {
       alert("Pilih file Excel terlebih dahulu!");
     }
@@ -621,7 +633,7 @@ export default function MasterPreTestAdd({ onChangePage }) {
               </div>
             </div>
             <div className="row mb-4">
-              <div className="col-lg-6">
+              <div className="col-lg-4">
                 <Input
                   type="time"
                   name="timer"
@@ -633,22 +645,7 @@ export default function MasterPreTestAdd({ onChangePage }) {
                 // stepSize="60"
                 />
               </div>
-              <div className="col-lg-6">
-                <Input
-                  type="number"
-                  label="Skor Minimal"
-                  forInput="minimumScoreInput"
-                  name="minimumScore"
-                  //value={formData.minimumScore}
-                  value="100"
-                  //onChange={handleInputChange}
-                  isRequired={true}
-                />
-
-              </div>
-            </div>
-            <div className="row mb-4">
-              <div className="col-lg-6">
+              <div className="col-lg-4">
                 <Input
                   label="Tanggal Dimulai:"
                   type="date"
@@ -657,7 +654,7 @@ export default function MasterPreTestAdd({ onChangePage }) {
                   isRequired={true}
                 />
               </div>
-              <div className="col-lg-6">
+              <div className="col-lg-4">
                 <Input
                   label="Tanggal Berakhir:"
                   type="date"
@@ -669,12 +666,11 @@ export default function MasterPreTestAdd({ onChangePage }) {
             </div>
             <div className="row mb-4">
               <div className="mb-2">
-
               </div>
               <div className="col-lg-4">
                 <Button
                   title="Tambah Pertanyaan"
-                  onClick={() => addQuestion("essay")}
+                  onClick={() => addQuestion("Essay")}
                   iconName="plus"
                   classType="primary btn-sm px-3 py-1"
                 />
@@ -709,27 +705,26 @@ export default function MasterPreTestAdd({ onChangePage }) {
                   onClick={handleDownloadTemplate}
                   title="Unduh Template Excel"
                 />
-
               </div>
 
             </div>
             {formContent.map((question, index) => (
               <div key={index} className="card mb-4">
                 <div className="card-header bg-white fw-medium text-black d-flex justify-content-between align-items-center">
-  <span>Pertanyaan</span>
-  <span>
-    Poin: {parseInt(question.point) + (question.type === 'multiple_choice' ? (question.options || []).reduce((acc, option) => acc + parseInt(option.point), 0) : 0)}
-  </span>
-  <div className="col-lg-2">
-    <select className="form-select" aria-label="Default select example"
-      value={question.type}
-      onChange={(e) => handleQuestionTypeChange(e, index)}>
-      <option value="essay">Essay</option>
-      <option value="multiple_choice">Pilihan Ganda</option>
-      <option value="praktikum">Praktikum</option>
-    </select>
-  </div>
-</div>
+                  <span>Pertanyaan</span>
+                  <span>
+                    Skor: {parseInt(question.point) + (question.type === 'Pilgan' ? (question.options || []).reduce((acc, option) => acc + parseInt(option.point), 0) : 0)}
+                  </span>
+                  <div className="col-lg-2">
+                    <select className="form-select" aria-label="Default select example"
+                      value={question.type}
+                      onChange={(e) => handleQuestionTypeChange(e, index)}>
+                      <option value="essay">Essay</option>
+                      <option value="Pilgan">Pilihan Ganda</option>
+                      <option value="praktikum">Praktikum</option>
+                    </select>
+                  </div>
+                </div>
                 <div className="card-body p-4">
                   {question.type === "answer" ? (
                     <div className="row">
@@ -769,14 +764,12 @@ export default function MasterPreTestAdd({ onChangePage }) {
                           ))}
                         </div>
 
-
                         <Input
                           type="number"
                           label="Point"
                           value={question.point}
                           onChange={(e) => handlePointChange(e, index)}
                         />
-
                         <Button
                           classType="primary btn-sm ms-2 px-3 py-1"
                           label="Done"
@@ -808,7 +801,7 @@ export default function MasterPreTestAdd({ onChangePage }) {
                           className="form-control" // Optional: Add any necessary CSS classes
                           rows={4} // Optional: Adjust the number of rows for the textarea
                         /> */}
-                        <Editor
+                        {/* <Editor
                           id={`pertanyaan_${index}`}
                           value={question.text}
                           label="Pertanyaan"
@@ -837,8 +830,8 @@ export default function MasterPreTestAdd({ onChangePage }) {
                               alignleft aligncenter alignright alignjustify | \
                               bullist numlist outdent indent | removeformat | help'
                           }}
-                        />
-                        {/* <Editor
+                        /> */}
+                        <Editor
                         id={`pertanyaan_${index}`}
                         value={question.text}
                         onEditorChange={(content) => {
@@ -866,11 +859,11 @@ export default function MasterPreTestAdd({ onChangePage }) {
                             'alignleft aligncenter alignright alignjustify | ' +
                             'bullist numlist outdent indent | removeformat | help',
                         }}
-                      /> */}
+                      />
                       </div>
 
-                      {/* Tampilkan tombol gambar dan PDF hanya jika type = essay */}
-                      {(question.type === "essay" || question.type === "praktikum") && (
+                      {/* Tampilkan tombol gambar dan PDF hanya jika type = Essay */}
+                      {(question.type === "Essay" || question.type === "Praktikum") && (
                         
                         <div className="d-flex flex-column w-100">
                           <FileUpload
@@ -903,15 +896,16 @@ export default function MasterPreTestAdd({ onChangePage }) {
                           <div className="mt-2"> {/* Memberikan margin atas kecil untuk jarak yang rapi */}
                             <Input
                               type="number"
-                              label="Point"
+                              label="Skor"
                               value={question.point}
                               onChange={(e) => handlePointChange(e, index)}
+                              isRequired={true}
                             />
                           </div>
                         </div>
                         
                       )}
-                      {question.type === "multiple_choice" && (
+                      {question.type === "Pilgan" && (
                         <div className="col-lg-12">
                           {question.options.map((option, optionIndex) => (
                             <div key={optionIndex} className="form-check" style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
@@ -990,11 +984,12 @@ export default function MasterPreTestAdd({ onChangePage }) {
             classType="primary ms-2 px-4 py-2"
             type="submit"
             label="Simpan"
+            disabled={isButtonDisabled}
           />
           {/* <Button
             classType="dark ms-3 px-4 py-2"
             label="Berikutnya"
-            onClick={() => onChangePage("materiAdd",AppContext_test.KategoriIdByKK)}
+            onClick={() => onChangePage("sharingAdd")}
           /> */}
         </div>
       </form>

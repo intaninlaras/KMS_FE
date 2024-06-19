@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { object, string } from "yup";
 import { validateAllInputs, validateInput } from "../../../util/ValidateForm";
 import SweetAlert from "../../../util/SweetAlert";
@@ -7,8 +7,8 @@ import Input from "../../../part/Input";
 import Loading from "../../../part/Loading";
 import Alert from "../../../part/Alert";
 import { Stepper } from 'react-form-stepper';
-import UseFetch from "../../../util/UseFetch";  
-import { API_LINK } from "../../../util/Constants";  
+import UseFetch from "../../../util/UseFetch";
+import { API_LINK } from "../../../util/Constants";
 import AppContext_test from "../MasterContext";
 import { Editor } from '@tinymce/tinymce-react';
 
@@ -21,11 +21,12 @@ export default function MasterForumAdd({ onChangePage }) {
   const [errors, setErrors] = useState({});
   const [isError, setIsError] = useState({ error: false, message: "" });
   const [isLoading, setIsLoading] = useState(false);
+  const [isFormDisabled, setIsFormDisabled] = useState(false);
   const [formData, setFormData] = useState({
-    materiId:  AppContext_test.dataIDMateri,
+    materiId: AppContext_test.dataIDMateri,
     karyawanId: "040",
-    forumJudul: "",
-    forumIsi: "",
+    forumJudul: AppContext_test.ForumForm?.forumJudul || "",
+    forumIsi: AppContext_test.ForumForm?.forumIsi || "",
     forumCreatedBy: "ika",
     forumStatus: "Aktif",
   });
@@ -45,7 +46,7 @@ export default function MasterForumAdd({ onChangePage }) {
 
   const resetForm = () => {
     setFormData({
-      materiId:  AppContext_test.dataIDMateri,
+      materiId: AppContext_test.dataIDMateri,
       karyawanId: "040",
       forumJudul: "",
       forumIsi: "",
@@ -84,6 +85,8 @@ export default function MasterForumAdd({ onChangePage }) {
         setIsError({ error: true, message: "Terjadi kesalahan: Gagal menyimpan data Sharing." });
       } else {
         SweetAlert("Sukses", "Data Forum berhasil disimpan", "success");
+        setIsFormDisabled(true);
+        AppContext_test.formSavedForum = true;
         // onChangePage("index", kategori);
       }
     } catch (error) {
@@ -94,6 +97,16 @@ export default function MasterForumAdd({ onChangePage }) {
       setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (AppContext_test.ForumForm && AppContext_test.ForumForm.current && Object.keys(AppContext_test.ForumForm.current).length > 0) {
+      formData.current = { ...formData.current, ...AppContext_test.ForumForm.current };
+    }
+
+    if (AppContext_test.formSavedForum === false) {
+      setIsFormDisabled(false);
+    }
+  }, [AppContext_test.ForumForm, AppContext_test.formSavedForum]);
 
   if (isLoading) return <Loading />;
 
@@ -114,7 +127,7 @@ export default function MasterForumAdd({ onChangePage }) {
               { label: 'Forum', onClick: () => onChangePage("forumAdd") },
               { label: 'Post Test', onClick: () => onChangePage("posttestAdd") }
             ]}
-            activeStep={3} 
+            activeStep={3}
             styleConfig={{
               activeBgColor: '#67ACE9',
               activeTextColor: '#FFFFFF',
@@ -153,27 +166,11 @@ export default function MasterForumAdd({ onChangePage }) {
                   value={formData.forumJudul}
                   onChange={handleInputChange}
                   errorMessage={errors.forumJudul}
-                  isRequired 
+                  isRequired
+                  disabled={isFormDisabled } 
                 />
               </div>
-              {/* <div className="col-lg-12">
-                <div className="form-group">
-                  <label htmlFor="forumIsi" className="form-label fw-bold">
-                    Isi Forum <span style={{color: "Red"}}> *</span>
-                  </label>
-                  <textarea
-                    id="forumIsi"
-                    name="forumIsi"
-                    className={`form-control ${errors.forumIsi ? 'is-invalid' : ''}`}
-                    value={formData.forumIsi}
-                    onChange={handleInputChange}
-                  />
-                  {errors.forumIsi && (
-                    <div className="invalid-feedback">{errors.forumIsi}</div>
-                  )}
-                </div>
-              </div> */}
-              <div className="col-lg-16">
+              <div className="col-lg-12">
                 <div className="form-group">
                   <label htmlFor="forumIsi" className="form-label fw-bold">
                     Isi Forum <span style={{ color: 'Red' }}> *</span>
@@ -196,6 +193,7 @@ export default function MasterForumAdd({ onChangePage }) {
                         alignleft aligncenter alignright alignjustify | \
                         bullist numlist outdent indent | removeformat | help'
                     }}
+                    disabled={isFormDisabled} 
                   />
                   {errors.forumIsi && (
                     <div className="invalid-feedback">{errors.forumIsi}</div>
@@ -209,7 +207,7 @@ export default function MasterForumAdd({ onChangePage }) {
           <Button
             classType="outline-secondary me-2 px-4 py-2"
             label="Kembali"
-            onClick={() => onChangePage("sharingAdd")}
+            onClick={() => onChangePage("sharingAdd", AppContext_test.ForumForm = formData)}
           />
           <Button
             classType="primary ms-2 px-4 py-2"
@@ -219,7 +217,7 @@ export default function MasterForumAdd({ onChangePage }) {
           <Button
             classType="dark ms-3 px-4 py-2"
             label="Berikutnya"
-            onClick={() => onChangePage("posttestAdd")}
+            onClick={() => onChangePage("posttestAdd", AppContext_test.ForumForm = formData)}
           />
         </div>
       </form>

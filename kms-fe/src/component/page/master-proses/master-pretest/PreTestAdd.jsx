@@ -22,7 +22,6 @@ export default function MasterPreTestAdd({ onChangePage }) {
   const [correctAnswers, setCorrectAnswers] = useState({});
   const [selectedFile, setSelectedFile] = useState(null);
   const [timer, setTimer] = useState('');
-  const [minimumScore, setMinimumScore] = useState();
   const gambarInputRef = useRef(null);
 
   const handleChange = (name, value) => {
@@ -47,7 +46,6 @@ export default function MasterPreTestAdd({ onChangePage }) {
     }));
   };
 
-
   const addQuestion = (questionType) => {
     const newQuestion = {
       type: questionType,
@@ -60,11 +58,9 @@ export default function MasterPreTestAdd({ onChangePage }) {
     setSelectedOptions([...selectedOptions, ""]);
   };
 
-
-
   const [formData, setFormData] = useState({
-    materiId: '1',
-    quizJudul: 'Pemrograman 9',
+    materiId: AppContext_test.dataIDMateri,
+    quizJudul: '',
     quizDeskripsi: '',
     quizTipe: 'Pretest',
     tanggalAwal: '',
@@ -78,7 +74,7 @@ export default function MasterPreTestAdd({ onChangePage }) {
     quizId: '',
     soal: '',
     tipeQuestion: 'Essay',
-    gambar: '',
+    gambar: null,
     questionDeskripsi: '',
     status: 'Aktif',
     quecreatedby: 'Admin',
@@ -102,7 +98,7 @@ export default function MasterPreTestAdd({ onChangePage }) {
     quizId: '',
     soal: '',
     tipeQuestion: 'Essay',
-    gambar: '',
+    gambar: null,
     questionDeskripsi: '',
     status: 'Aktif',
     quecreatedby: 'Admin',
@@ -121,6 +117,8 @@ export default function MasterPreTestAdd({ onChangePage }) {
       setFormContent(updatedFormContent);
     }
   };
+
+  const [isButtonDisabled, setIsButtonDisabled] = useState(false);
 
   const handleAdd = async (e) => {
     e.preventDefault();
@@ -175,6 +173,9 @@ export default function MasterPreTestAdd({ onChangePage }) {
               alert('Gagal mengunggah gambar untuk pertanyaan: ' + question.text);
               return;
             }
+          } else {
+            // Jika tidak ada file yang dipilih, atur question.gambar menjadi null
+            formQuestion.gambar = null;
           }
         } else if (question.type === 'Pilgan') {
           formQuestion.gambar = '';
@@ -244,23 +245,27 @@ export default function MasterPreTestAdd({ onChangePage }) {
         text: 'Pretest berhasil ditambahkan',
         icon: 'success',
         confirmButtonText: 'OK'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          setFormContent([]);
+          setSelectedOptions([]);
+          setErrors({});
+          setSelectedFile(null);
+          setTimer('');
+          setIsButtonDisabled(true);
+        }
       });
-  
-      // mereset semua form input setelah berhasil menambahkan data pretest
-      setFormContent([]);
-      setSelectedOptions([]);
-      setErrors({});
-      setSelectedFile(null);
-      setTimer('');
-      setMinimumScore(undefined);
   
     } catch (error) {
       console.error('Gagal menyimpan data:', error);
-      alert('Gagal menyimpan data');
+      Swal.fire({
+        title: 'Gagal!',
+        text: 'Terjadi kesalahan saat menyimpan data.',
+        icon: 'error',
+        confirmButtonText: 'OK'
+      });
     }
   };
-  
-  
 
   // const handleQuestionTypeChange = (e, index) => {
   //   const { value } = e.target;
@@ -628,7 +633,7 @@ export default function MasterPreTestAdd({ onChangePage }) {
               </div>
             </div>
             <div className="row mb-4">
-              <div className="col-lg-6">
+              <div className="col-lg-4">
                 <Input
                   type="time"
                   name="timer"
@@ -640,22 +645,7 @@ export default function MasterPreTestAdd({ onChangePage }) {
                 // stepSize="60"
                 />
               </div>
-              <div className="col-lg-6">
-                <Input
-                  type="number"
-                  label="Skor Minimal"
-                  forInput="minimumScoreInput"
-                  name="minimumScore"
-                  //value={formData.minimumScore}
-                  value="100"
-                  //onChange={handleInputChange}
-                  isRequired={true}
-                />
-
-              </div>
-            </div>
-            <div className="row mb-4">
-              <div className="col-lg-6">
+              <div className="col-lg-4">
                 <Input
                   label="Tanggal Dimulai:"
                   type="date"
@@ -664,7 +654,7 @@ export default function MasterPreTestAdd({ onChangePage }) {
                   isRequired={true}
                 />
               </div>
-              <div className="col-lg-6">
+              <div className="col-lg-4">
                 <Input
                   label="Tanggal Berakhir:"
                   type="date"
@@ -676,7 +666,6 @@ export default function MasterPreTestAdd({ onChangePage }) {
             </div>
             <div className="row mb-4">
               <div className="mb-2">
-
               </div>
               <div className="col-lg-4">
                 <Button
@@ -723,22 +712,20 @@ export default function MasterPreTestAdd({ onChangePage }) {
             {formContent.map((question, index) => (
               <div key={index} className="card mb-4">
                 <div className="card-header bg-white fw-medium text-black d-flex justify-content-between align-items-center">
-  <span>Pertanyaan</span>
-  <span>
-    Skor: {parseInt(question.point) + (question.type === 'multiple_choice' ? (question.options || []).reduce((acc, option) => acc + parseInt(option.point), 0) : 0)}
-  </span>
-  <div className="col-lg-2">
-    <select className="form-select" aria-label="Default select example"
-      value={question.type}
-      onChange={(e) => handleQuestionTypeChange(e, index)}>
-      <option value="essay">Essay</option>
-      <option value="multiple_choice">Pilihan Ganda</option>
-      <option value="praktikum">Praktikum</option>
-    </select>
-  </div>
-</div>
-
-
+                  <span>Pertanyaan</span>
+                  <span>
+                    Skor: {parseInt(question.point) + (question.type === 'Pilgan' ? (question.options || []).reduce((acc, option) => acc + parseInt(option.point), 0) : 0)}
+                  </span>
+                  <div className="col-lg-2">
+                    <select className="form-select" aria-label="Default select example"
+                      value={question.type}
+                      onChange={(e) => handleQuestionTypeChange(e, index)}>
+                      <option value="essay">Essay</option>
+                      <option value="Pilgan">Pilihan Ganda</option>
+                      <option value="praktikum">Praktikum</option>
+                    </select>
+                  </div>
+                </div>
                 <div className="card-body p-4">
                   {question.type === "answer" ? (
                     <div className="row">
@@ -778,14 +765,12 @@ export default function MasterPreTestAdd({ onChangePage }) {
                           ))}
                         </div>
 
-
                         <Input
                           type="number"
                           label="Point"
                           value={question.point}
                           onChange={(e) => handlePointChange(e, index)}
                         />
-
                         <Button
                           classType="primary btn-sm ms-2 px-3 py-1"
                           label="Done"
@@ -817,7 +802,7 @@ export default function MasterPreTestAdd({ onChangePage }) {
                           className="form-control" // Optional: Add any necessary CSS classes
                           rows={4} // Optional: Adjust the number of rows for the textarea
                         /> */}
-                        <Editor
+                        {/* <Editor
                           id={`pertanyaan_${index}`}
                           value={question.text}
                           label="Pertanyaan"
@@ -846,8 +831,8 @@ export default function MasterPreTestAdd({ onChangePage }) {
                               alignleft aligncenter alignright alignjustify | \
                               bullist numlist outdent indent | removeformat | help'
                           }}
-                        />
-                        {/* <Editor
+                        /> */}
+                        <Editor
                         id={`pertanyaan_${index}`}
                         value={question.text}
                         onEditorChange={(content) => {
@@ -875,7 +860,7 @@ export default function MasterPreTestAdd({ onChangePage }) {
                             'alignleft aligncenter alignright alignjustify | ' +
                             'bullist numlist outdent indent | removeformat | help',
                         }}
-                      /> */}
+                      />
                       </div>
 
                       {/* Tampilkan tombol gambar dan PDF hanya jika type = Essay */}
@@ -915,6 +900,7 @@ export default function MasterPreTestAdd({ onChangePage }) {
                               label="Skor"
                               value={question.point}
                               onChange={(e) => handlePointChange(e, index)}
+                              isRequired={true}
                             />
                           </div>
                         </div>
@@ -993,17 +979,18 @@ export default function MasterPreTestAdd({ onChangePage }) {
           <Button
             classType="outline-secondary me-2 px-4 py-2"
             label="Kembali"
-            onClick={() => onChangePage("materiAdd",AppContext_test.KategoriIdByKK)}
+            onClick={() => onChangePage("materiAdd")}
           />
           <Button
             classType="primary ms-2 px-4 py-2"
             type="submit"
             label="Simpan"
+            disabled={isButtonDisabled}
           />
           <Button
             classType="dark ms-3 px-4 py-2"
             label="Berikutnya"
-            onClick={() => onChangePage("sharingAdd",AppContext_test.KategoriIdByKK)}
+            onClick={() => onChangePage("sharingAdd")}
           />
         </div>
       </form>

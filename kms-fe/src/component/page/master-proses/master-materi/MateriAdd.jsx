@@ -21,17 +21,19 @@ export default function MasterCourseAdd({ onChangePage }) {
   const [isError, setIsError] = useState({ error: false, message: "" });
   const [isLoading, setIsLoading] = useState(false);
   const [listKategori, setListKategori] = useState([]);
-  const [isFormDisabled, setIsFormDisabled] = useState(false); // State untuk mengontrol disabled form
+  const [isFormDisabled, setIsFormDisabled] = useState(false); 
 
   const fileInputRef = useRef(null);
   const gambarInputRef = useRef(null);
   const vidioInputRef = useRef(null);
 
-  const kategori = AppContext_test.kategoriId;
+  const kategori = AppContext_test.KategoriIdByKK;
+  // console.log("kategiri :"+ AppContext_test.KategoriIdByKK)
+  // console.log("kategiri"+AppContext_test)
 
   // Referensi ke form data menggunakan useRef
   const formDataRef = useRef({
-    kat_id: AppContext_test.kategoriId,
+    kat_id: AppContext_test.KategoriIdByKK,
     mat_judul: "",
     mat_file_pdf: "",
     mat_file_video: "",
@@ -157,7 +159,7 @@ export default function MasterCourseAdd({ onChangePage }) {
               AppContext_test.dataIDMateri = data[0].newID;
               SweetAlert("Sukses", "Data Materi berhasil disimpan", "success");
               setIsFormDisabled(true);
-              AppContext_test.formSaved = true; 
+              AppContext_test.formSavedMateri = true; 
             } else {
               setIsError(prevError => ({
                 ...prevError,
@@ -180,8 +182,8 @@ export default function MasterCourseAdd({ onChangePage }) {
   };
 
   // Fetch data kategori
-  const fetchDataKategori = async (retries = 3, delay = 1000) => {
-    for (let i = 0; i < retries; i++) {
+  {/*const fetchDataKategori = async (delay = 1000) => {
+    while (true) {
       try {
         const data = await UseFetch(API_LINK + "Program/GetKategoriKKById", { kategori });
         const mappedData = data.map(item => ({
@@ -190,59 +192,84 @@ export default function MasterCourseAdd({ onChangePage }) {
           idKK: item.idKK,
           namaKK: item.namaKK
         }));
-
+  
         return mappedData;
       } catch (error) {
         console.error("Error fetching kategori data:", error);
-        if (i < retries - 1) {
-          await new Promise(resolve => setTimeout(resolve, delay));
-        } else {
-          throw error;
-        }
+        await new Promise(resolve => setTimeout(resolve, delay));
+      }
+    }
+  };
+*/}
+const fetchDataKategori = async (retries = 3, delay = 1000) => {
+  for (let i = 0; i < retries; i++) {
+  try {
+  const data = await UseFetch(API_LINK + "Program/GetKategoriKKById", { kategori });
+  const mappedData = data.map(item => ({
+    value: item.Key,
+    label: item["Nama Kategori"],
+    idKK: item.idKK,
+    namaKK: item.namaKK
+    }));
+      return mappedData;
+    } catch (error) {
+      console.error("Error fetching kategori data:", error);
+      if (i < retries - 1) {
+        await new Promise(resolve => setTimeout(resolve, delay));
+      } else {
+        throw error;
+      }
+    }
+  }
+};
+
+  
+
+useEffect(() => {
+  let isMounted = true;
+
+  const fetchData = async () => {
+    setIsError({ error: false, message: '' });
+    setIsLoading(true);
+    try {
+      const data = await fetchDataKategori();
+      if (isMounted) {
+        setListKategori(data);
+      }
+    } catch (error) {
+      if (isMounted) {
+        setIsError({ error: true, message: error.message });
+        setListKategori([]);
+      }
+    } finally {
+      if (isMounted) {
+        setIsLoading(false);
       }
     }
   };
 
-  useEffect(() => {
-    let isMounted = true;
-  
-    const fetchData = async () => {
-      setIsError({ error: false, message: '' });
-      setIsLoading(true);
-      try {
-        const data = await fetchDataKategori();
-        if (isMounted) {
-          setListKategori(data);
-        }
-      } catch (error) {
-        if (isMounted) {
-          setIsError({ error: true, message: error.message });
-          setListKategori([]);
-        }
-      } finally {
-        if (isMounted) {
-          setIsLoading(false);
-        }
-      }
-    };
-  
-    fetchData();
-  
-    return () => {
-      isMounted = false;
-    };
-  }, [kategori]);
-  
-  useEffect(() => {
-    if (AppContext_test.MateriForm && AppContext_test.MateriForm.current && Object.keys(AppContext_test.MateriForm.current).length > 0) {
-      formDataRef.current = { ...formDataRef.current, ...AppContext_test.MateriForm.current };
-    }
-  }, [AppContext_test.MateriForm]);
-  
-  // Render form
-  const dataSaved = AppContext_test.formSaved; // Menyimpan nilai AppContext_test.formSaved untuk menentukan apakah form harus di-disable atau tidak
-  
-  if (isLoading) return <Loading />;
+  fetchData();
+
+  return () => {
+    isMounted = false;
+  };
+}, [kategori]);
+
+useEffect(() => {
+  if (AppContext_test.MateriForm && AppContext_test.MateriForm.current && Object.keys(AppContext_test.MateriForm.current).length > 0) {
+    formDataRef.current = { ...formDataRef.current, ...AppContext_test.MateriForm.current };
+  }
+
+  if (AppContext_test.formSavedMateri === false) {
+    setIsFormDisabled(false);
+  }
+}, [AppContext_test.MateriForm, AppContext_test.formSavedMateri]);
+
+// Render form
+const dataSaved = AppContext_test.formSavedMateri; // Menyimpan nilai AppContext_test.formSavedMateri untuk menentukan apakah form harus di-disable atau tidak
+
+if (isLoading) return <Loading />;
+
   
   return (
     <>
@@ -323,7 +350,7 @@ export default function MasterCourseAdd({ onChangePage }) {
                   onChange={handleInputChange}
                   errorMessage={errors.mat_judul}
                   isRequired
-                  disabled={isFormDisabled || dataSaved} // Disable jika form sudah di-disable atau data sudah disimpan
+                  disabled={isFormDisabled || dataSaved} 
                 />
               </div>
               <div className="col-lg-6">
@@ -336,7 +363,7 @@ export default function MasterCourseAdd({ onChangePage }) {
                   onChange={handleInputChange}
                   errorMessage={errors.mat_kata_kunci}
                   isRequired
-                  disabled={isFormDisabled || dataSaved} // Disable jika form sudah di-disable atau data sudah disimpan
+                  disabled={isFormDisabled || dataSaved} 
                 />
               </div>
               <div className="col-lg-12">
@@ -348,7 +375,7 @@ export default function MasterCourseAdd({ onChangePage }) {
                   value={formDataRef.current.mat_keterangan}
                   onChange={handleInputChange}
                   errorMessage={errors.mat_keterangan}
-                  disabled={isFormDisabled || dataSaved} // Disable jika form sudah di-disable atau data sudah disimpan
+                  disabled={isFormDisabled || dataSaved} 
                 />
               </div>
               <div className="col-lg-12">
@@ -374,7 +401,7 @@ export default function MasterCourseAdd({ onChangePage }) {
                         alignleft aligncenter alignright alignjustify | \
                         bullist numlist outdent indent | removeformat | help'
                     }}
-                    disabled={isFormDisabled || dataSaved} // Disable jika form sudah di-disable atau data sudah disimpan
+                    disabled={isFormDisabled || dataSaved} 
                   />
                   {errors.mat_pengenalan && (
                     <div className="invalid-feedback">{errors.mat_pengenalan}</div>
@@ -392,7 +419,7 @@ export default function MasterCourseAdd({ onChangePage }) {
                   }
                   errorMessage={errors.mat_gambar}
                   isRequired
-                  disabled={isFormDisabled || dataSaved} // Disable jika form sudah di-disable atau data sudah disimpan
+                  disabled={isFormDisabled || dataSaved} 
                 />
               </div>
               <div className="col-lg-4">
@@ -406,7 +433,7 @@ export default function MasterCourseAdd({ onChangePage }) {
                   }
                   errorMessage={errors.mat_file_pdf}
                   isRequired
-                  disabled={isFormDisabled || dataSaved} // Disable jika form sudah di-disable atau data sudah disimpan
+                  disabled={isFormDisabled || dataSaved} 
                 />
               </div>
               <div className="col-lg-4">
@@ -420,7 +447,7 @@ export default function MasterCourseAdd({ onChangePage }) {
                   }
                   errorMessage={errors.mat_file_video}
                   isRequired
-                  disabled={isFormDisabled || dataSaved} // Disable jika form sudah di-disable atau data sudah disimpan
+                  disabled={isFormDisabled || dataSaved}
                 />
               </div>
             </div>
@@ -431,13 +458,13 @@ export default function MasterCourseAdd({ onChangePage }) {
           <Button
             classType="outline-secondary me-2 px-4 py-2"
             label="Kembali"
-            onClick={() => onChangePage("index",AppContext_test.MateriForm = "")}
+            onClick={() => onChangePage("index")}
           />
           <Button
             classType="primary ms-2 px-4 py-2"
             type="submit"
             label="Simpan"
-            disabled={isFormDisabled || dataSaved} // Disable jika form sudah di-disable atau data sudah disimpan
+            disabled={isFormDisabled || dataSaved}
           />
           <Button
             classType="dark ms-3 px-4 py-2"
