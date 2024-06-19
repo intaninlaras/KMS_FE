@@ -58,7 +58,7 @@ const CardKategoriProgram = ({ onChangePage, kategori }) => {
                     cssClass="btn px-2 py-0"
                     title="Materi"
                   />
-                  <span>{kategori.materialCount || 0}</span>
+                  <span>{kategori.materialCount}</span>
                 </div>
               </div>
               <div className="description-container mt-2">

@@ -12,19 +12,20 @@ import { Stepper } from 'react-form-stepper';
 import AppContext_test from "../MasterContext";
 import uploadFile from "../../../util/UploadFile";
 
-export default function MasterSharingAddNot({ onChangePage,withID}) {
+export default function MasterSharingAddNot({ onChangePage }) {
   const [errors, setErrors] = useState({});
   const [isError, setIsError] = useState({ error: false, message: "" });
   const [isLoading, setIsLoading] = useState(false);
 
   const fileInputRef = useRef(null);
   const vidioInputRef = useRef(null);
+  
   const formDataRef = useRef({
-    mat_id: AppContext_test.dataIDMateri,
+    mat_id: AppContext_test.DetailMateriEdit?.Key || "",
     mat_sharing_expert_pdf: "",
     mat_sharing_expert_video: "",
   });
-  // console.log("Materi Form di sahring", AppContext_test.MateriForm)
+
   const userSchema = object({
     mat_id: string().required("ID Materi tidak boleh kosong"),
     mat_sharing_expert_pdf: string(),
@@ -62,67 +63,84 @@ export default function MasterSharingAddNot({ onChangePage,withID}) {
   const handleAdd = async (e) => {
     e.preventDefault();
     const validationErrors = await validateAllInputs(
-      formDataRef.current,
-      userSchema,
-      setErrors
+        formDataRef.current,
+        userSchema,
+        setErrors
     );
 
     const isPdfEmpty = !fileInputRef.current.files.length;
     const isVideoEmpty = !vidioInputRef.current.files.length;
 
     if (isPdfEmpty && isVideoEmpty) {
-      setErrors((prevErrors) => ({
-        ...prevErrors,
-        mat_sharing_expert_pdf: "Pilih salah satu antara PDF atau Video",
-        mat_sharing_expert_video: "Pilih salah satu antara PDF atau Video",
-      }));
-      return;
+        setErrors((prevErrors) => ({
+            ...prevErrors,
+            mat_sharing_expert_pdf: "Pilih salah satu antara PDF atau Video",
+            mat_sharing_expert_video: "Pilih salah satu antara PDF atau Video",
+        }));
+        return;
     }
 
-    if (Object.values(validationErrors).every((error) => !error) && (!isPdfEmpty || !isVideoEmpty)) {
-      setIsLoading(true);
-      setIsError({ error: false, message: "" });
-      setErrors({});
+    if (
+        Object.values(validationErrors).every((error) => !error) &&
+        (!isPdfEmpty || !isVideoEmpty)
+    ) {
+        setIsLoading(true);
+        setIsError({ error: false, message: "" });
+        setErrors({});
 
-      const uploadPromises = [];
+        const uploadPromises = [];
 
-      if (fileInputRef.current && fileInputRef.current.files.length > 0) {
-        uploadPromises.push(
-          uploadFile(fileInputRef.current).then((data) => {
-            formDataRef.current.mat_sharing_expert_pdf = data.newFileName;
-          })
-        );
-      }
+        if (fileInputRef.current && fileInputRef.current.files.length > 0) {
+            uploadPromises.push(
+                uploadFile(fileInputRef.current).then((data) => {
+                    formDataRef.current.mat_sharing_expert_pdf = data.newFileName;
+                })
+            );
+        }
 
-      if (vidioInputRef.current && vidioInputRef.current.files.length > 0) {
-        uploadPromises.push(
-          uploadFile(vidioInputRef.current).then((data) => {
-            formDataRef.current.mat_sharing_expert_video = data.newFileName;
-          })
-        );
-      }
+        if (vidioInputRef.current && vidioInputRef.current.files.length > 0) {
+            uploadPromises.push(
+                uploadFile(vidioInputRef.current).then((data) => {
+                    formDataRef.current.mat_sharing_expert_video = data.newFileName;
+                })
+            );
+        }
 
-      Promise.all(uploadPromises).then(() => {
-        console.log("Form Data:", formDataRef.current);
-        UseFetch(
-          API_LINK + "SharingExperts/SaveDataSharing",
-          formDataRef.current
-        )
-          .then((data) => {
-            if (data === "ERROR") {
-              setIsError({ error: true, message: "Terjadi kesalahan: Gagal menyimpan data Sharing." });
-            } else {
-              SweetAlert("Sukses", "Data Sharing Expert berhasil disimpan", "success");
-              // onChangePage("index", kategori);
-            }
-          })
-          .catch((err) => {
-            setIsError({ error: true, message: "Terjadi kesalahan: " + err.message });
-          })
-          .finally(() => setIsLoading(false));
-      });
+        Promise.all(uploadPromises)
+            .then(() => {
+                console.log("Form Data:", formDataRef.current);
+                return UseFetch(
+                  API_LINK + "SharingExperts/SaveDataSharing",
+                  formDataRef.current
+                );
+            })
+            .then((data) => {
+                if (data === "ERROR") {
+                    setIsError({
+                        error: true,
+                        message: "Terjadi kesalahan: Gagal menyimpan data Sharing.",
+                    });
+                } else {
+                    SweetAlert(
+                        "Sukses",
+                        "Data Sharing Expert berhasil disimpan",
+                        "success"
+                    )
+                }
+            })
+            .catch((error) => {
+                console.error("Error:", error);
+                setIsError({
+                    error: true,
+                    message: "Terjadi kesalahan: Gagal menyimpan data.",
+                });
+            })
+            .finally(() => {
+                setIsLoading(false);
+            });
     }
-  };
+};
+
 
   if (isLoading) return <Loading />;
 

@@ -5,11 +5,19 @@ import { Stepper } from "react-form-stepper";
 import AppContext_test from "../MasterContext";
 import Loading from "../../../part/Loading";
 
-export default function DetailSharingExpert({ onChangePage, withID }) {
+export default function MasterSharingDetail({ onChangePage }) {
   const [isError, setIsError] = useState({ error: false, message: "" });
-  const [isLoading, setIsLoading] = useState(true); // Set initial loading to true
+  const [isLoading, setIsLoading] = useState(true); 
   const [pdfHeight, setPdfHeight] = useState("500px");
+  // console.log('di detail ',AppContext_test.DetailMateri)
 
+  // console.log('detail vidio: '+ Materi.Sharing_video)
+  const Materi = AppContext_test.DetailMateri;
+
+  const hasVideo = Materi.Sharing_video_url;
+  const hasPDF = Materi.Sharing_pdf_url;
+  // console.log('vidio : '+ hasPDF)
+  // console.log('pdf : '+ hasPDF)
   useEffect(() => {
     setTimeout(() => setIsLoading(false), 1000);
   }, []);
@@ -34,9 +42,7 @@ export default function DetailSharingExpert({ onChangePage, withID }) {
   }, []);
 
   if (isLoading) return <Loading />;
-
-  const hasVideo = withID.Sharing_video;
-  const hasPDF = withID.Sharing_pdf;
+  
 
   return (
     <>
@@ -80,9 +86,9 @@ export default function DetailSharingExpert({ onChangePage, withID }) {
           />
         </div>
 
-        {hasVideo || hasPDF ? (
+        {hasPDF || hasVideo ? (
           <div className="row">
-            {hasPDF ? (
+            {hasPDF && (
               <div className="col-lg-12">
                 <div className="card mt-4" style={{ borderColor: "#67ACE9" }}>
                   <div className="card-header fw-medium text-white" style={{ backgroundColor: "#67ACE9" }}>
@@ -91,7 +97,7 @@ export default function DetailSharingExpert({ onChangePage, withID }) {
                   <div className="card-body">
                     <div className="d-flex flex-column align-items-center justify-content-center">
                       <object
-                        data={withID.Sharing_pdf}
+                        data={Materi.Sharing_pdf_url}
                         type="application/pdf"
                         width="100%"
                         height={pdfHeight}
@@ -99,15 +105,15 @@ export default function DetailSharingExpert({ onChangePage, withID }) {
                       >
                         <p>
                           Maaf, browser Anda tidak mendukung preview file. Silakan{" "}
-                          <a href={withID.Sharing_pdf}>unduh file</a> untuk melihatnya.
+                          <a href={Materi.Sharing_pdf_url}>unduh file</a> untuk melihatnya.
                         </p>
                       </object>
                     </div>
                   </div>
                 </div>
               </div>
-            ) : null}
-            {hasVideo ? (
+            )}
+            {hasVideo && (
               <div className="col-lg-12">
                 <div className="card mt-4" style={{ borderColor: "#67ACE9" }}>
                   <div className="card-header fw-medium text-white" style={{ backgroundColor: "#67ACE9" }}>
@@ -122,14 +128,14 @@ export default function DetailSharingExpert({ onChangePage, withID }) {
                         height="auto"
                         style={{ maxWidth: "100%", marginBottom: "20px" }}
                       >
-                        <source src={withID.Sharing_video} type="video/mp4" />
+                        <source src={Materi.Sharing_video_url} type="video/mp4" />
                         Your browser does not support the video tag.
                       </video>
                     </div>
                   </div>
                 </div>
               </div>
-            ) : null}
+            )}
           </div>
         ) : (
           <div className="card" style={{ borderColor: "#67ACE9" }}>
@@ -137,27 +143,24 @@ export default function DetailSharingExpert({ onChangePage, withID }) {
               Detail Sharing Expert
             </div>
             <div className="card-body">
-              <Alert type="info" message={(
+              <Alert type="warning" message={(
                 <span>
-                  Data Sharing Expert belum ditambahkan. <a onClick={() => onChangePage("sharingAddNot", AppContext_test.DetailMateri)} className="text-primary">Tambah Data</a>
+                  Data Sharing Expert belum ditambahkan. <a onClick={() => onChangePage("sharingDetailNot")} className="text-primary">Tambah Data</a>
                 </span>
               )} />
-              {/* <div className="alert alert-warning" role="alert">
-              </div> */}
-            </div>
+              </div>
           </div>
         )}
-
         <div className="float my-4 mx-1">
           <Button
             classType="outline-secondary me-2 px-4 py-2"
             label="Kembali"
-            onClick={() => onChangePage("pretestDetail", AppContext_test.DetailMateri)}
+            onClick={() => onChangePage("pretestDetail")}
           />
           <Button
             classType="dark ms-3 px-4 py-2"
             label="Berikutnya"
-            onClick={() => onChangePage("forumDetail", AppContext_test.DetailMateri)}
+            onClick={() => onChangePage("forumDetail")}
           />
         </div>
       </form>

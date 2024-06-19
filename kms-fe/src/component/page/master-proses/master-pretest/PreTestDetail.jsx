@@ -4,9 +4,10 @@ import Loading from "../../../part/Loading";
 import { Stepper } from 'react-form-stepper';
 import axios from 'axios';
 import { API_LINK } from "../../../util/Constants";
+import AppContext_test from "../MasterContext";
 
 
-export default function MasterPreTestAdd({ onChangePage,withID }) {
+export default function MasterPreTestDetail({ onChangePage,withID }) {
   const [formContent, setFormContent] = useState([]);
   const [errors, setErrors] = useState({});
   const [isError, setIsError] = useState({ error: false, message: "" });
@@ -156,13 +157,13 @@ export default function MasterPreTestAdd({ onChangePage,withID }) {
         <div>
           <Stepper
             steps={[
-              { label: 'Materi', onClick: () => onChangePage("courseAdd") },
               { label: 'Pretest', onClick: () => onChangePage("pretestAdd") },
+              { label: 'Materi', onClick: () => onChangePage("courseAdd") },
               { label: 'Sharing Expert', onClick: () => onChangePage("sharingAdd") },
               { label: 'Forum', onClick: () => onChangePage("forumAdd") },
               { label: 'Post Test', onClick: () => onChangePage("posttestAdd") }
             ]}
-            activeStep={1}
+            activeStep={0}
             styleConfig={{
               activeBgColor: '#67ACE9',
               activeTextColor: '#FFFFFF',
@@ -236,7 +237,7 @@ export default function MasterPreTestAdd({ onChangePage,withID }) {
           <Button
             classType="dark ms-3 px-4 py-2"
             label="Berikutnya"
-            onClick={() => onChangePage("sharingDetail", formData.quizId)}
+            onClick={() => onChangePage("sharingDetail")}
           />
         </div>
       </form>

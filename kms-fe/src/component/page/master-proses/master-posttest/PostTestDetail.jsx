@@ -1,17 +1,13 @@
 import React, { useRef, useState, useEffect } from "react";
 import Button from "../../../part/Button";
-import { object, string } from "yup";
-import Input from "../../../part/Input";
 import Loading from "../../../part/Loading";
 import { Stepper } from 'react-form-stepper';
-import * as XLSX from 'xlsx';
 import axios from 'axios';
-import { validateAllInputs, validateInput } from "../../../util/ValidateForm";
 import { API_LINK } from "../../../util/Constants";
-import FileUpload from "../../../part/FileUpload";
-import uploadFile from "../../../util/UploadImageQuiz";
+import AppContext_test from "../MasterContext";
 
-export default function MasterPreTestAdd({ onChangePage, withId }) {
+
+export default function MasterPostTestDetail({ onChangePage,withID }) {
   const [formContent, setFormContent] = useState([]);
   const [errors, setErrors] = useState({});
   const [isError, setIsError] = useState({ error: false, message: "" });
@@ -59,7 +55,7 @@ export default function MasterPreTestAdd({ onChangePage, withId }) {
     try {
       while (true) {
         const data = await axios.post(API_LINK + 'Quiz/GetQuizByID', {
-          id: withId.Key
+          id: withID
         });
 
         if (data === "ERROR") {
@@ -161,13 +157,13 @@ export default function MasterPreTestAdd({ onChangePage, withId }) {
         <div>
           <Stepper
             steps={[
-              { label: 'Materi', onClick: () => onChangePage("courseAdd") },
               { label: 'Pretest', onClick: () => onChangePage("pretestAdd") },
+              { label: 'Materi', onClick: () => onChangePage("courseAdd") },
               { label: 'Sharing Expert', onClick: () => onChangePage("sharingAdd") },
               { label: 'Forum', onClick: () => onChangePage("forumAdd") },
               { label: 'Post Test', onClick: () => onChangePage("posttestAdd") }
             ]}
-            activeStep={4}
+            activeStep={0}
             styleConfig={{
               activeBgColor: '#67ACE9',
               activeTextColor: '#FFFFFF',
@@ -212,6 +208,7 @@ export default function MasterPreTestAdd({ onChangePage, withId }) {
                 {formContent.map((question, index) => (
                   <div key={index} className="mb-4">
                     <p>{index + 1}. {question.text}</p>
+                    
                     {question.type === "Pilgan" && (
                       <ul>
                         {question.options.map((option, optionIndex) => (
@@ -219,6 +216,7 @@ export default function MasterPreTestAdd({ onChangePage, withId }) {
                         ))}
                       </ul>
                     )}
+                    
                   </div>
                 ))}
               </div>
@@ -229,18 +227,8 @@ export default function MasterPreTestAdd({ onChangePage, withId }) {
           <Button
             classType="outline-secondary me-2 px-4 py-2"
             label="Kembali"
-            onClick={() => onChangePage("index")}
-          />
-          <Button
-            classType="primary ms-2 px-4 py-2"
-            type="submit"
-            label="Simpan"
-          />
-          <Button
-            classType="dark ms-3 px-4 py-2"
-            label="Berikutnya"
-            onClick={() => onChangePage("materiEdit", formData.quizId)}
-          />
+            onClick={() => onChangePage("forumDetail")}
+          />          
         </div>
       </form>
     </>

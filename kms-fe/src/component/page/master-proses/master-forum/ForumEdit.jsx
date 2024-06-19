@@ -1,6 +1,5 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { object, string } from "yup";
-import { validateAllInputs, validateInput } from "../../../util/ValidateForm";
 import SweetAlert from "../../../util/SweetAlert";
 import Button from "../../../part/Button";
 import Input from "../../../part/Input";
@@ -10,15 +9,15 @@ import { Stepper } from 'react-form-stepper';
 import axios from "axios";
 import { API_LINK } from "../../../util/Constants";
 import UseFetch from "../../../util/UseFetch";
-import AppContext_test from "../MasterContext";
 import { Editor } from '@tinymce/tinymce-react';
+import AppContext_test from "../MasterContext";
 
 const userSchema = object({
   forumJudul: string().max(100, "Maksimum 100 karakter").required("Harus diisi"),
   forumIsi: string().required("Harus diisi"),
 });
 
-export default function MasterForumAdd({ onChangePage, withID }) {
+export default function MasterForumEdit({ onChangePage }) {
   const [errors, setErrors] = useState({});
   const [isError, setIsError] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -26,17 +25,14 @@ export default function MasterForumAdd({ onChangePage, withID }) {
     forumJudul: "",
     forumIsi: "",
   });
+  const [forumDataExists, setForumDataExists] = useState(false);
+  const Materi = AppContext_test.DetailMateriEdit;
 
   const handleInputChange = async (e) => {
     const { name, value } = e.target;
     setFormData((prevData) => ({
       ...prevData,
       [name]: value,
-    }));
-    const validationError = await validateInput(name, value, userSchema);
-    setErrors((prevErrors) => ({
-      ...prevErrors,
-      [validationError.name]: validationError.error,
     }));
   };
 
@@ -47,7 +43,7 @@ export default function MasterForumAdd({ onChangePage, withID }) {
 
       try {
         const data = await UseFetch(API_LINK + "Forum/GetDataForumByMateri", {
-          p1: withID.Key
+          p1: Materi.Key
         });
 
         if (data === "ERROR") {
@@ -58,6 +54,9 @@ export default function MasterForumAdd({ onChangePage, withID }) {
               forumJudul: data[0]["Nama Forum"] || "",
               forumIsi: data[0]["Isi Forum"] || "",
             });
+            setForumDataExists(true);
+          } else {
+            setForumDataExists(false);
           }
         }
       } catch (error) {
@@ -69,15 +68,21 @@ export default function MasterForumAdd({ onChangePage, withID }) {
     };
 
     fetchData();
-  }, [withID]);
+  }, [Materi]);
 
   const handleAdd = async (e) => {
     e.preventDefault();
 
-    const validationErrors = await validateAllInputs(formData, userSchema, setErrors);
-    if (Object.values(validationErrors).some((error) => error)) {
-      return;
-    }
+    const validationErrors = await userSchema.validate(formData, { abortEarly: false })
+      .then(() => ({ forumJudul: '', forumIsi: '' }))
+      .catch((err) => {
+        const errors = err.inner.reduce((acc, current) => {
+          acc[current.path] = current.message;
+          return acc;
+        }, {});
+        setErrors(errors);
+        return errors;
+      });
 
     setIsLoading(true);
     setIsError(false);
@@ -85,7 +90,7 @@ export default function MasterForumAdd({ onChangePage, withID }) {
     try {
       console.log("FormData being sent:", formData);
       const response = await axios.post(API_LINK + "Forum/EditDataForum", {
-        p1: withID.Key,
+        p1: Materi.Key,
         p2: formData.forumJudul,
         p3: formData.forumIsi,
       });
@@ -148,73 +153,99 @@ export default function MasterForumAdd({ onChangePage, withID }) {
             }}
           />
         </div>
-
+  
         <div className="card">
           <div className="card-header bg-outline-primary fw-medium text-black">
             Edit Forum
           </div>
-          <div className="card-body p-4">
-            <div className="row">
-              <div className="col-lg-12">
-                <Input
-                  type="text"
-                  forInput="forumJudul"
-                  label="Judul Forum"
-                  value={formData.forumJudul}
-                  onChange={handleInputChange}
-                  errorMessage={errors.forumJudul}
-                  isRequired 
-                />
-              </div>
-              <div className="col-lg-12">
-                <div className="form-group">
-                  <label htmlFor="forumIsi" className="form-label fw-bold">
-                    Isi Forum <span style={{ color: 'Red' }}> *</span>
-                  </label>
-                  <Editor
-                    id="forumIsi"
-                    value={formData.forumIsi}
-                    onEditorChange={(content) => setFormData({ ...formData, forumIsi: content })}
-                    apiKey='v5s2v6diqyjyw3k012z4k2o0epjmq6wil26i10xjh53bbk7y'
-                    init={{
-                      height: 300,
-                      menubar: false,
-                      plugins: [
-                        'advlist autolink lists link image charmap print preview anchor',
-                        'searchreplace visualblocks code fullscreen',
-                        'insertdatetime media table paste code help wordcount'
-                      ],
-                      toolbar:
-                        'undo redo | formatselect | bold italic backcolor | \
-                        alignleft aligncenter alignright alignjustify | \
-                        bullist numlist outdent indent | removeformat | help'
-                    }}
+          
+          {/* Handling different scenarios */}
+          {isLoading && (
+            <div className="card-body">
+              <Loading />
+            </div>
+          )}
+  
+          {!isLoading && !forumDataExists && (
+            <div className="card-body">
+              <Alert type="warning" message={(
+                <span>
+                  Data Forum belum ditambahkan. <a onClick={() => onChangePage("forumEditNot")} className="text-primary">Tambah Data</a>
+                </span>
+              )} />
+            </div>
+          )}
+  
+          {!isLoading && forumDataExists && (
+            <div className="card-body p-4">
+              <div className="row">
+                <div className="col-lg-12">
+                  <Input
+                    type="text"
+                    forInput="forumJudul"
+                    label="Judul Forum"
+                    value={formData.forumJudul}
+                    onChange={handleInputChange}
+                    errorMessage={errors.forumJudul}
+                    isRequired
                   />
-                  {errors.forumIsi && (
-                    <div className="invalid-feedback">{errors.forumIsi}</div>
-                  )}
+                </div>
+                <div className="col-lg-12">
+                  <div className="form-group">
+                    <label htmlFor="forumIsi" className="form-label fw-bold">
+                      Isi Forum <span style={{ color: 'Red' }}> *</span>
+                    </label>
+                    <Editor
+                      id="forumIsi"
+                      value={formData.forumIsi}
+                      onEditorChange={(content) => setFormData({ ...formData, forumIsi: content })}
+                      apiKey='v5s2v6diqyjyw3k012z4k2o0epjmq6wil26i10xjh53bbk7y'
+                      init={{
+                        height: 300,
+                        menubar: false,
+                        plugins: [
+                          'advlist autolink lists link image charmap print preview anchor',
+                          'searchreplace visualblocks code fullscreen',
+                          'insertdatetime media table paste code help wordcount'
+                        ],
+                        toolbar:
+                          'undo redo | formatselect | bold italic backcolor | \
+                          alignleft aligncenter alignright alignjustify | \
+                          bullist numlist outdent indent | removeformat | help'
+                      }}
+                    />
+                    {errors.forumIsi && (
+                      <div className="invalid-feedback">{errors.forumIsi}</div>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
+          )}
+  
+        </div>
+        
+        {/* Render the save button only if forumDataExists */}
+          <div className="float my-4 mx-1">
+            <Button
+              classType="outline-secondary me-2 px-4 py-2"
+              label="Kembali"
+              onClick={() => onChangePage("sharingEdit")}
+            />
+            {forumDataExists && (
+              <Button
+                classType="primary ms-2 px-4 py-2"
+                type="submit"
+                label="Simpan"
+              />
+            )}
+            <Button
+              classType="dark ms-3 px-4 py-2"
+              label="Berikutnya"
+              onClick={() => onChangePage("posttestEdit")}
+            />
           </div>
-        </div>
-        <div className="float my-4 mx-1">
-          <Button
-            classType="outline-secondary me-2 px-4 py-2"
-            label="Kembali"
-            onClick={() => onChangePage("sharingEdit", AppContext_test.DetailMateriEdit)}
-          />
-          <Button
-            classType="primary ms-2 px-4 py-2"
-            type="submit"
-            label="Simpan"
-          />
-          <Button
-            classType="dark ms-3 px-4 py-2"
-            label="Berikutnya"
-            onClick={() => onChangePage("posttestEdit")}
-          />
-        </div>
+        
       </form>
     </>
   );
