@@ -155,6 +155,7 @@ export default function MasterCourseAdd({ onChangePage }) {
         axios.post(API_LINK + "Materis/SaveDataMateri", formDataRef.current)
           .then(response => {
             const data = response.data;
+            console.log("materiAdd ", data)
             if (data[0].hasil === "OK") {
               AppContext_test.dataIDMateri = data[0].newID;
               SweetAlert("Sukses", "Data Materi berhasil disimpan", "success");

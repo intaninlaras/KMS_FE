@@ -57,7 +57,6 @@ export default function MasterPreTestAdd({ onChangePage }) {
     setFormContent([...formContent, newQuestion]);
     setSelectedOptions([...selectedOptions, ""]);
   };
-
   const [formData, setFormData] = useState({
     materiId: AppContext_test.dataIDMateri,
     quizJudul: '',
@@ -140,9 +139,8 @@ export default function MasterPreTestAdd({ onChangePage }) {
   
     try {
       formData.timer = convertTimeToSeconds(timer)
-  
+  console.log(formData)
       const response = await axios.post(API_LINK + 'Quiz/SaveDataQuiz', formData);
-  
       if (response.data.length === 0) {
         alert('Gagal menyimpan data');
         return;
@@ -161,7 +159,6 @@ export default function MasterPreTestAdd({ onChangePage }) {
           status: 'Aktif',
           quecreatedby: 'Admin',
         };
-  
         if (question.type === 'Essay' || question.type === 'Praktikum') {
           if (question.selectedFile) {
             try {
@@ -720,9 +717,9 @@ export default function MasterPreTestAdd({ onChangePage }) {
                     <select className="form-select" aria-label="Default select example"
                       value={question.type}
                       onChange={(e) => handleQuestionTypeChange(e, index)}>
-                      <option value="essay">Essay</option>
+                      <option value="Essay">Essay</option>
                       <option value="Pilgan">Pilihan Ganda</option>
-                      <option value="praktikum">Praktikum</option>
+                      <option value="Praktikum">Praktikum</option>
                     </select>
                   </div>
                 </div>
