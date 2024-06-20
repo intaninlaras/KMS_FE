@@ -1,13 +1,17 @@
 import React, { useRef, useState, useEffect } from "react";
 import Button from "../../../part/Button";
+import { object, string } from "yup";
+import Input from "../../../part/Input";
 import Loading from "../../../part/Loading";
 import { Stepper } from 'react-form-stepper';
+import * as XLSX from 'xlsx';
 import axios from 'axios';
+import { validateAllInputs, validateInput } from "../../../util/ValidateForm";
 import { API_LINK } from "../../../util/Constants";
+import FileUpload from "../../../part/FileUpload";
+import uploadFile from "../../../util/UploadImageQuiz";
 import AppContext_test from "../MasterContext";
-
-
-export default function MasterPostTestDetail({ onChangePage,withID }) {
+export default function MasterPreTestAdd({ onChangePage, withId }) {
   const [formContent, setFormContent] = useState([]);
   const [errors, setErrors] = useState({});
   const [isError, setIsError] = useState({ error: false, message: "" });
@@ -56,7 +60,7 @@ export default function MasterPostTestDetail({ onChangePage,withID }) {
     try {
       while (true) {
         const data = await axios.post(API_LINK + 'Quiz/GetQuizByID', {
-          id: withID
+          id: AppContext_test.DetailMateri?.Key, tipe: "Posttest"
         });
 
         if (data === "ERROR") {
@@ -96,7 +100,7 @@ export default function MasterPostTestDetail({ onChangePage,withID }) {
     try {
         while (true) {
             const { data } = await axios.post(API_LINK + 'Quiz/GetDataQuestion', {
-                id: formData.quizId, status: 'Aktif'
+                id: AppContext_test.DetailMateri?.Key, status: 'Aktif', Tipe: 'Posttest'
             });
             console.log(data);
             if (data === "ERROR") {
@@ -172,7 +176,7 @@ export default function MasterPostTestDetail({ onChangePage,withID }) {
 };  
   useEffect(() => {
     getDataQuiz();
-  }, [withID]);
+  }, [AppContext_test.DetailMateri?.Key]);
   
   useEffect(() => {
     if (formData.quizId) getDataQuestion();
@@ -240,7 +244,10 @@ export default function MasterPostTestDetail({ onChangePage,withID }) {
                 <h4 className="mb-3 mt-0">Pertanyaan</h4>
                 {formContent.map((question, index) => (
                   <div key={index} className="mb-4">
-                    <p>{index + 1}. {question.text}</p>
+                    <p style={{ fontSize: '0.75em', color: 'gray', marginBottom: '5px' }}>
+        {question.type === "Essay" ? "(Essai)" : question.type === "Praktikum" ? "(Praktikum)" : "(Pilihan Ganda)"}
+      </p>
+                    <p>{index + 1}. {stripHtmlTags(question.text)}</p>
                     
                     {question.type === "Pilgan" && (
                       <ul style={{ listStyleType: 'none', padding: 0 }}>
@@ -251,6 +258,24 @@ export default function MasterPostTestDetail({ onChangePage,withID }) {
                           </li>
                         ))}
                       </ul>
+                    )}
+                    {(question.type === "Essay" || question.type === "Praktikum") && ( // Periksa apakah ada gambar
+                      <div>
+                        
+                      <img
+                        id="image"
+                        src={question.gambar}
+                        alt="gambar"
+                        className="img-fluid"
+                        style={{
+                          maxWidth: '300px', // Set maximum width for the image container
+                          maxHeight: '300px', // Set maximum height for the image container
+                          overflow: 'hidden', // Hide any overflow beyond the set dimensions
+                          marginLeft: '10px'
+                        }}
+                      />
+                      <span style={{ fontSize: '0.75em', marginLeft: '10px', color: 'gray' }}>({question.point} poin)</span>
+                      </div>
                     )}
                     
                   </div>
@@ -265,7 +290,7 @@ export default function MasterPostTestDetail({ onChangePage,withID }) {
             classType="outline-secondary me-2 px-4 py-2"
             label="Kembali"
             onClick={() => onChangePage("forumDetail")}
-          />          
+          />
         </div>
       </form>
     </>

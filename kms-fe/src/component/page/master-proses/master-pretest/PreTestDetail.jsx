@@ -56,7 +56,7 @@ export default function MasterPreTestDetail({ onChangePage,withID }) {
     try {
       while (true) {
         const data = await axios.post(API_LINK + 'Quiz/GetQuizByID', {
-          id: withID, tipe: "Pretest"
+          id: AppContext_test.DetailMateri?.Key, tipe: "Pretest"
         });
 
         if (data === "ERROR") {
@@ -96,7 +96,7 @@ export default function MasterPreTestDetail({ onChangePage,withID }) {
     try {
         while (true) {
             const { data } = await axios.post(API_LINK + 'Quiz/GetDataQuestion', {
-                id: formData.quizId, status: 'Aktif'
+                id: AppContext_test.DetailMateri?.Key, status: 'Aktif', tipe: 'Pretest'
             });
             console.log(data);
             if (data === "ERROR") {
