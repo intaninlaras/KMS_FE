@@ -42,7 +42,7 @@ export default function KMS_PDFViewer({ pdfFileName }) {
     fetchData(); // Call the function to fetch data
   } else {
     setIsError(true);
-    setIsLoading(false);
+    setIsLoading(true);
   }
 }, [fileName]); 
   return (
@@ -57,26 +57,22 @@ export default function KMS_PDFViewer({ pdfFileName }) {
           </div>
         )}
         <div className="flex-fill">
-          {pdfUrl && (
-            <Worker workerUrl={`https://unpkg.com/pdfjs-dist@2.16.105/build/pdf.worker.min.js`}>
-            <div style={{ height: '750px' }}>
-                <Viewer 
-                    fileUrl={pdfUrl} 
-                    plugins={[defaultLayoutPluginInstance]}
-                />
-            </div>
-            </Worker>
-          )}
+          
         </div>
-        <div className="mt-3">
+        <div className="mt-3" >
           {isLoading ? (
             <Loading />
           ) : (
             <>
-              {!pdfUrl && (
-                <div className="alert alert-warning">
-                  PDF tidak tersedia
+              {pdfUrl && (
+                <Worker workerUrl={`https://unpkg.com/pdfjs-dist@2.16.105/build/pdf.worker.min.js`}>
+                <div style={{ height: '750px' }}>
+                    <Viewer 
+                        fileUrl={pdfUrl} 
+                        plugins={[defaultLayoutPluginInstance]}
+                    />
                 </div>
+                </Worker>
               )}
             </>
           )}

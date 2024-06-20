@@ -24,7 +24,7 @@ export default function SubKKIndex({ onChangePage }) {
         setIsLoading(true);
   
         let kkData = await UseFetch(API_LINK + "Program/GetDataKKByPIC", { username });
-        console.log("KK Data:", kkData);
+        // console.log("KK Data:", kkData);
   
         if (kkData === "ERROR") {
           throw new Error("Terjadi kesalahan: Gagal mengambil data Kelompok Keahlian.");
@@ -34,31 +34,31 @@ export default function SubKKIndex({ onChangePage }) {
   
         for (const kk of kkData) {
           const programData = await UseFetch(API_LINK + "Program/GetProgramByKK", { kk: kk.Key });
-          console.log("Program Data for KK:", kk.Key, programData);
+          // console.log("Program Data for KK:", kk.Key, programData);
   
           if (programData === "ERROR") {
             throw new Error("Terjadi kesalahan: Gagal mengambil data Program.");
           }
   
           const anggotaCountData = await UseFetch(API_LINK + "Program/CountAnggotaByKK", { p1: kk.Key });
-          console.log("Anggota Count Data for KK:", kk.Key, anggotaCountData);
+          // console.log("Anggota Count Data for KK:", kk.Key, anggotaCountData);
   
           if (anggotaCountData === "ERROR") {
             throw new Error("Terjadi kesalahan: Gagal menghitung jumlah anggota.");
           }
   
           const anggotaCount = anggotaCountData.length;
-          console.log("Member Count for KK:", kk.Key, anggotaCount);
+          // console.log("Member Count for KK:", kk.Key, anggotaCount);
   
           const programCountData = await UseFetch(API_LINK + "Program/CountProgramByKK", { p1: kk.Key });
-          console.log("Program Count Data for KK:", kk.Key, programCountData);
+          // console.log("Program Count Data for KK:", kk.Key, programCountData);
   
           if (programCountData === "ERROR") {
             throw new Error("Terjadi kesalahan: Gagal menghitung jumlah anggota.");
           }
   
           const programCount = programCountData.length;
-          console.log("Program Count for KK:", kk.Key, programCount);
+          // console.log("Program Count for KK:", kk.Key, programCount);
   
           const programsWithCategories = [];
   
@@ -78,7 +78,7 @@ export default function SubKKIndex({ onChangePage }) {
           kkWithPrograms.push({ ...kk, programs: programsWithCategories, AnggotaCount: anggotaCount, ProgramCount: programCount });
         }
   
-        console.log("KK with Programs:", kkWithPrograms);
+        // console.log("KK with Programs:", kkWithPrograms);
         setListKK(kkWithPrograms);
         setIsLoading(false);
         return kkWithPrograms; // Return the data if successful

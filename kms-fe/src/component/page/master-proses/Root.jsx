@@ -8,6 +8,7 @@ import MasterPreTestDetail from "./master-pretest/PreTestDetail";
 import MasterMateriAdd from "./master-materi/MateriAdd";
 import MasterMateriEdit from "./master-materi/MateriEdit";
 import MasterMateriDetail from "./master-materi/MateriDetail";
+import MasterMateriReviewJawaban from "./master-materi/MateriReviewJawaban";
 // Sharing Expert
 import MasterSharingAdd from "./master-sharing/SharingAdd";
 import MasterSharingEdit from "./master-sharing/SharingEdit";
@@ -35,6 +36,10 @@ export default function MasterProses() {
     switch (pageMode) {
       case "index":
         return <MasterProsesIndex 
+                onChangePage={handleSetPageMode} 
+                withID={dataID}/>;
+      case "reviewjawaban":
+        return <MasterMateriReviewJawaban
                 onChangePage={handleSetPageMode} 
                 withID={dataID}/>;
       case "pretestAdd":

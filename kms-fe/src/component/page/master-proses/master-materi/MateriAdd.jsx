@@ -65,6 +65,8 @@ export default function MasterCourseAdd({ onChangePage }) {
   };
 
   const handleFileChange = async (ref, extAllowed) => {
+    console.log(ref)
+
     const { name, value } = ref.current;
     const file = ref.current.files[0];
     const fileName = file.name;

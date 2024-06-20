@@ -30,9 +30,8 @@ export default function KMS_Rightbar({ handlePreTestClick_close, handlePreTestCl
   const isDataReadyTemp = "";
   const materiIdTemp = "";
   const isOpenTemp = true;
-
   useEffect(() => {
-    let isMounted = true;
+    let isMounted = false;
 
     const fetchData_rightBar = async () => {
       setIsLoading(true);
@@ -40,7 +39,7 @@ export default function KMS_Rightbar({ handlePreTestClick_close, handlePreTestCl
         const dataMateri = await fetchDataMateri_rightBar();
         if (isMounted) {
           if (dataMateri) {
-                setCurrentDataMateri(dataMateri);
+            setCurrentDataMateri(dataMateri);
           } else {
             console.error("Response data is undefined or null");
           }
@@ -63,15 +62,13 @@ export default function KMS_Rightbar({ handlePreTestClick_close, handlePreTestCl
           const response = await axios.post("http://localhost:8080/Materis/GetDataMateriById", {
             materiId: AppContext_test.materiId,
           });
-          // const response = await UseFetch(
-          //   API_LINK + "Materis/GetDataMateriById",
-          //   {materiId: AppContext_test.materiId}
-          // );
           if (response.data != 0) {
+            isMounted = true;
             return response.data;
           }
         } catch (error) {
           console.error("Error fetching quiz data:", error);
+          console.log("halo", AppContext_test.materiId)
           if (i < retries - 1) {
             await new Promise(resolve => setTimeout(resolve, delay));
           } else {
@@ -95,13 +92,6 @@ export default function KMS_Rightbar({ handlePreTestClick_close, handlePreTestCl
       setIsLoading(true);
       try {
         const dataMateri = await updateProgres();
-        if (isMounted) {
-          if (dataMateri) {
-                setCurrentDataMateri(dataMateri);
-          } else {
-            console.error("Response data is undefined or null");
-          }
-        }
       } catch (error) {
         if (isMounted) {
           setIsError(true);
@@ -120,11 +110,7 @@ export default function KMS_Rightbar({ handlePreTestClick_close, handlePreTestCl
           const response = await axios.post("http://localhost:8080/Materis/UpdatePoinProgresMateri", {
             materiId: AppContext_test.materiId,
           });
-          console.log(response)
-          // const response = await UseFetch(
-          //   API_LINK + "Materis/GetDataMateriById",
-          //   {materiId: AppContext_test.materiId}
-          // );
+
           if (response.data != 0) {
             return response.data;
           }
@@ -156,8 +142,9 @@ export default function KMS_Rightbar({ handlePreTestClick_close, handlePreTestCl
         if (isMounted) {
           if (data) {
                 setCurrentData(data);
+                console.log(currentData)
           } else {
-            console.error("Response data is undefined or null");
+            // console.error("Response data is undefined or null");
           }
         }
       } catch (error) {
@@ -179,10 +166,6 @@ export default function KMS_Rightbar({ handlePreTestClick_close, handlePreTestCl
             materiId: AppContext_test.materiId,
             karyawanId: '1',
           });
-          // const response = await UseFetch(
-          //   API_LINK + "Materis/GetProgresMateri",
-          //   {materiId: AppContext_test.materiId, karyawanId: '1',}
-          // );
           if (response.data != 0) {
             return response.data;
           }
@@ -285,30 +268,44 @@ export default function KMS_Rightbar({ handlePreTestClick_close, handlePreTestCl
   const handleItemClick = (page, url, updateProgres) => {
     onChangePage(page);
     AppContext_test.urlMateri = url;
-    AppContext_test.refreshPage = true;
+    AppContext_test.refreshPage = page;
     AppContext_test.progresMateri = updateProgres;
   };
 
+  const [dropdownData, setDropdownData] = useState([]);
+  const [showPengenalan, setShowPengenalan] = useState(false);
+  const [showPreTest, setShowPreTest] = useState(false);
+  const [showForum, setShowForum] = useState(false);
+  const [showPostTest, setShowPostTest] = useState(false);
 
-  const dropdownData = [
-    ...(currentDataMateri[0]?.fileMateri_pdf != null || currentDataMateri[0]?.fileMateri_video != null || currentDataMateri[0]?.fileMateri_pdf != undefined || currentDataMateri[0]?.fileMateri_video != undefined ? [{
-      name: 'Materi',
-      items: [
-        ...(currentDataMateri[0]?.fileMateri_pdf != null || currentDataMateri[0]?.fileMateri_pdf != undefined || currentDataMateri[0]?.fileMateri_pdf != "" ? [{ label: 'Materi PDF', onClick: () => handleItemClick("materipdf", currentDataMateri[0]?.fileMateri_pdf, "materi_pdf") }] : []),
-        ...(currentDataMateri[0]?.fileMateri_video != null || currentDataMateri[0]?.fileMateri_video != undefined ? [{ label: 'Materi Video', onClick: () => handleItemClick("materivideo", currentDataMateri[0]?.fileMateri_video, "materi_video") }] : [])
-      ],
-      countDone: 5
-    }] : []),
-    ...(currentDataMateri[0]?.fileSharingExp_pdf != null || currentDataMateri[0]?.fileSharingExp_video != null ? [{
-      name: 'Sharing Expert',
-      items: [
-        ...(currentDataMateri[0]?.fileSharingExp_pdf != null ? [{ label: 'Materi PDF', onClick: () => handleItemClick("materipdf", currentDataMateri[0]?.fileSharingExp_pdf, "sharing_pdf") }] : []),
-        ...(currentDataMateri[0]?.fileSharingExp_video != null ? [{ label: 'Materi Video', onClick: () => handleItemClick("materivideo", currentDataMateri[0]?.fileSharingExp_video, "sharing_video") }] : [])
-      ],
-      countDone: 2
-    }] : [])
-  ];
+  useEffect(() => {
+    if (currentDataMateri && currentDataMateri.length > 0) {
+      const updatedDropdownData = [
+        ...(currentDataMateri[0]?.File_pdf != null || currentDataMateri[0]?.File_video != null ? [{
+          name: 'Materi',
+          items: [
+            ...(currentDataMateri[0]?.File_pdf != null ? [{ label: 'Materi PDF', onClick: () => handleItemClick("materipdf", currentDataMateri[0]?.File_pdf, "materi_pdf") }] : []),
+            ...(currentDataMateri[0]?.File_video != null ? [{ label: 'Materi Video', onClick: () => handleItemClick("materivideo", currentDataMateri[0]?.File_video, "materi_video") }] : [])
+          ],
+          countDone: 5
+        }] : []),
+        ...(currentDataMateri[0]?.Sharing_pdf != null || currentDataMateri[0]?.Sharing_video != null ? [{
+          name: 'Sharing Expert',
+          items: [
+            ...(currentDataMateri[0]?.Sharing_pdf != null ? [{ label: 'Materi PDF', onClick: () => handleItemClick("materipdf", currentDataMateri[0]?.Sharing_pdf, "sharing_pdf") }] : []),
+            ...(currentDataMateri[0]?.Sharing_video != null ? [{ label: 'Materi Video', onClick: () => handleItemClick("materivideo", currentDataMateri[0]?.Sharing_video, "sharing_video") }] : [])
+          ],
+          countDone: 2
+        }] : [])
+      ];
 
+      setDropdownData(updatedDropdownData);
+      setShowPengenalan(currentDataMateri[0]?.Pengenalan != null);
+      setShowPreTest(currentDataMateri[0]?.PreTest != null);
+      setShowForum(currentDataMateri[0]?.Forum != null);
+      setShowPostTest(currentDataMateri[0]?.PostTest != null);
+    }
+  }, [currentDataMateri]);
 
   function handleOpenClick() {
     setShowElement(false);
@@ -347,7 +344,7 @@ export default function KMS_Rightbar({ handlePreTestClick_close, handlePreTestCl
         isOpenTemp
       );
       AppContext_test.pageMode = "index";
-      AppContext_test.refreshPage = true;
+      AppContext_test.refreshPage = "forum";
     }
 
   function onClick_postTest() {
@@ -357,7 +354,7 @@ export default function KMS_Rightbar({ handlePreTestClick_close, handlePreTestCl
         materiIdTemp,
         isOpenTemp
       );
-      AppContext_test.refreshPage = true;
+      AppContext_test.refreshPage = "posttest";
     }
 
   function onClick_preTest() {
@@ -367,7 +364,7 @@ export default function KMS_Rightbar({ handlePreTestClick_close, handlePreTestCl
         materiIdTemp,
         isOpenTemp
       );
-      AppContext_test.refreshPage = true;
+      AppContext_test.refreshPage = "pretest";
     }
   function onClick_pengenalan() {
     onChangePage(
@@ -376,122 +373,127 @@ export default function KMS_Rightbar({ handlePreTestClick_close, handlePreTestCl
         materiIdTemp,
         isOpenTemp
       );
-      AppContext_test.refreshPage = true;
+      AppContext_test.refreshPage = "pengenalan";
     }
   return (
-    <div className="h-100 pt-2 overflow-y-auto position-fixed" style={{ right: "10px", width: widthDynamic }}>
-      <div className="px-2 collapseTrue">
-        {showElement &&
-          <div className="" style={button_listOfLearningStyle}>
+  <div className="h-100 pt-2 overflow-y-auto position-fixed" style={{ right: "10px", width: widthDynamic }}>
+    <div className="px-2 collapseTrue">
+      {showElement &&
+        <div className="" style={button_listOfLearningStyle}>
+          <Icon
+            name="angle-left"
+            type="Bold"
+            cssClass="btn text-light ms-0"
+            onClick={handleCombinedClick_open}
+          />
+        </div>
+      }
+    </div>
+    {showMainContent_SideBar && (
+      <div className="collapseFalse">
+        <div style={listOfLearningStyle}>
+          <div style={button_listOfLearningStyle}>
             <Icon
-              name="angle-left"
+              name="angle-right"
               type="Bold"
               cssClass="btn text-light ms-0"
-              onClick={handleCombinedClick_open}
+              onClick={handleCombinedClick_close}
             />
           </div>
-        }
-      </div>
-      {showMainContent_SideBar && (
-        <div className="collapseFalse">
-          <div style={listOfLearningStyle}>
-            <div style={button_listOfLearningStyle}>
-              <Icon
-                name="angle-right"
-                type="Bold"
-                cssClass="btn text-light ms-0"
-                onClick={handleCombinedClick_close}
+          <span style={{ fontWeight: 'bold', fontSize: '22px' }}>
+            Daftar Pembelajaran
+          </span>
+        </div>
+        {isLoading ? (
+          <Loading />
+        ) : (
+          <>
+            <div className="border-top border-bottom" style={{ ...progressStyle, display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%' }}>
+              <Button 
+                style={{width:"100%"}}
+                classType="btn btn-outline-primary py-2" 
+                label="Keluar Materi" 
+                onClick={onClick_exit}  
               />
             </div>
-            <span style={{ fontWeight: 'bold', fontSize: '22px' }}>
-              Daftar Pembelajaran
-            </span>
-          </div>
-          {isLoading ? (
-            <Loading />
-          ) : (
-            <>
-              <div className="border-top border-bottom" style={{ ...progressStyle, display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%' }}>
-                {/* <Button style={{ width: '100%', padding: '8px 16px' }}>
-                  
-                </Button> */}
-                <Button 
-                  style={{width:"100%"}}
-                  classType="btn btn-outline-primary py-2" 
-                  label="Keluar Materi" 
-                  onClick={onClick_exit}  
-                />
-              </div>
-              <div className="border-top border-bottom" style={progressStyle}>
-                {currentData.map((item) => (
-                  <div key={item.Key}>
-                    <KMS_ProgressBar progress={item.TotalProgres} />
-                    <span style={{ fontSize: '14px', marginLeft: '8px' }}>
-                      {item.TotalProgres}% Selesai
-                    </span>
-                  </div>
-                ))}
-              </div>
-              <div className="border-top" style={contentSidebarStyle}>
+            <div className="border-top border-bottom" style={progressStyle}>
+              {currentData.map((item) => (
+                <div key={item.Key}>
+                  <KMS_ProgressBar progress={item.TotalProgres} />
+                  <span style={{ fontSize: '14px', marginLeft: '8px' }}>
+                    {item.TotalProgres}% Selesai
+                  </span>
+                </div>
+              ))}
+            </div>
+            <div className="border-top" style={contentSidebarStyle}>
+              {showPengenalan && (
                 <div style={styles.sidebarItem}>
                   <button style={styles.link} onClick={onClick_pengenalan}>Pengenalan Materi</button>
                 </div>
+              )}
+              {showPreTest && (
                 <div style={styles.sidebarItem}>
                   <button style={styles.link} onClick={onClick_preTest}>Pre-Test</button>
                 </div>
-                <div className="dropDown_menu">
-                  {dropdownData.map((dropdown, index) => (
-                    <div key={index} style={styles.sidebarItem}>
-                      <div onClick={() => toggleDropdown(dropdown.name)} style={styles.buttonDropdown}>
-                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                          <div style={{ display: 'flex', alignItems: 'center' }}>
-                            {dropdowns[dropdown.name] ?
-                              <Icon
-                                name="caret-up"
-                                type="Bold"
-                                cssClass="text-black ms-0"
-                              />
-                              :
-                              <Icon
-                                name="caret-down"
-                                type="Bold"
-                                cssClass="text-black ms-0"
-                              />
-                            }
-                            <div style={{ paddingLeft: "20px", fontSize: '14px' }}>{dropdown.name}</div>
-                          </div>
+              )}
+              <div className="dropDown_menu">
+                {dropdownData.map((dropdown, index) => (
+                  <div key={index} style={styles.sidebarItem}>
+                    <div onClick={() => toggleDropdown(dropdown.name)} style={styles.buttonDropdown}>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <div style={{ display: 'flex', alignItems: 'center' }}>
+                          {dropdowns[dropdown.name] ?
+                            <Icon
+                              name="caret-up"
+                              type="Bold"
+                              cssClass="text-black ms-0"
+                            />
+                            :
+                            <Icon
+                              name="caret-down"
+                              type="Bold"
+                              cssClass="text-black ms-0"
+                            />
+                          }
+                          <div style={{ paddingLeft: "20px", fontSize: '14px' }}>{dropdown.name}</div>
                         </div>
                       </div>
-                      {dropdowns[dropdown.name] && (
-                        <div style={styles.dropdownContent}>
-                          {dropdown.items.map((item, itemIndex) => (
-                            <label key={itemIndex} style={styles.item}>
-                              <Icon
-                                name="check"
-                                type="Bold"
-                                cssClass="text-black ms-0"
-                                style={{ paddingRight: '10px' }}
-                              />
-                              <a href={item.href} style={styles.link} onClick={item.onClick}>{item.label}</a>
-                            </label>
-                          ))}
-                        </div>
-                      )}
                     </div>
-                  ))}
-                </div>
+                    {dropdowns[dropdown.name] && (
+                      <div style={styles.dropdownContent}>
+                        {dropdown.items.map((item, itemIndex) => (
+                          <label key={itemIndex} style={styles.item}>
+                            {/* <Icon
+                              name="check"
+                              type="Bold"
+                              cssClass="text-black ms-0"
+                              style={{ paddingRight: '10px' }}
+                            /> */}
+                            <a href={item.href} style={styles.link} onClick={item.onClick}>{item.label}</a>
+                          </label>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+              {showForum && (
                 <div style={styles.sidebarItem}>
                   <button style={styles.link} onClick={onClick_forum}>Forum</button>
-                </div>  
+                </div>
+              )}
+              {showPostTest && (
                 <div style={styles.sidebarItem}>
                   <button style={styles.link} onClick={onClick_postTest}>Post-Test</button>
                 </div>
-              </div>
-            </>
-          )}
-        </div>
-      )}
-    </div>
-  );
+              )}
+            </div>
+          </>
+        )}
+      </div>
+    )}
+  </div>
+);
 
 }

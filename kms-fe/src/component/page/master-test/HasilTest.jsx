@@ -74,10 +74,12 @@ export default function MasterTestHasilTest({ onChangePage, quizType, materiId }
       for (let i = 0; i < retries; i++) {
         try {
           const response = await axios.post("http://localhost:8080/Quiz/GetDataResultQuiz", {
-            quizId: materiId,
+            quizId: AppContext_test.materiId,
             karyawanId: "1",
             tipeQuiz: AppContext_test.quizType
           });
+            console.log("why" , AppContext_test)
+
           if (response.data.length != 0) {
             return response.data;
           }
@@ -98,8 +100,10 @@ export default function MasterTestHasilTest({ onChangePage, quizType, materiId }
       isMounted = false; // cleanup flag
     };
   }, [AppContext_test.materiId]);
+
   useEffect(() => {
   }, [AppContext_test.materiId]);
+
   useEffect(() => {
     document.documentElement.style.setProperty('--responsiveContainer-margin-left', '0vw');
     const sidebarMenuElement = document.querySelector('.sidebarMenu');
@@ -114,83 +118,148 @@ export default function MasterTestHasilTest({ onChangePage, quizType, materiId }
       ) : (
         currentData.map((item) => (
           <div key={item.Key} style={{ marginRight: marginRight }}>
-            {/* <KMS_Rightbar handlePreTestClick_close={handlePreTestClick_close} handlePreTestClick_open={handlePreTestClick_open} /> */}
-            <div style={{ display: 'flex', alignItems: 'center', marginBottom: '30px' }}>
-              <div
-                style={{
-                  width: '50px',
-                  height: '50px',
-                  borderRadius: '50%',
-                  backgroundColor: 'lightgray',
-                  marginRight: '10px'
-                }}
-              ></div>
-              <div style={{ fontSize: '14px', color: 'gray' }}>{item.CreatedBy} - {formattingDate(item.CreatedDate)}</div>
-            </div>
-            <div
-              style={{
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontFamily: 'sans-serif',
-                height: '50vh',
-                borderRadius: '10px',
-                padding: '20px',
-                margin: '20px'
-              }}
-            >
-              <div style={{ textAlign: 'center' }}>
-                <div
-                  style={{
-                    marginBottom: '40px',
-                    fontSize: '24px',
-                    color: '#856404', // warna teks yang lebih lembut
-                    fontWeight: 'bold',
-                    border: '1px solid #ffeeba', // warna border yang lembut
-                    backgroundColor: '#fff3cd', // warna latar belakang yang lembut
-                    padding: '15px',
-                    borderRadius: '5px',
-                    textAlign: 'center'
-                  }}
-                >
-                  Hasil akan direview oleh Tenaga Pendidik
-                </div>
-                <div style={{ fontSize: '16px', marginBottom: '20px', color: '#555' }}>
-                  Anda telah berhasil mengerjakan Pre Test, silahkan baca materi yang telah disediakan dan kerjakan Post Test.
-                </div>
-                <div style={{ display: 'flex', justifyContent: 'center' }}>
-                  <Button
-                    classType="secondary me-2 px-4 py-2"
-                    label="Lihat Hasil"
-                    onClick={lihatHasil}
-                    style={{
-                      border: '1px solid #ccc',
-                      backgroundColor: '#fff',
-                      color: '#333',
-                      borderRadius: '5px',
-                      padding: '10px 20px',
-                      cursor: 'pointer',
-                      boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
+            {item.Status === "Reviewed" ? (
+              <div>
+                  <div 
+                    style={{ 
+                      display: 'flex-start', 
+                      flexDirection: 'column', 
+                      alignItems: 'center', 
+                      justifyContent: 'center', 
+                      fontFamily: 'sans-serif' 
                     }}
-                  />
-                  <Button
-                    classType="primary ms-2 px-4 py-2"
-                    label="Baca Materi"
-                    onClick={bacaMateri}
-                    style={{
-                      border: '1px solid #007bff',
-                      backgroundColor: '#007bff',
-                      color: '#fff',
-                      borderRadius: '5px',
-                      padding: '10px 20px',
-                      cursor: 'pointer',
-                      boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
-                    }}
-                  />
-                </div>
+                    >
+                    <div style={{ display: 'flex', alignItems: 'center', marginBottom: '30px' }}>
+                      <div 
+                        style={{ 
+                          width: '50px', 
+                          height: '50px', 
+                          borderRadius: '50%', 
+                          backgroundColor: 'lightgray', 
+                          marginRight: '10px' 
+                        }}
+                      ></div>
+                      <div style={{ fontSize: '14px', color: 'gray' }}>{item.CreatedBy} - {formattingDate(item.CreatedDate)}</div>
+                    </div>
+                    <div style={{ textAlign: 'center' }}>
+                      <div style={{ fontSize: '18px', marginBottom: '20px' }}>
+                        Selamat!, kamu mendapatkan nilai:
+                      </div>
+                      <div
+                        style={{ 
+                          width: '150px', 
+                          height: '150px', 
+                          borderRadius: '50%', 
+                          border: '2px solid lightgray', 
+                          display: 'flex', 
+                          alignItems: 'center', 
+                          justifyContent: 'center', 
+                          margin: '0 auto 30px' 
+                        }}
+                      >
+                        <div style={{ fontSize: '48px', fontWeight: 'bold' }}>{item.Nilai}</div>
+                      </div>
+                      <div style={{ marginBottom: '10px' }}>Pre Test - Pemrograman 1</div>
+                      <div style={{ fontSize: '14px', marginBottom: '20px' }}>
+                        Anda telah berhasil mengerjakan Pre Test, silahkan baca materi yang telah disediakan dan kerjakan Post Test.
+                      </div>
+                      <div style={{ display: 'flex', justifyContent: 'center' }}>
+                        <Button
+                          classType="secondary me-2 px-4 py-2" 
+                          label="Lihat Hasil" 
+                          onClick={lihatHasil}
+                        />
+                        <Button 
+                          classType="primary ms-2 px-4 py-2"
+                          label="Baca Materi"
+                          onClick={bacaMateri}
+                        />
+                      </div>
+                    </div>
+                  </div>
               </div>
-            </div>
+            ) : (
+              <div>
+                  <div style={{ display: 'flex', alignItems: 'center', marginBottom: '30px' }}>
+                    <div
+                      style={{
+                        width: '50px',
+                        height: '50px',
+                        borderRadius: '50%',
+                        backgroundColor: 'lightgray',
+                        marginRight: '10px'
+                      }}
+                    ></div>
+                    <div style={{ fontSize: '14px', color: 'gray' }}>{item.CreatedBy} - {formattingDate(item.CreatedDate)}</div>
+                  </div>
+                  <div
+                    style={{
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontFamily: 'sans-serif',
+                      height: '50vh',
+                      borderRadius: '10px',
+                      padding: '20px',
+                      margin: '20px'
+                    }}
+                  >
+                    <div style={{ textAlign: 'center' }}>
+                      <div
+                        style={{
+                          marginBottom: '40px',
+                          fontSize: '24px',
+                          color: '#856404',
+                          fontWeight: 'bold',
+                          border: '1px solid #ffeeba',
+                          backgroundColor: '#fff3cd', 
+                          padding: '15px',
+                          borderRadius: '5px',
+                          textAlign: 'center'
+                        }}
+                      >
+                        Hasil akan direview oleh Tenaga Pendidik
+                      </div>
+                      <div style={{ fontSize: '16px', marginBottom: '20px', color: '#555' }}>
+                        Anda telah berhasil mengerjakan Pre Test, silahkan baca materi yang telah disediakan dan kerjakan Post Test.
+                      </div>
+                      <div style={{ display: 'flex', justifyContent: 'center' }}>
+                        <Button
+                          classType="secondary me-2 px-4 py-2"
+                          label="Lihat Hasil"
+                          onClick={lihatHasil}
+                          style={{
+                            border: '1px solid #ccc',
+                            backgroundColor: '#fff',
+                            color: '#333',
+                            borderRadius: '5px',
+                            padding: '10px 20px',
+                            cursor: 'pointer',
+                            boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
+                          }}
+                        />
+                        <Button
+                          classType="primary ms-2 px-4 py-2"
+                          label="Baca Materi"
+                          onClick={bacaMateri}
+                          style={{
+                            border: '1px solid #007bff',
+                            backgroundColor: '#007bff',
+                            color: '#fff',
+                            borderRadius: '5px',
+                            padding: '10px 20px',
+                            cursor: 'pointer',
+                            boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
+                          }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+              </div>
+            )}
+            {/* <KMS_Rightbar handlePreTestClick_close={handlePreTestClick_close} handlePreTestClick_open={handlePreTestClick_open} /> */}
+            
           </div>
         ))
       )}

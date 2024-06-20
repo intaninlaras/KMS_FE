@@ -2,11 +2,12 @@ import { useState } from "react";
 import Icon from "../part/Icon.jsx";
 import Button from "./Button.jsx";
 import AppContext_test from "../page/master-proses/MasterContext.jsx";
-
+import AppContext_master from "../page/master-test/TestContext.jsx";
 function CardMateri({ 
   materis, 
   onStatus,
   onEdit,
+  onReviewJawaban,
   onDetail,
   MAX_DESCRIPTION_LENGTH = 50,
   isNonEdit,
@@ -28,7 +29,15 @@ function CardMateri({
 
   const handleBacaMateri = (book) => {
     AppContext_test.materiId = book.Key;
+    AppContext_master.materiId = book.Key;
+    // console.log(AppContext_test.materiId)
     onBacaMateri("pengenalan", true, book.Key, true);
+  };
+  const handleReviewJawaban = (book) => {
+    AppContext_test.materiId = book.Key;
+    AppContext_master.materiId = book.Key;
+    // console.log(AppContext_test.materiId)
+    onReviewJawaban("reviewjawaban", true, book.Key, true);
   };
 
   return (
@@ -116,7 +125,7 @@ function CardMateri({
                       title="Detail Materi"
                       onClick={() => onDetail("pretestDetail", AppContext_test.DetailMateri = book)}
                     >
-                      {console.log("data context materi dari index:", AppContext_test.DetailMateri)}
+                      {/* {console.log("data context materi dari index:", AppContext_test.DetailMateri)} */}
 
                       <i className="fas fa-list"></i>
                     </button>
@@ -136,17 +145,20 @@ function CardMateri({
                         ></i>
                       )}
                     </button>
+                    <button
+                      className="btn btn-sm text-primary"
+                      title="Review Jawaban"
+                      onClick={() => {handleReviewJawaban(book)}}
+                    >
+                      <i className="fas fa-file"></i>
+                    </button>
                   </>
                 ) : (
                   <button
                     className="btn btn-outline-primary"
                     type="button"
                     onClick={() => {
-                      onChangePage(
-                        "pretest",
-                        isDataReadyTemp,
-                        materiIdTemp
-                      );
+                      handleBacaMateri(book);
                     }}
                     style={{ }}
                   >

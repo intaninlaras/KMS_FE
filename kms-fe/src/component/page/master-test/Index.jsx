@@ -13,7 +13,7 @@ import { API_LINK } from "../../util/Constants";
 import '@fortawesome/fontawesome-free/css/all.css';
 import axios from "axios";
 import "../../../index.css";
-import AppContext  from "./TestContext"
+import AppContext_master from "../master-proses/MasterContext";
 import AppContext_test from "./TestContext";
 // Definisikan beberapa data contoh untuk tabel
 
@@ -340,6 +340,7 @@ export default function MasterProsesIndex({ onChangePage, withID, isOpen }) {
                     materis={currentData.filter(materi => materi.Status === "Aktif")}
                     onDetail={onChangePage}
                     onEdit={onChangePage}
+                    onReviewJawaban={onChangePage}
                     onStatus={handleSetStatus}
                     isNonEdit={true}
                     onBacaMateri={onChangePage}

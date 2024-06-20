@@ -103,7 +103,6 @@ export default function MasterSharingAdd({ onChangePage}) {
       }
 
       Promise.all(uploadPromises).then(() => {
-        console.log("Form Data:", formDataRef.current);
         UseFetch(
           API_LINK + "SharingExperts/SaveDataSharing",
           formDataRef.current

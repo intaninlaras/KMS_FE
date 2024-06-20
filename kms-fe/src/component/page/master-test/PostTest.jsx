@@ -77,10 +77,10 @@ export default function MasterTestIndex({  onChangePage, CheckDataReady, materiI
                 setTableData(data.map((item, index) => ({
                   Key: item.Key,
                   No: index + 1,
-                  TanggalUjian: formatDate(item.CreatedDate),
+                  TanggalUjian: formatDate(item.DatePengerjaan),
                   Persentase: item.Nilai,
-                  StatusTest: item.Nilai >= 70 ? "Lulus" : "Tidak Lulus",
-                  Aksi: ['Detail'],
+                  StatusTest: item.Status == "Reviewed" ? item.Nilai >= 70 ? "Lulus" : "Tidak Lulus" : "Sedang direview oleh Tenaga Pendidik",
+                  Aksi: item.Status == "Reviewed" ? ['Detail'] : [''],
                   Alignment: ['center', 'center', 'center', 'center', 'center'],
                 })));
               }
@@ -88,7 +88,6 @@ export default function MasterTestIndex({  onChangePage, CheckDataReady, materiI
               console.error("Data is not an array:", data);
             }
           } else {
-            console.log("alds")
             setTableData([{
               Key: '',
               "": 'Anda belum memiliki riwayat ujian post test',

@@ -13,7 +13,7 @@ const CardKategoriProgram = ({ onChangePage, kategori }) => {
 
   return (
     <>
-      <style jsx>{`
+      <style>{`
         .card-kategori-program {
           transition: transform 0.3s, box-shadow 0.3s;
           flex: 1 1 0;

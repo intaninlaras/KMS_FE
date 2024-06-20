@@ -328,7 +328,8 @@ export default function Forum({ onChangePage, isOpen }) {
                           flex: 1
                         }}
                       >
-                        {reply.IsiDetailForum}
+                        
+                        <div dangerouslySetInnerHTML={{ __html: reply.IsiDetailForum }} />
                       </p>
                       <i
                         className="btn btn-outline-primary btn-sm" 
@@ -407,7 +408,8 @@ const handleHideReplies = (detailId) => {
             </div>
             <div>
               <h6 className="mb-0" style={{ fontSize: "14px" }}>
-                {item.JudulForum}
+                
+                <div dangerouslySetInnerHTML={{ __html: item.JudulForum }} />
               </h6>
               <h6 className="mb-0" style={nameStyle}>
                 {item.CreatedByForum} - {formatDate(item.CreatedDateForum)}
@@ -424,7 +426,7 @@ const handleHideReplies = (detailId) => {
               marginLeft: "10px",
             }}
           >
-            {item.IsiForum}
+            <div dangerouslySetInnerHTML={{ __html: item.IsiForum }} /> 
           </p>
         </div>
       </div>
@@ -497,7 +499,9 @@ const handleHideReplies = (detailId) => {
                 <div style={{marginTop:'100px'}}></div>
                 {showReplyInput && (
                   <div className="reply-batal input-group mb-3" style={{ position: 'fixed', bottom: '60px', left: '15px', zIndex: '999', maxWidth:widthReply, boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.3)', borderRadius: '8px', backgroundColor: '#ffffff', padding: '10px', display: 'flex', alignItems: 'center' }}>
-                    <p style={{ marginBottom: '20px', color: 'gray', flex:'1' }}>{replyMessage}</p>
+                    <p style={{ marginBottom: '20px', color: 'gray', flex:'1' }}>
+                      <div dangerouslySetInnerHTML={{ __html: replyMessage }} />  
+                    </p>
                     
                     <div className="input-group-append">
                       <button

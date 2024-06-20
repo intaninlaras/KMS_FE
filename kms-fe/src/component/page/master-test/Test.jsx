@@ -24,7 +24,7 @@ const ButtonContainer = styled.div`
   position: fixed;
   bottom: 35px;
   left: 30%;
-  transform: translateX(-50%);
+  transform: translateX(-37%);
   z-index: 999;
 `;
 
@@ -36,14 +36,16 @@ export default function PengerjaanTest({ onChangePage, quizType, materiId }) {
   const [questionNumbers, setQuestionNumbers] = useState(0);
   const [IdQuiz, setIdQuiz] = useState();
   const [nilai, setNilai] = useState(0);
+  const [timeRemaining, setTimeRemaining] = useState(false);
   const formDataRef = useRef({
     karyawanId:"1",
     quizId: AppContext_test.quizId,
     nilai: "", 
-    status: "",
+    status: "Not Reviewed",
     answers: [],
     createdBy: "Fahriel",
   });
+  const [formDataRef2, setFormData2] = useState([]);
   
   useEffect(() => {
   }, [quizType, materiId]);
@@ -67,8 +69,7 @@ export default function PengerjaanTest({ onChangePage, quizType, materiId }) {
   }
   
   const processedFormUpdate = convertEmptyToNull(formUpdate);
-  // console.log(processedFormUpdate)
-  const fileGambarRef = useRef(null);
+  const fileInputRef = useRef(null);
 
   const userSchema = object({
     gambar: string(),
@@ -93,12 +94,11 @@ export default function PengerjaanTest({ onChangePage, quizType, materiId }) {
 
   
   useEffect(() => {
-    console.log("sidebar "+AppContext_test.timeRemaining)
-    if (AppContext_test.timeRemaining == true){
+    if (timeRemaining == true){
         handleAdd();
         handleSubmitAction();
     }
-  }, [AppContext_test.timeRemaining]);
+  }, [timeRemaining]);
 
   const handleInputChange = async (e) => {
     const { name, value } = e.target;
@@ -120,94 +120,66 @@ export default function PengerjaanTest({ onChangePage, quizType, materiId }) {
   }
 
 
-  const handleFileChange = async (ref, extAllowed) => {
-    const { name, value } = ref.current;
-    const file = ref.current.files[0];
-    const fileName = file.name;
-    const fileSize = file.size;
-    const fileExt = fileName.split(".").pop();
-    const validationError = await validateInput(name, value, userSchema);
-    let error = "";
-
-    if (fileSize / 1024576 > 10) error = "berkas terlalu besar";
-    else if (!extAllowed.split(",").includes(fileExt))
-      error = "format berkas tidak valid";
-
-    if (error) ref.current.value = "";
-
-    setErrors((prevErrors) => ({
-      ...prevErrors,
-      [validationError.name]: error,
-    }));
+  const handleFileChange = async (ref, extAllowed, fileUpload, currentIndex, id_question) => {
+    handleValueAnswer("", "", "", "", currentIndex, fileUpload, id_question);
   };
 
   const handleAdd = async (e) => {
-    // e.preventDefault();
     const validationErrors = await validateAllInputs(
       formDataRef.current,
       userSchema,
       setErrors
     );
 
-    if (Object.values(validationErrors).every((error) => !error)) {
-      setIsLoading(true);
-      setIsError((prevError) => {
-        return { ...prevError, error: false };
-      });
-      setErrors({});
-
-      const uploadPromises = [];
-
-      if (fileNPWPRef.current.files.length > 0) {
-        uploadPromises.push(
-          UploadFile(fileNPWPRef.current).then(
-            (data) => (formDataRef.current["berkasNPWPPelanggan"] = data.Hasil)
-          )
-        );
-      }
-
-      Promise.all(uploadPromises).then(() => {
-        UseFetch(
-          API_LINK + "MasterPelanggan/CreatePelanggan",
-          formDataRef.current
-        )
-          .then((data) => {
-            if (data === "ERROR") {
-              setIsError((prevError) => {
-                return {
-                  ...prevError,
-                  error: true,
-                  message: "Terjadi kesalahan: Gagal menyimpan data pelanggan.",
-                };
-              });
-            } else {
-              SweetAlert(
-                "Sukses",
-                "Data pelanggan berhasil disimpan",
-                "success"
-              );
-              onChangePage("index");
-            }
-          })
-          .then(() => setIsLoading(false));
-      });
-    }
     const totalNilai = answers.reduce((accumulator, currentValue) => {
       return accumulator + currentValue.nilaiSelected;
     }, 0);
     formDataRef.current.nilai = totalNilai;
     formDataRef.current.answers = submittedAnswers;
-    const response = await axios.post("http://localhost:8080/Quiz/SaveTransaksiQuiz", formDataRef.current);
-    const saveProgress = await axios.post("http://localhost:8080/Materis/SaveProgresMateri", formUpdate.current);
+    console.log("Form data yang akan dikirim ke API: ", formDataRef.current);
+
+    try {
+      const response1 = await axios.post(
+        "http://localhost:8080/Quiz/SaveTransaksiQuiz",
+        formDataRef.current
+      );
+      if (response1.data) {
+        const response2 = await axios.post(
+          "http://localhost:8080/Materis/SaveProgresMateri",
+          formUpdate.current
+        );
+
+      } else {
+        console.error("API pertama tidak mengembalikan respons 'OK'");
+      }
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  };
+
+  const retryRequest = async (url, data, maxRetries = 100, delay = 50) => {
+    let attempts = 0;
+    while (attempts < maxRetries) {
+      try {
+        const response = await axios.post(url, data);
+        return response.data;
+      } catch (error) {
+        attempts++;
+        if (attempts >= maxRetries) {
+          throw new Error("Max retries reached");
+        }
+        console.log(`Attempt ${attempts} failed. Retrying in ${delay}ms...`);
+        await new Promise(resolve => setTimeout(resolve, delay));
+      }
+    }
   };
 
   const selectPreviousQuestion = () => {
     if (selectedQuestion > 1) {
       setSelectedQuestion(selectedQuestion - 1);
     } else {
-      setSelectedQuestion(selectedQuestion - 1);
+      setSelectedQuestion(selectedQuestion + questionNumbers - 1);
     }
-    location.reload();
   };
 
   const selectNextQuestionOrSubmit = () => {
@@ -224,24 +196,71 @@ export default function PengerjaanTest({ onChangePage, quizType, materiId }) {
   const [answers, setAnswers] = useState([]);
   const [submittedAnswers, setSubmittedAnswers] = useState([]);
 
-  const handleValueAnswer = (urutan, idSoal, answer, nilaiSelected, index) => {
+  useEffect(() => {
+  }, [AppContext_test.arrayAnswerQuiz]);
+
+  // const handleValueAnswer = (urutan, idSoal, answer, nilaiSelected, index, event) => {
+  //   setSelectedOption(answer);
+  //   const updatedAnswers = [...answers];
+  //   const submitAnswer = [...submittedAnswers];
+  //   const existingAnswerIndex = updatedAnswers.findIndex(ans => ans.idSoal === idSoal);
+  //   let isPilgan = null;
+  //   if (event != undefined || event != null){
+  //     isPilgan = event;
+  //     idSoal = index;
+  //   }
+
+  //   if (existingAnswerIndex !== -1) {
+  //     updatedAnswers[existingAnswerIndex] = { urutan, idSoal, answer, nilaiSelected };
+  //     submitAnswer[existingAnswerIndex] = { urutan, idSoal, isPilgan };
+  //   } else {
+  //     updatedAnswers.push({ urutan, idSoal, answer, nilaiSelected });
+  //     submitAnswer.push({ urutan, idSoal , isPilgan });
+  //   }
+  //   console.log(idSoal)
+
+  //   setAnswers(updatedAnswers);
+  //   setSubmittedAnswers(submitAnswer);
+  //   AppContext_test.indexTest = index;
+  // };
+  const handleValueAnswer = (urutan, idSoal, answer, nilaiSelected, index, file, id_question) => {
     setSelectedOption(answer);
     const updatedAnswers = [...answers];
     const submitAnswer = [...submittedAnswers];
     const existingAnswerIndex = updatedAnswers.findIndex(
       (ans) => ans.idSoal === idSoal 
     );
-    if (existingAnswerIndex !== -1) {
-      updatedAnswers[existingAnswerIndex] = { urutan, idSoal, answer, nilaiSelected};
-      submitAnswer[existingAnswerIndex] = { urutan };
-    } else {
-      updatedAnswers.push({ urutan, idSoal, answer, nilaiSelected});
-      submitAnswer.push ([urutan, idSoal]) ;
+    if (file != undefined || file != null){
+      const uploadPromises = [];
+      uploadPromises.push(
+        UploadFile(file.target).then((data) => {
+          if (existingAnswerIndex !== -1) {
+            updatedAnswers[existingAnswerIndex] = {urutan,idSoal,answer,nilaiSelected};
+            submitAnswer[existingAnswerIndex] = {urutan};
+          } else {
+            updatedAnswers.push({urutan,idSoal,answer,nilaiSelected});
+            submitAnswer.push ([urutan,id_question,data.newFileName]) ;
+          }
+        })
+      )
+    }else{
+      if (existingAnswerIndex !== -1) {
+        updatedAnswers[existingAnswerIndex] = {urutan,idSoal,answer,nilaiSelected};
+        submitAnswer[existingAnswerIndex] = {urutan};
+      } else {
+        updatedAnswers.push({urutan,idSoal,answer,nilaiSelected});
+        submitAnswer.push ([urutan,idSoal]) ;
+      }
     }
+      idSoal = index;
+
     setAnswers(updatedAnswers);
     setSubmittedAnswers(submitAnswer);
     AppContext_test.indexTest = index;
   };
+  
+  useEffect(() => {
+  }, [submittedAnswers]);
 
   useEffect(() => {
     setAnswerStatus((prevStatus) => {
@@ -251,14 +270,6 @@ export default function PengerjaanTest({ onChangePage, quizType, materiId }) {
     });
   }, [answers, AppContext_test.indexTest]);
 
-  const FileCard = ({ fileName }) => {
-    return (
-      <div style={{ display: 'flex', alignItems: 'center', backgroundColor: '#ffe0e0', borderRadius: '10px', padding: '10px' }}>
-        <img src="/path/to/file-icon.png" style={{ marginRight: '10px' }} />
-        <span style={{ fontSize: '14px' }}>{fileName}</span>
-      </div>
-    );
-  };
 
   const [answerStatus, setAnswerStatus] = useState([]);
 
@@ -267,15 +278,6 @@ export default function PengerjaanTest({ onChangePage, quizType, materiId }) {
     setAnswerStatus(initialAnswerStatus);
   }, [questionNumbers]);
 
-  const [answerIsChecked, setAnswerIsChecked] = useState(false);
-
-  const updateAnswerStatus = (index, isSelected) => {
-    setAnswerStatus((prevStatus) => {
-      const newStatus = [...prevStatus];
-      newStatus[index] = isSelected ? null : "answered";
-      return newStatus;
-    });
-  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -286,7 +288,6 @@ export default function PengerjaanTest({ onChangePage, quizType, materiId }) {
           status: 'Aktif',
           quizType: quizType,
         });
-        // console.log(materiId+quizType)
         const checkIsDone = await axios.post("http://localhost:8080/Quiz/GetDataResultQuiz", {
           materiId: AppContext_test.materiId,
           karyawanId: "1",
@@ -295,23 +296,32 @@ export default function PengerjaanTest({ onChangePage, quizType, materiId }) {
         if (checkIsDone.data && Array.isArray(checkIsDone.data)) {
           if (checkIsDone.data.length == 0) {
           } else {
-              // window.location.href = ROOT_LINK + "/hasil_test";
           }
         }
 
         if (response.data && Array.isArray(response.data)) {
           
+          AppContext_test.quizId = response.data[0].ForeignKey;
           const questionMap = new Map();
           const transformedData = response.data.map((item) => {
-            const { Soal, TipeSoal, Jawaban, UrutanJawaban, NilaiJawaban, ForeignKey, QuizId} = item;
+            const { Soal, TipeSoal, Jawaban, UrutanJawaban, NilaiJawaban, ForeignKey, Key} = item;
             if (!questionMap.has(Soal)) {
               questionMap.set(Soal, true);
               if (TipeSoal === "Essay") {
                 return {
-                  type: "essay",
+                  type: "Essay",
                   question: Soal,
                   correctAnswer: Jawaban,
                   answerStatus: "none",
+                  id: Key,
+                };
+              } else if (TipeSoal === "Praktikum"){
+                return {
+                  type: "Praktikum",
+                  question: Soal,
+                  correctAnswer: Jawaban,
+                  answerStatus: "none",
+                  id: Key,
                 };
               } else {
                 const options = response.data
@@ -324,22 +334,21 @@ export default function PengerjaanTest({ onChangePage, quizType, materiId }) {
                 }));
                 
                 return {
-                  type: "pilgan",
+                  type: "Pilgan",
                   question: Soal,
                   options: options,
                   correctAnswer: options.find(option => option === Jawaban && NilaiJawaban !== "0"), 
                   urutan: UrutanJawaban,
                   answerStatus: "none",
+                  id: Key,
                 };
               }
             }
-            AppContext_test.quizId = QuizId;
             return null;
           }).filter(item => item !== null);
           setQuestionNumbers(transformedData.length);
           
           setCurrentData(transformedData);
-          
         } else {
           throw new Error("Data format is incorrect");
         }
@@ -355,7 +364,8 @@ export default function PengerjaanTest({ onChangePage, quizType, materiId }) {
   }, []);
 
   useEffect(() => {
-  }, [IdQuiz]);
+    formDataRef.current.quizId = AppContext_test.quizId
+  }, [AppContext_test.quizId]);
 
 
   useEffect(() => {
@@ -369,102 +379,112 @@ export default function PengerjaanTest({ onChangePage, quizType, materiId }) {
   
 
   return (
-    <>
-      <div className="d-flex">
-        <KMS_Sidebar
-          questionNumbers={questionNumbers}
-          selectedQuestion={selectedQuestion}
-          setSelectedQuestion={setSelectedQuestion}
-          answerStatus={answerStatus} 
-          checkMainContent="test"
-        />
-        <div className="flex-fill p-3 d-flex flex-column" style={{marginLeft:"21vw"}}>
-          <div className="mb-3" style={{ overflowX: 'auto', whiteSpace: 'nowrap' }}> 
-            {currentData.map((item, index) => {
-              const key = `${item.question}_${index}`;
-              if (index + 1 !== selectedQuestion) return null;
-              const currentIndex = index + 1;
-              
-              return (
-                <div key={key} className="mb-3" style={{ display: 'inline-block', verticalAlign: 'top', minWidth: '300px', marginRight: '20px' }}>
-                  {/* Soal */}
-                  <div className="mb-3">
-                    <h4>{item.question}</h4>
-                  </div>
+  <>
+    <div className="d-flex">
+      <KMS_Sidebar
+        questionNumbers={questionNumbers}
+        selectedQuestion={selectedQuestion}
+        setSelectedQuestion={setSelectedQuestion}
+        answerStatus={answerStatus}
+        checkMainContent="test"
+        setTimeRemaining={setTimeRemaining}
+      />
+      <div className="flex-fill p-3 d-flex flex-column" style={{ marginLeft: "21vw" }}>
+        <div className="mb-3 d-flex flex-wrap" style={{ overflowX: 'auto' }}>
+          {currentData.map((item, index) => {
+            const key = `${item.question}_${index}`;
+            if (index + 1 !== selectedQuestion) return null;
+            const currentIndex = index + 1;
 
-                  {/* Jawaban */}
-                  {item.type === "essay" ? (
-                    <KMS_Uploader />
-                  ) : (
-                    
-                    <div className="d-flex flex-column">
-                      {item.options.map((option, index) => {
-                        const isCorrect = option === item.correctAnswer;
-                        const isSelected = answers.some(
-                          (ans) => ans.idSoal == option.nomorSoal && ans.urutan == option.urutan
-                        );
-                        
-                        let borderColor1 = '';
-                        let backgroundColor1 = '';
-                        
-                        if (isSelected) {
-                          borderColor1 = isCorrect ? '#28a745' : '#dc3545';
-                          backgroundColor1 = isCorrect ? '#e9f7eb' : '#ffe3e6';
-                        } else if (isCorrect && isSelected) {
-                          borderColor1 = '#28a745';
-                          backgroundColor1 = '#e9f7eb';
-                        }
-
-                        return (
-                          <div key={option.urutan} className="mt-4 mb-2" style={{ display: "flex", alignItems: "center" }}>
-                            <input
-                              type="radio"
-                              id={`option-${option.urutan}`}
-                              name={`question-${selectedQuestion}`}
-                              onChange={() => handleValueAnswer(option.urutan, option.nomorSoal, option.value, option.nilai, currentIndex)}
-                              checked={isSelected}
-                              style={{ display: "none" }}
-                            />
-                            <label
-                              htmlFor={`option-${option.urutan}`}
-                              className={`btn btn-outline-primary ${isSelected ? 'active' : ''}`}
-                              style={{
-                                width: "40px",
-                                height: "40px",
-                                display: "flex",
-                                alignItems: "center",
-                                justifyContent: "center",
-                              }}
-                            >
-                              {String.fromCharCode(65 + index)}
-                            </label>
-                            <span className="ms-2">{option.value}</span>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  )}
+            return (
+              <div key={key} className="mb-3" style={{ display: 'block', minWidth: '300px', marginRight: '20px' }}>
+                {/* Soal */}
+                <div className="mb-3">
+                  <h4 style={{ wordWrap: 'break-word', overflowWrap: 'break-word', textAlign:'justify' }}>{item.question}</h4>
                 </div>
-              );
-            })}
-          </div>
 
-          <form onSubmit={handleAdd}>
-            <ButtonContainer >
-              <Button 
-                classType="secondary me-2 px-4 py-2" 
-                label="Sebelumnya" 
-                onClick={selectPreviousQuestion} 
-              />
-              <Button 
-                classType="primary ms-2 px-4 py-2" 
-                label={selectedQuestion < questionNumbers ? "Berikutnya" : "Selesai"} 
-                onClick={selectNextQuestionOrSubmit} 
-              />
-              </ButtonContainer>
-          </form>
+                {/* Jawaban */}
+                {item.type === "Praktikum" ? (
+                  <FileUpload
+                    forInput="jawaban_file"
+                    label="Jawaban (.zip)"
+                    formatFile=".zip"
+                    onChange={(event) => handleFileChange(fileInputRef, "zip", event, index + 1, item.id)}
+                  />
+                ) : item.type === "Essay" ? (
+                  <KMS_Uploader />
+                ) : (
+                  <div className="d-flex flex-column">
+                    {item.options.map((option, index) => {
+                      const isCorrect = option === item.correctAnswer;
+                      const isSelected = answers.some(
+                        (ans) => ans.idSoal == option.nomorSoal && ans.urutan == option.urutan
+                      );
+
+                      let borderColor1 = '';
+                      let backgroundColor1 = '';
+
+                      if (isSelected) {
+                        borderColor1 = isCorrect ? '#28a745' : '#dc3545';
+                        backgroundColor1 = isCorrect ? '#e9f7eb' : '#ffe3e6';
+                      } else if (isCorrect && isSelected) {
+                        borderColor1 = '#28a745';
+                        backgroundColor1 = '#e9f7eb';
+                      }
+
+                      return (
+                        <div key={option.urutan} className="mt-4 mb-2" style={{ display: "flex", alignItems: "center" }}>
+                          <input
+                            type="radio"
+                            id={`option-${option.urutan}`}
+                            name={`question-${selectedQuestion}`}
+                            onChange={() => handleValueAnswer(option.urutan, option.nomorSoal, option.value, option.nilai, currentIndex)}
+                            checked={isSelected}
+                            style={{ display: "none" }}
+                          />
+                          <label
+                            htmlFor={`option-${option.urutan}`}
+                            className={`btn btn-outline-primary ${isSelected ? 'active' : ''}`}
+                            style={{
+                              width: "40px",
+                              height: "40px",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                            }}
+                          >
+                            {String.fromCharCode(65 + index)}
+                          </label>
+                          <span className="ms-2" style={{ wordWrap: 'break-word', overflowWrap: 'break-word' }}>{option.value}</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </div>
+
+        <form onSubmit={handleAdd}>
+          <div className="float-start my-4 mx-1">
+            <ButtonContainer>
+              <Button
+                classType="secondary me-2 px-4 py-2"
+                label="Sebelumnya"
+                onClick={selectPreviousQuestion}
+              />
+              <Button
+                classType="primary ms-2 px-4 py-2"
+                label={selectedQuestion < questionNumbers ? "Berikutnya" : "Selesai"}
+                onClick={selectNextQuestionOrSubmit}
+              />
+            </ButtonContainer>
+          </div>
+        </form>
       </div>
-    </>
-  );
+    </div>
+  </>
+);
+
 }

@@ -13,6 +13,7 @@ import Loading from "../../part/Loading";
 import profilePicture from "../../../assets/tes.jpg";
 import KMS_Rightbar from "../../backbone/KMS_RightBar";
 import axios from "axios";
+import AppContext_master from "../master-proses/MasterContext";
 import AppContext_test from "./TestContext";
 const inisialisasiData = [
   {
@@ -69,6 +70,7 @@ export default function MasterTestIndex({  onChangePage, CheckDataReady, materiI
       try {
         const dataQuiz = await getMateri();
         setCurrentData(dataQuiz);
+        isMounted = true;
       } catch (error) {
         if (isMounted) {
           setIsError(true);
@@ -171,10 +173,10 @@ export default function MasterTestIndex({  onChangePage, CheckDataReady, materiI
                     />
                   </div>
                 
-                  <h6 className="mb-0">{currentData[0].CreatedBy} - {formatDate(currentData[0].CreatedDate)}</h6>
+                  <h6 className="mb-0">{currentData[0].Uploader} - {formatDate(currentData[0].Creadate)}</h6>
                 </div>
-              <div className="text-left " style={{}}>
-                <div dangerouslySetInnerHTML={{ __html: currentData[0].pengenalanMateri }} />
+              <div className="text-left" style={{marginLeft:"6%", marginRight:"6%"}}>
+                <div dangerouslySetInnerHTML={{ __html: currentData[0].Pengenalan }} />
                 <div>
               </div>
               </div>

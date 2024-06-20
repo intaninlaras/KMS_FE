@@ -75,11 +75,39 @@ export default function MasterTestIndex({ onChangePage }) {
 
   async function saveProgress() {
     try {
+      AppContext_test.refreshPage += 1;
       await axios.post("http://localhost:8080/Materis/SaveProgresMateri", formUpdate.current);
+      fetchDataWithRetry_rightBar();
     } catch (error) {
       console.error("Failed to save progress:", error);
     }
   }
+
+  const fetchDataWithRetry_rightBar = async (retries = 10, delay = 5000) => {
+    for (let i = 0; i < retries; i++) {
+      try {
+        const response = await axios.post("http://localhost:8080/Materis/GetProgresMateri", {
+          materiId: AppContext_test.materiId,
+          karyawanId: '1',
+        });
+        // const response = await UseFetch(
+        //   API_LINK + "Materis/GetProgresMateri",
+        //   {materiId: AppContext_test.materiId, karyawanId: '1',}
+        // );
+        if (response.data != 0) {
+          AppContext_test.refreshPage += 1;
+          return response.data;
+        }
+      } catch (error) {
+        console.error("Error fetching progres data:", error);
+        if (i < retries - 1) {
+          await new Promise(resolve => setTimeout(resolve, delay));
+        } else {
+          throw error;
+        }
+      }
+    }
+  };
 
   useEffect(() => {
     saveProgress();

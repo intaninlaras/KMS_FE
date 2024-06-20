@@ -88,10 +88,20 @@ export default function PengerjaanTest({ onChangePage, quizType, materiId, quizI
           idQuiz: quizId,
         });
 
-        console.log(answerResponse)
+        const jawabanPenggunaStr = answerResponse.data[0].JawabanPengguna;
+
+        const jawabanPengguna = jawabanPenggunaStr
+            .slice(1, -1)  
+            .split('], [')  
+            .map(item => item.replace(/[\[\]]/g, '').split(','));
+        const filteredTransaksi = jawabanPengguna.filter(transaksi =>
+              transaksi.length === 2
+            );
+
+
 
         if (questionResponse.data && Array.isArray(questionResponse.data) &&
-            answerResponse.data && Array.isArray(answerResponse.data)) {
+            filteredTransaksi && Array.isArray(filteredTransaksi)) {
           
           const questionMap = new Map();
           let resultJawabanPengguna = [];
@@ -100,18 +110,27 @@ export default function PengerjaanTest({ onChangePage, quizType, materiId, quizI
             resultJawabanPengguna = answer.JawabanPengguna;
           });
 
-          const parsedArray = JSON.parse(resultJawabanPengguna);
+          // const parsedArray = JSON.parse(resultJawabanPengguna);
 
           const jawabanPengguna = {
               value: [],
-              soal: []
+              soal: [],
+              file: [],
           };
 
+
           // Melakukan iterasi pada array dan memisahkan nilai dan soal
-          for (let i = 0; i < parsedArray.length; i++) {
-              jawabanPengguna.value.push(parsedArray[i][0]);
-              jawabanPengguna.soal.push(parsedArray[i][1]);
+          for (let i = 0; i < filteredTransaksi.length; i++) {
+            const value = filteredTransaksi[i][0] ? filteredTransaksi[i][0].trim() : "0";
+            const soal = filteredTransaksi[i][1] ? filteredTransaksi[i][1].trim() : "0";
+            const file = filteredTransaksi[i][2] ? filteredTransaksi[i][2].trim() : "0";
+
+            jawabanPengguna.value.push(parseInt(value, 10));
+            jawabanPengguna.soal.push(parseInt(soal, 10));
+            jawabanPengguna.file.push(parseInt(file, 10));
           }
+            console.log(jawabanPengguna)
+
 
           const transformedData = questionResponse.data.map((item) => {
             const { Soal, TipeSoal, Jawaban, UrutanJawaban, NilaiJawaban, ForeignKey, Key, JawabanPengguna} = item;
@@ -119,7 +138,14 @@ export default function PengerjaanTest({ onChangePage, quizType, materiId, quizI
               questionMap.set(Soal, true);
               if (TipeSoal === "Essay") {
                 return {
-                  type: "essay",
+                  type: "Essay",
+                  question: Soal,
+                  correctAnswer: Jawaban,
+                  answerStatus: "none",
+                };
+              } else if (TipeSoal === "Praktikum") {
+                return {
+                  type: "Praktikum",
                   question: Soal,
                   correctAnswer: Jawaban,
                   answerStatus: "none",
@@ -150,7 +176,7 @@ export default function PengerjaanTest({ onChangePage, quizType, materiId, quizI
           setTotalQuestion(transformedData.length)
           setQuestionNumbers(transformedData.length);
           setCurrentData(transformedData);
-          
+          console.log(currentData)
           updateAnswerStatus(transformedData, jawabanPengguna);
         } else {
           throw new Error("Data format is incorrect");
@@ -173,7 +199,7 @@ export default function PengerjaanTest({ onChangePage, quizType, materiId, quizI
         } else {
           const userAnswerIndex = jawabanPengguna.soal.indexOf(index + 1);
           const userAnswer = jawabanPengguna.value[userAnswerIndex];
-          const correctOption = question.options.find(option => option.nilai == 25);
+          const correctOption = question.options.find(option => option.nilai != 0);
 
           if (userAnswer === correctOption.urutan) {
             return "correct";
@@ -210,29 +236,34 @@ export default function PengerjaanTest({ onChangePage, quizType, materiId, quizI
           quizId={materiId}
         />
         <div className="flex-fill p-3 d-flex flex-column"  style={{marginLeft:"21vw"}}>
-          <div className="mb-3" style={{ overflowX: 'auto', whiteSpace: 'nowrap' }}> 
+          <div className="mb-3 d-flex flex-wrap" style={{ overflowX: 'auto' }}> 
             {currentData.map((item, index) => {
               if (index + 1 !== selectedQuestion) return null;
              
               return (
-                <div key={index} className="mb-3" style={{ display: 'inline-block', verticalAlign: 'top', minWidth: '300px', marginRight: '20px' }}>
+                <div key={index} className="mb-3" style={{ display: 'block', verticalAlign: 'top', minWidth: '300px', marginRight: '20px' }}>
                   {/* Soal */}
                   <div className="mb-3">
-                    <h4>{item.question}</h4>
-                  </div>
+                  <h4 style={{ wordWrap: 'break-word', overflowWrap: 'break-word', textAlign:'justify' }}>{item.question}</h4>
+                </div>
 
                   {/* Jawaban */}
-                  {item.type === "essay" ? (
-                    <FileCard fileName="Jawaban.docx" />
-                  ) : (
-                    
+                  {item.type === "Praktikum" ? (
+                  <FileUpload
+                    forInput="jawaban_file"
+                    label="Jawaban (.zip)"
+                    formatFile=".zip"
+                    onChange={(event) => handleFileChange(fileInputRef, "zip", event, index + 1, item.id)}
+                  />
+                ) : item.type === "Essay" ? (
+                  <KMS_Uploader />
+                ) : (
                     <div className="d-flex flex-column">
                       {item.options.map((option, index) => {
                         let i = 1;
                         i = processOptions(option.nomorSoal, item.jawabanPengguna_soal);
-                        console.log(item.jawabanPengguna_soal)
                         const isSelected = option.urutan == item.jawabanPengguna_value[i] ? true : false; 
-                        const isCorrect = option.nilai == 25 ? true : false;
+                        const isCorrect = option.nilai != 0 ? true : false;
                         let borderColor1 = 'lightgray';
                         let backgroundColor1 = 'white';
                         

@@ -3,15 +3,14 @@ import Button from "../part/Button";
 import { ROOT_LINK } from "../util/Constants";
 import AppContext_test from "../page/master-test/TestContext";
 
-export default function KMS_Sidebar({ onChangePage, questionNumbers, selectedQuestion, setSelectedQuestion, answerStatus, checkMainContent, quizId, questionAnsweredStatus }) {
-  const [remainingTime, setRemainingTime] = useState(5);
+export default function KMS_Sidebar({ onChangePage, questionNumbers, selectedQuestion, setSelectedQuestion, answerStatus, checkMainContent, quizId, timeRemaining, setTimeRemaining }) {
+  const [remainingTime, setRemainingTime] = useState(5000);
   useEffect(() => {
   const timer = setInterval(() => {
     setRemainingTime(prevTime => {
       if (prevTime <= 1) {
         clearInterval(timer);
-        AppContext_test.timeRemaining = true;
-        return 0;
+        setTimeRemaining(true);
       }
       return prevTime - 1;
     });
@@ -19,8 +18,10 @@ export default function KMS_Sidebar({ onChangePage, questionNumbers, selectedQue
     
     return () => clearInterval(timer);
   }, []);
-  console.log("ds"+AppContext_test.timeRemaining)
 
+  function updateData() {
+      AppContext_test.timeRemaining = true;
+  }
   const formatTime = (time) => {
     const hours = Math.floor(time / 3600);
     const minutes = Math.floor((time % 3600) / 60);

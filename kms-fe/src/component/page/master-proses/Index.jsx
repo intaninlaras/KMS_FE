@@ -58,14 +58,12 @@ export default function MasterProsesIndex({ onChangePage, withID }) {
   });
   AppContext_test.kategoriId = withID;
   const kategori = withID;
-  console.log("kategori di index: " + kategori);
   const searchQuery = useRef(null);
   const searchFilterSort = useRef(null);
   const searchFilterStatus = useRef(null);
 
   function handleSetStatus(id) {
     setIsError(false);
-    console.log("Index ID: " + id);
 
     SweetAlert(
       "Konfirmasi",
@@ -140,13 +138,11 @@ export default function MasterProsesIndex({ onChangePage, withID }) {
         setIsError(false);
         setIsLoading(true);
 
-        console.log("Filter: " + JSON.stringify(currentFilter));
         try {
             const data = await UseFetch(
                 API_LINK + "Materis/GetDataMateriByKategori",
                 currentFilter
             );
-            console.log("Fetched data:", data);
 
             if (data === "ERROR") {
                 setIsError(true);
@@ -278,7 +274,6 @@ export default function MasterProsesIndex({ onChangePage, withID }) {
 
                 Promise.all(promises)
                     .then((updatedData) => {
-                        console.log("Updated data with blobs:", updatedData);
                         setCurrentData(updatedData);
                     })
                     .catch((error) => {
@@ -363,6 +358,7 @@ export default function MasterProsesIndex({ onChangePage, withID }) {
                       onEdit={onChangePage}
                       onStatus={handleSetStatus}
                       isNonEdit={false}
+                    onReviewJawaban={onChangePage}
                     />
                   </>
                 ) : (
@@ -372,12 +368,12 @@ export default function MasterProsesIndex({ onChangePage, withID }) {
                     onEdit={onChangePage}
                     onStatus={handleSetStatus}
                       isNonEdit={false}
+                    onReviewJawaban={onChangePage}
                   />
                 )}
               </div>
             )}
             
-            {console.log("woi = "+ currentData[0].Count  )}
           </div>
         </div>
       </div>

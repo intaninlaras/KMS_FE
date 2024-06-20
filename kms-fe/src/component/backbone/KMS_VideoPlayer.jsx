@@ -1,21 +1,4 @@
-// import React from 'react';
 import ReactPlayer from 'react-player';
-
-// const KMS_VideoPlayer = ({ videoFileName }) => {
-//   return (
-//     <div className="react-player-container" style={{ width: '100%', maxWidth: '100%', height:'500px', maxHeight:'100%', margin: 'auto' }}>
-//       <ReactPlayer
-//         url={videoFileName}
-//         controls
-//         width="100%"
-//         height="100%"
-//       />
-//     </div>
-//   );
-// };
-
-// export default KMS_VideoPlayer;
-
 import React, { useState, useEffect } from "react";
 import { PAGE_SIZE, API_LINK, ROOT_LINK } from "../util/Constants";
 import Alert from "../part/Alert";
@@ -60,7 +43,7 @@ export default function KMS_VideoViewer({ videoFileName }) {
 
   return (
     <>
-      <div className="d-flex flex-column">
+      <div className="d-flex flex-column" >
         {isError && (
           <div className="flex-fill">
             <Alert
@@ -70,30 +53,20 @@ export default function KMS_VideoViewer({ videoFileName }) {
           </div>
         )}
         <div className="flex-fill">
-          {videoUrl && ( 
-            // <video width="100%" height="auto" controls> 
-            //   <source src={videoUrl} type="video/mp4" /> 
-            //   Your browser does not support the video tag.
-            // </video>
-            <div className="react-player-container" style={{  }}>
-             <ReactPlayer
-               url={videoUrl}
-               controls
-               width="100%"
-               height="100%"
-             />
-           </div>
-          )}
+          
         </div>
-        <div className="mt-3">
+        <div className="mt-3" >
           {isLoading ? (
             <Loading />
           ) : (
             <>
-              {!videoUrl && (
-                <div className="alert alert-warning">
-                  Video tidak tersedia
-                </div>
+              {videoUrl && ( 
+                <ReactPlayer
+                  url={videoUrl}
+                  controls
+                  width="100%"
+                  height="100%"
+                />
               )}
             </>
           )}
