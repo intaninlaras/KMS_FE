@@ -24,12 +24,14 @@ export default function MasterSharingAdd({ onChangePage}) {
     mat_sharing_expert_pdf: "",
     mat_sharing_expert_video: "",
   });
-
+  // console.log("Materi Form di sahring", AppContext_test.MateriForm)
   const userSchema = object({
     mat_id: string().required("ID Materi tidak boleh kosong"),
     mat_sharing_expert_pdf: string(),
     mat_sharing_expert_video: string(),
   });
+
+  console.log("forum di sharing",AppContext_test.ForumForm)
 
   const handleInputChange = async (e) => {
     const { name, value } = e.target;
@@ -136,8 +138,8 @@ export default function MasterSharingAdd({ onChangePage}) {
         <div>
           <Stepper
             steps={[
-              { label: 'Pretest', onClick: () => onChangePage("pretestAdd") },
               { label: 'Materi', onClick: () => onChangePage("courseAdd") },
+              { label: 'Pretest', onClick: () => onChangePage("pretestAdd") },
               { label: 'Sharing Expert', onClick: () => onChangePage("sharingAdd") },
               { label: 'Forum', onClick: () => onChangePage("forumAdd") },
               { label: 'Post Test', onClick: () => onChangePage("posttestAdd") }
@@ -200,7 +202,7 @@ export default function MasterSharingAdd({ onChangePage}) {
           <Button
             classType="outline-secondary me-2 px-4 py-2"
             label="Kembali"
-            onClick={() => onChangePage("materiAdd")}
+            onClick={() => onChangePage("pretestAdd")}
           />
           <Button
             classType="primary ms-2 px-4 py-2"

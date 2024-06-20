@@ -14,10 +14,10 @@ import Alert from "../../../part/Alert";
 import { Stepper } from 'react-form-stepper';
 import uploadFile from "../../../util/UploadFile";
 import AppContext_test from "../MasterContext";
+import { Editor } from '@tinymce/tinymce-react';
 
-
-export default function MasterCourseEdit({onChangePage,withID}) {
-  // console.log("ID: " + JSON.stringify(withID));
+export default function MasterCourseEdit({onChangePage}) {
+  // console.log("ID: " + JSON.stringify(Materi));
   console.log("onChangePage prop:", onChangePage);
 
   const [errors, setErrors] = useState({});
@@ -28,34 +28,37 @@ export default function MasterCourseEdit({onChangePage,withID}) {
   const fileInputRef = useRef(null);
   const gambarInputRef = useRef(null);
   const videoInputRef = useRef(null);
+  
+  const kategori = AppContext_test.KategoriIdByKK;
+  const Materi = AppContext_test.DetailMateriEdit;
+  console.log('deyail mat',Materi)
 
-  const kategori = AppContext_test.kategoriId;
-  console.log("kategori di materi: " + AppContext_test.kategoriId);
+  console.log("kategori di materi: " + AppContext_test.KategoriIdByKK);
   const formDataRef = useRef({
-    mat_id:withID.Key,
-    kat_id: AppContext_test.kategoriId, 
-    mat_judul: withID.Judul, 
-    mat_file_pdf: withID.File_pdf,
-    mat_file_video: withID.File_video,
-    mat_pengenalan: withID.Pengenalan,
-    mat_keterangan: withID.Keterangan,
+    mat_id:Materi.Key,
+    kat_id: AppContext_test.KategoriIdByKK, 
+    mat_judul: Materi.Judul, 
+    mat_file_pdf: Materi.File_pdf,
+    mat_file_video: Materi.File_video,
+    mat_pengenalan: Materi.Pengenalan,
+    mat_keterangan: Materi.Keterangan,
     kry_id: "",
-    mat_kata_kunci:withID["Kata Kunci"],
+    mat_kata_kunci:Materi["Kata Kunci"],
     mat_gambar: "",
   });
 
   console.log(formDataRef)
 
   // const formUpdateRef = useRef({
-  //   mat_id:withID.Key,
+  //   mat_id:Materi.Key,
   //   kat_id:"",
-  //   mat_judul: withID.Judul, 
-  //   mat_file_pdf: withID.File_P,
-  //   mat_file_video: withID.File_video,
-  //   mat_pengenalan: withID.Pengenalan,
-  //   mat_keterangan: withID.Keterangan,
+  //   mat_judul: Materi.Judul, 
+  //   mat_file_pdf: Materi.File_P,
+  //   mat_file_video: Materi.File_video,
+  //   mat_pengenalan: Materi.Pengenalan,
+  //   mat_keterangan: Materi.Keterangan,
   //   kry_id: "1",
-  //   mat_kata_kunci:withID["Kata Kunci"],
+  //   mat_kata_kunci:Materi["Kata Kunci"],
   //   mat_gambar: "FILE_1717049166708.jpg",
   // });
 
@@ -105,38 +108,41 @@ export default function MasterCourseEdit({onChangePage,withID}) {
 };
 
 
-  useEffect(() => {
-    const fetchDataKategori = async () => {
-      setIsError((prevError) => ({ ...prevError, error: false }));
-
+useEffect(() => {
+  const fetchDataKategori = async (retries = 3, delay = 1000) => {
+    for (let i = 0; i < retries; i++) {
       try {
-        const data = await UseFetch(API_LINK + "Program/GetKategoriKKById", {
-          kategori
-        });
-
-        console.log("Raw data: ", data);
-
+        const data = await UseFetch(API_LINK + "Program/GetKategoriKKById", { kategori });
         const mappedData = data.map(item => ({
           value: item.Key,
           label: item["Nama Kategori"],
-          idKK: item.idKK, 
-          namaKK: item.namaKK 
+          idKK: item.idKK,
+          namaKK: item.namaKK
         }));
 
         console.log("Mapped data: ", mappedData);
-
         setListKategori(mappedData);
+        return;
       } catch (error) {
-        setIsError((prevError) => ({
-          ...prevError,
-          error: true,
-          message: error.message,
-        }));
-        setListKategori([]);
+        console.error("Error fetching kategori data:", error);
+        if (i < retries - 1) {
+          await new Promise(resolve => setTimeout(resolve, delay));
+        } else {
+          setIsError((prevError) => ({
+            ...prevError,
+            error: true,
+            message: error.message,
+          }));
+          setListKategori([]);
+        }
       }
-    };
-    fetchDataKategori();
-  }, [kategori]);
+    }
+  };
+
+  setIsError((prevError) => ({ ...prevError, error: false }));
+  fetchDataKategori();
+}, [kategori]);
+
 
 
   const handleAdd = async (e) => {
@@ -191,10 +197,7 @@ export default function MasterCourseEdit({onChangePage,withID}) {
       });
     }
   };
-  
 
-  
-    
   if (isLoading) return <Loading />;
 
   return (
@@ -208,13 +211,13 @@ export default function MasterCourseEdit({onChangePage,withID}) {
         <div>
         <Stepper
            steps={[
-            { label: 'Pretest', onClick: () => onChangePage("pretestEdit") },
-            { label: 'Materi', onClick: () => onChangePage("courseEdit") },
+            { label: 'Materi', onClick: () => onChangePage("courseAdd") },
+            { label: 'Pretest', onClick: () => onChangePage("pretestAdd") },
             { label: 'Sharing Expert', onClick: () => onChangePage("sharingEdit") },
             { label: 'Forum', onClick: () => onChangePage("forumEdit") },
             { label: 'Post Test', onClick: () => onChangePage("posttestEdit") }
           ]}
-            activeStep={1} 
+            activeStep={0} 
             styleConfig={{
               activeBgColor: '#67ACE9', // Warna latar belakang langkah aktif
               activeTextColor: '#FFFFFF', // Warna teks langkah aktif
@@ -249,7 +252,7 @@ export default function MasterCourseEdit({onChangePage,withID}) {
               <Input
                 type="text"
                 forInput="namaKK"
-                label="Nama KK"
+                label="Kelompok Keahlian"
                 value={listKategori.find((item) => item.value === formDataRef.current.kat_id)?.namaKK || ""}
                 disabled
                 errorMessage={errors.namaKK}
@@ -263,6 +266,7 @@ export default function MasterCourseEdit({onChangePage,withID}) {
                   value={listKategori.find((item) => item.value === formDataRef.current.kat_id)?.label || ""}
                   disabled
                   errorMessage={errors.kat_id}
+                  
                 />
                 
               </div>
@@ -275,6 +279,7 @@ export default function MasterCourseEdit({onChangePage,withID}) {
                   value={formDataRef.current.mat_judul}
                   onChange={handleInputChange}
                   errorMessage={errors.mat_judul}
+                  isRequired
                 />
               </div>
               <div className="col-lg-6">
@@ -286,10 +291,11 @@ export default function MasterCourseEdit({onChangePage,withID}) {
                   value={formDataRef.current.mat_kata_kunci}
                   onChange={handleInputChange}
                   errorMessage={errors.mat_kata_kunci}
+                  isRequired
                 />
               </div>
-              <div className="col-lg-6">
-                <div className="form-group">
+              <div className="col-lg-16">
+                {/* <div className="form-group">
                   <label htmlFor="deskripsiMateri" className="form-label fw-bold">
                   Deskripsi Materi <span style={{color:"Red"}}> *</span>
                   </label>
@@ -305,24 +311,43 @@ export default function MasterCourseEdit({onChangePage,withID}) {
                   {errors.deskripsiMateri && (
                     <div className="invalid-feedback">{errors.deskripsiMateri}</div>
                   )}
-                </div>
+                </div> */}
+                <Input
+                  type="textarea"
+                  forInput="mat_keterangan"
+                  label="Keterangan Materi"
+                  isRequired
+                  value={formDataRef.current.mat_keterangan}
+                  onChange={handleInputChange}
+                  errorMessage={errors.mat_keterangan}
+                />
               </div>
-              <div className="col-lg-6">
+              <div className="col-lg-16">
                 <div className="form-group">
-                  <label htmlFor="pengenalanMateri" className="form-label fw-bold">
-                  Pengenalan Materi <span style={{color:"Red"}}> *</span>
+                  <label htmlFor="deskripsiMateri" className="form-label fw-bold">
+                    Pengenalan Materi <span style={{ color: 'Red' }}> *</span>
                   </label>
-                  <textarea
-                    className="form-control mb-3"
+                  <Editor
                     id="mat_pengenalan"
-                    name="mat_pengenalan"
-                    forInput="mat_pengenalan"
                     value={formDataRef.current.mat_pengenalan}
-                    onChange={handleInputChange}
-                    required
+                    onEditorChange={(content) => handleInputChange({ target: { name: 'mat_pengenalan', value: content } })}
+                    apiKey='v5s2v6diqyjyw3k012z4k2o0epjmq6wil26i10xjh53bbk7y'
+                    init={{
+                      height: 300,
+                      menubar: false,
+                      plugins: [
+                        'advlist autolink lists link image charmap print preview anchor',
+                        'searchreplace visualblocks code fullscreen',
+                        'insertdatetime media table paste code help wordcount'
+                      ],
+                      toolbar:
+                        'undo redo | formatselect | bold italic backcolor | \
+                        alignleft aligncenter alignright alignjustify | \
+                        bullist numlist outdent indent | removeformat | help'
+                    }}
                   />
-                  {errors.deskripsiMateri && (
-                    <div className="invalid-feedback">{errors.pengenalanMateri}</div>
+                  {errors.mat_pengenalan && (
+                    <div className="invalid-feedback">{errors.mat_pengenalan}</div>
                   )}
                 </div>
               </div>
@@ -336,6 +361,7 @@ export default function MasterCourseEdit({onChangePage,withID}) {
                     handleFileChange(gambarInputRef, "jpg,png")
                   }
                   errorMessage={errors.mat_gambar}
+                  isRequired
                 />
               </div>
               <div className="col-lg-4">
@@ -348,6 +374,7 @@ export default function MasterCourseEdit({onChangePage,withID}) {
                     handleFileChange(fileInputRef, "pdf")
                   }
                   errorMessage={errors.mat_file_pdf}
+                  isRequired
                 />
               </div>
               <div className="col-lg-4">
@@ -360,6 +387,7 @@ export default function MasterCourseEdit({onChangePage,withID}) {
                     handleFileChange(videoInputRef, "mp4,mov")
                   }
                   errorMessage={errors.mat_file_video}
+                  isRequired
                 />
               </div>
             </div>
@@ -369,7 +397,7 @@ export default function MasterCourseEdit({onChangePage,withID}) {
           <Button
             classType="outline-secondary me-2 px-4 py-2"
             label="Kembali"
-            onClick={() => onChangePage("pretestEdit")}
+            onClick={() => onChangePage("index")}
           />
           <Button
             classType="primary ms-2 px-4 py-2"
@@ -379,7 +407,7 @@ export default function MasterCourseEdit({onChangePage,withID}) {
           <Button
             classType="dark ms-3 px-4 py-2"
             label="Berikutnya"
-            onClick={() => onChangePage("sharingEdit")}
+            onClick={() => onChangePage("pretestEdit")}
           />
         </div>
       </form>

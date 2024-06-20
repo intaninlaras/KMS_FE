@@ -1,6 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { object, string } from "yup";
-import { validateAllInputs, validateInput } from "../../../util/ValidateForm";
 import SweetAlert from "../../../util/SweetAlert";
 import Button from "../../../part/Button";
 import Input from "../../../part/Input";
@@ -8,113 +7,131 @@ import Loading from "../../../part/Loading";
 import Alert from "../../../part/Alert";
 import { Stepper } from 'react-form-stepper';
 import axios from "axios";
+import { API_LINK } from "../../../util/Constants";
+import UseFetch from "../../../util/UseFetch";
+import { Editor } from '@tinymce/tinymce-react';
+import AppContext_test from "../MasterContext";
 
 const userSchema = object({
-  forumJudul: string().max(100, "maksimum 100 karakter").required("harus diisi"),
-  forumIsi: string().required("harus diisi"),
+  forumJudul: string().max(100, "Maksimum 100 karakter").required("Harus diisi"),
+  forumIsi: string().required("Harus diisi"),
 });
 
-export default function MasterForumAdd({ onChangePage }) {
+export default function MasterForumEdit({ onChangePage }) {
   const [errors, setErrors] = useState({});
-  const [isError, setIsError] = useState({ error: false, message: "" });
-  const [isLoading, setIsLoading] = useState(false);
+  const [isError, setIsError] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [formData, setFormData] = useState({
-    materiId: "00003",
-    karyawanId: "1",
     forumJudul: "",
     forumIsi: "",
-    forumCreatedBy:"ika",
+    // modifBY:"ika",
   });
+  const [forumDataExists, setForumDataExists] = useState(false);
+  const Materi = AppContext_test.DetailMateriEdit;
 
   const handleInputChange = async (e) => {
     const { name, value } = e.target;
-    const validationError = await validateInput(name, value, userSchema);
     setFormData((prevData) => ({
       ...prevData,
       [name]: value,
     }));
-    setErrors((prevErrors) => ({
-      ...prevErrors,
-      [validationError.name]: validationError.error,
-    }));
   };
 
-  const resetForm = () => {
-    setFormData({
-      materiId: "00003",
-      karyawanId: "1",
-      forumJudul: "",
-      forumIsi: "",
-      forumStatus: "Aktif",
-    });
-    setErrors({});
-    setIsError({ error: false, message: "" });
-  };
+  useEffect(() => {
+    const fetchData = async () => {
+      setIsError(false);
+      setIsLoading(true);
+
+      try {
+        const data = await UseFetch(API_LINK + "Forum/GetDataForumByMateri", {
+          p1: Materi.Key
+        });
+
+        if (data === "ERROR") {
+          setIsError(true);
+        } else {
+          if (data.length > 0) {
+            setFormData({
+              forumJudul: data[0]["Nama Forum"] || "",
+              forumIsi: data[0]["Isi Forum"] || "",
+            });
+            setForumDataExists(true);
+          } else {
+            setForumDataExists(false);
+          }
+        }
+      } catch (error) {
+        setIsError(true);
+        console.error("Error fetching forum data:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [Materi]);
 
   const handleAdd = async (e) => {
     e.preventDefault();
 
-    const validationErrors = await validateAllInputs(formData, userSchema, setErrors);
-    const isEmptyData = Object.values(formData).some(value => value === "");
-
-    if (isEmptyData) {
-      setIsError({
-        error: true,
-        message: "Data tidak boleh kosong",
+    const validationErrors = await userSchema.validate(formData, { abortEarly: false })
+      .then(() => ({ forumJudul: '', forumIsi: '' }))
+      .catch((err) => {
+        const errors = err.inner.reduce((acc, current) => {
+          acc[current.path] = current.message;
+          return acc;
+        }, {});
+        setErrors(errors);
+        return errors;
       });
-      return;
-    }
 
-    if (Object.values(validationErrors).every((error) => !error)) {
-      setIsLoading(true);
-      setIsError({ error: false, message: "" });
-      setErrors({});
-    }
+    setIsLoading(true);
+    setIsError(false);
 
     try {
-      console.log("Data yang dikirim ke backend:", formData);
-      const response = await axios.post("http://localhost:8080/Forums/SaveDataForum", formData);
+      console.log("FormData being sent:", formData);
+      const response = await axios.post(API_LINK + "Forum/EditDataForum", {
+        p1: Materi.Key,
+        p2: formData.forumJudul,
+        p3: formData.forumIsi,
+        p4: 'ika',
+      });
 
       if (response.status === 200) {
         SweetAlert("Success", "Forum data has been successfully saved", "success");
-        resetForm();
-        setIsLoading(false);
+        // onChangePage("forumEdit");
       } else {
-        setIsError({
-          error: true,
-          message: "Failed to save forum data: " + response.statusText,
-        });
-        setIsLoading(false); 
+        throw new Error("Failed to save forum data");
       }
     } catch (error) {
-      setIsError({
-        error: true,
-        message: "Failed to save forum data: " + error.message,
-      });
+      setIsError(true);
+      console.error("Error saving forum data:", error);
+    } finally {
       setIsLoading(false);
     }
   };
 
-  if (isLoading) return <Loading />;
+  if (isLoading) {
+    return <Loading />;
+  }
+
+  if (isError) {
+    return <Alert type="danger" message="Error fetching data." />;
+  }
 
   return (
     <>
-      {isError.error && (
-        <div className="flex-fill">
-          <Alert type="danger" message={isError.message} />
-        </div>
-      )}
       <form onSubmit={handleAdd}>
         <div>
           <Stepper
             steps={[
-              { label: 'Pretest', onClick: () => onChangePage("pretestEdit") },
-              { label: 'Materi', onClick: () => onChangePage("courseEdit") },
+              { label: 'Materi', onClick: () => onChangePage("courseAdd") },
+              { label: 'Pretest', onClick: () => onChangePage("pretestAdd") },
               { label: 'Sharing Expert', onClick: () => onChangePage("sharingEdit") },
               { label: 'Forum', onClick: () => onChangePage("forumEdit") },
               { label: 'Post Test', onClick: () => onChangePage("posttestEdit") }
             ]}
-            activeStep={3} 
+            activeStep={3}
             styleConfig={{
               activeBgColor: '#67ACE9',
               activeTextColor: '#FFFFFF',
@@ -138,60 +155,99 @@ export default function MasterForumAdd({ onChangePage }) {
             }}
           />
         </div>
-
+  
         <div className="card">
           <div className="card-header bg-outline-primary fw-medium text-black">
             Edit Forum
           </div>
-          <div className="card-body p-4">
-            <div className="row">
-              <div className="col-lg-12">
-                <Input
-                  type="text"
-                  forInput="forumJudul"
-                  label="Judul Forum"
-                  value={formData.forumJudul}
-                  onChange={handleInputChange}
-                  errorMessage={errors.forumJudul}
-                />
-              </div>
-              <div className="col-lg-12">
-                <div className="form-group">
-                  <label htmlFor="forumIsi" className="form-label fw-bold">
-                    Isi Forum
-                  </label>
-                  <textarea
-                    id="forumIsi"
-                    name="forumIsi"
-                    className={`form-control ${errors.forumIsi ? 'is-invalid' : ''}`}
-                    value={formData.forumIsi}
+          
+          {/* Handling different scenarios */}
+          {isLoading && (
+            <div className="card-body">
+              <Loading />
+            </div>
+          )}
+  
+          {!isLoading && !forumDataExists && (
+            <div className="card-body">
+              <Alert type="warning" message={(
+                <span>
+                  Data Forum belum ditambahkan. <a onClick={() => onChangePage("forumEditNot")} className="text-primary">Tambah Data</a>
+                </span>
+              )} />
+            </div>
+          )}
+  
+          {!isLoading && forumDataExists && (
+            <div className="card-body p-4">
+              <div className="row">
+                <div className="col-lg-12">
+                  <Input
+                    type="text"
+                    forInput="forumJudul"
+                    label="Judul Forum"
+                    value={formData.forumJudul}
                     onChange={handleInputChange}
+                    errorMessage={errors.forumJudul}
+                    isRequired
                   />
-                  {errors.forumIsi && (
-                    <div className="invalid-feedback">{errors.forumIsi}</div>
-                  )}
+                </div>
+                <div className="col-lg-12">
+                  <div className="form-group">
+                    <label htmlFor="forumIsi" className="form-label fw-bold">
+                      Isi Forum <span style={{ color: 'Red' }}> *</span>
+                    </label>
+                    <Editor
+                      id="forumIsi"
+                      value={formData.forumIsi}
+                      onEditorChange={(content) => setFormData({ ...formData, forumIsi: content })}
+                      apiKey='v5s2v6diqyjyw3k012z4k2o0epjmq6wil26i10xjh53bbk7y'
+                      init={{
+                        height: 300,
+                        menubar: false,
+                        plugins: [
+                          'advlist autolink lists link image charmap print preview anchor',
+                          'searchreplace visualblocks code fullscreen',
+                          'insertdatetime media table paste code help wordcount'
+                        ],
+                        toolbar:
+                          'undo redo | formatselect | bold italic backcolor | \
+                          alignleft aligncenter alignright alignjustify | \
+                          bullist numlist outdent indent | removeformat | help'
+                      }}
+                    />
+                    {errors.forumIsi && (
+                      <div className="invalid-feedback">{errors.forumIsi}</div>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
+          )}
+  
+        </div>
+        
+        {/* Render the save button only if forumDataExists */}
+          <div className="float my-4 mx-1">
+            <Button
+              classType="outline-secondary me-2 px-4 py-2"
+              label="Kembali"
+              onClick={() => onChangePage("sharingEdit")}
+            />
+            {forumDataExists && (
+              <Button
+                classType="primary ms-2 px-4 py-2"
+                type="submit"
+                label="Simpan"
+              />
+            )}
+            <Button
+              classType="dark ms-3 px-4 py-2"
+              label="Berikutnya"
+              onClick={() => onChangePage("posttestEdit")}
+            />
           </div>
-        </div>
-        <div className="float my-4 mx-1">
-          <Button
-            classType="outline-secondary me-2 px-4 py-2"
-            label="Kembali"
-            onClick={() => onChangePage("sharingEdit")}
-          />
-          <Button
-            classType="primary ms-2 px-4 py-2"
-            type="submit"
-            label="Simpan"
-          />
-          <Button
-            classType="dark ms-3 px-4 py-2"
-            label="Berikutnya"
-            onClick={() => onChangePage("posttestEdit")}
-          />
-        </div>
+        
       </form>
     </>
   );

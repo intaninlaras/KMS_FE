@@ -12,8 +12,6 @@ import Loading from "../../../part/Loading";
 import Alert from "../../../part/Alert";
 import { Stepper } from 'react-form-stepper';
 import AppContext_test from "../MasterContext";
-// import uploadFile from "../../util/UploadFile";
-// import FileUpload from "../../part/FileUpload";
 import FileUpload from "../../../part/FileUpload";
 import uploadFile from "../../../util/UploadFile";
 
@@ -26,12 +24,12 @@ export default function MasterSharingAdd({ onChangePage }) {
   const gambarInputRef = useRef(null);
   const vidioInputRef = useRef(null);
 
-  const kategori = AppContext_test.kategoriId;
-  console.log("kategori di materi: " + AppContext_test.kategoriId);
+  const Materi = AppContext_test.DetailMateriEdit;
+
   const formDataRef = useRef({
-    mat_id: "1", 
-    mat_sharing_expert_pdf: "",
-    mat_sharing_expert_video: "",
+    mat_id: Materi.Key,
+    mat_sharing_expert_pdf: Materi.Sharing_pdf || "",
+    mat_sharing_expert_video: Materi.Sharing_video || "",
   });
 
   const userSchema = object({
@@ -73,20 +71,27 @@ export default function MasterSharingAdd({ onChangePage }) {
 
   const handleAdd = async (e) => {
     e.preventDefault();
-  
+
     const validationErrors = await validateAllInputs(
       formDataRef.current,
       userSchema,
       setErrors
     );
-  
+
+    const hasPDF = Materi.Sharing_pdf !== null && Materi.Sharing_pdf !== "";
+    const hasVideo = Materi.Sharing_video !== null && Materi.Sharing_video !== "";
+
+    if (!hasPDF && !hasVideo) {
+      return;
+    }
+
     if (Object.values(validationErrors).every((error) => !error)) {
       setIsLoading(true);
       setIsError({ error: false, message: "" });
       setErrors({});
-  
+
       const uploadPromises = [];
-  
+
       if (fileInputRef.current && fileInputRef.current.files.length > 0) {
         uploadPromises.push(
           uploadFile(fileInputRef.current).then((data) => {
@@ -94,7 +99,7 @@ export default function MasterSharingAdd({ onChangePage }) {
           })
         );
       }
-  
+
       if (vidioInputRef.current && vidioInputRef.current.files.length > 0) {
         uploadPromises.push(
           uploadFile(vidioInputRef.current).then((data) => {
@@ -102,9 +107,8 @@ export default function MasterSharingAdd({ onChangePage }) {
           })
         );
       }
-  
+
       Promise.all(uploadPromises).then(() => {
-        console.log('Form Data:', formDataRef.current); // Debugging
         UseFetch(
           API_LINK + "SharingExperts/SaveDataSharing",
           formDataRef.current
@@ -114,7 +118,7 @@ export default function MasterSharingAdd({ onChangePage }) {
               setIsError({ error: true, message: "Terjadi kesalahan: Gagal menyimpan data Sharing." });
             } else {
               SweetAlert("Sukses", "Data Sharing Expert berhasil disimpan", "success");
-              onChangePage("index", kategori);
+              // onChangePage("index");
             }
           })
           .catch((err) => {
@@ -124,8 +128,11 @@ export default function MasterSharingAdd({ onChangePage }) {
       });
     }
   };
-  
+
   if (isLoading) return <Loading />;
+
+  const hasPDF = Materi.Sharing_pdf !== null && Materi.Sharing_pdf !== "";
+  const hasVideo = Materi.Sharing_video !== null && Materi.Sharing_video !== "";
 
   return (
     <>
@@ -136,35 +143,35 @@ export default function MasterSharingAdd({ onChangePage }) {
       )}
       <form onSubmit={handleAdd}>
         <div>
-        <Stepper
-             steps={[
-              { label: 'Pretest', onClick: () => onChangePage("pretestEdit") },
-              { label: 'Materi', onClick: () => onChangePage("courseEdit") },
+          <Stepper
+            steps={[
+              { label: 'Materi', onClick: () => onChangePage("courseAdd") },
+              { label: 'Pretest', onClick: () => onChangePage("pretestAdd") },
               { label: 'Sharing Expert', onClick: () => onChangePage("sharingEdit") },
               { label: 'Forum', onClick: () => onChangePage("forumEdit") },
               { label: 'Post Test', onClick: () => onChangePage("posttestEdit") }
             ]}
-            activeStep={2} 
+            activeStep={2}
             styleConfig={{
-              activeBgColor: '#67ACE9', // Warna latar belakang langkah aktif
-              activeTextColor: '#FFFFFF', // Warna teks langkah aktif
-              completedBgColor: '#67ACE9', // Warna latar belakang langkah selesai
-              completedTextColor: '#FFFFFF', // Warna teks langkah selesai
-              inactiveBgColor: '#E0E0E0', // Warna latar belakang langkah non-aktif
-              inactiveTextColor: '#000000', // Warna teks langkah non-aktif
-              size: '2em', // Ukuran langkah
-              circleFontSize: '1rem', // Ukuran font label langkah
-              labelFontSize: '0.875rem', // Ukuran font label langkah
-              borderRadius: '50%', // Radius sudut langkah
-              fontWeight: 500 // Ketebalan font label langkah
+              activeBgColor: '#67ACE9',
+              activeTextColor: '#FFFFFF',
+              completedBgColor: '#67ACE9',
+              completedTextColor: '#FFFFFF',
+              inactiveBgColor: '#E0E0E0',
+              inactiveTextColor: '#000000',
+              size: '2em',
+              circleFontSize: '1rem',
+              labelFontSize: '0.875rem',
+              borderRadius: '50%',
+              fontWeight: 500
             }}
             connectorStyleConfig={{
-              completedColor: '#67ACE9', // Warna penghubung selesai
-              activeColor: '#67ACE9', // Warna penghubung aktif
-              disabledColor: '#BDBDBD', // Warna penghubung non-aktif
-              size: 1, // Ketebalan penghubung
-              stepSize: '2em', // Ukuran langkah, digunakan untuk menghitung ruang yang dipadatkan antara langkah dan awal penghubung
-              style: 'solid' // Gaya penghubung
+              completedColor: '#67ACE9',
+              activeColor: '#67ACE9',
+              disabledColor: '#BDBDBD',
+              size: 1,
+              stepSize: '2em',
+              style: 'solid'
             }}
           />
         </div>
@@ -174,40 +181,44 @@ export default function MasterSharingAdd({ onChangePage }) {
             Edit Sharing Expert
           </div>
           <div className="card-body p-4">
-            <div className="row">
-              
-              <div className="col-lg-6">
-                <FileUpload
-                  ref={fileInputRef}
-                  forInput="mat_sharing_expert_pdf"
-                  label="File Sharing Expert (.pdf)"
-                  formatFile=".pdf"
-                  onChange={() =>
-                    handleFileChange(fileInputRef, "pdf")
-                  }
-                  errorMessage={errors.mat_sharing_expert_pdf}
-                />
+            {hasPDF || hasVideo ? (
+              <div className="row">
+                <div className="col-lg-6">
+                  <FileUpload
+                    ref={fileInputRef}
+                    forInput="mat_sharing_expert_pdf"
+                    label="File Sharing Expert (.pdf)"
+                    formatFile=".pdf"
+                    onChange={() => handleFileChange(fileInputRef, "pdf")}
+                    errorMessage={errors.mat_sharing_expert_pdf}
+                  />
+                </div>
+                <div className="col-lg-6">
+                  <FileUpload
+                    ref={vidioInputRef}
+                    forInput="mat_sharing_expert_video"
+                    label="Vidio Sharing Expert (.mp4, .mov)"
+                    formatFile=".mp4,.mov"
+                    onChange={() => handleFileChange(vidioInputRef, "mp4,mov")}
+                    errorMessage={errors.mat_sharing_expert_video}
+                  />
+                </div>
               </div>
-              <div className="col-lg-6">
-                <FileUpload
-                  ref={vidioInputRef}
-                  forInput="mat_sharing_expert_video"
-                  label="Vidio Sharing Expert (.mp4, .mov)"
-                  formatFile=".mp4,.mov"
-                  onChange={() =>
-                    handleFileChange(vidioInputRef, "mp4,mov")
-                  }
-                  errorMessage={errors.mat_sharing_expert_video}
-                />
-              </div>
-            </div>
+            ) : (
+              <Alert type="warning" message={(
+                <span>
+                  Data Sharing Expert belum ditambahkan. <a onClick={() => onChangePage("sharingEditNot")} className="text-primary">Tambah Data</a>
+                </span>
+              )} />
+            )}
           </div>
         </div>
+
         <div className="float my-4 mx-1">
           <Button
             classType="outline-secondary me-2 px-4 py-2"
             label="Kembali"
-            onClick={() => onChangePage("materiEdit")}
+            onClick={() => onChangePage("pretestEdit")}
           />
           <Button
             classType="primary ms-2 px-4 py-2"

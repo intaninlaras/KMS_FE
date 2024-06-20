@@ -292,7 +292,6 @@ export default function PengerjaanTest({ onChangePage, quizType, materiId }) {
           materiId: AppContext_test.materiId,
           karyawanId: "1",
         });
-
         if (checkIsDone.data && Array.isArray(checkIsDone.data)) {
           if (checkIsDone.data.length == 0) {
           } else {
@@ -348,6 +347,7 @@ export default function PengerjaanTest({ onChangePage, quizType, materiId }) {
           }).filter(item => item !== null);
           setQuestionNumbers(transformedData.length);
           
+        console.log(checkIsDone)
           setCurrentData(transformedData);
         } else {
           throw new Error("Data format is incorrect");

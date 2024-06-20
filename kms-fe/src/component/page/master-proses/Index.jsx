@@ -14,6 +14,7 @@ import '@fortawesome/fontawesome-free/css/all.css';
 import "../../../index.css";
 // Definisikan beberapa data contoh untuk tabel
 import AppContext_test from "./MasterContext";
+
 const inisialisasiData = [
   {
     Key: null,
@@ -43,7 +44,7 @@ const dataFilterStatus = [
   { Value: "Tidak Aktif", Text: "Tidak Aktif" },
 ];
 
-export default function MasterProsesIndex({ onChangePage, withID }) {
+export default function MasterProsesIndex({ onChangePage }) {
   const [isError, setIsError] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [currentData, setCurrentData] = useState(inisialisasiData);
@@ -53,8 +54,7 @@ export default function MasterProsesIndex({ onChangePage, withID }) {
     query: "",
     sort: "Judul",
     order: "asc",
-    kategori:withID,
-   // Default status
+    kategori:AppContext_test.KategoriIdByKK,
   });
   AppContext_test.kategoriId = withID;
   const kategori = withID;
@@ -149,6 +149,11 @@ export default function MasterProsesIndex({ onChangePage, withID }) {
             } else if (data.length === 0) {
                 setCurrentData(inisialisasiData);
             } else {
+                //Mengosongkan isi form materi&forum
+                AppContext_test.MateriForm = "";
+                AppContext_test.ForumForm = "";
+                AppContext_test.formSavedMateri = false; 
+                AppContext_test.formSavedForum = false; 
                 const formattedData = data.map((value) => ({
                     ...value,
                 }));
@@ -167,7 +172,7 @@ export default function MasterProsesIndex({ onChangePage, withID }) {
                             .then((blob) => {
                                 const url = URL.createObjectURL(blob);
                                 value.gbr = value.Gambar;
-                                value.Gambar = url;
+                                value.Gambar_url = url;
                                 return value;
                             })
                             .catch((error) => {
@@ -189,7 +194,7 @@ export default function MasterProsesIndex({ onChangePage, withID }) {
                             .then((blob) => {
                                 const url = URL.createObjectURL(blob);
                                 value.vid = value.File_video;
-                                value.File_video = url;
+                                value.File_video_url = url;
                                 return value;
                             })
                             .catch((error) => {
@@ -211,7 +216,7 @@ export default function MasterProsesIndex({ onChangePage, withID }) {
                             .then((blob) => {
                                 const url = URL.createObjectURL(blob);
                                 value.pdf = value.File_pdf;
-                                value.File_pdf = url;
+                                value.File_pdf_url = url;
                                 return value;
                             })
                             .catch((error) => {
@@ -232,7 +237,7 @@ export default function MasterProsesIndex({ onChangePage, withID }) {
                             .then((response) => response.blob())
                             .then((blob) => {
                                 const url = URL.createObjectURL(blob);
-                                value.Sharing_pdf = url;
+                                value.Sharing_pdf_url = url;
                                 return value;
                             })
                             .catch((error) => {
@@ -253,7 +258,7 @@ export default function MasterProsesIndex({ onChangePage, withID }) {
                             .then((response) => response.blob())
                             .then((blob) => {
                                 const url = URL.createObjectURL(blob);
-                                value.Sharing_video = url;
+                                value.Sharing_video_url = url;
                                 return value;
                             })
                             .catch((error) => {
@@ -310,7 +315,7 @@ export default function MasterProsesIndex({ onChangePage, withID }) {
                 classType="success"
                 title="Tambah Materi"
                 label="Tambah Materi"
-                onClick={() => onChangePage("pretestAdd",AppContext_test.KategoriIdByKK)}
+                onClick={() => onChangePage("materiAdd")}
               />
               <Input
                 ref={searchQuery}

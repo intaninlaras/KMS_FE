@@ -4,11 +4,13 @@ import { Stepper } from 'react-form-stepper';
 import UseFetch from "../../../util/UseFetch"; 
 import AppContext_test from "../MasterContext";
 import { API_LINK } from "../../../util/Constants"; 
+import Alert from "../../../part/Alert";
 
-export default function DetailForum({ onChangePage, withID }) {
+export default function MasterDetailForum({ onChangePage }) {
   const [forumData, setForumData] = useState(null);
   const [isError, setIsError] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const Materi = AppContext_test.DetailMateri;
 
   useEffect(() => {
     const fetchData = async () => {
@@ -17,7 +19,7 @@ export default function DetailForum({ onChangePage, withID }) {
 
       try {
         const data = await UseFetch(API_LINK + "Forum/GetDataForumByMateri", {
-          p1: withID.Key
+          p1: Materi.Key
         });
 
         if (data === "ERROR") {
@@ -34,7 +36,7 @@ export default function DetailForum({ onChangePage, withID }) {
     };
 
     fetchData();
-  }, [withID]);
+  }, [Materi]);
 
   if (isLoading) {
     return <div>Loading...</div>;
@@ -50,8 +52,8 @@ export default function DetailForum({ onChangePage, withID }) {
       <div>
         <Stepper
           steps={[
-            { label: 'Pretest', onClick: () => onChangePage("pretestDetail") },
-            { label: 'Materi', onClick: () => onChangePage("courseDetail") },
+            { label: 'Materi', onClick: () => onChangePage("courseAdd") },
+            { label: 'Pretest', onClick: () => onChangePage("pretestAdd") },
             { label: 'Sharing Expert', onClick: () => onChangePage("sharingDetail") },
             { label: 'Forum', onClick: () => onChangePage("forumDetail") },
             { label: 'Post Test', onClick: () => onChangePage("posttestDetail") }
@@ -82,45 +84,56 @@ export default function DetailForum({ onChangePage, withID }) {
       </div>
 
       {/* Tampilkan data forum jika sudah diambil */}
-      <div className="card">
-        <div className="card-header bg-outline-primary fw-medium text-black">
+      <div className="card" style={{ borderColor: "#67ACE9" }}>
+        <div className="card-header fw-medium text-white" style={{ backgroundColor: "#67ACE9" }}>
           Detail Forum
         </div>
-        <div className="card-body p-4">
-          <div className="row">
-            {forumData ? (
+        <div className="card-body">
+          {forumData ? (
+            <div className="row">
               <div className="col-lg-12">
                 {/* Tampilkan informasi forum */}
-                {console.log("data forum: ", forumData)}
-                <h6 className="mb-3 mt-0">Materi Forum</h6>
-                <p className="pb-3">{forumData["Judul Materi"]}</p>
-                <h6 className="mb-3 mt-0">Judul Forum</h6>
-                <p className="pb-3">{forumData["Nama Forum"]}</p>
-                <h6 className="mb-3 mt-0">Pembahasan Forum</h6>
-                <p className="pb-3">{forumData["Isi Forum"]}</p>
-                <h6 className="mb-3 mt-0">Penanggung Jawab</h6>
-                <p className="pb-3">{forumData.PIC}</p>
+                <div className="mb-4">
+                  <h6 className="mb-0">Materi Forum</h6>
+                  <p>{forumData["Judul Materi"]}</p>
+                </div>
+                <div className="mb-4">
+                  <h6 className="mb-0">Judul Forum</h6>
+                  <p>{forumData["Nama Forum"]}</p>
+                </div>
+                <div className="mb-4">
+                  <h6 className="mb-0">Pembahasan Forum</h6>
+                  <div dangerouslySetInnerHTML={{ __html: forumData["Isi Forum"] }} />
+                </div>
+                <div className="mb-0">
+                  <h6 className="mb-0">Penanggung Jawab</h6>
+                  <p>{forumData.PIC}</p>
+                </div>
               </div>
-            ) : (
-              <div className="alert alert-warning" role="alert">
-                Tidak ada data forum yang tersedia.
-              </div>
-            )}
-          </div>
+            </div>
+          ) : (
+            <div className="card-body">
+              <Alert type="warning" message={(
+                <span>
+                  Data Forum belum ditambahkan. <a onClick={() => onChangePage("forumDetailNot")} className="text-primary">Tambah Data</a>
+                </span>
+              )} />
+            </div>
+          )}
         </div>
       </div>
 
       {/* Tampilkan tombol navigasi */}
       <div className="float my-4 mx-1">
         <Button
-          classType="outline-secondary me-2 px-4 py-2"
+          classType="btn btn-outline-secondary me-2 px-4 py-2"
           label="Kembali"
-          onClick={() => onChangePage("sharingDetail", AppContext_test.DetailMateri)}
+          onClick={() => onChangePage("sharingDetail")}
         />
         <Button
-          classType="dark ms-3 px-4 py-2"
+          classType="btn btn-dark ms-3 px-4 py-2"
           label="Berikutnya"
-          onClick={() => onChangePage("posttestDetail", AppContext_test.DetailMateri)}
+          onClick={() => onChangePage("posttestDetail")}
         />
       </div>
     </>

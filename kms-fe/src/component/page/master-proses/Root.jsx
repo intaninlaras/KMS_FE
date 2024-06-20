@@ -11,10 +11,14 @@ import MasterMateriDetail from "./master-materi/MateriDetail";
 import MasterMateriReviewJawaban from "./master-materi/MateriReviewJawaban";
 // Sharing Expert
 import MasterSharingAdd from "./master-sharing/SharingAdd";
+import MasterSharingDetailNot from "./master-sharing/SharingDetailNot";
+import MasterSharingEditNot from "./master-sharing/SharingEditNot";
 import MasterSharingEdit from "./master-sharing/SharingEdit";
 import MasterSharingDetail from "./master-sharing/SharingDetail";
 // Forum
 import MasterForumAdd from "./master-forum/ForumAdd";
+import MasterForumDetailNot from "./master-forum/ForumDetailNot";
+import MasterForumEditNot from "./master-forum/ForumEditNot";
 import MasterForumEdit from "./master-forum/ForumEdit";
 import MasterForumDetail from "./master-forum/ForumDetail";
 // Post Test
@@ -23,6 +27,8 @@ import MasterPostTestEdit from "./master-posttest/PostTestEdit";
 import MasterPostTestDetail from "./master-posttest/PostTestDetail";
 // Kelompok Keahlian
 import PilihKelompokKeahlian from "./Kelompok_Keahlian";
+// import Masterpustakaa from "./pustaka";
+
 //
 import "../../../index.css";
 
@@ -70,17 +76,35 @@ export default function MasterProses() {
         return <MasterSharingAdd 
                 onChangePage={handleSetPageMode}
                 withID={dataID}
-                withIDKategori={dataID2}/>;
+               />;
+      case "sharingDetailNot":
+        return <MasterSharingDetailNot 
+                onChangePage={handleSetPageMode}
+                withID={dataID}
+               />;
       case "sharingEdit":
         return <MasterSharingEdit 
                 onChangePage={handleSetPageMode}
                 withID={dataID}/>;
+      case "sharingEditNot":
+        return <MasterSharingEditNot 
+                onChangePage={handleSetPageMode}
+                withID={dataID}
+                />;
       case "sharingDetail":
         return <MasterSharingDetail 
                 onChangePage={handleSetPageMode} 
                 withID={dataID}/>;
       case "forumAdd":
         return <MasterForumAdd 
+                onChangePage={handleSetPageMode}
+                withID={dataID}/>;
+      case "forumDetailNot":
+        return <MasterForumDetailNot
+                onChangePage={handleSetPageMode}
+                withID={dataID}/>;
+      case "forumEditNot":
+        return <MasterForumEditNot
                 onChangePage={handleSetPageMode}
                 withID={dataID}/>;
       case "forumEdit":
@@ -106,6 +130,9 @@ export default function MasterProses() {
       case "kk":
         return <PilihKelompokKeahlian 
                 onChangePage={handleSetPageMode} />;
+        //         case "pustaka":
+        // return <Masterpustakaa 
+        //         onChangePage={handleSetPageMode} />;
     }
   }
 
