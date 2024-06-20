@@ -121,6 +121,19 @@ export default function MasterPostTestAdd({ onChangePage }) {
 
   const handleAdd = async (e) => {
     e.preventDefault();
+
+    // Check if all "Pilgan" type questions have more than one option
+    for (let question of formContent) {
+      if (question.type === 'Pilgan' && question.options.length < 2) {
+          Swal.fire({
+            title: 'Gagal!',
+            text: 'Opsi pilihan ganda harus lebih dari satu',
+            icon: 'error',
+            confirmButtonText: 'OK'
+          });
+          return;
+      }
+    }
   
     // Hitung total point dari semua pertanyaan dan opsi
     const totalQuestionPoint = formContent.reduce((total, question) => total + parseInt(question.point), 0);
@@ -133,7 +146,12 @@ export default function MasterPostTestAdd({ onChangePage }) {
     
     // Total point dari semua pertanyaan dan opsi harus berjumlah 100, tidak kurang dan tidak lebih
     if (totalQuestionPoint + totalOptionPoint !== 100) {
-      alert('Total skor harus berjumlah 100');
+      Swal.fire({
+        title: 'Gagal!',
+        text: 'Total skor harus berjumlah 100',
+        icon: 'error',
+        confirmButtonText: 'OK'
+      });
       return;
     }
   
@@ -143,7 +161,12 @@ export default function MasterPostTestAdd({ onChangePage }) {
       const response = await axios.post(API_LINK + 'Quiz/SaveDataQuiz', formData);
   
       if (response.data.length === 0) {
-        alert('Gagal menyimpan data');
+        Swal.fire({
+          title: 'Gagal!',
+          text: 'Data yang dimasukkan tidak valid atau kurang',
+          icon: 'error',
+          confirmButtonText: 'OK'
+        });
         return;
       }
   
@@ -188,7 +211,12 @@ export default function MasterPostTestAdd({ onChangePage }) {
           console.log('Pertanyaan berhasil disimpan:', questionResponse.data);
   
           if (questionResponse.data.length === 0) {
-            alert('Gagal menyimpan question')
+            Swal.fire({
+              title: 'Gagal!',
+              text: 'Data yang dimasukkan tidak valid atau kurang',
+              icon: 'error',
+              confirmButtonText: 'OK'
+            });
             return
           }
   
@@ -208,7 +236,12 @@ export default function MasterPostTestAdd({ onChangePage }) {
               console.log('Jawaban Essay berhasil disimpan:', answerResponse.data);
             } catch (error) {
               console.error('Gagal menyimpan jawaban Essay:', error);
-              alert('Gagal menyimpan jawaban Essay');
+              Swal.fire({
+                title: 'Gagal!',
+                text: 'Data yang dimasukkan tidak valid atau kurang',
+                icon: 'error',
+                confirmButtonText: 'OK'
+              });
             }
           } else if (question.type === 'Pilgan') {
             for (const [optionIndex, option] of question.options.entries()) {
@@ -228,13 +261,23 @@ export default function MasterPostTestAdd({ onChangePage }) {
                 console.log('Jawaban multiple choice berhasil disimpan:', answerResponse.data);
               } catch (error) {
                 console.error('Gagal menyimpan jawaban multiple choice:', error);
-                alert('Gagal menyimpan jawaban multiple choice');
+                Swal.fire({
+                  title: 'Gagal!',
+                  text: 'Data yang dimasukkan tidak valid atau kurang',
+                  icon: 'error',
+                  confirmButtonText: 'OK'
+                });
               }
             }
           }
         } catch (error) {
           console.error('Gagal menyimpan pertanyaan:', error);
-          alert('Gagal menyimpan pertanyaan');
+          Swal.fire({
+            title: 'Gagal!',
+            text: 'Data yang dimasukkan tidak valid atau kurang',
+            icon: 'error',
+            confirmButtonText: 'OK'
+          });
         }
       }
   
@@ -387,14 +430,16 @@ export default function MasterPostTestAdd({ onChangePage }) {
       if (index < 2) return null;
 
       const options = row[3] ? row[3].split(',') : [];
+      const points = typeof row[4] === 'string' ? row[4].split(',') : [];
+      
       return {
         text: row[1],
-        type: row[2].toLowerCase() === 'Essay' ? 'Essay' : 'Pilgan',
-        options: options.map((option, idx) => ({ label: option, value: String.fromCharCode(65 + idx) })),
-        point: row[4],
-        correctAnswer: row[5],
+        type: row[2].toLowerCase() === 'essay' ? 'Essay' : (row[2].toLowerCase() === 'praktikum' ? 'Praktikum' : 'Pilgan'),
+        options: options.map((option, idx) => ({ label: option, value: String.fromCharCode(65 + idx), point: points[idx] ? points[idx].trim() : null })),
+        point: row[5],
+       
       };
-    }).filter(Boolean); // Filter out null values
+    }).filter(Boolean); // Filter out null values
 
     const initialSelectedOptions = questions.map((question, index) => {
       if (question.type === 'Pilgan') {
@@ -713,15 +758,20 @@ export default function MasterPostTestAdd({ onChangePage }) {
                 <div className="card-header bg-white fw-medium text-black d-flex justify-content-between align-items-center">
                   <span>Pertanyaan</span>
                   <span>
-                    Skor: {parseInt(question.point) + (question.type === 'Pilgan' ? (question.options || []).reduce((acc, option) => acc + parseInt(option.point), 0) : 0)}
+                    Skor: {
+                      question.type === 'Pilgan' 
+                        ? (question.options || []).reduce((acc, option) => acc + parseInt(option.point), 0)
+                        : parseInt(question.point)
+                    }
                   </span>
+                  
                   <div className="col-lg-2">
                     <select className="form-select" aria-label="Default select example"
                       value={question.type}
                       onChange={(e) => handleQuestionTypeChange(e, index)}>
-                      <option value="essay">Essay</option>
+                      <option value="Essay">Essay</option>
                       <option value="Pilgan">Pilihan Ganda</option>
-                      <option value="praktikum">Praktikum</option>
+                      <option value="Praktikum">Praktikum</option>
                     </select>
                   </div>
                 </div>
