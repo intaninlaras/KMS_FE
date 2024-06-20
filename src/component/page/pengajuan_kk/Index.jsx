@@ -5,7 +5,6 @@ import Button from "../../part/Button";
 import Input from "../../part/Input";
 import Filter from "../../part/Filter";
 import DropDown from "../../part/Dropdown";
-import CardPengajuan from "../../part/CardPengajuan";
 import { API_LINK } from "../../util/Constants";
 import Cookies from "js-cookie";
 import { decryptId } from "../../util/Encryptor";
@@ -120,7 +119,7 @@ export default function PengajuanIndex({ onChangePage }) {
           await new Promise((resolve) => setTimeout(resolve, 2000));
         } else {
           const formattedData = data.map((value) => {
-            if (value.Status === "Ditolak")
+            if (value.Status === "Ditolak" || value.Status === "Dibatalkan")
               return { ...value, Status: "Kosong" };
             return value;
           });
@@ -192,9 +191,9 @@ export default function PengajuanIndex({ onChangePage }) {
             if (value["Lampiran"]) {
               const filePromise = fetch(
                 API_LINK +
-                  `Utilities/Upload/DownloadFile?namaFile=${encodeURIComponent(
-                    value["Lampiran"]
-                  )}`
+                `Utilities/Upload/DownloadFile?namaFile=${encodeURIComponent(
+                  value["Lampiran"]
+                )}`
               )
                 .then((response) => response.blob())
                 .then((blob) => {
@@ -269,7 +268,9 @@ export default function PengajuanIndex({ onChangePage }) {
                         ></span>
                         {dataAktif?.Prodi}
                       </h6>
-                      <p className="pt-3">{dataAktif?.Deskripsi}</p>
+                      <p className="pt-3" style={{
+                        textAlign: "justify"
+                      }}>{dataAktif?.Deskripsi}</p>
                     </div>
                     <div className="col-lg-5 ps-4 border-start">
                       <h5 className="fw-semibold mt-1">Lampiran pendukung</h5>
@@ -329,7 +330,7 @@ export default function PengajuanIndex({ onChangePage }) {
                   iconName="search"
                   classType="primary px-4"
                   title="Cari"
-                  //   onClick={handleSearch}
+                //   onClick={handleSearch}
                 />
                 <Filter>
                   <DropDown

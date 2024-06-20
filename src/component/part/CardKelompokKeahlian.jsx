@@ -276,7 +276,7 @@ function CardKelompokKeahlian({
   return (
     <div className="col-md-6 mb-3" key={data.id}>
       <div
-        className="card p-0 h-100"
+        className="card p-0 h-100 card-background card-background-tab"
         style={{
           border: "",
           borderRadius: "10px",
@@ -284,7 +284,7 @@ function CardKelompokKeahlian({
           borderBottomLeftRadius: "0",
         }}
       >
-        <div className="card-body p-0">
+        <div className="card-body p-0 card-content">
           <h5
             className="card-title text-white px-3 py-2"
             style={{
@@ -315,6 +315,7 @@ function CardKelompokKeahlian({
                 WebkitLineClamp: 3,
                 WebkitBoxOrient: "vertical",
                 overflow: "hidden",
+                textAlign: "justify"
               }}
             >
               {data.desc}

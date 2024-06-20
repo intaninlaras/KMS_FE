@@ -28,7 +28,6 @@ export default function KonfirmasiAnggotaDetail({ onChangePage, withID }) {
   const [isError, setIsError] = useState({ error: false, message: "" });
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({});
-  const [message, setMessage] = useState({});
   const [karyawan, setKaryawan] = useState([]);
   const [listAnggota, setListAnggota] = useState([]);
   const [listNamaFile, setListNamaFile] = useState([]);
@@ -158,20 +157,16 @@ export default function KonfirmasiAnggotaDetail({ onChangePage, withID }) {
 
   // MENGUBAH STATUS
   function handleSetStatus(data, status) {
-    setIsLoading(true);
     setIsError(false);
-
-    console.log("im here");
 
     let message;
 
     if (status === "Aktif") message = "Apakah anda yakin ingin menyetujui?";
     else if (status === "Ditolak") message = "Apakah anda yakin ingin menolak?";
 
-    setMessage(message);
-
     SweetAlert("Konfirmasi", message, "info", "Ya").then((confirm) => {
       if (confirm) {
+        setIsLoading(true);
         UseFetch(API_LINK + "AnggotaKK/SetStatusAnggotaKK", {
           idKK: data.Key,
           status: status,
@@ -186,14 +181,11 @@ export default function KonfirmasiAnggotaDetail({ onChangePage, withID }) {
               } else if (data === "Ditolak") {
                 message = "Berhasil. Karyawan telah ditolak..";
               }
-              setMessage(message);
-              SweetAlert("Sukses", { message }, "success");
+              SweetAlert("Sukses", message, "success");
               onChangePage("index");
             }
           })
           .then(() => setIsLoading(false));
-      } else {
-        console.log("Konfirmasi dibatalkan.");
       }
     });
   }

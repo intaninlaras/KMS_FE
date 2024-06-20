@@ -152,7 +152,7 @@ export default function KKDetailPublish({ onChangePage, withID }) {
                 <span>PIC : {formData.personInCharge}</span>
               </div>
               <hr className="mb-0" style={{ opacity: "0.2" }} />
-              <p className="py-3">{formData.deskripsi}</p>
+              <p className="py-3" style={{  textAlign: "justify" }}>{formData.deskripsi}</p>
             </div>
             <div className="col-lg-5">
               {listAnggota.length > 0 ? (

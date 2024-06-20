@@ -32,7 +32,6 @@ export default function KKIndex({ onChangePage }) {
   const [isError, setIsError] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [currentData, setCurrentData] = useState([]);
-  const [message, setMessage] = useState("");
   const [currentFilter, setCurrentFilter] = useState({
     page: 1,
     query: "",
@@ -121,22 +120,18 @@ export default function KKIndex({ onChangePage }) {
     getListKK();
   }, [currentFilter]);
 
-  useEffect(() => {
-    console.log(currentData);
-  }, [currentData]);
-
   // DELETE PERMANEN DATA DRAFT
   function handleDelete(id) {
-    setIsLoading(true);
     setIsError(false);
 
     SweetAlert(
       "Konfirmasi Hapus",
-      "Anda yakin ingin menghapus permanen data ini?",
+      "Anda yakin ingin <b>menghapus permanen</b> data ini?",
       "warning",
       "Hapus"
     ).then((confirm) => {
       if (confirm) {
+        setIsLoading(true);
         UseFetch(API_LINK + "KKs/DeleteKK", {
           idKK: id,
         })
@@ -148,15 +143,12 @@ export default function KKIndex({ onChangePage }) {
             }
           })
           .then(() => setIsLoading(false));
-      } else {
-        console.log("Penghapusan dibatalkan.");
       }
     });
   }
 
   // MENGUBAH STATUS
   function handleSetStatus(data, status) {
-    setIsLoading(true);
     setIsError(false);
 
     let message;
@@ -166,14 +158,13 @@ export default function KKIndex({ onChangePage }) {
     else if (data.status === "Draft")
       message = "Apakah anda yakin ingin mempublikasikan data ini?";
     else if (data.status === "Aktif")
-      message = "Apakah anda yakin ingin menonaktifkan data ini?";
+      message = "Apakah anda yakin ingin <b>menonaktifkan</b> data ini? <b>Semua anggota keahlian akan dikeluarkan secara otomatis</b> jika data ini dinonaktifkan";
     else if (data.status === "Tidak Aktif")
       message = "Apakah anda yakin ingin mengaktifkan data ini?";
 
-    setMessage(message);
-
     SweetAlert("Konfirmasi", message, "info", "Ya").then((confirm) => {
       if (confirm) {
+        setIsLoading(true);
         UseFetch(API_LINK + "KKs/SetStatusKK", {
           idKK: data.id,
           status: status,
@@ -181,22 +172,17 @@ export default function KKIndex({ onChangePage }) {
           .then((data) => {
             if (data === "ERROR" || data.length === 0) setIsError(true);
             else {
-              let message;
-              if (data === "Menunggu") {
-                message =
-                  "Sukses! Data sudah dikirimkan ke Prodi. Menunggu Prodi menentukan PIC Kelompok Keahlian..";
-              } else if (data === "Aktif") {
-                message =
-                  "Sukses! Data berhasil dipublikasi. PIC Kelompok Keahlian dapat menentukan kerangka Program Belajar..";
+              let messageResponse;
+              if (data[0].Status === "Menunggu") {
+                messageResponse = "Sukses! Data sudah dikirimkan ke Prodi. Menunggu Prodi menentukan PIC Kelompok Keahlian..";
+              } else if (data[0].Status === "Aktif") {
+                messageResponse = "Sukses! Data berhasil dipublikasi. PIC Kelompok Keahlian dapat menentukan kerangka Program Belajar..";
               }
-              setMessage(message);
-              SweetAlert("Sukses", { message }, "success");
+              SweetAlert("Sukses", messageResponse , "success");
               handleSetCurrentPage(currentFilter.page);
             }
           })
           .then(() => setIsLoading(false));
-      } else {
-        console.log("Konfirmasi dibatalkan.");
       }
     });
   }
@@ -255,7 +241,7 @@ export default function KKIndex({ onChangePage }) {
                 <div className="row mt-3 gx-4">
                   {!currentFilter.status ? (
                     <div className="my-3">
-                      <span class="badge fw-normal fs-6 text-dark-emphasis bg-primary-subtle">
+                      <span className="badge fw-normal fs-6 text-dark-emphasis bg-primary-subtle">
                         <Icon name="arrow-down" /> Data Aktif / Menunggu PIC dari
                         Prodi
                       </span>
@@ -294,7 +280,7 @@ export default function KKIndex({ onChangePage }) {
 
                   {!currentFilter.status ? (
                     <div className="my-3">
-                      <span class="badge fw-normal fs-6 text-dark-emphasis bg-dark-subtle">
+                      <span className="badge fw-normal fs-6 text-dark-emphasis bg-dark-subtle">
                         <Icon name="arrow-down" /> Data Draft / Belum dikirimkan
                         ke Prodi / Belum dipublikasi
                       </span>

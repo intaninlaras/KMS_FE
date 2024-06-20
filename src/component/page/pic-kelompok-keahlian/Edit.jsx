@@ -5,6 +5,7 @@ import { validateAllInputs } from "../../util/ValidateForm";
 import UseFetch from "../../util/UseFetch";
 import Button from "../../part/Button";
 import DropDown from "../../part/Dropdown";
+import Select2Dropdown from "../../part/Select2Dropdown";
 import Input from "../../part/Input";
 import Loading from "../../part/Loading";
 import Alert from "../../part/Alert";
@@ -77,6 +78,12 @@ export default function PICEdit({ onChangePage, withID }) {
           await new Promise((resolve) => setTimeout(resolve, 2000));
         } else {
           setListKaryawan(data);
+          if (withID.pic.key) {
+            setListKaryawan((prevList) => [
+              ...prevList,
+              { Text: withID.pic.nama, Value: withID.pic.key }
+            ]);
+          }
           setIsLoading(false);
           break;
         }
@@ -101,13 +108,8 @@ export default function PICEdit({ onChangePage, withID }) {
       deskripsi: withID.desc,
       status: withID.status,
     };
+    getListKaryawan();
   }, []);
-
-  useEffect(() => {
-    if (formDataRef.current.programStudi) {
-      getListKaryawan();
-    }
-  }, [formDataRef.current.programStudi]);
 
   const handleAdd = async (e) => {
     e.preventDefault();
@@ -192,11 +194,11 @@ export default function PICEdit({ onChangePage, withID }) {
                   />
                 </div>
                 <div className="col-lg-6">
-                  <DropDown
+                  <Select2Dropdown
                     forInput="personInCharge"
                     label="PIC Kelompok Keahlian"
                     arrData={listKaryawan}
-                    value={formDataRef.current.personInCharge || ""}
+                    value={formDataRef.current.personInCharge}
                     onChange={handleInputChange}
                     errorMessage={errors.personInCharge}
                     isRequired

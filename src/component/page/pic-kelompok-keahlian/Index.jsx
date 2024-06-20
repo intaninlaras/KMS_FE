@@ -93,7 +93,7 @@ export default function PICIndex({ onChangePage }) {
             <div className="container">
               <div className="row mt-3 gx-4">
                 <div className="my-3">
-                  <span class="badge fw-normal fs-6 text-dark-emphasis bg-secondary-subtle">
+                  <span className="badge fw-normal fs-6 text-dark-emphasis bg-secondary-subtle">
                     <Icon name="arrow-down" /> Menunggu PIC dari Prodi
                   </span>
                 </div>
@@ -110,7 +110,7 @@ export default function PICIndex({ onChangePage }) {
                     />
                   ))}
                 <div className="my-3">
-                  <span class="badge fw-normal fs-6 text-dark-emphasis bg-primary-subtle">
+                  <span className="badge fw-normal fs-6 text-dark-emphasis bg-primary-subtle">
                     <Icon name="arrow-down" /> Kelompok Keahlian Lainnya
                   </span>
                 </div>

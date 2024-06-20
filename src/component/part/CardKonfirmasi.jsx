@@ -84,6 +84,7 @@ function CardKonfirmasi({ data, anggotas, onChangePage, isShow }) {
                   WebkitLineClamp: 3,
                   WebkitBoxOrient: "vertical",
                   overflow: "hidden",
+                  textAlign: "justify"
                 }}
               >
                 {data.Deskripsi}

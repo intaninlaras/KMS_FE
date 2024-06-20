@@ -19,7 +19,6 @@ export default function ProgramIndex({ onChangePage }) {
   const [currentData, setCurrentData] = useState(null);
   const [listProgram, setListProgram] = useState([]);
   const [listAnggota, setListAnggota] = useState([]);
-  const [message, setMessage] = useState("");
   const [listKategoriProgram, setListKategoriProgram] = useState([
     { Message: "" },
   ]);
@@ -206,16 +205,16 @@ export default function ProgramIndex({ onChangePage }) {
 
   // DELETE PERMANEN DATA PROGRAM
   function handleDelete(id) {
-    setIsLoading(true);
     setIsError(false);
 
     SweetAlert(
       "Konfirmasi Hapus",
-      "Anda yakin ingin menghapus permanen data ini?",
+      "Anda yakin ingin <b>menghapus permanen</b> data ini?",
       "warning",
       "Hapus"
     ).then((confirm) => {
       if (confirm) {
+        setIsLoading(true);
         UseFetch(API_LINK + "Program/DeleteProgram", {
           idProgram: id,
         })
@@ -233,15 +232,12 @@ export default function ProgramIndex({ onChangePage }) {
             }
           })
           .then(() => setIsLoading(false));
-      } else {
-        console.log("Penghapusan dibatalkan.");
       }
     });
   }
 
   // MENGUBAH STATUS PROGRAM
   function handleSetStatus(data, status) {
-    setIsLoading(true);
     setIsError(false);
 
     let message;
@@ -253,10 +249,9 @@ export default function ProgramIndex({ onChangePage }) {
     else if (data.Status === "Tidak Aktif")
       message = "Apakah anda yakin ingin mengaktifkan data ini?";
 
-    setMessage(message);
-
     SweetAlert("Konfirmasi", message, "info", "Ya").then((confirm) => {
       if (confirm) {
+        setIsLoading(true);
         UseFetch(API_LINK + "Program/SetStatusProgram", {
           idProgram: data.Key,
           status: status,
@@ -277,30 +272,27 @@ export default function ProgramIndex({ onChangePage }) {
               } else if (data === "Aktif") {
                 message = "Sukses! Data berhasil dipublikasi.";
               }
-              setMessage(message);
-              SweetAlert("Sukses", { message }, "success");
+              SweetAlert("Sukses", message, "success");
               handleSetCurrentPage(currentFilter.page);
             }
           })
           .then(() => setIsLoading(false));
-      } else {
-        console.log("Konfirmasi dibatalkan.");
       }
     });
   }
 
   // DELETE PERMANEN DATA MATA KULIAH
   function handleDeleteKategori(id) {
-    setIsLoading(true);
     setIsError(false);
 
     SweetAlert(
       "Konfirmasi Hapus",
-      "Anda yakin ingin menghapus permanen data ini?",
+      "Anda yakin ingin <b>menghapus permanen</b> data ini?",
       "warning",
       "Hapus"
     ).then((confirm) => {
       if (confirm) {
+        setIsLoading(true);
         UseFetch(API_LINK + "KategoriProgram/DeleteKategoriProgram", {
           idKat: id,
         })
@@ -312,15 +304,12 @@ export default function ProgramIndex({ onChangePage }) {
             }
           })
           .then(() => setIsLoading(false));
-      } else {
-        console.log("Penghapusan dibatalkan.");
       }
     });
   }
 
   // MENGUBAH STATUS MATA KULIAH
   function handleSetStatusKategori(data, status) {
-    setIsLoading(true);
     setIsError(false);
 
     let message;
@@ -332,10 +321,9 @@ export default function ProgramIndex({ onChangePage }) {
     else if (data.Status === "Tidak Aktif")
       message = "Apakah anda yakin ingin mengaktifkan data ini?";
 
-    setMessage(message);
-
     SweetAlert("Konfirmasi", message, "info", "Ya").then((confirm) => {
       if (confirm) {
+        setIsLoading(true);
         UseFetch(API_LINK + "KategoriProgram/SetStatusKategoriProgram", {
           idKat: data.Key,
           status: status,
@@ -363,16 +351,12 @@ export default function ProgramIndex({ onChangePage }) {
               } else if (data === "Aktif") {
                 message = "Sukses! Data berhasil dipublikasi.";
               }
-              setMessage(message);
-              SweetAlert("Sukses", { message }, "success");
+              SweetAlert("Sukses", message, "success");
               setActiveCard(null);
               handleSetCurrentPage(currentFilter.page);
             }
           })
           .then(() => setIsLoading(false));
-      } else {
-        console.log("Konfirmasi dibatalkan.");
-        handleSetCurrentPage(currentFilter.page);
       }
     });
   }
@@ -507,18 +491,18 @@ export default function ProgramIndex({ onChangePage }) {
                                       Daftar Kategori Program
                                     </p>
                                     <div className="row row-cols-3">
-                                    {listKategoriProgram.map((kat) => (
-                                      <CardKategoriProgram
-                                        key={kat.id}
-                                        data={kat}
-                                        onChangePage={onChangePage}
-                                        onDelete={handleDeleteKategori}
-                                        onChangeStatus={handleSetStatusKategori}
-                                      />
-                                    ))}
+                                      {listKategoriProgram.map((kat) => (
+                                        <CardKategoriProgram
+                                          key={kat.id}
+                                          data={kat}
+                                          onChangePage={onChangePage}
+                                          onDelete={handleDeleteKategori}
+                                          onChangeStatus={handleSetStatusKategori}
+                                        />
+                                      ))}
+                                    </div>
                                   </div>
-                                  </div>
-                                  
+
                                 )}
                               </CardProgram>
                             </ScrollIntoView>

@@ -1,4 +1,4 @@
-import swal from "sweetalert";
+import Swal from 'sweetalert2';
 
 const SweetAlert = (
   title,
@@ -9,42 +9,36 @@ const SweetAlert = (
   placeholder = ""
 ) => {
   if (confirmText === "") {
-    swal({
+    Swal.fire({
       title: title,
-      text: text,
+      html: text, // Change 'text' to 'html' to support HTML content
       icon: icon,
     });
   } else {
     let textContent = "";
     const additional = {
-      content: {
-        element: inputType,
-        attributes: {
-          placeholder: placeholder,
-          onchange: function () {
-            textContent = this.value;
-          },
+      input: inputType,
+      inputPlaceholder: placeholder,
+      inputAttributes: {
+        onchange: function () {
+          textContent = this.value;
         },
       },
     };
 
-    return swal({
+    return Swal.fire({
       title: title,
-      text: text,
+      html: text, // Change 'text' to 'html' to support HTML content
       icon: icon,
-      buttons: {
-        cancel: "Batal",
-        confirm: {
-          text: confirmText,
-          value: true,
-        },
-      },
-      dangerMode: icon === "warning",
-      ...(inputType === null ? null : additional),
-    }).then((value) => {
-      if (inputType !== null && value)
+      showCancelButton: true,
+      confirmButtonText: confirmText,
+      cancelButtonText: 'Batal',
+      // dangerMode: icon === "warning",
+      ...(inputType === null ? {} : additional),
+    }).then((result) => {
+      if (inputType !== null && result.isConfirmed)
         return textContent === "" ? "-" : textContent;
-      return value;
+      return result.isConfirmed;
     });
   }
 };

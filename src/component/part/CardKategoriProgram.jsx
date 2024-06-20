@@ -47,7 +47,7 @@ const CardKategoriProgram = ({
           </div>
           <div className="d-flex mt-2">
             <div className="me-2 bg-primary ps-1"></div>
-            <p className="card-subtitle">{data.Deskripsi}</p>
+            <p className="card-subtitle" style={{ textAlign: "justify" }}>{data.Deskripsi}</p>
           </div>
           {data.Status === "Draft" ? (
             <div className="d-flex justify-content-end mt-3">

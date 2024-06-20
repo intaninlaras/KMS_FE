@@ -6,6 +6,7 @@ import UseFetch from "../../util/UseFetch";
 import UploadFile from "../../util/UploadFile";
 import Button from "../../part/Button";
 import DropDown from "../../part/Dropdown";
+import Select2Dropdown from "../../part/Select2Dropdown";
 import Input from "../../part/Input";
 import FileUpload from "../../part/FileUpload";
 import Loading from "../../part/Loading";
@@ -42,18 +43,6 @@ export default function MasterDaftarPustakaEdit({ onChangePage, withID }) {
     pus_gambar: withID.gbr,
     pus_status: "Aktif",
   });
-
-  // const [values, setPustaka] = useState({
-  //     kke_id: withID.Key,
-  //     pus_file: withID.fls,
-  //     pus_judul: withID.Judul,
-  //     pus_keterangan: withID.Keterangan,
-  //     pus_kata_kunci: withID["Kata Kunci"],
-  //     pus_gambar: withID.gbr,
-  //     pus_status: "Aktif",
-  //     pus_created_by: withID.Uploader,
-  //     pus_created_date: withID.Creadate,
-  // });
 
   const userSchema = object({
     pus_id: string(),
@@ -240,7 +229,7 @@ export default function MasterDaftarPustakaEdit({ onChangePage, withID }) {
                 />
               </div>
               <div className="col-lg-4">
-                <DropDown
+                <Select2Dropdown
                   forInput="kke_id"
                   label="Kelompok Keahlian"
                   arrData={listKK}

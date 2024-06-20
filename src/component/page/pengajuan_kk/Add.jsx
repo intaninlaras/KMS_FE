@@ -144,56 +144,122 @@ export default function PengajuanAdd({ onChangePage, withID }) {
     );
 
     if (Object.values(validationErrors).every((error) => !error)) {
-      setIsLoading(true);
       setIsError((prevError) => ({ ...prevError, error: false }));
       setErrors({});
 
-      const uploadPromises = [];
-      formDataRef.current.lampirans = [];
+      SweetAlert("Konfirmasi", "Apakah Anda yakin ingin mengirim pengajuan ini?", "info", "Ya").then(async (confirm) => {
+        if (confirm) {
+          setIsLoading(true);
 
-      lampiranRefs.current.forEach((ref) => {
-        if (ref && ref.current && ref.current.files.length > 0) {
-          uploadPromises.push(
-            uploadFile(ref.current).then((data) => {
-              if (data !== "ERROR" && data.newFileName) {
-                formDataRef.current.lampirans.push({
-                  pus_file: data.newFileName,
-                });
-              } else {
-                throw new Error("File upload failed");
-              }
-            })
-          );
+          const uploadPromises = [];
+          formDataRef.current.lampirans = [];
+
+          lampiranRefs.current.forEach((ref) => {
+            if (ref && ref.current && ref.current.files.length > 0) {
+              uploadPromises.push(
+                uploadFile(ref.current).then((data) => {
+                  if (data !== "ERROR" && data.newFileName) {
+                    formDataRef.current.lampirans.push({
+                      pus_file: data.newFileName,
+                    });
+                  } else {
+                    throw new Error("File upload failed");
+                  }
+                })
+              );
+            }
+          });
+
+          try {
+            await Promise.all(uploadPromises);
+
+            const response = await UseFetch(
+              API_LINK + "Pengajuans/SaveAnggotaKK",
+              formDataRef.current
+            );
+            if (response === "ERROR") {
+              setIsError({
+                error: true,
+                message: "Terjadi kesalahan: Gagal menyimpan data Pengajuan KK.",
+              });
+            } else {
+              SweetAlert("Sukses", "Data Pengajuan berhasil disimpan", "success");
+              window.location.reload();
+            }
+          } catch (error) {
+            setIsError({
+              error: true,
+              message:
+                "Terjadi kesalahan: Gagal mengupload file atau menyimpan data.",
+            });
+          } finally {
+            setIsLoading(false);
+          }
         }
       });
-
-      try {
-        await Promise.all(uploadPromises);
-
-        const response = await UseFetch(
-          API_LINK + "Pengajuans/SaveAnggotaKK",
-          formDataRef.current
-        );
-        if (response === "ERROR") {
-          setIsError({
-            error: true,
-            message: "Terjadi kesalahan: Gagal menyimpan data Pengajuan KK.",
-          });
-        } else {
-          SweetAlert("Sukses", "Data Pengajuan berhasil disimpan", "success");
-          window.location.reload();
-        }
-      } catch (error) {
-        setIsError({
-          error: true,
-          message:
-            "Terjadi kesalahan: Gagal mengupload file atau menyimpan data.",
-        });
-      } finally {
-        setIsLoading(false);
-      }
     }
   };
+
+  // const handleAdd = async (e) => {
+  //   e.preventDefault();
+
+  //   const validationErrors = await validateAllInputs(
+  //     formDataRef.current,
+  //     userSchema,
+  //     setErrors
+  //   );
+
+  //   if (Object.values(validationErrors).every((error) => !error)) {
+  //     setIsError((prevError) => ({ ...prevError, error: false }));
+  //     setErrors({});
+
+  //     const uploadPromises = [];
+  //     formDataRef.current.lampirans = [];
+
+  //     lampiranRefs.current.forEach((ref) => {
+  //       if (ref && ref.current && ref.current.files.length > 0) {
+  //         uploadPromises.push(
+  //           uploadFile(ref.current).then((data) => {
+  //             if (data !== "ERROR" && data.newFileName) {
+  //               formDataRef.current.lampirans.push({
+  //                 pus_file: data.newFileName,
+  //               });
+  //             } else {
+  //               throw new Error("File upload failed");
+  //             }
+  //           })
+  //         );
+  //       }
+  //     });
+
+  //     try {
+  //       await Promise.all(uploadPromises);
+
+  //       const response = await UseFetch(
+  //         API_LINK + "Pengajuans/SaveAnggotaKK",
+  //         formDataRef.current
+  //       );
+  //       if (response === "ERROR") {
+  //         setIsError({
+  //           error: true,
+  //           message: "Terjadi kesalahan: Gagal menyimpan data Pengajuan KK.",
+  //         });
+  //       } else {
+  //         SweetAlert("Sukses", "Data Pengajuan berhasil disimpan", "success");
+  //         window.location.reload();
+  //       }
+  //     } catch (error) {
+  //       setIsError({
+  //         error: true,
+  //         message:
+  //           "Terjadi kesalahan: Gagal mengupload file atau menyimpan data.",
+  //       });
+  //     } finally {
+  //       setIsLoading(false);
+  //     }
+
+  //   }
+  // };
 
   return (
     <>
@@ -292,7 +358,7 @@ export default function PengajuanAdd({ onChangePage, withID }) {
               <Button
                 classType="primary ms-2 px-4 py-2"
                 type="submit"
-                label="Simpan"
+                label="Kirim Pengajuan"
               />
             </div>
           </form>

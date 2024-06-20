@@ -56,6 +56,7 @@ const CardProgram = ({
             WebkitLineClamp: 1,
             WebkitBoxOrient: "vertical",
             overflow: "hidden",
+            textAlign: "justify"
           }}
         >
           {data.Deskripsi}

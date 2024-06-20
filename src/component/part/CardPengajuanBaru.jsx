@@ -119,8 +119,8 @@ function CardPengajuanBaru({ data, onChangePage, isShow }) {
                   data.Status === "Ditolak"
                     ? "#DC3545"
                     : data.Status === "Menunggu Acc"
-                    ? "#FFC107"
-                    : "#6C757D",
+                      ? "#FFC107"
+                      : "#6C757D",
               }}
             >
               {data["Nama Kelompok Keahlian"]}
@@ -141,6 +141,7 @@ function CardPengajuanBaru({ data, onChangePage, isShow }) {
                   WebkitLineClamp: 3,
                   WebkitBoxOrient: "vertical",
                   overflow: "hidden",
+                  textAlign: "justify"
                 }}
               >
                 {data.Deskripsi}

@@ -46,10 +46,10 @@ function CardPengajuan({ data, onChangePage, isShow }) {
                     kk.Status === "Aktif"
                       ? "#67ACE9"
                       : kk.Status === "Menunggu Acc"
-                      ? "#ffcc00"
-                      : kk.Status === "None" || kk.Status === "Ditolak"
-                      ? "#6C757D"
-                      : "#6C757D", // default to grey if status is not recognized
+                        ? "#ffcc00"
+                        : kk.Status === "None" || kk.Status === "Ditolak"
+                          ? "#6C757D"
+                          : "#6C757D", // default to grey if status is not recognized
                 }}
               >
                 {kk.Nama}
@@ -71,6 +71,7 @@ function CardPengajuan({ data, onChangePage, isShow }) {
                     WebkitLineClamp: 3,
                     WebkitBoxOrient: "vertical",
                     overflow: "hidden",
+                    textAlign: "justify"
                   }}
                 >
                   {kk.Desc}

@@ -219,7 +219,7 @@ export default function KKAdd({ onChangePage }) {
                   />
                 </div>
                 <div className="col-lg-6">
-                  <DropDown
+                  <Select2Dropdown
                     forInput="personInCharge"
                     label="PIC Kelompok Keahlian"
                     arrData={listKaryawan}
@@ -228,17 +228,6 @@ export default function KKAdd({ onChangePage }) {
                     errorMessage={errors.personInCharge}
                   />
                 </div>
-                {/* <div className="col-lg-6">
-                  <Select2Dropdown
-                    forInput="programStudi"
-                    label="Program Studi"
-                    arrData={listProdi}
-                    isRequired
-                    value={formDataRef.current.programStudi}
-                    onChange={handleInputChange}
-                    errorMessage={errors.programStudi}
-                  />
-                </div> */}
               </div>
             </div>
           </div>
