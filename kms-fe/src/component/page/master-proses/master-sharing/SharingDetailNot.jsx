@@ -123,7 +123,7 @@ export default function MasterSharingDetailNot({ onChangePage }) {
                     });
                 } else {
                     // Ambil data terbaru dari server setelah disimpan
-                    return UseFetch(API_LINK + "Materis/GetDataMateriByID", {
+                    return UseFetch(API_LINK + "Materis/GetDataMateriById", {
                         p1: formDataRef.current.mat_id,
                     });
                 }

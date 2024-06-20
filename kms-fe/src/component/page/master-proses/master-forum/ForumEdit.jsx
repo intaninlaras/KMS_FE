@@ -24,6 +24,7 @@ export default function MasterForumEdit({ onChangePage }) {
   const [formData, setFormData] = useState({
     forumJudul: "",
     forumIsi: "",
+    // modifBY:"ika",
   });
   const [forumDataExists, setForumDataExists] = useState(false);
   const Materi = AppContext_test.DetailMateriEdit;
@@ -93,6 +94,7 @@ export default function MasterForumEdit({ onChangePage }) {
         p1: Materi.Key,
         p2: formData.forumJudul,
         p3: formData.forumIsi,
+        p4: 'ika',
       });
 
       if (response.status === 200) {
