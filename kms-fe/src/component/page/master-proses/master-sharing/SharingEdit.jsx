@@ -207,7 +207,7 @@ export default function MasterSharingAdd({ onChangePage }) {
             ) : (
               <Alert type="warning" message={(
                 <span>
-                  Data Sharing Expert belum ditambahkan. <a onClick={() => onChangePage("sharingDetailNot")} className="text-primary">Tambah Data</a>
+                  Data Sharing Expert belum ditambahkan. <a onClick={() => onChangePage("sharingEditNot")} className="text-primary">Tambah Data</a>
                 </span>
               )} />
             )}

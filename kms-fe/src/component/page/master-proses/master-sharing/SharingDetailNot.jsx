@@ -12,18 +12,19 @@ import { Stepper } from 'react-form-stepper';
 import AppContext_test from "../MasterContext";
 import uploadFile from "../../../util/UploadFile";
 
-export default function MasterSharingAddNot({ onChangePage }) {
+export default function MasterSharingDetailNot({ onChangePage }) {
   const [errors, setErrors] = useState({});
   const [isError, setIsError] = useState({ error: false, message: "" });
   const [isLoading, setIsLoading] = useState(false);
 
   const fileInputRef = useRef(null);
   const vidioInputRef = useRef(null);
+  console.log(AppContext_test.DetailMateri)
   // AppContext_test.ForumForm
   const formDataRef = useRef({
-    mat_id: AppContext_test.DetailMateriEdit?.Key || "",
-    mat_sharing_expert_pdf: AppContext_test.DetailMateriEdit?.Sharing_pdf||"",
-    mat_sharing_expert_video: AppContext_test.DetailMateriEdit?.Sharing_video||"",
+    mat_id: AppContext_test.DetailMateri?.Key || "",
+    mat_sharing_expert_pdf: AppContext_test.DetailMateri?.Sharing_pdf||"",
+    mat_sharing_expert_video: AppContext_test.DetailMateri?.Sharing_video||"",
   });
   // console.log("Materi Form di sahring", AppContext_test.MateriForm)
   const userSchema = object({

@@ -966,7 +966,7 @@ export default function MasterPreTestEdit({ onChangePage,withID}) {
                     <Button
                         classType="dark ms-3 px-4 py-2"
                         label="Berikutnya"
-                        onClick={() => onChangePage("materiEdit", book.Key)}
+                        onClick={() => onChangePage("sharingEdit")}
                     />
                 </div>
             </form>
