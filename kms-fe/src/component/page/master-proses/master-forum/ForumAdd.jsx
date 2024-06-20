@@ -7,8 +7,8 @@ import Input from "../../../part/Input";
 import Loading from "../../../part/Loading";
 import Alert from "../../../part/Alert";
 import { Stepper } from 'react-form-stepper';
-import UseFetch from "../../../util/UseFetch";  
-import { API_LINK } from "../../../util/Constants";  
+import UseFetch from "../../../util/UseFetch";
+import { API_LINK } from "../../../util/Constants";
 import AppContext_test from "../MasterContext";
 import { Editor } from '@tinymce/tinymce-react';
 
@@ -21,6 +21,7 @@ export default function MasterForumAdd({ onChangePage }) {
   const [errors, setErrors] = useState({});
   const [isError, setIsError] = useState({ error: false, message: "" });
   const [isLoading, setIsLoading] = useState(false);
+  const [isFormDisabled, setIsFormDisabled] = useState(false);
   const [formData, setFormData] = useState({
     materiId: AppContext_test.dataIDMateri,
     karyawanId: "040",
@@ -84,6 +85,8 @@ export default function MasterForumAdd({ onChangePage }) {
         setIsError({ error: true, message: "Terjadi kesalahan: Gagal menyimpan data Sharing." });
       } else {
         SweetAlert("Sukses", "Data Forum berhasil disimpan", "success");
+        setIsFormDisabled(true);
+        AppContext_test.formSavedForum = true;
         // onChangePage("index", kategori);
       }
     } catch (error) {
@@ -94,6 +97,16 @@ export default function MasterForumAdd({ onChangePage }) {
       setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (AppContext_test.ForumForm && AppContext_test.ForumForm.current && Object.keys(AppContext_test.ForumForm.current).length > 0) {
+      formData.current = { ...formData.current, ...AppContext_test.ForumForm.current };
+    }
+
+    if (AppContext_test.formSavedForum === false) {
+      setIsFormDisabled(false);
+    }
+  }, [AppContext_test.ForumForm, AppContext_test.formSavedForum]);
 
   if (isLoading) return <Loading />;
 
@@ -114,7 +127,7 @@ export default function MasterForumAdd({ onChangePage }) {
               { label: 'Forum', onClick: () => onChangePage("forumAdd") },
               { label: 'Post Test', onClick: () => onChangePage("posttestAdd") }
             ]}
-            activeStep={3} 
+            activeStep={3}
             styleConfig={{
               activeBgColor: '#67ACE9',
               activeTextColor: '#FFFFFF',
@@ -153,10 +166,11 @@ export default function MasterForumAdd({ onChangePage }) {
                   value={formData.forumJudul}
                   onChange={handleInputChange}
                   errorMessage={errors.forumJudul}
-                  isRequired 
+                  isRequired
+                  disabled={isFormDisabled } 
                 />
               </div>
-              <div className="col-lg-16">
+              <div className="col-lg-12">
                 <div className="form-group">
                   <label htmlFor="forumIsi" className="form-label fw-bold">
                     Isi Forum <span style={{ color: 'Red' }}> *</span>
@@ -179,6 +193,7 @@ export default function MasterForumAdd({ onChangePage }) {
                         alignleft aligncenter alignright alignjustify | \
                         bullist numlist outdent indent | removeformat | help'
                     }}
+                    disabled={isFormDisabled} 
                   />
                   {errors.forumIsi && (
                     <div className="invalid-feedback">{errors.forumIsi}</div>
@@ -192,7 +207,6 @@ export default function MasterForumAdd({ onChangePage }) {
           <Button
             classType="outline-secondary me-2 px-4 py-2"
             label="Kembali"
-            // onClick={() => onChangePage("sharingAdd")}
             onClick={() => onChangePage("sharingAdd", AppContext_test.ForumForm = formData)}
           />
           <Button

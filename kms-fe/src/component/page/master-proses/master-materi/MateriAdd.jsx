@@ -155,11 +155,12 @@ export default function MasterCourseAdd({ onChangePage }) {
         axios.post(API_LINK + "Materis/SaveDataMateri", formDataRef.current)
           .then(response => {
             const data = response.data;
+            console.log("materiAdd ", data)
             if (data[0].hasil === "OK") {
               AppContext_test.dataIDMateri = data[0].newID;
               SweetAlert("Sukses", "Data Materi berhasil disimpan", "success");
               setIsFormDisabled(true);
-              AppContext_test.formSaved = true; 
+              AppContext_test.formSavedMateri = true; 
             } else {
               setIsError(prevError => ({
                 ...prevError,
@@ -225,52 +226,51 @@ const fetchDataKategori = async (retries = 3, delay = 1000) => {
 
   
 
-  useEffect(() => {
-    let isMounted = true;
-  
-    const fetchData = async () => {
-      setIsError({ error: false, message: '' });
-      setIsLoading(true);
-      try {
-        const data = await fetchDataKategori();
-        if (isMounted) {
-          setListKategori(data);
-        }
-      } catch (error) {
-        if (isMounted) {
-          setIsError({ error: true, message: error.message });
-          setListKategori([]);
-        }
-      } finally {
-        if (isMounted) {
-          setIsLoading(false);
-        }
+useEffect(() => {
+  let isMounted = true;
+
+  const fetchData = async () => {
+    setIsError({ error: false, message: '' });
+    setIsLoading(true);
+    try {
+      const data = await fetchDataKategori();
+      if (isMounted) {
+        setListKategori(data);
       }
-    };
-  
-    fetchData();
-  
-    return () => {
-      isMounted = false;
-    };
-  }, [kategori]);
-  
-  useEffect(() => {
-    if (AppContext_test.MateriForm && AppContext_test.MateriForm.current && Object.keys(AppContext_test.MateriForm.current).length > 0) {
-      formDataRef.current = { ...formDataRef.current, ...AppContext_test.MateriForm.current };
+    } catch (error) {
+      if (isMounted) {
+        setIsError({ error: true, message: error.message });
+        setListKategori([]);
+      }
+    } finally {
+      if (isMounted) {
+        setIsLoading(false);
+      }
     }
-  
-    // if (AppContext_test.formSaved === false) {
-    //   setIsFormDisabled(false);
-    // , AppContext_test.formSaved
-    // }
-  }, [AppContext_test.MateriForm]);
-  
-  
-  // Render form
-  const dataSaved = AppContext_test.formSaved; // Menyimpan nilai AppContext_test.formSaved untuk menentukan apakah form harus di-disable atau tidak
-  
-  if (isLoading) return <Loading />;
+  };
+
+  fetchData();
+
+  return () => {
+    isMounted = false;
+  };
+}, [kategori]);
+
+useEffect(() => {
+  if (AppContext_test.MateriForm && AppContext_test.MateriForm.current && Object.keys(AppContext_test.MateriForm.current).length > 0) {
+    formDataRef.current = { ...formDataRef.current, ...AppContext_test.MateriForm.current };
+  }
+
+  if (AppContext_test.formSavedMateri === false) {
+    setIsFormDisabled(false);
+  }
+}, [AppContext_test.MateriForm, AppContext_test.formSavedMateri]);
+
+// Render form
+const dataSaved = AppContext_test.formSavedMateri; // Menyimpan nilai AppContext_test.formSavedMateri untuk menentukan apakah form harus di-disable atau tidak
+
+if (isLoading) return <Loading />;
+
   
   return (
     <>
@@ -325,7 +325,7 @@ const fetchDataKategori = async (retries = 3, delay = 1000) => {
                 <Input
                   type="text"
                   forInput="namaKK"
-                  label="Nama KK"
+                  label="Kelompok Keahlian"
                   value={listKategori.find((item) => item.value === formDataRef.current.kat_id)?.namaKK || ""}
                   disabled
                   errorMessage={errors.namaKK}

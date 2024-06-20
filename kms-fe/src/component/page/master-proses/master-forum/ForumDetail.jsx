@@ -6,10 +6,11 @@ import AppContext_test from "../MasterContext";
 import { API_LINK } from "../../../util/Constants"; 
 import Alert from "../../../part/Alert";
 
-export default function DetailForum({ onChangePage, withID }) {
+export default function MasterDetailForum({ onChangePage }) {
   const [forumData, setForumData] = useState(null);
   const [isError, setIsError] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const Materi = AppContext_test.DetailMateri;
 
   useEffect(() => {
     const fetchData = async () => {
@@ -18,7 +19,7 @@ export default function DetailForum({ onChangePage, withID }) {
 
       try {
         const data = await UseFetch(API_LINK + "Forum/GetDataForumByMateri", {
-          p1: withID.Key
+          p1: Materi.Key
         });
 
         if (data === "ERROR") {
@@ -35,7 +36,7 @@ export default function DetailForum({ onChangePage, withID }) {
     };
 
     fetchData();
-  }, [withID]);
+  }, [Materi]);
 
   if (isLoading) {
     return <div>Loading...</div>;
@@ -111,10 +112,13 @@ export default function DetailForum({ onChangePage, withID }) {
               </div>
             </div>
           ) : (
-            // <div className="alert alert-warning" role="alert">
-            //   Data Forum belum ditambahkan
-            // </div>
-            <Alert type="info" message={"Data Forum belum ditambahkan"} />
+            <div className="card-body">
+              <Alert type="warning" message={(
+                <span>
+                  Data Forum belum ditambahkan. <a onClick={() => onChangePage("forumDetailNot")} className="text-primary">Tambah Data</a>
+                </span>
+              )} />
+            </div>
           )}
         </div>
       </div>
@@ -124,12 +128,12 @@ export default function DetailForum({ onChangePage, withID }) {
         <Button
           classType="btn btn-outline-secondary me-2 px-4 py-2"
           label="Kembali"
-          onClick={() => onChangePage("sharingDetail", AppContext_test.DetailMateri)}
+          onClick={() => onChangePage("sharingDetail")}
         />
         <Button
           classType="btn btn-dark ms-3 px-4 py-2"
           label="Berikutnya"
-          onClick={() => onChangePage("posttestDetail", AppContext_test.DetailMateri)}
+          onClick={() => onChangePage("posttestDetail")}
         />
       </div>
     </>

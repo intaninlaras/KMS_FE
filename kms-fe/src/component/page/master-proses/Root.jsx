@@ -11,11 +11,14 @@ import MasterMateriDetail from "./master-materi/MateriDetail";
 import MasterMateriReviewJawaban from "./master-materi/MateriReviewJawaban";
 // Sharing Expert
 import MasterSharingAdd from "./master-sharing/SharingAdd";
-import MasterSharingAddNot from "./master-sharing/SharingAddNot";
+import MasterSharingDetailNot from "./master-sharing/SharingDetailNot";
+import MasterSharingEditNot from "./master-sharing/SharingEditNot";
 import MasterSharingEdit from "./master-sharing/SharingEdit";
 import MasterSharingDetail from "./master-sharing/SharingDetail";
 // Forum
 import MasterForumAdd from "./master-forum/ForumAdd";
+import MasterForumDetailNot from "./master-forum/ForumDetailNot";
+import MasterForumEditNot from "./master-forum/ForumEditNot";
 import MasterForumEdit from "./master-forum/ForumEdit";
 import MasterForumDetail from "./master-forum/ForumDetail";
 // Post Test
@@ -74,8 +77,8 @@ export default function MasterProses() {
                 onChangePage={handleSetPageMode}
                 withID={dataID}
                />;
-      case "sharingAddNot":
-        return <MasterSharingAddNot 
+      case "sharingDetailNot":
+        return <MasterSharingDetailNot 
                 onChangePage={handleSetPageMode}
                 withID={dataID}
                />;
@@ -83,12 +86,25 @@ export default function MasterProses() {
         return <MasterSharingEdit 
                 onChangePage={handleSetPageMode}
                 withID={dataID}/>;
+      case "sharingEditNot":
+        return <MasterSharingEditNot 
+                onChangePage={handleSetPageMode}
+                withID={dataID}
+                />;
       case "sharingDetail":
         return <MasterSharingDetail 
                 onChangePage={handleSetPageMode} 
                 withID={dataID}/>;
       case "forumAdd":
         return <MasterForumAdd 
+                onChangePage={handleSetPageMode}
+                withID={dataID}/>;
+      case "forumDetailNot":
+        return <MasterForumDetailNot
+                onChangePage={handleSetPageMode}
+                withID={dataID}/>;
+      case "forumEditNot":
+        return <MasterForumEditNot
                 onChangePage={handleSetPageMode}
                 withID={dataID}/>;
       case "forumEdit":

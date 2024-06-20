@@ -31,7 +31,7 @@ export default function MasterCourseEdit({onChangePage}) {
   
   const kategori = AppContext_test.KategoriIdByKK;
   const Materi = AppContext_test.DetailMateriEdit;
-
+  console.log('deyail mat',Materi)
 
   console.log("kategori di materi: " + AppContext_test.KategoriIdByKK);
   const formDataRef = useRef({
@@ -197,10 +197,7 @@ useEffect(() => {
       });
     }
   };
-  
 
-  
-    
   if (isLoading) return <Loading />;
 
   return (
@@ -255,7 +252,7 @@ useEffect(() => {
               <Input
                 type="text"
                 forInput="namaKK"
-                label="Nama KK"
+                label="Kelompok Keahlian"
                 value={listKategori.find((item) => item.value === formDataRef.current.kat_id)?.namaKK || ""}
                 disabled
                 errorMessage={errors.namaKK}

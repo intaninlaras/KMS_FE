@@ -57,7 +57,6 @@ export default function MasterPreTestAdd({ onChangePage }) {
     setFormContent([...formContent, newQuestion]);
     setSelectedOptions([...selectedOptions, ""]);
   };
-
   const [formData, setFormData] = useState({
     materiId: AppContext_test.dataIDMateri,
     quizJudul: '',
@@ -158,9 +157,8 @@ export default function MasterPreTestAdd({ onChangePage }) {
   
     try {
       formData.timer = convertTimeToSeconds(timer)
-  
+  console.log(formData)
       const response = await axios.post(API_LINK + 'Quiz/SaveDataQuiz', formData);
-  
       if (response.data.length === 0) {
         Swal.fire({
           title: 'Gagal!',
@@ -184,7 +182,6 @@ export default function MasterPreTestAdd({ onChangePage }) {
           status: 'Aktif',
           quecreatedby: 'Admin',
         };
-  
         if (question.type === 'Essay' || question.type === 'Praktikum') {
           if (question.selectedFile) {
             try {

@@ -154,7 +154,8 @@ export default function MasterProsesIndex({ onChangePage }) {
                 //Mengosongkan isi form materi&forum
                 AppContext_test.MateriForm = "";
                 AppContext_test.ForumForm = "";
-                AppContext_test.formSaved = false; 
+                AppContext_test.formSavedMateri = false; 
+                AppContext_test.formSavedForum = false; 
                 const formattedData = data.map((value) => ({
                     ...value,
                 }));
@@ -173,7 +174,7 @@ export default function MasterProsesIndex({ onChangePage }) {
                             .then((blob) => {
                                 const url = URL.createObjectURL(blob);
                                 value.gbr = value.Gambar;
-                                value.Gambar = url;
+                                value.Gambar_url = url;
                                 return value;
                             })
                             .catch((error) => {
@@ -195,7 +196,7 @@ export default function MasterProsesIndex({ onChangePage }) {
                             .then((blob) => {
                                 const url = URL.createObjectURL(blob);
                                 value.vid = value.File_video;
-                                value.File_video = url;
+                                value.File_video_url = url;
                                 return value;
                             })
                             .catch((error) => {
@@ -217,7 +218,7 @@ export default function MasterProsesIndex({ onChangePage }) {
                             .then((blob) => {
                                 const url = URL.createObjectURL(blob);
                                 value.pdf = value.File_pdf;
-                                value.File_pdf = url;
+                                value.File_pdf_url = url;
                                 return value;
                             })
                             .catch((error) => {
@@ -238,7 +239,7 @@ export default function MasterProsesIndex({ onChangePage }) {
                             .then((response) => response.blob())
                             .then((blob) => {
                                 const url = URL.createObjectURL(blob);
-                                value.Sharing_pdf = url;
+                                value.Sharing_pdf_url = url;
                                 return value;
                             })
                             .catch((error) => {
@@ -259,7 +260,7 @@ export default function MasterProsesIndex({ onChangePage }) {
                             .then((response) => response.blob())
                             .then((blob) => {
                                 const url = URL.createObjectURL(blob);
-                                value.Sharing_video = url;
+                                value.Sharing_video_url = url;
                                 return value;
                             })
                             .catch((error) => {
