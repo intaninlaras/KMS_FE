@@ -199,30 +199,6 @@ export default function PengerjaanTest({ onChangePage, quizType, materiId }) {
   useEffect(() => {
   }, [AppContext_test.arrayAnswerQuiz]);
 
-  // const handleValueAnswer = (urutan, idSoal, answer, nilaiSelected, index, event) => {
-  //   setSelectedOption(answer);
-  //   const updatedAnswers = [...answers];
-  //   const submitAnswer = [...submittedAnswers];
-  //   const existingAnswerIndex = updatedAnswers.findIndex(ans => ans.idSoal === idSoal);
-  //   let isPilgan = null;
-  //   if (event != undefined || event != null){
-  //     isPilgan = event;
-  //     idSoal = index;
-  //   }
-
-  //   if (existingAnswerIndex !== -1) {
-  //     updatedAnswers[existingAnswerIndex] = { urutan, idSoal, answer, nilaiSelected };
-  //     submitAnswer[existingAnswerIndex] = { urutan, idSoal, isPilgan };
-  //   } else {
-  //     updatedAnswers.push({ urutan, idSoal, answer, nilaiSelected });
-  //     submitAnswer.push({ urutan, idSoal , isPilgan });
-  //   }
-  //   console.log(idSoal)
-
-  //   setAnswers(updatedAnswers);
-  //   setSubmittedAnswers(submitAnswer);
-  //   AppContext_test.indexTest = index;
-  // };
   const handleValueAnswer = (urutan, idSoal, answer, nilaiSelected, index, file, id_question) => {
     setSelectedOption(answer);
     const updatedAnswers = [...answers];
@@ -400,7 +376,9 @@ export default function PengerjaanTest({ onChangePage, quizType, materiId }) {
               <div key={key} className="mb-3" style={{ display: 'block', minWidth: '300px', marginRight: '20px' }}>
                 {/* Soal */}
                 <div className="mb-3">
-                  <h4 style={{ wordWrap: 'break-word', overflowWrap: 'break-word', textAlign:'justify' }}>{item.question}</h4>
+                  <h4 style={{ wordWrap: 'break-word', overflowWrap: 'break-word', textAlign:'justify' }}>
+                    <div dangerouslySetInnerHTML={{ __html: item.question }} /> 
+                  </h4>
                 </div>
 
                 {/* Jawaban */}

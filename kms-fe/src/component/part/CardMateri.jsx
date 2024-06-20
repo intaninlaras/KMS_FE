@@ -1,15 +1,16 @@
 import { useState } from "react";
 import Icon from "../part/Icon.jsx";
 import Button from "./Button.jsx";
-import AppContext_test from "../page/master-proses/MasterContext.jsx";
+import AppContext_master from "../page/master-proses/MasterContext.jsx";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser } from '@fortawesome/free-solid-svg-icons';
-
+import AppContext_test from "../page/master-test/TestContext.jsx";
 function CardMateri({ 
   materis, 
   onStatus,
   onEdit,
   onReviewJawaban,
+  onBacaMateri,
   onDetail,
   MAX_DESCRIPTION_LENGTH = 100,
   isNonEdit,
@@ -33,6 +34,8 @@ function CardMateri({
     AppContext_master.materiId = book.Key;
     // console.log(AppContext_test.materiId)
     onBacaMateri("pengenalan", true, book.Key, true);
+          console.log("hai", book)
+
   };
   const handleReviewJawaban = (book) => {
     AppContext_test.materiId = book.Key;
@@ -46,13 +49,14 @@ function CardMateri({
       {materis.map((book) => {
         if (book.Key == null) {
           return null;
+        
         }
         return (
           <div className="mt-4 col-lg-6" key={book.Key}>
             <div className="card" style={{ borderColor: "#67ACE9", height: "auto" }}>
             <div className="card-body d-flex align-items-start position-relative">
                 <img
-                  src={book.Gambar_url}
+                  src={book.Gambar}
                   alt="gambar"
                   style={{
                     width: "120px",
@@ -84,7 +88,7 @@ function CardMateri({
                   </div>
                   <div className="mb-1">
                     <FontAwesomeIcon icon={faUser} style={{ marginRight: "10px", color: "gray" }} />
-                    <span style={{ fontSize: "12px" }}> {book.Uploader} • {book.Creadate.slice(0, 10)}</span>
+                    <span style={{ fontSize: "12px" }}> {book.Uploader} • {book.Creadate?.slice(0, 10)}</span>
                   </div>
                   <div>
                     <p className="card-text p-0 m-0" style={{ fontSize: "12px", maxHeight: "75px", overflow: "hidden", textAlign: 'justify' }}>
