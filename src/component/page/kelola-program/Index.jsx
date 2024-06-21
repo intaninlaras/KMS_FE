@@ -479,6 +479,7 @@ export default function ProgramIndex({ onChangePage }) {
                                 onChangePage={onChangePage}
                                 onDelete={handleDelete}
                                 onChangeStatus={handleSetStatus}
+                                index={index + 1}
                               >
                                 {listKategoriProgram[0]?.Message ? (
                                   <Alert
@@ -491,18 +492,24 @@ export default function ProgramIndex({ onChangePage }) {
                                       Daftar Kategori Program
                                     </p>
                                     <div className="row row-cols-3">
-                                      {listKategoriProgram.map((kat) => (
-                                        <CardKategoriProgram
-                                          key={kat.id}
-                                          data={kat}
-                                          onChangePage={onChangePage}
-                                          onDelete={handleDeleteKategori}
-                                          onChangeStatus={handleSetStatusKategori}
-                                        />
-                                      ))}
+                                      {listKategoriProgram.map(
+                                        (kat, indexKat) => (
+                                          <CardKategoriProgram
+                                            key={kat.id}
+                                            data={kat}
+                                            onChangePage={onChangePage}
+                                            onDelete={handleDeleteKategori}
+                                            onChangeStatus={
+                                              handleSetStatusKategori
+                                            }
+                                            index={`${index + 1}-${
+                                              indexKat + 1
+                                            }`}
+                                          />
+                                        )
+                                      )}
                                     </div>
                                   </div>
-
                                 )}
                               </CardProgram>
                             </ScrollIntoView>

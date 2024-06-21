@@ -101,6 +101,7 @@ export default function KKIndex({ onChangePage }) {
             };
           });
           setCurrentData(formattedData);
+          console.log(formattedData);
           setIsLoading(false);
           break;
         }
@@ -158,7 +159,8 @@ export default function KKIndex({ onChangePage }) {
     else if (data.status === "Draft")
       message = "Apakah anda yakin ingin mempublikasikan data ini?";
     else if (data.status === "Aktif")
-      message = "Apakah anda yakin ingin <b>menonaktifkan</b> data ini? <b>Semua anggota keahlian akan dikeluarkan secara otomatis</b> jika data ini dinonaktifkan";
+      message =
+        "Apakah anda yakin ingin <b>menonaktifkan</b> data ini? <b>Semua anggota keahlian akan dikeluarkan secara otomatis</b> jika data ini dinonaktifkan";
     else if (data.status === "Tidak Aktif")
       message = "Apakah anda yakin ingin mengaktifkan data ini?";
 
@@ -174,11 +176,13 @@ export default function KKIndex({ onChangePage }) {
             else {
               let messageResponse;
               if (data[0].Status === "Menunggu") {
-                messageResponse = "Sukses! Data sudah dikirimkan ke Prodi. Menunggu Prodi menentukan PIC Kelompok Keahlian..";
+                messageResponse =
+                  "Sukses! Data sudah dikirimkan ke Prodi. Menunggu Prodi menentukan PIC Kelompok Keahlian..";
               } else if (data[0].Status === "Aktif") {
-                messageResponse = "Sukses! Data berhasil dipublikasi. PIC Kelompok Keahlian dapat menentukan kerangka Program Belajar..";
+                messageResponse =
+                  "Sukses! Data berhasil dipublikasi. PIC Kelompok Keahlian dapat menentukan kerangka Program Belajar..";
               }
-              SweetAlert("Sukses", messageResponse , "success");
+              SweetAlert("Sukses", messageResponse, "success");
               handleSetCurrentPage(currentFilter.page);
             }
           })
@@ -242,8 +246,8 @@ export default function KKIndex({ onChangePage }) {
                   {!currentFilter.status ? (
                     <div className="my-3">
                       <span className="badge fw-normal fs-6 text-dark-emphasis bg-primary-subtle">
-                        <Icon name="arrow-down" /> Data Aktif / Menunggu PIC dari
-                        Prodi
+                        <Icon name="arrow-down" /> Data Aktif / Menunggu PIC
+                        dari Prodi
                       </span>
                     </div>
                   ) : (

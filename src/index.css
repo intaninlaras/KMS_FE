@@ -21,11 +21,11 @@ dialog::backdrop {
 }
 
 .sidebarMenu {
-  width: 13vw;
+  width: 14vw;
 }
 
 .responsiveContainer {
-  margin-left: 13vw;
+  margin-left: 14vw;
 }
 
 @media only screen and (max-width: 1280px) {
@@ -84,7 +84,26 @@ dialog::backdrop {
               url('https://dpu.kulonprogokab.go.id/files/news/normal/3f93efb56e49de4098f0f5ef8ca356f0.png');
 }
 
+.card-background-trl::before {
+  background: linear-gradient(to left bottom, rgba(255, 255, 255, 1) 50%, rgba(255, 255, 255, 0)),
+              url('https://www.easyuni.co.id/media/uploads/2019/08/26/pengertian-logistik.webp');
+}
+
 .card-background > .card-content {
   position: relative;
   z-index: 1;
+}
+
+.card-legend {
+  margin-bottom: 120px;
+}
+
+.sidebarMenu {
+  display: flex;
+  flex-direction: column;
+}
+
+.flex-grow-1 {
+  flex-grow: 1;
+  padding-bottom: 20px;
 }

@@ -9,6 +9,7 @@ const Beranda = lazy(() => import("../page/beranda/Root"));
 const KelolaKK = lazy(() => import("../page/kelola-kelompok-keahlian/Root"));
 const AnggotaKK = lazy(() => import("../page/anggota-kelompok-keahlian/Root"));
 const Program = lazy(() => import("../page/kelola-program/Root"));
+const KKAdd = lazy(() => import("../page/kelola-kelompok-keahlian/Add"));
 
 const routeList = [
   {
@@ -18,6 +19,10 @@ const routeList = [
   {
     path: "/kelompok_keahlian",
     element: <KelolaKK />,
+  },
+  {
+    path: "/kelompok_keahlian/tambah",
+    element: <KKAdd />,
   },
   {
     path: "/anggota_kelompok_keahlian",

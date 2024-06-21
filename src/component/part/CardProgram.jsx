@@ -12,6 +12,7 @@ const CardProgram = ({
   onChangePage,
   onChangeStatus,
   onDelete,
+  index,
 }) => {
   const handleStatusChange = (data, status) => {
     onChangeStatus(data, status);
@@ -45,18 +46,23 @@ const CardProgram = ({
           isActive ? "align-items-center border-bottom border-primary" : ""
         }`}
       >
-        <p className="fw-medium mb-0" style={{ width: "15%", borderRight: "solid grey 1px", }}>
+        <p
+          className="fw-medium mb-0"
+          style={{ width: "20%", borderRight: "solid grey 1px" }}
+        >
+          {index}
+          {". "}
           {data["Nama Program"]}
         </p>
         <p
           className="mb-0 pe-3"
           style={{
-            width: "65%",
+            width: "60%",
             display: isActive ? "block" : "-webkit-box",
             WebkitLineClamp: 1,
             WebkitBoxOrient: "vertical",
             overflow: "hidden",
-            textAlign: "justify"
+            textAlign: "justify",
           }}
         >
           {data.Deskripsi}
