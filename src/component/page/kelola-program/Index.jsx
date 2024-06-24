@@ -78,7 +78,7 @@ export default function ProgramIndex({ onChangePage }) {
 
     try {
       while (true) {
-        let data = await UseFetch(API_LINK + "Program/GetProgramByKK", filter);
+        let data = await UseFetch(API_LINK + "Program/GetProgram", filter);
 
         if (data === "ERROR") {
           throw new Error("Terjadi kesalahan: Gagal mengambil data program.");

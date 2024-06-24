@@ -126,8 +126,8 @@ export default function MasterDaftarPustakaIndex({ onChangePage, withID }) {
           API_LINK + "Pustakas/GetDataPustaka",
           currentFilter
         );
-        
-        console.log(data)
+
+        console.log(data);
 
         if (data === "ERROR") {
           setIsError(true);
@@ -149,9 +149,9 @@ export default function MasterDaftarPustakaIndex({ onChangePage, withID }) {
             if (value["Gambar"]) {
               const gambarPromise = fetch(
                 API_LINK +
-                `Utilities/Upload/DownloadFile?namaFile=${encodeURIComponent(
-                  value["Gambar"]
-                )}`
+                  `Utilities/Upload/DownloadFile?namaFile=${encodeURIComponent(
+                    value["Gambar"]
+                  )}`
               )
                 .then((response) => response.blob())
                 .then((blob) => {
@@ -170,9 +170,9 @@ export default function MasterDaftarPustakaIndex({ onChangePage, withID }) {
             if (value["File"]) {
               const filePromise = fetch(
                 API_LINK +
-                `Utilities/Upload/DownloadFile?namaFile=${encodeURIComponent(
-                  value["File"]
-                )}`
+                  `Utilities/Upload/DownloadFile?namaFile=${encodeURIComponent(
+                    value["File"]
+                  )}`
               )
                 .then((response) => response.blob())
                 .then((blob) => {
@@ -342,7 +342,7 @@ export default function MasterDaftarPustakaIndex({ onChangePage, withID }) {
             )}
           </div>
         </div>
-      )};
+      )}
     </>
   );
 }

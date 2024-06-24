@@ -156,6 +156,13 @@ export default function KKAdd({ onChangePage }) {
     }
   };
 
+  useEffect(() => {
+    if (document.getElementById("spanMenuRoute")) {
+      document.getElementById("spanMenuRoute").innerHTML =
+        "<strong> - Tambah Data</strong>";
+    }
+  }, []);
+
   if (isLoading) return <Loading />;
 
   return (

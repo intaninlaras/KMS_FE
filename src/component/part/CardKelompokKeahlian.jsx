@@ -273,37 +273,10 @@ function CardKelompokKeahlian({
     );
   }
 
-  let backgroundProdi;
-  switch (data.prodi.key) {
-    case "1":
-      backgroundProdi = "card-background-p4";
-      break;
-    case "2":
-      backgroundProdi = "card-background-tpm";
-      break;
-    case "3":
-      backgroundProdi = "card-background-mi";
-      break;
-    case "4":
-      backgroundProdi = "card-background-mo";
-      break;
-    case "5":
-      backgroundProdi = "card-background-mk";
-      break;
-    case "10":
-      backgroundProdi = "card-background-tkbg";
-      break;
-    case "11":
-      backgroundProdi = "card-background-tab";
-      break;
-    case "12":
-      backgroundProdi = "card-background-trl";
-      break;
-  }
   return (
     <div className="col-md-6 mb-3" key={data.id}>
       <div
-        className={`card p-0 h-100 card-background ${backgroundProdi}`}
+        className="card p-0 h-100"
         style={{
           border: "",
           borderRadius: "10px",

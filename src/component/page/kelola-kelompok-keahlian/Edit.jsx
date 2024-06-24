@@ -107,7 +107,7 @@ export default function KKEdit({ onChangePage, withID }) {
           if (withID.pic.key) {
             setListKaryawan((prevList) => [
               ...prevList,
-              { Text: withID.pic.nama, Value: withID.pic.key }
+              { Text: withID.pic.nama, Value: withID.pic.key },
             ]);
           }
           setIsLoadingKaryawan(false);
@@ -201,6 +201,13 @@ export default function KKEdit({ onChangePage, withID }) {
         .then(() => setIsLoading(false));
     }
   };
+
+  useEffect(() => {
+    if (document.getElementById("spanMenuRoute")) {
+      document.getElementById("spanMenuRoute").innerHTML =
+        "<strong> - Ubah Data</strong>";
+    }
+  }, []);
 
   if (isLoading) return <Loading />;
 

@@ -73,7 +73,7 @@ export default function KKDetailPublish({ onChangePage, withID }) {
 
     try {
       while (true) {
-        let data = await UseFetch(API_LINK + "Program/GetProgramByKK", {
+        let data = await UseFetch(API_LINK + "Program/GetProgram", {
           page: 1,
           query: "",
           sort: "[Nama Program] ASC",
@@ -119,6 +119,13 @@ export default function KKDetailPublish({ onChangePage, withID }) {
     }
   }, [withID]);
 
+  useEffect(() => {
+    if (document.getElementById("spanMenuRoute")) {
+      document.getElementById("spanMenuRoute").innerHTML =
+        "<strong> - Detail</strong>";
+    }
+  }, []);
+
   if (isLoading) return <Loading />;
 
   return (
@@ -152,7 +159,9 @@ export default function KKDetailPublish({ onChangePage, withID }) {
                 <span>PIC : {formData.personInCharge}</span>
               </div>
               <hr className="mb-0" style={{ opacity: "0.2" }} />
-              <p className="py-3" style={{  textAlign: "justify" }}>{formData.deskripsi}</p>
+              <p className="py-3" style={{ textAlign: "justify" }}>
+                {formData.deskripsi}
+              </p>
             </div>
             <div className="col-lg-5">
               {listAnggota.length > 0 ? (

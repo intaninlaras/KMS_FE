@@ -31,6 +31,13 @@ export default function KKDetailDraft({ onChangePage, withID }) {
     }
   }, [withID]);
 
+  useEffect(() => {
+    if (document.getElementById("spanMenuRoute")) {
+      document.getElementById("spanMenuRoute").innerHTML =
+        "<strong> - Detail</strong>";
+    }
+  }, []);
+
   if (isLoading) return <Loading />;
 
   return (
