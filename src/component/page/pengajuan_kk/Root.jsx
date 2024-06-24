@@ -14,27 +14,15 @@ export default function PengajuanKKs() {
         return <PengajuanIndex onChangePage={handleSetPageMode} />;
       case "add":
         return (
-          <
-            PengajuanAdd
-            onChangePage={handleSetPageMode}
-            withID={dataID}
-          />
+          <PengajuanAdd onChangePage={handleSetPageMode} withID={dataID} />
         );
-      case "detail":
+      case "detailPengajuan":
         return (
-          <
-            PengajuanDetail
-            onChangePage={handleSetPageMode}
-            withID={dataID}
-          />
+          <PengajuanDetail onChangePage={handleSetPageMode} withID={dataID} />
         );
-        case "detailKK":
+      case "detailKK":
         return (
-          <
-            KKDetailPublish
-            onChangePage={handleSetPageMode}
-            withID={dataID}
-          />
+          <KKDetailPublish onChangePage={handleSetPageMode} withID={dataID} />
         );
     }
   }

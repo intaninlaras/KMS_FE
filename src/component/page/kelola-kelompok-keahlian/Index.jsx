@@ -10,6 +10,7 @@ import Filter from "../../part/Filter";
 import CardKK from "../../part/CardKelompokKeahlian";
 import Icon from "../../part/Icon";
 import Loading from "../../part/Loading";
+import Alert from "../../part/Alert";
 
 const dataFilterSort = [
   { Value: "[Nama Kelompok Keahlian] asc", Text: "Nama Kelompok Keahlian [↑]" },
@@ -21,6 +22,7 @@ const dataFilterSort = [
 
 const dataFilterStatus = [
   { Value: "", Text: "Semua" },
+  { Value: "Menunggu", Text: "Menunggu PIC Prodi" },
   { Value: "Draft", Text: "Draft" },
   { Value: "Aktif", Text: "Aktif" },
   { Value: "Tidak Aktif", Text: "Tidak Aktif" },
@@ -30,7 +32,6 @@ export default function KKIndex({ onChangePage }) {
   const [isError, setIsError] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [currentData, setCurrentData] = useState([]);
-  const [message, setMessage] = useState("");
   const [currentFilter, setCurrentFilter] = useState({
     page: 1,
     query: "",
@@ -72,11 +73,16 @@ export default function KKIndex({ onChangePage }) {
     try {
       while (true) {
         let data = await UseFetch(API_LINK + "KKs/GetDataKK", currentFilter);
-  
+
         if (data === "ERROR") {
-          throw new Error("Terjadi kesalahan: Gagal mengambil daftar Kelompok Keahlian.");
+          throw new Error(
+            "Terjadi kesalahan: Gagal mengambil daftar Kelompok Keahlian."
+          );
         } else if (data.length === 0) {
-          await new Promise(resolve => setTimeout(resolve, 2000));
+          await new Promise((resolve) => setTimeout(resolve, 2000));
+        } else if (data === "data kosong") {
+          setCurrentData(data);
+          break;
         } else {
           const formattedData = data.map((value) => {
             return {
@@ -95,11 +101,12 @@ export default function KKIndex({ onChangePage }) {
             };
           });
           setCurrentData(formattedData);
+          console.log(formattedData);
           setIsLoading(false);
           break;
         }
       }
-    } catch(e) {
+    } catch (e) {
       setIsLoading(true);
       console.log(e.message);
       setIsError((prevError) => ({
@@ -108,28 +115,24 @@ export default function KKIndex({ onChangePage }) {
         message: e.message,
       }));
     }
-  }
+  };
 
   useEffect(() => {
     getListKK();
   }, [currentFilter]);
 
-  useEffect(() => {
-    console.log(currentData);
-  }, [currentData]);
-
   // DELETE PERMANEN DATA DRAFT
   function handleDelete(id) {
-    setIsLoading(true);
     setIsError(false);
 
     SweetAlert(
       "Konfirmasi Hapus",
-      "Anda yakin ingin menghapus permanen data ini?",
+      "Anda yakin ingin <b>menghapus permanen</b> data ini?",
       "warning",
       "Hapus"
     ).then((confirm) => {
       if (confirm) {
+        setIsLoading(true);
         UseFetch(API_LINK + "KKs/DeleteKK", {
           idKK: id,
         })
@@ -141,15 +144,12 @@ export default function KKIndex({ onChangePage }) {
             }
           })
           .then(() => setIsLoading(false));
-      } else {
-        console.log("Penghapusan dibatalkan.");
       }
     });
   }
 
   // MENGUBAH STATUS
   function handleSetStatus(data, status) {
-    setIsLoading(true);
     setIsError(false);
 
     let message;
@@ -159,155 +159,159 @@ export default function KKIndex({ onChangePage }) {
     else if (data.status === "Draft")
       message = "Apakah anda yakin ingin mempublikasikan data ini?";
     else if (data.status === "Aktif")
-      message = "Apakah anda yakin ingin menonaktifkan data ini?";
+      message =
+        "Apakah anda yakin ingin <b>menonaktifkan</b> data ini? <b>Semua anggota keahlian akan dikeluarkan secara otomatis</b> jika data ini dinonaktifkan";
     else if (data.status === "Tidak Aktif")
       message = "Apakah anda yakin ingin mengaktifkan data ini?";
 
-    setMessage(message);
-
     SweetAlert("Konfirmasi", message, "info", "Ya").then((confirm) => {
       if (confirm) {
+        setIsLoading(true);
         UseFetch(API_LINK + "KKs/SetStatusKK", {
-          idProduk: data.id,
+          idKK: data.id,
           status: status,
         })
           .then((data) => {
             if (data === "ERROR" || data.length === 0) setIsError(true);
             else {
-              let message;
-              if (data === "Menunggu") {
-                message =
+              let messageResponse;
+              if (data[0].Status === "Menunggu") {
+                messageResponse =
                   "Sukses! Data sudah dikirimkan ke Prodi. Menunggu Prodi menentukan PIC Kelompok Keahlian..";
-              } else if (data === "Aktif") {
-                message =
+              } else if (data[0].Status === "Aktif") {
+                messageResponse =
                   "Sukses! Data berhasil dipublikasi. PIC Kelompok Keahlian dapat menentukan kerangka Program Belajar..";
               }
-              setMessage(message);
-              SweetAlert("Sukses", { message }, "success");
+              SweetAlert("Sukses", messageResponse, "success");
               handleSetCurrentPage(currentFilter.page);
             }
           })
           .then(() => setIsLoading(false));
-      } else {
-        console.log("Konfirmasi dibatalkan.");
       }
     });
   }
 
   return (
     <>
-    {isLoading ? (
+      {isLoading ? (
         <Loading />
       ) : (
-      <div className="d-flex flex-column">
-        <div className="flex-fill">
-          <div className="input-group">
-            <Button
-              iconName="add"
-              classType="success"
-              label="Tambah"
-              onClick={() => onChangePage("add")}
-            />
-            <Input
-              ref={searchQuery}
-              forInput="pencarianProduk"
-              placeholder="Cari"
-            />
-            <Button
-              iconName="search"
-              classType="primary px-4"
-              title="Cari"
-              onClick={handleSearch}
-            />
-            <Filter>
-              <DropDown
-                ref={searchFilterSort}
-                forInput="ddUrut"
-                label="Urut Berdasarkan"
-                type="none"
-                arrData={dataFilterSort}
-                defaultValue="[Nama Kelompok Keahlian] asc"
+        <div className="d-flex flex-column">
+          <div className="flex-fill">
+            <div className="input-group">
+              <Button
+                iconName="add"
+                classType="success"
+                label="Tambah"
+                onClick={() => onChangePage("add")}
               />
-              <DropDown
-                ref={searchFilterStatus}
-                forInput="ddStatus"
-                label="Status"
-                type="none"
-                arrData={dataFilterStatus}
-                defaultValue=""
+              <Input
+                ref={searchQuery}
+                forInput="pencarianProduk"
+                placeholder="Cari"
               />
-            </Filter>
-          </div>
-          <div className="container">
-            <div className="row mt-3 gx-4">
-              {!currentFilter.status ? (
-                <div className="my-3">
-                  <span class="badge fw-normal fs-6 text-dark-emphasis bg-primary-subtle">
-                    <Icon name="arrow-down" /> Data Aktif / Menunggu PIC dari
-                    Prodi
-                  </span>
-                </div>
+              <Button
+                iconName="search"
+                classType="primary px-4"
+                title="Cari"
+                onClick={handleSearch}
+              />
+              <Filter>
+                <DropDown
+                  ref={searchFilterSort}
+                  forInput="ddUrut"
+                  label="Urut Berdasarkan"
+                  type="none"
+                  arrData={dataFilterSort}
+                  defaultValue="[Nama Kelompok Keahlian] asc"
+                />
+                <DropDown
+                  ref={searchFilterStatus}
+                  forInput="ddStatus"
+                  label="Status"
+                  type="none"
+                  arrData={dataFilterStatus}
+                  defaultValue=""
+                />
+              </Filter>
+            </div>
+            <div className="container">
+              {currentData[0].Message ? (
+                <Alert
+                  type="warning mt-3"
+                  message="Tidak ada data! Silahkan klik tombol tambah kelompok keahlian diatas.."
+                />
               ) : (
-                ""
-              )}
-              {currentData
-                .filter((value) => {
-                  return (
-                    value.config.footer != "Draft" &&
-                    value.config.footer != "Menunggu"
-                  );
-                })
-                .map((value) => (
-                  <CardKK
-                    key={value.data.id}
-                    config={value.config}
-                    data={value.data}
-                    onChangePage={onChangePage}
-                    onChangeStatus={handleSetStatus}
-                  />
-                ))}
-              {currentData
-                .filter((value) => {
-                  return value.config.footer === "Menunggu";
-                })
-                .map((value) => (
-                  <CardKK
-                    key={value.data.id}
-                    config={value.config}
-                    data={value.data}
-                    onChangePage={onChangePage}
-                  />
-                ))}
+                <div className="row mt-3 gx-4">
+                  {!currentFilter.status ? (
+                    <div className="my-3">
+                      <span className="badge fw-normal fs-6 text-dark-emphasis bg-primary-subtle">
+                        <Icon name="arrow-down" /> Data Aktif / Menunggu PIC
+                        dari Prodi
+                      </span>
+                    </div>
+                  ) : (
+                    ""
+                  )}
+                  {currentData
+                    .filter((value) => {
+                      return (
+                        value.config.footer != "Draft" &&
+                        value.config.footer != "Menunggu"
+                      );
+                    })
+                    .map((value) => (
+                      <CardKK
+                        key={value.data.id}
+                        config={value.config}
+                        data={value.data}
+                        onChangePage={onChangePage}
+                        onChangeStatus={handleSetStatus}
+                      />
+                    ))}
+                  {currentData
+                    .filter((value) => {
+                      return value.config.footer === "Menunggu";
+                    })
+                    .map((value) => (
+                      <CardKK
+                        key={value.data.id}
+                        config={value.config}
+                        data={value.data}
+                        onChangePage={onChangePage}
+                      />
+                    ))}
 
-              {!currentFilter.status ? (
-                <div className="my-3">
-                  <span class="badge fw-normal fs-6 text-dark-emphasis bg-dark-subtle">
-                    <Icon name="arrow-down" /> Data Draft / Belum dikirimkan ke
-                    Prodi / Belum dipublikasi
-                  </span>
+                  {!currentFilter.status ? (
+                    <div className="my-3">
+                      <span className="badge fw-normal fs-6 text-dark-emphasis bg-dark-subtle">
+                        <Icon name="arrow-down" /> Data Draft / Belum dikirimkan
+                        ke Prodi / Belum dipublikasi
+                      </span>
+                    </div>
+                  ) : (
+                    ""
+                  )}
+                  {currentData
+                    .filter((value) => {
+                      return value.config.footer === "Draft";
+                    })
+                    .map((value) => (
+                      <CardKK
+                        key={value.data.id}
+                        config={value.config}
+                        data={value.data}
+                        onChangePage={onChangePage}
+                        onDelete={handleDelete}
+                        onChangeStatus={handleSetStatus}
+                      />
+                    ))}
                 </div>
-              ) : (
-                ""
               )}
-              {currentData
-                .filter((value) => {
-                  return value.config.footer === "Draft";
-                })
-                .map((value) => (
-                  <CardKK
-                    key={value.data.id}
-                    config={value.config}
-                    data={value.data}
-                    onChangePage={onChangePage}
-                    onDelete={handleDelete}
-                    onChangeStatus={handleSetStatus}
-                  />
-                ))}
             </div>
           </div>
         </div>
-      </div> 
-    )}
+      )}
     </>
   );
 }

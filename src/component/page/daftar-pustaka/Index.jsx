@@ -1,11 +1,6 @@
 import { useEffect, useRef, useState } from "react";
-// import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-// import { faUser } from "@fortawesome/free-solid-svg-icons";
-// import Image from "../../../assets/images.jpg";
 import Button from "../../part/Button";
 import Input from "../../part/Input";
-import Table from "../../part/Table";
-import Paging from "../../part/Paging";
 import axios from "axios";
 import Filter from "../../part/Filter";
 import DropDown from "../../part/Dropdown";
@@ -40,24 +35,18 @@ export default function MasterDaftarPustakaIndex({ onChangePage, withID }) {
   let activeUser = "";
   const cookie = Cookies.get("activeUser");
   if (cookie) activeUser = JSON.parse(decryptId(cookie)).username;
-  // console.log(activeUser);
-  // console.log("ID: "+withID);
-  // const buttonLabel = withMenu === "kelola" ? "Tambah" : "Kelola";
-  const [isLoading, setIsLoading] = useState(true);
+
   const [isError, setIsError] = useState(false);
-  const [currentData, setCurrentData] = useState(inisialisasiData);
+  const [isLoading, setIsLoading] = useState(false);
+  const [currentData, setCurrentData] = useState([]);
   const [listKK, setListKK] = useState([]);
   const [currentFilter, setCurrentFilter] = useState({
     page: 1,
     query: "",
     status: "Aktif",
-    sort: "Judul ASC",
+    sort: "[Judul] ASC",
     kk: "",
   });
-
-  useEffect(() => {
-    console.log("filter : "+JSON.stringify(currentFilter));
-  })
 
   const searchQuery = useRef();
   const searchFilterSort = useRef();
@@ -67,13 +56,6 @@ export default function MasterDaftarPustakaIndex({ onChangePage, withID }) {
   const dataFilterSort = [
     { Value: "[Judul] ASC", Text: "Judul Pustaka [↑]" },
     { Value: "[Judul] DESC", Text: "Judul Pustaka [↓]" },
-  ];
-
-  const dataFilterKeke = [
-    { Value: "Pemrograman", Text: "Pemrograman" },
-    { Value: "Data Analyst", Text: "Data Analyst" },
-    { Value: "Perangkat Lunak", Text: "Perangkat Lunak" },
-    { Value: "Lainnya", Text: "Lainnya" },
   ];
 
   const dataFilterStatus = [
@@ -107,13 +89,12 @@ export default function MasterDaftarPustakaIndex({ onChangePage, withID }) {
 
   function handleSetStatus(id) {
     setIsError(false);
-    console.log("Index ID: " + id);
 
     SweetAlert(
       "Konfirmasi",
       "Apakah Anda yakin ingin mengubah status data Pustaka?",
       "warning",
-      "Ya",
+      "Ya"
     ).then((confirmed) => {
       if (confirmed) {
         UseFetch(API_LINK + "Pustakas/SetStatusPustaka", {
@@ -131,34 +112,36 @@ export default function MasterDaftarPustakaIndex({ onChangePage, withID }) {
             }
           })
           .then(() => setIsLoading(false));
-      } else {
-        console.log("Operasi dibatalkan.");
       }
     });
   }
 
-  useEffect(() => {
-    const fetchData = async () => {
-      setIsError(false);
-      setIsLoading(true);
+  const getListPustaka = async () => {
+    setIsLoading(true);
+    setIsError(false);
 
-      // console.log("Filter: " + JSON.stringify(currentFilter));
-      try {
-        const data = await UseFetch(
+    try {
+      while (true) {
+        let data = await UseFetch(
           API_LINK + "Pustakas/GetDataPustaka",
           currentFilter
         );
-        // console.log("Fetched data:", data);
+        
+        console.log(data)
 
         if (data === "ERROR") {
           setIsError(true);
         } else if (data.length === 0) {
-          setCurrentData(inisialisasiData);
+          setIsLoading(true);
+          await new Promise((resolve) => setTimeout(resolve, 2000));
+        } else if (data === "data kosong") {
+          setCurrentData([]);
+          setIsLoading(false);
+          break;
         } else {
           const formattedData = data.map((value) => ({
             ...value,
           }));
-          // console.log("Formatted data:", formattedData);
 
           const promises = formattedData.map((value) => {
             const filePromises = [];
@@ -173,11 +156,9 @@ export default function MasterDaftarPustakaIndex({ onChangePage, withID }) {
                 .then((response) => response.blob())
                 .then((blob) => {
                   const url = URL.createObjectURL(blob);
-                  // console.log("Gambar URL:", url);
                   value.gbr = value.Gambar;
-                  value.Gambar = url; // Simpan URL blob di objek value
+                  value.Gambar = url;
                   return value;
-                  // return { ...value, Gambar: url };
                 })
                 .catch((error) => {
                   console.error("Error fetching gambar:", error);
@@ -196,11 +177,9 @@ export default function MasterDaftarPustakaIndex({ onChangePage, withID }) {
                 .then((response) => response.blob())
                 .then((blob) => {
                   const url = URL.createObjectURL(blob);
-                  // console.log("File URL:", url);
                   value.fls = value.File;
                   value.File = url;
                   return value;
-                  // return { ...value, File: url };
                 })
                 .catch((error) => {
                   console.error("Error fetching file:", error);
@@ -210,41 +189,47 @@ export default function MasterDaftarPustakaIndex({ onChangePage, withID }) {
             }
 
             return Promise.all(filePromises).then((results) => {
-              // console.log("Contents of filePromises:", filePromises);
-              console.log("Results of fetching files:", results);
-              const updatedValue = results.reduce((acc, curr) => ({ ...acc, ...curr }), value);
-              // console.log("Updated value with blobs:", updatedValue);
+              const updatedValue = results.reduce(
+                (acc, curr) => ({ ...acc, ...curr }),
+                value
+              );
               return updatedValue;
             });
-
           });
 
           Promise.all(promises)
             .then((updatedData) => {
-              console.log("Updated data with blobs:", updatedData);
               setCurrentData(updatedData);
             })
             .catch((error) => {
-              // console.error("Error updating currentData:", error);
+              console.error("Error updating currentData:", error);
             });
         }
-      } catch (error) {
-        setIsError(true);
-        console.error("Fetch error:", error);
-      } finally {
         setIsLoading(false);
+        break;
       }
-    };
+    } catch (error) {
+      setIsError(true);
+      console.error("Fetch error:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-    fetchData();
+  useEffect(() => {
+    getListPustaka();
   }, [currentFilter]);
 
   useEffect(() => {
-    const fetchDataKK = async () => {
-      setIsError((prevError) => ({ ...prevError, error: false }));
+    if (currentData.length === 0) setIsLoading(true);
+  }, [currentData]);
 
-      try {
-        const data = await UseFetch(API_LINK + "KKs/GetDataKK", {
+  const getListKK = async () => {
+    setIsError(false);
+
+    try {
+      while (true) {
+        let data = await UseFetch(API_LINK + "KKs/GetDataKK", {
           page: 1,
           query: "",
           sort: "[Nama Kelompok Keahlian] asc",
@@ -252,96 +237,112 @@ export default function MasterDaftarPustakaIndex({ onChangePage, withID }) {
         });
 
         if (data === "ERROR") {
-          throw new Error("Terjadi kesalahan: Gagal mengambil daftar prodi.");
+          throw new Error(
+            "Terjadi kesalahan: Gagal mengambil daftar Kelompok Keahlian."
+          );
+        } else if (data.length === 0) {
+          await new Promise((resolve) => setTimeout(resolve, 2000));
+        } else if (data === "data kosong") {
+          setListKK(data);
+          break;
         } else {
-          // Mengubah data menjadi format yang diinginkan
-          const formattedData = data.map(item => ({
-            Value: item["Nama Kelompok Keahlian"],
-            Text: item["Nama Kelompok Keahlian"]
+          const formattedData = data.map((item) => ({
+            Value: item["Key"],
+            Text: item["Nama Kelompok Keahlian"],
           }));
           setListKK(formattedData);
+          break;
         }
-      } catch (error) {
-        setIsError((prevError) => ({
-          ...prevError,
-          error: true,
-          message: error.message,
-        }));
-        setListKK([]);
       }
-    };
+    } catch (e) {
+      console.log(e.message);
+      setIsError((prevError) => ({
+        ...prevError,
+        error: true,
+        message: e.message,
+      }));
+    }
+  };
 
-    fetchDataKK();
-
+  useEffect(() => {
+    getListKK();
+    getListPustaka();
   }, []);
 
   return (
     <>
-      <div className="d-flex flex-column">
-        {/* Tombol Tambah */}
-        <div className="flex-fill">
-          <div className="input-group">
-            <Button
-              iconName="add"
-              classType="success"
-              label={"Tambah"}
-              onClick={() => onChangePage("add")}
-            />
-            <Input
-              ref={searchQuery}
-              forInput="pencarianAlatMesin"
-              placeholder="Cari"
-            />
-            <Button
-              iconName="search"
-              classType="primary px-4"
-              title="Cari"
-              onClick={handleSearch}
-            />
-            <Filter>
-              <DropDown
-                ref={searchFilterSort}
-                forInput="ddUrut"
-                label="Urut Berdasarkan"
-                type="none"
-                arrData={dataFilterSort}
-                defaultValue="[Nama Alat/Mesin] asc"
+      {isLoading ? (
+        <Loading />
+      ) : (
+        <div className="d-flex flex-column">
+          {/* Tombol Tambah */}
+          <div className="flex-fill">
+            <div className="input-group">
+              <Button
+                iconName="add"
+                classType="success"
+                label={"Tambah"}
+                onClick={() => onChangePage("add")}
               />
-              <DropDown
-                ref={searchFilterKK}
-                forInput="ddJenis"
-                label="Kelompok Keahlian"
-                type="semua"
-                arrData={listKK}
-                defaultValue=""
+              <Input
+                ref={searchQuery}
+                forInput="pencarianAlatMesin"
+                placeholder="Cari"
               />
-              <DropDown
-                ref={searchFilterStatus}
-                forInput="ddStatus"
-                label="Status"
-                type="none"
-                arrData={dataFilterStatus}
-                defaultValue="Aktif"
+              <Button
+                iconName="search"
+                classType="primary px-4"
+                title="Cari"
+                onClick={handleSearch}
               />
-            </Filter>
-          </div>{isLoading ? (
-            <Loading />
-          ) : (
-            <div className="row" style={{
-              maxWidth: "100%"
-            }}>
-              {/* Mapping data buku untuk membuat komponen Card */}
-              <CardPustaka
-                pustakas={currentData}
-                onDetail={onChangePage}
-                onEdit={onChangePage}
-                uploader={activeUser}
-                onStatus={handleSetStatus}
-              />
+              <Filter>
+                <DropDown
+                  ref={searchFilterSort}
+                  forInput="ddUrut"
+                  label="Urut Berdasarkan"
+                  type="none"
+                  arrData={dataFilterSort}
+                  defaultValue="[Judul] ASC"
+                />
+                <DropDown
+                  ref={searchFilterKK}
+                  forInput="ddJenis"
+                  label="Kelompok Keahlian"
+                  type="semua"
+                  arrData={listKK}
+                  defaultValue=""
+                />
+                <DropDown
+                  ref={searchFilterStatus}
+                  forInput="ddStatus"
+                  label="Status"
+                  type="none"
+                  arrData={dataFilterStatus}
+                  defaultValue="Aktif"
+                />
+              </Filter>
             </div>
-          )}
+            {currentData.length === 0 || currentData[0].Message ? (
+              <Alert type="warning mt-3" message="Tidak ada data!" />
+            ) : (
+              <div
+                className="row"
+                style={{
+                  maxWidth: "100%",
+                }}
+              >
+                <CardPustaka
+                  pustakas={currentData}
+                  onDetail={onChangePage}
+                  onEdit={onChangePage}
+                  uploader={activeUser}
+                  onStatus={handleSetStatus}
+                />
+              </div>
+            )}
+          </div>
         </div>
-      </div>
+      )};
     </>
   );
 }

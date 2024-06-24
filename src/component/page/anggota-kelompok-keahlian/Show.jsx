@@ -185,19 +185,19 @@ export default function AnggotaDetail({ onChangePage, withID }) {
   }, [isLoadingProdi, isLoadingAnggota, isLoadingDosen]);
 
   const handleDelete = (id) => () => {
-    setIsLoading(true);
     setIsError(false);
-
+    
     SweetAlert(
       "Konfirmasi Hapus",
-      "Anda yakin ingin mengeluarkan anggota ini dari Keahlian?",
+      "Anda yakin ingin <b>mengeluarkan</b> anggota ini dari Keahlian?",
       "warning",
       "Ya"
-    ).then((confirm) => {
+      ).then((confirm) => {
       if (confirm) {
+        setIsLoading(true);
         UseFetch(API_LINK + "AnggotaKK/SetStatusAnggotaKK", {
           idAkk: id,
-          status: "Tidak Aktif",
+          status: "Dibatalkan",
         })
           .then((data) => {
             if (data === "ERROR" || data.length === 0) setIsError(true);
@@ -211,33 +211,42 @@ export default function AnggotaDetail({ onChangePage, withID }) {
             }
           })
           .finally(() => setIsLoading(false));
-      } else {
-        setIsLoading(false);
-        console.log("Penghapusan dibatalkan.");
       }
     });
   };
 
   const handleTambahAnggota = (id) => () => {
-    setIsLoading(true);
     setIsError(false);
-
-    UseFetch(API_LINK + "AnggotaKK/TambahAnggotaByPIC", {
-      idAkk: formDataRef.current.key,
-      kry: id,
-    })
-      .then((data) => {
-        if (data === "ERROR" || data.length === 0) setIsError(true);
-        else {
-          SweetAlert(
-            "Berhasil",
-            "Karyawan telah ditambahkan ke Anggota Keahlian.",
-            "success"
-          );
-          handleSetCurrentPage(currentFilter.page);
-        }
-      })
-      .finally(() => setIsLoading(false));
+    
+    SweetAlert(
+      "Konfirmasi Tambah",
+      "Anda yakin ingin menambahkan anggota ini dari Keahlian?",
+      "info",
+      "Ya"
+      ).then((confirm) => {
+      if (confirm) {
+        setIsLoading(true);
+        UseFetch(API_LINK + "AnggotaKK/TambahAnggotaByPIC", {
+          idAkk: formDataRef.current.key,
+          kry: id,
+        })
+          .then((data) => {
+            if (data === "ERROR" || data.length === 0) setIsError(true);
+            else {
+              SweetAlert(
+                "Berhasil",
+                "Karyawan telah ditambahkan ke Anggota Keahlian.",
+                "success"
+              );
+              handleSetCurrentPage(currentFilter.page);
+            }
+          })
+          .finally(() => setIsLoading(false));
+      } else {
+        setIsLoading(false);
+        console.log("Penghapusan dibatalkan.");
+      }
+    });
   };
 
   const handleProdiChange = (e) => {

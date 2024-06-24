@@ -273,10 +273,37 @@ function CardKelompokKeahlian({
     );
   }
 
+  let backgroundProdi;
+  switch (data.prodi.key) {
+    case "1":
+      backgroundProdi = "card-background-p4";
+      break;
+    case "2":
+      backgroundProdi = "card-background-tpm";
+      break;
+    case "3":
+      backgroundProdi = "card-background-mi";
+      break;
+    case "4":
+      backgroundProdi = "card-background-mo";
+      break;
+    case "5":
+      backgroundProdi = "card-background-mk";
+      break;
+    case "10":
+      backgroundProdi = "card-background-tkbg";
+      break;
+    case "11":
+      backgroundProdi = "card-background-tab";
+      break;
+    case "12":
+      backgroundProdi = "card-background-trl";
+      break;
+  }
   return (
     <div className="col-md-6 mb-3" key={data.id}>
       <div
-        className="card p-0 h-100"
+        className={`card p-0 h-100 card-background ${backgroundProdi}`}
         style={{
           border: "",
           borderRadius: "10px",
@@ -284,14 +311,14 @@ function CardKelompokKeahlian({
           borderBottomLeftRadius: "0",
         }}
       >
-        <div className="card-body p-0">
+        <div className="card-body p-0 card-content">
           <h5
             className="card-title text-white px-3 py-2"
             style={{
               borderTopRightRadius: "10px",
               borderTopLeftRadius: "10px",
               backgroundColor:
-                config.footer === "Draft" || config.footer === "Menunggu"
+                data.status === "Draft" || data.status === "Menunggu"
                   ? "#6c757d"
                   : "#67ACE9",
             }}
@@ -315,6 +342,7 @@ function CardKelompokKeahlian({
                 WebkitLineClamp: 3,
                 WebkitBoxOrient: "vertical",
                 overflow: "hidden",
+                textAlign: "justify",
               }}
             >
               {data.desc}

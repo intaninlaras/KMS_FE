@@ -44,12 +44,14 @@ export default function Login() {
   const handleAdd = async (e) => {
     e.preventDefault();
 
+    // Validate the form inputs
     const validationErrors = await validateAllInputs(
       formDataRef.current,
       userSchema,
       setErrors
     );
 
+    // If no validation errors, proceed with the login attempt
     if (Object.values(validationErrors).every((error) => !error)) {
       setIsLoading(true);
       setIsError((prevError) => {
@@ -58,16 +60,15 @@ export default function Login() {
       setErrors({});
 
       try {
-        const data = await UseFetch(
+        // Ensure the UseFetch function sends a POST request
+        let data = await UseFetch(
           API_LINK + "Utilities/Login",
           formDataRef.current
         );
 
-        if (data === "ERROR")
-          throw new Error("Terjadi kesalahan: Gagal melakukan autentikasi.");
-        else if (data.Status && data.Status === "LOGIN FAILED")
+        if (data[0].Status && data[0].Status === "LOGIN FAILED") {
           throw new Error("Nama akun atau kata sandi salah.");
-        else {
+        } else {
           setListRole(data);
           modalRef.current.open();
         }
@@ -125,12 +126,19 @@ export default function Login() {
           </div>
         </Modal>
         <form onSubmit={handleAdd}>
-          <header className="text-black py-3" style={{ borderBottom: "2px solid rgba(0, 0, 0, 0.1)", display: "flex", alignItems: "center" }}>
+          <header
+            className="text-black py-3"
+            style={{
+              borderBottom: "2px solid rgba(0, 0, 0, 0.1)",
+              display: "flex",
+              alignItems: "center",
+            }}
+          >
             <img
               src={logo}
               alt="Logo AstraTech"
               className="me-3"
-              style={{ width: "240px", height: "60px", marginLeft:"40px" }}
+              style={{ width: "240px", height: "60px", marginLeft: "40px" }}
             />
             {/* <h1 style={{ margin: 0 }}>{APPLICATION_NAME}</h1> */}
           </header>

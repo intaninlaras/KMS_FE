@@ -6,6 +6,7 @@ import SweetAlert from "../../util/SweetAlert";
 import UseFetch from "../../util/UseFetch";
 import Button from "../../part/Button";
 import DropDown from "../../part/Dropdown";
+import Select2Dropdown from "../../part/Select2Dropdown";
 import Input from "../../part/Input";
 import FileUpload from "../../part/FileUpload";
 import Loading from "../../part/Loading";
@@ -13,15 +14,7 @@ import Alert from "../../part/Alert";
 import { useNavigate } from "react-router-dom";
 import uploadFile from "../../util/UploadFile";
 
-const listKataKunci = [
-  { Value: "Alat", Text: "Kat Kunci 1" },
-  { Value: "Mesin", Text: "Kat Kunci 2" },
-  { Value: "Perangkat Lunak", Text: "Kat Kunci 3" },
-  { Value: "Lainnya", Text: "Kat Kunci 4" },
-];
-
 export default function MasterDaftarPustakaAdd({ onChangePage, withID }) {
-  // console.log("KKE: " + withID);
   const navigate = useNavigate();
   const [errors, setErrors] = useState({});
   const [isError, setIsError] = useState({ error: false, message: "" });
@@ -44,11 +37,9 @@ export default function MasterDaftarPustakaAdd({ onChangePage, withID }) {
   const userSchema = object({
     kke_id: string().required("Pilih Terlebih Dahulu"),
     pus_file: string().required("Pilih File Pustaka Terlebih Dahulu"),
-    // pus_file: string(),
     pus_judul: string().required("Isi Judul Terlebih Dahulu"),
     pus_kata_kunci: string().required("Isi Kata Kunci Terlebih Dahulu"),
     pus_keterangan: string().required("Isi Keterangan Terlebih Dahulu"),
-    // pus_gambar: string().required("Pilih Gambar Cover Terlebih Dahulu"),
     pus_gambar: string(),
     pus_status: string(),
   });
@@ -77,7 +68,7 @@ export default function MasterDaftarPustakaAdd({ onChangePage, withID }) {
       error = "format berkas tidak valid";
 
     if (error) ref.current.value = "";
-    //BARIS BARUUUUUUUUUUU
+
     formDataRef.current[name] = fileName;
 
     setErrors((prevErrors) => ({
@@ -108,7 +99,6 @@ export default function MasterDaftarPustakaAdd({ onChangePage, withID }) {
       if (fileInputRef.current.files.length > 0) {
         uploadPromises.push(
           uploadFile(fileInputRef.current).then((data) => {
-            // console.log("File Upload Response:", JSON.stringify(data));
             formDataRef.current["pus_file"] = data.newFileName;
           })
         );
@@ -117,7 +107,6 @@ export default function MasterDaftarPustakaAdd({ onChangePage, withID }) {
       if (gambarInputRef.current.files.length > 0) {
         uploadPromises.push(
           uploadFile(gambarInputRef.current).then((data) => {
-            // console.log("Image Upload Response:", JSON.stringify(data));
             formDataRef.current["pus_gambar"] = data.newFileName;
           })
         );
@@ -127,7 +116,7 @@ export default function MasterDaftarPustakaAdd({ onChangePage, withID }) {
         console.log(formDataRef.current.pus_gambar);
         console.log(formDataRef.current.pus_file);
         console.log(formDataRef.current.kke_id);
-        // console.log("Final formDataRef:", JSON.stringify(formDataRef.current));
+        
         UseFetch(API_LINK + "Pustakas/SaveDataPustaka", formDataRef.current)
           .then((data) => {
             if (data === "ERROR") {
@@ -140,7 +129,7 @@ export default function MasterDaftarPustakaAdd({ onChangePage, withID }) {
               });
             } else {
               SweetAlert("Sukses", "Data Pustaka berhasil disimpan", "success");
-              window.location.reload();
+              onChangePage("index");
             }
           })
           .then(() => setIsLoading(false));
@@ -148,12 +137,13 @@ export default function MasterDaftarPustakaAdd({ onChangePage, withID }) {
     }
   };
 
-  useEffect(() => {
-    const fetchDataKK = async () => {
-      setIsError((prevError) => ({ ...prevError, error: false }));
+  const getListKK = async () => {
+    setIsError(false);
+    setIsLoading(true);
 
-      try {
-        const data = await UseFetch(API_LINK + "KKs/GetDataKK", {
+    try {
+      while (true) {
+        let data = await UseFetch(API_LINK + "KKs/GetDataKK", {
           page: 1,
           query: "",
           sort: "[Nama Kelompok Keahlian] asc",
@@ -161,26 +151,37 @@ export default function MasterDaftarPustakaAdd({ onChangePage, withID }) {
         });
 
         if (data === "ERROR") {
-          throw new Error("Terjadi kesalahan: Gagal mengambil daftar prodi.");
+          throw new Error(
+            "Terjadi kesalahan: Gagal mengambil daftar Kelompok Keahlian."
+          );
+        } else if (data.length === 0) {
+          await new Promise((resolve) => setTimeout(resolve, 2000));
+        } else if (data === "data kosong") {
+          setListKK(data);
+          break;
         } else {
-          // Mengubah data menjadi format yang diinginkan
           const formattedData = data.map((item) => ({
             Value: item["Key"],
             Text: item["Nama Kelompok Keahlian"],
           }));
           setListKK(formattedData);
+          setIsLoading(false);
+          break;
         }
-      } catch (error) {
-        setIsError((prevError) => ({
-          ...prevError,
-          error: true,
-          message: error.message,
-        }));
-        setListKK([]);
       }
-    };
+    } catch (e) {
+      setIsLoading(true);
+      console.log(e.message);
+      setIsError((prevError) => ({
+        ...prevError,
+        error: true,
+        message: e.message,
+      }));
+    }
+  };
 
-    fetchDataKK();
+  useEffect(() => {
+    getListKK();
   }, []);
 
   if (isLoading) return <Loading />;
@@ -203,7 +204,7 @@ export default function MasterDaftarPustakaAdd({ onChangePage, withID }) {
                 <Input
                   type="text"
                   forInput="pus_judul"
-                  label="Judul Pustaka"
+                  label="Judul / Nama File Pustaka"
                   isRequired
                   value={formDataRef.current.pus_judul}
                   onChange={handleInputChange}
@@ -211,7 +212,7 @@ export default function MasterDaftarPustakaAdd({ onChangePage, withID }) {
                 />
               </div>
               <div className="col-lg-4">
-                <DropDown
+                <Select2Dropdown
                   forInput="kke_id"
                   label="Kelompok Keahlian"
                   arrData={listKK}
@@ -237,10 +238,11 @@ export default function MasterDaftarPustakaAdd({ onChangePage, withID }) {
                 <FileUpload
                   ref={fileInputRef}
                   forInput="pus_file"
-                  label="File Pustaka (.pdf, .mp4)"
-                  formatFile=".pdf,.mp4"
-                  onChange={() => handleFileChange(fileInputRef, "pdf,mp4")}
+                  label="File Pustaka (.pdf, .docx, .xlsx, .pptx, .mp4)"
+                  formatFile=".pdf,.docx,.xlsx,.pptx,.mp4"
+                  onChange={() => handleFileChange(fileInputRef, "pdf,docx,xlsx,pptx,mp4")}
                   errorMessage={errors.pus_file}
+                  isRequired
                 />
               </div>
               <div className="col-lg-4">
@@ -251,13 +253,14 @@ export default function MasterDaftarPustakaAdd({ onChangePage, withID }) {
                   formatFile=".pdf,.jpg,.png"
                   onChange={() => handleFileChange(gambarInputRef, "jpg,png")}
                   errorMessage={errors.pus_gambar}
+                  isRequired
                 />
               </div>
               <div className="col-lg-12">
                 <Input
                   type="textarea"
                   forInput="pus_keterangan"
-                  label="Keterangan Pustaka"
+                  label="Sinopsis / Ringkasan Pustaka"
                   isRequired
                   value={formDataRef.current.pus_keterangan}
                   onChange={handleInputChange}

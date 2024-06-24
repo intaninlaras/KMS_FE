@@ -173,7 +173,7 @@ export default function PengajuanDetail({ onChangePage, withID }) {
         <form>
           <div className="card">
             <div className="card-header bg-primary fw-medium text-white">
-              Pengajuan Kelompok Keahlian
+              Detail Riwayat Pengajuan
             </div>
             <div className="card-body p-4">
               <div className="row">
@@ -190,7 +190,7 @@ export default function PengajuanDetail({ onChangePage, withID }) {
                   />
                 </div>
                 <div className="col-lg-6 my-3">
-                  <Label title="Status" data={withID.Status === "Menunggu Acc" ? "Menunggu Persetujuan" : withID.Status} />
+                  <Label title="Status" data={withID.Status} />
                 </div>
                 <div className="col-lg-12">
                   <div className="card">

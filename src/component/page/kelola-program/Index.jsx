@@ -8,6 +8,8 @@ import CardProgram from "../../part/CardProgram";
 import ScrollIntoView from "react-scroll-into-view";
 import CardKategoriProgram from "../../part/CardKategoriProgram";
 import Alert from "../../part/Alert";
+import SweetAlert from "../../util/SweetAlert";
+import Label from "../../part/Label";
 
 export default function ProgramIndex({ onChangePage }) {
   const cardRefs = useRef([]);
@@ -50,9 +52,7 @@ export default function ProgramIndex({ onChangePage }) {
         let data = await UseFetch(API_LINK + "Program/GetDataKKByPIC");
 
         if (data === "ERROR") {
-          throw new Error(
-            "Terjadi kesalahan: Gagal mengambil data Kelompok Keahlian."
-          );
+          throw new Error("Terjadi kesalahan: Gagal mengambil data Program.");
         } else if (data.length === 0) {
           await new Promise((resolve) => setTimeout(resolve, 2000));
         } else {
@@ -193,8 +193,181 @@ export default function ProgramIndex({ onChangePage }) {
     }
   }, [currentFilter]);
 
+  function handleSetCurrentPage(newCurrentPage) {
+    setIsLoading(true);
+    setCurrentFilter((prevFilter) => {
+      return {
+        ...prevFilter,
+        page: newCurrentPage,
+      };
+    });
+  }
+
+  // DELETE PERMANEN DATA PROGRAM
+  function handleDelete(id) {
+    setIsError(false);
+
+    SweetAlert(
+      "Konfirmasi Hapus",
+      "Anda yakin ingin <b>menghapus permanen</b> data ini?",
+      "warning",
+      "Hapus"
+    ).then((confirm) => {
+      if (confirm) {
+        setIsLoading(true);
+        UseFetch(API_LINK + "Program/DeleteProgram", {
+          idProgram: id,
+        })
+          .then((data) => {
+            if (data === "ERROR" || data.length === 0) setIsError(true);
+            else if (data[0].hasil === "GAGAL") {
+              setIsError({
+                error: true,
+                message:
+                  "Terjadi kesalahan: Gagal menghapus program karena sudah terdapat Draft Kategori.",
+              });
+            } else {
+              SweetAlert("Sukses", "Data berhasil dihapus.", "success");
+              handleSetCurrentPage(currentFilter.page);
+            }
+          })
+          .then(() => setIsLoading(false));
+      }
+    });
+  }
+
+  // MENGUBAH STATUS PROGRAM
+  function handleSetStatus(data, status) {
+    setIsError(false);
+
+    let message;
+
+    if (data.Status === "Draft")
+      message = "Apakah anda yakin ingin mempublikasikan data ini?";
+    else if (data.Status === "Aktif")
+      message = "Apakah anda yakin ingin menonaktifkan data ini?";
+    else if (data.Status === "Tidak Aktif")
+      message = "Apakah anda yakin ingin mengaktifkan data ini?";
+
+    SweetAlert("Konfirmasi", message, "info", "Ya").then((confirm) => {
+      if (confirm) {
+        setIsLoading(true);
+        UseFetch(API_LINK + "Program/SetStatusProgram", {
+          idProgram: data.Key,
+          status: status,
+        })
+          .then((data) => {
+            if (data === "ERROR" || data.length === 0) setIsError(true);
+            else if (data[0].hasil === "ERROR KATEGORI AKTIF") {
+              console.log(data);
+              setIsError({
+                error: true,
+                message:
+                  "Terjadi kesalahan: Gagal menonaktifkan Program karena terdapat kategori berstatus Aktif.",
+              });
+            } else {
+              let message;
+              if (data === "Tidak Aktif") {
+                message = "Data berhasil dinonaktifkan.";
+              } else if (data === "Aktif") {
+                message = "Sukses! Data berhasil dipublikasi.";
+              }
+              SweetAlert("Sukses", message, "success");
+              handleSetCurrentPage(currentFilter.page);
+            }
+          })
+          .then(() => setIsLoading(false));
+      }
+    });
+  }
+
+  // DELETE PERMANEN DATA MATA KULIAH
+  function handleDeleteKategori(id) {
+    setIsError(false);
+
+    SweetAlert(
+      "Konfirmasi Hapus",
+      "Anda yakin ingin <b>menghapus permanen</b> data ini?",
+      "warning",
+      "Hapus"
+    ).then((confirm) => {
+      if (confirm) {
+        setIsLoading(true);
+        UseFetch(API_LINK + "KategoriProgram/DeleteKategoriProgram", {
+          idKat: id,
+        })
+          .then((data) => {
+            if (data === "ERROR" || data.length === 0) setIsError(true);
+            else {
+              SweetAlert("Sukses", "Data berhasil dihapus.", "success");
+              handleSetCurrentPage(currentFilter.page);
+            }
+          })
+          .then(() => setIsLoading(false));
+      }
+    });
+  }
+
+  // MENGUBAH STATUS MATA KULIAH
+  function handleSetStatusKategori(data, status) {
+    setIsError(false);
+
+    let message;
+
+    if (data.Status === "Draft")
+      message = "Apakah anda yakin ingin mempublikasikan data ini?";
+    else if (data.Status === "Aktif")
+      message = "Apakah anda yakin ingin menonaktifkan data ini?";
+    else if (data.Status === "Tidak Aktif")
+      message = "Apakah anda yakin ingin mengaktifkan data ini?";
+
+    SweetAlert("Konfirmasi", message, "info", "Ya").then((confirm) => {
+      if (confirm) {
+        setIsLoading(true);
+        UseFetch(API_LINK + "KategoriProgram/SetStatusKategoriProgram", {
+          idKat: data.Key,
+          status: status,
+        })
+          .then((data) => {
+            if (data === "ERROR" || data.length === 0) setIsError(true);
+            else if (data[0].hasil === "ERROR PROGRAM DRAFT") {
+              console.log(data);
+              setIsError({
+                error: true,
+                message:
+                  "Terjadi kesalahan: Gagal publikasi Kategori karena Program masih berstatus Draft.",
+              });
+            } else if (data[0].hasil === "ERROR PROGRAM TIDAK AKTIF") {
+              console.log(data);
+              setIsError({
+                error: true,
+                message:
+                  "Terjadi kesalahan: Gagal mengaktifkan Kategori karena Program berstatus Tidak aktif.",
+              });
+            } else {
+              let message;
+              if (data === "Tidak Aktif") {
+                message = "Data berhasil dinonaktifkan.";
+              } else if (data === "Aktif") {
+                message = "Sukses! Data berhasil dipublikasi.";
+              }
+              SweetAlert("Sukses", message, "success");
+              setActiveCard(null);
+              handleSetCurrentPage(currentFilter.page);
+            }
+          })
+          .then(() => setIsLoading(false));
+      }
+    });
+  }
+
   return (
     <>
+      {isError.error && (
+        <div className="flex-fill">
+          <Alert type="danger" message={isError.message} />
+        </div>
+      )}
       {isLoading ? (
         <Loading />
       ) : (
@@ -235,7 +408,10 @@ export default function ProgramIndex({ onChangePage }) {
                                 href=""
                                 className="text-decoration-underline text-dark"
                               >
-                                {listProgram.length} Program
+                                {listProgram[0]?.Message
+                                  ? "0"
+                                  : listProgram.length}{" "}
+                                Program
                               </a>
                             </span>
                             <Icon
@@ -246,10 +422,15 @@ export default function ProgramIndex({ onChangePage }) {
                             />
                             <span>
                               <a
-                                href=""
+                                href="#modalAnggota"
+                                data-bs-toggle="modal"
+                                data-bs-target="#modalAnggota"
                                 className="text-decoration-underline text-dark"
                               >
-                                {listAnggota.length} Anggota
+                                {listAnggota[0]?.Message
+                                  ? "0"
+                                  : listAnggota.length}{" "}
+                                Anggota
                               </a>
                             </span>
                           </h6>
@@ -257,7 +438,7 @@ export default function ProgramIndex({ onChangePage }) {
                             <Button
                               iconName="add"
                               classType="primary  me-2"
-                              label="Tambah Program (Kelompok Keilmuan)"
+                              label="Tambah Program"
                               onClick={() => onChangePage("add", currentData)}
                             />
                             <Button
@@ -275,41 +456,124 @@ export default function ProgramIndex({ onChangePage }) {
                             {currentData["Nama Kelompok Keahlian"]}
                           </strong>
                         </h5>
-                        {listProgram.map((value, index) => (
-                          <ScrollIntoView
-                            key={value.Key}
-                            selector={`#card-${value.Key}`}
-                            smooth={true}
-                            alignToTop={false}
-                          >
-                            <CardProgram
-                              id={`card-${value.Key}`}
-                              data={value}
-                              isActive={activeCard === value.Key}
-                              onClick={() => handleCardClick(value.Key, index)}
-                              onChangePage={onChangePage}
+                        {listProgram[0]?.Message ? (
+                          <Alert
+                            type="warning"
+                            message="Tidak ada data! Silahkan klik tombol tambah program diatas.."
+                          />
+                        ) : (
+                          listProgram.map((value, index) => (
+                            <ScrollIntoView
+                              key={value.Key}
+                              selector={`#card-${value.Key}`}
+                              smooth={true}
+                              alignToTop={false}
                             >
-                              {listKategoriProgram[0]?.Message ? (
-                                <Alert
-                                  type="warning"
-                                  message="Tidak ada data! Silahkan klik tombol tambah diatas.."
-                                />
-                              ) : (
-                                <div className="row row-cols-3">
-                                  {listKategoriProgram.map((kat) => (
-                                    <CardKategoriProgram
-                                      key={kat.id}
-                                      data={kat}
-                                    />
-                                  ))}
-                                </div>
-                              )}
-                            </CardProgram>
-                          </ScrollIntoView>
-                        ))}
+                              <CardProgram
+                                id={`card-${value.Key}`}
+                                data={value}
+                                isActive={activeCard === value.Key}
+                                onClick={() =>
+                                  handleCardClick(value.Key, index)
+                                }
+                                onChangePage={onChangePage}
+                                onDelete={handleDelete}
+                                onChangeStatus={handleSetStatus}
+                                index={index + 1}
+                              >
+                                {listKategoriProgram[0]?.Message ? (
+                                  <Alert
+                                    type="warning"
+                                    message="Tidak ada data! Silahkan klik tombol tambah diatas.."
+                                  />
+                                ) : (
+                                  <div>
+                                    <p className="text-primary fw-semibold mb-0 mt-2">
+                                      Daftar Kategori Program
+                                    </p>
+                                    <div className="row row-cols-3">
+                                      {listKategoriProgram.map(
+                                        (kat, indexKat) => (
+                                          <CardKategoriProgram
+                                            key={kat.id}
+                                            data={kat}
+                                            onChangePage={onChangePage}
+                                            onDelete={handleDeleteKategori}
+                                            onChangeStatus={
+                                              handleSetStatusKategori
+                                            }
+                                            index={`${index + 1}-${
+                                              indexKat + 1
+                                            }`}
+                                          />
+                                        )
+                                      )}
+                                    </div>
+                                  </div>
+                                )}
+                              </CardProgram>
+                            </ScrollIntoView>
+                          ))
+                        )}
                       </div>
                     </div>
                   </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div
+            class="modal fade"
+            id="modalAnggota"
+            tabindex="-1"
+            aria-labelledby="Anggota Kelompok Keahlian"
+            aria-hidden="true"
+          >
+            <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h1 class="modal-title fs-5" id="modalAnggotaKK">
+                    Anggota Kelompok Keahlian
+                  </h1>
+                  <button
+                    type="button"
+                    class="btn-close"
+                    data-bs-dismiss="modal"
+                    aria-label="Close"
+                  ></button>
+                </div>
+                <div class="modal-body">
+                  {listAnggota[0]?.Message ? (
+                    <Label title="Tidak ada anggota aktif!" />
+                  ) : (
+                    listAnggota.map((pr, index) => (
+                      <div className="card-profile mb-3 d-flex shadow-sm">
+                        <p className="mb-0 px-1 py-2 mt-2 me-2 fw-bold text-primary">
+                          {index + 1}
+                        </p>
+                        <div
+                          className="bg-primary"
+                          style={{ width: "1.5%" }}
+                        ></div>
+                        <div className="p-1 ps-2 d-flex">
+                          <img
+                            src="https://t4.ftcdn.net/jpg/02/15/84/43/360_F_215844325_ttX9YiIIyeaR7Ne6EaLLjMAmy4GvPC69.jpg"
+                            alt={pr["Nama Anggota"]}
+                            className="img-fluid rounded-circle"
+                            width="45"
+                          />
+                          <div className="ps-3">
+                            <p className="mb-0 fw-semibold">
+                              {pr["Nama Anggota"]}
+                            </p>
+                            <p className="mb-0" style={{ fontSize: "13px" }}>
+                              {pr.Prodi}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    ))
+                  )}
                 </div>
               </div>
             </div>

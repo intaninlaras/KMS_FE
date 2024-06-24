@@ -28,6 +28,22 @@ export default function PengajuanAdd({ onChangePage, withID }) {
     kry_id: "",
   });
 
+  const formDataRef = useRef({
+    kke_id: withID["ID KK"],
+    kry_id: userData.kry_id,
+    status: "Menunggu Acc",
+    creaby: activeUser,
+    lampirans: [],
+  });
+
+  const userSchema = object({
+    kke_id: string(),
+    kry_id: string(),
+    status: string(),
+    creaby: string(),
+    lampirans: array().of(string()),
+  });
+
   const [fileInfos, setFileInfos] = useState([]);
 
   const lampiranRefs = useRef([]);
@@ -39,50 +55,6 @@ export default function PengajuanAdd({ onChangePage, withID }) {
     });
   };
 
-  const formDataRef = useRef({
-    kke_id: withID.IDAkk,
-    kry_id: userData.kry_id,
-    pus_status: "Menunggu Acc",
-    creaby: activeUser,
-    lampirans: [],
-  });
-
-  const userSchema = object({
-    kke_id: string(),
-    kry_id: string(),
-    pus_status: string(),
-    creaby: string(),
-    lampirans: array().of(string()),
-  });
-
-  useEffect(() => {
-    const fetchDataUser = async () => {
-      setIsError((prevError) => ({ ...prevError, error: false }));
-
-      try {
-        const data = await UseFetch(API_LINK + "Utilities/GetUserLogin", {
-          param: activeUser,
-        });
-
-        if (data === "ERROR") {
-          throw new Error("Terjadi kesalahan: Gagal mengambil daftar prodi.");
-        } else {
-          setUserData(data[0]);
-          formDataRef.current.kry_id = data[0].kry_id;
-        }
-      } catch (error) {
-        setIsError((prevError) => ({
-          ...prevError,
-          error: true,
-          message: error.message,
-        }));
-        setUserData(null);
-      }
-    };
-
-    fetchDataUser();
-  }, [activeUser]);
-
   const handleInputChange = async (e) => {
     const { name, value } = e.target;
     const validationError = await validateInput(name, value, userSchema);
@@ -93,9 +65,41 @@ export default function PengajuanAdd({ onChangePage, withID }) {
     }));
   };
 
+  const getUserKryID = async () => {
+    setIsLoading(true);
+    setIsError((prevError) => ({ ...prevError, error: false }));
+
+    try {
+      while (true) {
+        let data = await UseFetch(API_LINK + "Utilities/GetUserLogin", {
+          param: activeUser,
+        });
+
+        if (data === "ERROR") {
+          throw new Error("Terjadi kesalahan: Gagal mengambil daftar prodi.");
+        } else if (data.length === 0) {
+          await new Promise((resolve) => setTimeout(resolve, 2000));
+        } else {
+          setUserData(data[0]);
+          formDataRef.current.kry_id = data[0].kry_id;
+          setIsLoading(false);
+          break;
+        }
+      }
+    } catch (error) {
+      setUserData(null);
+      setIsLoading(true);
+      setIsError((prevError) => ({
+        ...prevError,
+        error: true,
+        message: error.message,
+      }));
+    }
+  };
+
   useEffect(() => {
-    console.log("Lampiran Refs:", lampiranRefs.current);
-  }, [fileInfos]);
+    getUserKryID();
+  }, []);
 
   const handleFileChange = async (ref, extAllowed, index) => {
     const { name, value } = ref.current;
@@ -133,7 +137,6 @@ export default function PengajuanAdd({ onChangePage, withID }) {
   const handleAdd = async (e) => {
     e.preventDefault();
 
-    // Validasi semua input
     const validationErrors = await validateAllInputs(
       formDataRef.current,
       userSchema,
@@ -141,50 +144,122 @@ export default function PengajuanAdd({ onChangePage, withID }) {
     );
 
     if (Object.values(validationErrors).every((error) => !error)) {
-      setIsLoading(true);
       setIsError((prevError) => ({ ...prevError, error: false }));
       setErrors({});
 
-      const uploadPromises = [];
-      formDataRef.current.lampirans = [];
+      SweetAlert("Konfirmasi", "Apakah Anda yakin ingin mengirim pengajuan ini?", "info", "Ya").then(async (confirm) => {
+        if (confirm) {
+          setIsLoading(true);
 
-      lampiranRefs.current.forEach((ref) => {
-        if (ref && ref.current && ref.current.files.length > 0) {
-          uploadPromises.push(
-            uploadFile(ref.current).then((data) => {
-              if (data !== "ERROR" && data.newFileName) {
-                formDataRef.current.lampirans.push({ pus_file: data.newFileName });
-              } else {
-                throw new Error('File upload failed');
-              }
-            })
-          );
+          const uploadPromises = [];
+          formDataRef.current.lampirans = [];
+
+          lampiranRefs.current.forEach((ref) => {
+            if (ref && ref.current && ref.current.files.length > 0) {
+              uploadPromises.push(
+                uploadFile(ref.current).then((data) => {
+                  if (data !== "ERROR" && data.newFileName) {
+                    formDataRef.current.lampirans.push({
+                      pus_file: data.newFileName,
+                    });
+                  } else {
+                    throw new Error("File upload failed");
+                  }
+                })
+              );
+            }
+          });
+
+          try {
+            await Promise.all(uploadPromises);
+
+            const response = await UseFetch(
+              API_LINK + "Pengajuans/SaveAnggotaKK",
+              formDataRef.current
+            );
+            if (response === "ERROR") {
+              setIsError({
+                error: true,
+                message: "Terjadi kesalahan: Gagal menyimpan data Pengajuan KK.",
+              });
+            } else {
+              SweetAlert("Sukses", "Data Pengajuan berhasil disimpan", "success");
+              window.location.reload();
+            }
+          } catch (error) {
+            setIsError({
+              error: true,
+              message:
+                "Terjadi kesalahan: Gagal mengupload file atau menyimpan data.",
+            });
+          } finally {
+            setIsLoading(false);
+          }
         }
       });
-
-      try {
-        await Promise.all(uploadPromises);
-
-        const response = await UseFetch(API_LINK + "Pengajuans/SaveAnggotaKK", formDataRef.current);
-        if (response === "ERROR") {
-          setIsError({
-            error: true,
-            message: "Terjadi kesalahan: Gagal menyimpan data Pengajuan KK.",
-          });
-        } else {
-          SweetAlert("Sukses", "Data Pustaka berhasil disimpan", "success");
-          window.location.reload();
-        }
-      } catch (error) {
-        setIsError({
-          error: true,
-          message: "Terjadi kesalahan: Gagal mengupload file atau menyimpan data.",
-        });
-      } finally {
-        setIsLoading(false);
-      }
     }
   };
+
+  // const handleAdd = async (e) => {
+  //   e.preventDefault();
+
+  //   const validationErrors = await validateAllInputs(
+  //     formDataRef.current,
+  //     userSchema,
+  //     setErrors
+  //   );
+
+  //   if (Object.values(validationErrors).every((error) => !error)) {
+  //     setIsError((prevError) => ({ ...prevError, error: false }));
+  //     setErrors({});
+
+  //     const uploadPromises = [];
+  //     formDataRef.current.lampirans = [];
+
+  //     lampiranRefs.current.forEach((ref) => {
+  //       if (ref && ref.current && ref.current.files.length > 0) {
+  //         uploadPromises.push(
+  //           uploadFile(ref.current).then((data) => {
+  //             if (data !== "ERROR" && data.newFileName) {
+  //               formDataRef.current.lampirans.push({
+  //                 pus_file: data.newFileName,
+  //               });
+  //             } else {
+  //               throw new Error("File upload failed");
+  //             }
+  //           })
+  //         );
+  //       }
+  //     });
+
+  //     try {
+  //       await Promise.all(uploadPromises);
+
+  //       const response = await UseFetch(
+  //         API_LINK + "Pengajuans/SaveAnggotaKK",
+  //         formDataRef.current
+  //       );
+  //       if (response === "ERROR") {
+  //         setIsError({
+  //           error: true,
+  //           message: "Terjadi kesalahan: Gagal menyimpan data Pengajuan KK.",
+  //         });
+  //       } else {
+  //         SweetAlert("Sukses", "Data Pengajuan berhasil disimpan", "success");
+  //         window.location.reload();
+  //       }
+  //     } catch (error) {
+  //       setIsError({
+  //         error: true,
+  //         message:
+  //           "Terjadi kesalahan: Gagal mengupload file atau menyimpan data.",
+  //       });
+  //     } finally {
+  //       setIsLoading(false);
+  //     }
+
+  //   }
+  // };
 
   return (
     <>
@@ -208,17 +283,29 @@ export default function PengajuanAdd({ onChangePage, withID }) {
                     <Label title="Nama" data={userData.Nama} />
                   </div>
                   <div className="col-lg-6">
-                    <Label title="Jabatan" data={userData.Role} />
+                    <Label
+                      title="Kelompok Keahlian"
+                      data={withID["Nama Kelompok Keahlian"]}
+                    />
                   </div>
-                  <div className="col-lg-12 my-3">
-                    <Label title="Kelompok Keahlian" data={withID.Nama} />
-                  </div>
-                  <div className="col-lg-12">
+                  <div className="col-lg-12 mt-3">
                     <div className="card">
                       <div className="card-header fw-medium">
                         Lampiran Pendukung
                       </div>
                       <div className="card-body p-4">
+                        <Alert
+                          type="info fw-bold"
+                          message="Notes: Lampiran dapat berupa Sertifikat Keahlian, Surat Tugas, atau
+                          Berkas Lainnya yang berkaitan"
+                        />
+                        <p className="ps-3 mb-0">
+                          Format Penamaan:
+                          namafile_namakelompokkeahlian_namakaryawan (Opsional)
+                        </p>
+                        <p className="ps-3">
+                          Contoh: SertifikasiMicrosoft_DataScience_CandraBagus
+                        </p>
                         <Button
                           iconName="add"
                           classType="primary btn-sm mb-3"
@@ -230,9 +317,19 @@ export default function PengajuanAdd({ onChangePage, withID }) {
                             <FileUpload
                               forInput={`lampiran_${index}`}
                               label={`Lampiran ${index + 1}`}
-                              onChange={() => handleFileChange(lampiranRefs.current[index], "pdf", index)}
+                              onChange={() =>
+                                handleFileChange(
+                                  lampiranRefs.current[index],
+                                  "pdf",
+                                  index
+                                )
+                              }
                               formatFile=".pdf"
-                              ref={lampiranRefs.current[index] || (lampiranRefs.current[index] = React.createRef())}
+                              ref={
+                                lampiranRefs.current[index] ||
+                                (lampiranRefs.current[index] =
+                                  React.createRef())
+                              }
                             />
                             {fileInfos[index] && (
                               <div className="mt-2">
@@ -261,7 +358,7 @@ export default function PengajuanAdd({ onChangePage, withID }) {
               <Button
                 classType="primary ms-2 px-4 py-2"
                 type="submit"
-                label="Simpan"
+                label="Kirim Pengajuan"
               />
             </div>
           </form>

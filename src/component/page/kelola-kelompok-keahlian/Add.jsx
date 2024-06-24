@@ -9,6 +9,7 @@ import DropDown from "../../part/Dropdown";
 import Input from "../../part/Input";
 import Loading from "../../part/Loading";
 import Alert from "../../part/Alert";
+import Select2Dropdown from "../../part/Select2Dropdown";
 
 export default function KKAdd({ onChangePage }) {
   const [errors, setErrors] = useState({});
@@ -207,7 +208,7 @@ export default function KKAdd({ onChangePage }) {
                   />
                 </div>
                 <div className="col-lg-6">
-                  <DropDown
+                  <Select2Dropdown
                     forInput="programStudi"
                     label="Program Studi"
                     arrData={listProdi}
@@ -218,7 +219,7 @@ export default function KKAdd({ onChangePage }) {
                   />
                 </div>
                 <div className="col-lg-6">
-                  <DropDown
+                  <Select2Dropdown
                     forInput="personInCharge"
                     label="PIC Kelompok Keahlian"
                     arrData={listKaryawan}

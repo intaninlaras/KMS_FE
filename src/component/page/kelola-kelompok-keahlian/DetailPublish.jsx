@@ -6,11 +6,15 @@ import Loading from "../../part/Loading";
 import Alert from "../../part/Alert";
 import Filter from "../../part/Filter";
 import Icon from "../../part/Icon";
+import { API_LINK } from "../../util/Constants";
+import UseFetch from "../../util/UseFetch";
 
 export default function KKDetailPublish({ onChangePage, withID }) {
   const [errors, setErrors] = useState({});
   const [isError, setIsError] = useState({ error: false, message: "" });
   const [isLoading, setIsLoading] = useState(false);
+  const [listAnggota, setListAnggota] = useState([]);
+  const [listProgram, setListProgram] = useState([]);
 
   const [formData, setFormData] = useState({
     key: "",
@@ -22,6 +26,81 @@ export default function KKDetailPublish({ onChangePage, withID }) {
     members: [],
     memberCount: "",
   });
+
+  const getListAnggota = async () => {
+    console.log("heree");
+    setIsError({ error: false, message: "" });
+    setIsLoading(true);
+
+    try {
+      while (true) {
+        let data = await UseFetch(API_LINK + "AnggotaKK/GetAnggotaKK", {
+          page: 1,
+          query: "",
+          sort: "[Nama Anggota] asc",
+          status: "Aktif",
+          kke_id: withID.id,
+        });
+
+        if (data === "ERROR") {
+          throw new Error("Terjadi kesalahan: Gagal mengambil daftar anggota.");
+        } else if (data === "data kosong") {
+          setListAnggota([]);
+          setIsLoading(false);
+          break;
+        } else if (data.length === 0) {
+          await new Promise((resolve) => setTimeout(resolve, 2000));
+        } else {
+          setListAnggota(data);
+          setIsLoading(false);
+          break;
+        }
+      }
+    } catch (e) {
+      setIsLoading(false);
+      console.log(e.message);
+      setIsError((prevError) => ({
+        ...prevError,
+        error: true,
+        message: e.message,
+      }));
+    }
+  };
+
+  const getListProgram = async () => {
+    setIsError({ error: false, message: "" });
+    setIsLoading(true);
+
+    try {
+      while (true) {
+        let data = await UseFetch(API_LINK + "Program/GetProgramByKK", {
+          page: 1,
+          query: "",
+          sort: "[Nama Program] ASC",
+          status: "Aktif",
+          KKid: withID.id,
+        });
+
+        if (data === "ERROR") {
+          throw new Error("Terjadi kesalahan: Gagal mengambil data program.");
+        } else if (data === "data kosong") {
+          setListProgram([]);
+          setIsLoading(false);
+          break;
+        } else if (data.length === 0) {
+          await new Promise((resolve) => setTimeout(resolve, 2000));
+        } else {
+          setListProgram(data);
+          setIsLoading(false);
+          break;
+        }
+      }
+    } catch (e) {
+      setIsLoading(false);
+      console.log(e.message);
+      setIsError({ error: true, message: e.message });
+    }
+  };
 
   useEffect(() => {
     if (withID) {
@@ -35,6 +114,8 @@ export default function KKDetailPublish({ onChangePage, withID }) {
         members: withID.members,
         memberCount: withID.memberCount,
       });
+      getListAnggota();
+      getListProgram();
     }
   }, [withID]);
 
@@ -71,30 +152,48 @@ export default function KKDetailPublish({ onChangePage, withID }) {
                 <span>PIC : {formData.personInCharge}</span>
               </div>
               <hr className="mb-0" style={{ opacity: "0.2" }} />
-              <p className="py-3">{formData.deskripsi}</p>
+              <p className="py-3" style={{  textAlign: "justify" }}>{formData.deskripsi}</p>
             </div>
             <div className="col-lg-5">
-              {/* <p>3 orang baru saja bergabung!</p> */}
-              {formData.members?.map((pr) => (
-                <div className="card-profile mb-2 d-flex shadow-sm">
-                  <div className="bg-primary" style={{ width: "1.5%" }}></div>
-                  <div className="p-1 ps-2 d-flex">
-                    <img
-                      src={pr.imgSource}
-                      alt={pr.name}
-                      className="img-fluid rounded-circle"
-                      width="45"
-                    />
-                    <div className="ps-3">
-                      <p className="mb-0">{pr.name}</p>
-                      <p className="mb-0" style={{ fontSize: "13px" }}>
-                        UPT Manajemen Informatika
-                      </p>
+              {listAnggota.length > 0 ? (
+                listAnggota[0].Message ? (
+                  <p>Tidak Ada Anggota Aktif</p>
+                ) : (
+                  listAnggota.map((ag, index) => (
+                    <div
+                      className="card-profile mb-3 d-flex justify-content-between shadow-sm"
+                      key={ag.Key}
+                    >
+                      <div className="d-flex w-100">
+                        <p className="mb-0 px-1 py-2 mt-2 me-2 fw-bold text-primary">
+                          {index + 1}
+                        </p>
+                        <div
+                          className="bg-primary"
+                          style={{ width: "1.5%" }}
+                        ></div>
+                        <div className="p-1 ps-2 d-flex">
+                          <img
+                            src="https://t4.ftcdn.net/jpg/02/15/84/43/360_F_215844325_ttX9YiIIyeaR7Ne6EaLLjMAmy4GvPC69.jpg"
+                            alt={ag["Nama Anggota"]}
+                            className="img-fluid rounded-circle"
+                            width="45"
+                          />
+                          <div className="ps-3">
+                            <p className="mb-0">{ag["Nama Anggota"]}</p>
+                            <p className="mb-0" style={{ fontSize: "13px" }}>
+                              {ag.Prodi}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                </div>
-              ))}
-              {/* <div className="text-end">
+                  ))
+                )
+              ) : (
+                <p>Tidak Ada Anggota Aktif</p>
+              )}
+              <div className="text-end">
                 <Button
                   classType="light btn-sm text-primary text-decoration-underline px-3 mt-2"
                   type="submit"
@@ -102,9 +201,43 @@ export default function KKDetailPublish({ onChangePage, withID }) {
                   data-bs-toggle="modal"
                   data-bs-target="#modalAnggota"
                 />
-              </div> */}
+              </div>
             </div>
           </div>
+          <h5 className="text-primary pt-2">
+            Daftar Program dalam Kelompok Keahlian{" "}
+            <strong>{formData.nama}</strong>
+          </h5>
+          {listProgram.length > 0 ? (
+            listProgram[0].Message ? (
+              <p>Tidak Ada Program</p>
+            ) : (
+              listProgram.map((data, index) => (
+                <div
+                  key={data.Key}
+                  className="card card-program mt-3 border-secondary"
+                >
+                  <div className="card-body d-flex justify-content-between align-items-center border-bottom border-secondary">
+                    <p className="fw-medium mb-0" style={{ width: "20%" }}>
+                      {index + 1}
+                      {". "}
+                      {data["Nama Program"]}
+                    </p>
+                    <p
+                      className="mb-0 pe-3"
+                      style={{
+                        width: "80%",
+                      }}
+                    >
+                      {data.Deskripsi}
+                    </p>
+                  </div>
+                </div>
+              ))
+            )
+          ) : (
+            <p>Tidak Ada Program</p>
+          )}
         </div>
       </div>
       <div className="float-end my-4 mx-1">
@@ -175,28 +308,44 @@ export default function KKDetailPublish({ onChangePage, withID }) {
                   />
                 </Filter>
               </div>
-              {formData.members?.map((pr, index) => (
-                <div className="card-profile mb-3 d-flex shadow-sm">
-                  <p className="mb-0 px-1 py-2 mt-2 me-2 fw-bold text-primary">
-                    {index + 1}
-                  </p>
-                  <div className="bg-primary" style={{ width: "1.5%" }}></div>
-                  <div className="p-1 ps-2 d-flex">
-                    <img
-                      src={pr.imgSource}
-                      alt={pr.name}
-                      className="img-fluid rounded-circle"
-                      width="45"
-                    />
-                    <div className="ps-3">
-                      <p className="mb-0">{pr.name}</p>
-                      <p className="mb-0" style={{ fontSize: "13px" }}>
-                        UPT Manajemen Informatika
-                      </p>
+              {listAnggota.length > 0 ? (
+                listAnggota[0].Message ? (
+                  <p>Tidak Ada Anggota Aktif</p>
+                ) : (
+                  listAnggota.map((ag, index) => (
+                    <div
+                      className="card-profile mb-3 d-flex justify-content-between shadow-sm"
+                      key={ag.Key}
+                    >
+                      <div className="d-flex w-100">
+                        <p className="mb-0 px-1 py-2 mt-2 me-2 fw-bold text-primary">
+                          {index + 1}
+                        </p>
+                        <div
+                          className="bg-primary"
+                          style={{ width: "1.5%" }}
+                        ></div>
+                        <div className="p-1 ps-2 d-flex">
+                          <img
+                            src="https://t4.ftcdn.net/jpg/02/15/84/43/360_F_215844325_ttX9YiIIyeaR7Ne6EaLLjMAmy4GvPC69.jpg"
+                            alt={ag["Nama Anggota"]}
+                            className="img-fluid rounded-circle"
+                            width="45"
+                          />
+                          <div className="ps-3">
+                            <p className="mb-0">{ag["Nama Anggota"]}</p>
+                            <p className="mb-0" style={{ fontSize: "13px" }}>
+                              {ag.Prodi}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                </div>
-              ))}
+                  ))
+                )
+              ) : (
+                <p>Tidak Ada Anggota Aktif</p>
+              )}
             </div>
             <div className="modal-footer">
               <Button
