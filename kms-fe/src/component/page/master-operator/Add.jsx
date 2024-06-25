@@ -25,30 +25,21 @@ export default function MasterOperatorAdd({ onChangePage }) {
 
   // MENGAMBIL DAFTAR KARYAWAN -- BEGIN
   useEffect(() => {
-    const fetchData = async () => {
-      setIsError((prevError) => ({ ...prevError, error: false }));
-
-      try {
-        const data = await UseFetch(API_LINK + "Utilities/GetListKaryawan", {});
-
-        if (data === "ERROR") {
-          throw new Error(
-            "Terjadi kesalahan: Gagal mengambil daftar karyawan."
-          );
-        } else {
-          setListOperator(data);
-        }
-      } catch (error) {
-        setIsError((prevError) => ({
-          ...prevError,
-          error: true,
-          message: error.message,
-        }));
+    setIsError((prevError) => {
+      return { ...prevError, error: false };
+    });
+    UseFetch(API_LINK + "Utilities/GetListKaryawan", {}).then((data) => {
+      if (data === "ERROR") {
+        setIsError((prevError) => {
+          return {
+            ...prevError,
+            error: true,
+            message: "Terjadi kesalahan: Gagal mengambil daftar karyawan.",
+          };
+        });
         setListOperator({});
-      }
-    };
-
-    fetchData();
+      } else setListOperator(data);
+    });
   }, []);
   // MENGAMBIL DAFTAR KARYAWAN -- END
 
@@ -73,38 +64,38 @@ export default function MasterOperatorAdd({ onChangePage }) {
 
     if (Object.values(validationErrors).every((error) => !error)) {
       setIsLoading(true);
-      setIsError((prevError) => ({ ...prevError, error: false }));
+      setIsError((prevError) => {
+        return { ...prevError, error: false };
+      });
       setErrors({});
 
-      try {
-        const data = await UseFetch(
-          API_LINK + "MasterOperator/CreateOperator",
-          formDataRef.current
-        );
-
-        if (data === "ERROR") {
-          throw new Error("Terjadi kesalahan: Gagal menyimpan data operator.");
-        } else {
-          if (data[0].hasil === "OK") {
-            SweetAlert("Sukses", "Data operator berhasil disimpan", "success");
-            onChangePage("index");
+      UseFetch(API_LINK + "MasterOperator/CreateOperator", formDataRef.current)
+        .then((data) => {
+          if (data === "ERROR") {
+            setIsError((prevError) => {
+              return {
+                ...prevError,
+                error: true,
+                message: "Terjadi kesalahan: Gagal menyimpan data operator.",
+              };
+            });
           } else {
-            SweetAlert(
-              "Gagal",
-              "Nama karyawan tersebut sudah pernah dimasukkan sebagai operator sebelumnya",
-              "error"
-            );
+            if (data[0].hasil === "OK") {
+              SweetAlert(
+                "Sukses",
+                "Data operator berhasil disimpan",
+                "success"
+              );
+              onChangePage("index");
+            } else
+              SweetAlert(
+                "Gagal",
+                "Nama karyawan tersebut sudah pernah dimasukkan sebagai operator sebelumnya",
+                "error"
+              );
           }
-        }
-      } catch (error) {
-        setIsError((prevError) => ({
-          ...prevError,
-          error: true,
-          message: error.message,
-        }));
-      } finally {
-        setIsLoading(false);
-      }
+        })
+        .then(() => setIsLoading(false));
     }
   };
 

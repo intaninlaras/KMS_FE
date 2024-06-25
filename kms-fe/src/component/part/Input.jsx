@@ -7,6 +7,7 @@ const Input = forwardRef(function Input(
     type = "text",
     placeholder = "",
     isRequired = false,
+    isDisabled = false,
     errorMessage,
     ...props
   },
@@ -33,6 +34,7 @@ const Input = forwardRef(function Input(
               className="form-control"
               placeholder={placeholder}
               ref={ref}
+              disabled={isDisabled}
               {...props}
             ></textarea>
           )}
@@ -44,6 +46,7 @@ const Input = forwardRef(function Input(
               className="form-control"
               placeholder={placeholder}
               ref={ref}
+              disabled={isDisabled}
               {...props}
             />
           )}
@@ -59,6 +62,7 @@ const Input = forwardRef(function Input(
               className="form-control"
               placeholder={placeholder}
               ref={ref}
+              disabled={isDisabled}
               {...props}
             ></textarea>
           )}
@@ -70,6 +74,7 @@ const Input = forwardRef(function Input(
               className="form-control"
               placeholder={placeholder}
               ref={ref}
+              disabled={isDisabled}
               {...props}
             />
           )}

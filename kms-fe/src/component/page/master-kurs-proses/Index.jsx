@@ -65,37 +65,27 @@ export default function MasterKursProsesIndex({ onChangePage }) {
   }
 
   useEffect(() => {
-    const fetchData = async () => {
-      setIsError(false);
-
-      try {
-        const data = await UseFetch(
-          API_LINK + "MasterKursProses/GetDataKursProses",
-          currentFilter
-        );
-
-        if (data === "ERROR") {
-          setIsError(true);
-        } else if (data.length === 0) {
-          setCurrentData(inisialisasiData);
-        } else {
-          const formattedData = data.map((value) => ({
-            ...value,
-            "Tanggal Mulai Berlaku": formatDate(value["Tanggal Mulai Berlaku"]),
-            "Harga (Rp.)": separator(value["Harga (Rp.)"]),
-            Aksi: ["Detail"],
-            Alignment: ["center", "left", "right", "center", "center"],
-          }));
+    setIsError(false);
+    UseFetch(API_LINK + "MasterKursProses/GetDataKursProses", currentFilter)
+      .then((data) => {
+        if (data === "ERROR") setIsError(true);
+        else if (data.length === 0) setCurrentData(inisialisasiData);
+        else {
+          const formattedData = data.map((value) => {
+            return {
+              ...value,
+              "Tanggal Mulai Berlaku": formatDate(
+                value["Tanggal Mulai Berlaku"]
+              ),
+              "Harga (Rp.)": separator(value["Harga (Rp.)"]),
+              Aksi: ["Detail"],
+              Alignment: ["center", "left", "right", "center", "center"],
+            };
+          });
           setCurrentData(formattedData);
         }
-      } catch {
-        setIsError(true);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchData();
+      })
+      .then(() => setIsLoading(false));
   }, [currentFilter]);
 
   return (

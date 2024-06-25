@@ -1,10 +1,89 @@
-import { useEffect } from "react";
+import { ROOT_LINK } from "../util/Constants";
 import Icon from "../part/Icon";
 
 let active_menu;
 let active_collapse;
 
-const activeURL = location.protocol + "//" + location.host + location.pathname;
+const activeURL = (
+  location.protocol +
+  "//" +
+  location.host +
+  location.pathname
+).replace(/\/$/, "");
+
+// INI SEMENTARA --- BEGIN
+const arrMenu = [
+  { head: "Logout", headkey: "logout", link: ROOT_LINK + "/logout", sub: [] },
+  { head: "Beranda", headkey: "beranda", link: ROOT_LINK, sub: [] },
+  // {
+  //   head: "Master Data",
+  //   headkey: 1,
+  //   link: "#",
+  //   sub: [
+  //     { title: "Master Pelanggan", link: ROOT_LINK + "/master_pelanggan" },
+  //     { title: "Master Produk", link: ROOT_LINK + "/master_produk" },
+  //     { title: "Master Proses", link: ROOT_LINK + "/master_proses" },
+  //     {
+  //       title: "Master Kurs Proses",
+  //       link: ROOT_LINK + "/master_kurs_proses",
+  //     },
+  //     {
+  //       title: "Master Alat/Mesin",
+  //       link: ROOT_LINK + "/master_alat_mesin",
+  //     },
+  //     { title: "Master Operator", link: ROOT_LINK + "/master_operator" },
+  //   ],
+  // },
+  // {
+  //   head: "Transaksi",
+  //   headkey: 2,
+  //   link: "#",
+  //   sub: [
+  //     {
+  //       title: "Permintaan Pelanggan",
+  //       link: ROOT_LINK + "/permintaan_pelanggan",
+  //     },
+  //     {
+  //       title: "Rencana Anggaran Kerja",
+  //       link: ROOT_LINK + "/rencana_anggaran_kerja",
+  //     },
+  //     { title: "Surat Penawaran", link: ROOT_LINK + "/surat_penawaran" },
+  //     { title: "Purchase Order", link: ROOT_LINK + "/purchase_order" },
+  //     {
+  //       title: "Surat Perintah Kerja",
+  //       link: ROOT_LINK + "/surat_perintah_kerja",
+  //     },
+  //   ],
+  // },
+  {
+    head: "KMS",
+    headkey: 3,
+    link: "#",
+    sub: [
+      {
+        title: "Materi",
+        link: ROOT_LINK + "/master_proses",
+      },
+      // {
+      //   title: "Baca Materi",
+      //   link: ROOT_LINK + "/master_test",
+      // },
+      // {
+      //   title: "Post-Test",
+      //   link: ROOT_LINK + "/master_produk",
+      // },
+      // {
+      //   title: "Pengerjaan Pre-Test",
+      //   link: ROOT_LINK + "/master_test",
+      // },
+      // {
+      //   title: "Pengerjaan Post-Test",
+      //   link: ROOT_LINK + "/master_test/post-test",
+      // },
+    ],
+  },
+];
+// INI SEMENTARA --- END
 
 function checkIcon(menu) {
   let menuIcon = "angle-down";
@@ -29,18 +108,16 @@ function setActiveCollapse(id) {
   active_collapse = id;
 }
 
-export default function Menu({ listMenu }) {
-  useEffect(() => {
-    if (document.getElementById("spanMenu")) {
-      document.getElementById("spanMenu").innerHTML = active_menu;
-      if (active_collapse)
-        document.getElementById(active_collapse).classList.add("show");
-    }
-  }, [listMenu]);
+window.addEventListener("load", () => {
+  document.getElementById("spanMenu").innerHTML = active_menu;
+  if (active_collapse)
+    document.getElementById(active_collapse).classList.add("show");
+});
 
+export default function Menu() {
   return (
     <nav>
-      {listMenu.map((menu) => {
+      {arrMenu.map((menu) => {
         if (activeURL === menu["link"]) setActiveMenu(menu["head"]);
         return (
           <div key={"#menucollapse" + menu["headkey"]}>

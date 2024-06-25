@@ -19,34 +19,24 @@ export default function MasterAlatMesinDetail({ onChangePage, withID }) {
   });
 
   useEffect(() => {
-    const fetchData = async () => {
-      setIsError((prevError) => ({ ...prevError, error: false }));
-
-      try {
-        const data = await UseFetch(
-          API_LINK + "MasterAlatMesin/DetailAlatMesin",
-          { id: withID }
-        );
-
+    setIsError((prevError) => {
+      return { ...prevError, error: false };
+    });
+    UseFetch(API_LINK + "MasterAlatMesin/DetailAlatMesin", {
+      id: withID,
+    })
+      .then((data) => {
         if (data === "ERROR" || data.length === 0) {
-          throw new Error(
-            "Terjadi kesalahan: Gagal mengambil data alat/mesin."
-          );
-        } else {
-          formDataRef.current = { ...formDataRef.current, ...data[0] };
-        }
-      } catch (error) {
-        setIsError((prevError) => ({
-          ...prevError,
-          error: true,
-          message: error.message,
-        }));
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchData();
+          setIsError((prevError) => {
+            return {
+              ...prevError,
+              error: true,
+              message: "Terjadi kesalahan: Gagal mengambil data alat/mesin.",
+            };
+          });
+        } else formDataRef.current = { ...formDataRef.current, ...data[0] };
+      })
+      .then(() => setIsLoading(false));
   }, []);
 
   if (isLoading) return <Loading />;
@@ -64,21 +54,21 @@ export default function MasterAlatMesinDetail({ onChangePage, withID }) {
         </div>
         <div className="card-body p-4">
           <div className="row">
-            <div className="col-lg-4">
+            <div className="col-lg-3">
               <Label
                 forLabel="namaAlatMesin"
                 title="Nama Alat/Mesin"
                 data={formDataRef.current.namaAlatMesin}
               />
             </div>
-            <div className="col-lg-4">
+            <div className="col-lg-3">
               <Label
                 forLabel="jenis"
                 title="Jenis"
                 data={formDataRef.current.jenis}
               />
             </div>
-            <div className="col-lg-4">
+            <div className="col-lg-3">
               <Label
                 forLabel="gambarAlatMesin"
                 title="Gambar Alat/Mesin"
@@ -98,14 +88,14 @@ export default function MasterAlatMesinDetail({ onChangePage, withID }) {
                 }
               />
             </div>
-            <div className="col-lg-8">
+            <div className="col-lg-3">
               <Label
                 forLabel="deskripsi"
-                title="Spesifikasi"
+                title="Deskripsi"
                 data={formDataRef.current.deskripsi}
               />
             </div>
-            <div className="col-lg-4">
+            <div className="col-lg-3">
               <Label
                 forLabel="statusAlatMesin"
                 title="Status"

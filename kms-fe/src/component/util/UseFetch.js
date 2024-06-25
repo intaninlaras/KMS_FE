@@ -1,10 +1,9 @@
 import Cookies from "js-cookie";
-import { decryptId } from "./Encryptor";
 
 const fetchData = async (url, param = {}) => {
   let activeUser = "";
   const cookie = Cookies.get("activeUser");
-  if (cookie) activeUser = JSON.parse(decryptId(cookie)).username;
+  if (cookie) activeUser = JSON.parse(cookie).username;
 
   try {
     let paramToSent = {

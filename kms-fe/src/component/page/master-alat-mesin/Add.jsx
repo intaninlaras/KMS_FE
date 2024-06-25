@@ -84,7 +84,9 @@ export default function MasterAlatMesinAdd({ onChangePage }) {
 
     if (Object.values(validationErrors).every((error) => !error)) {
       setIsLoading(true);
-      setIsError((prevError) => ({ ...prevError, error: false }));
+      setIsError((prevError) => {
+        return { ...prevError, error: false };
+      });
       setErrors({});
 
       const uploadPromises = [];
@@ -97,31 +99,32 @@ export default function MasterAlatMesinAdd({ onChangePage }) {
         );
       }
 
-      try {
-        await Promise.all(uploadPromises);
-
-        const data = await UseFetch(
+      Promise.all(uploadPromises).then(() => {
+        UseFetch(
           API_LINK + "MasterAlatMesin/CreateAlatMesin",
           formDataRef.current
-        );
-
-        if (data === "ERROR") {
-          throw new Error(
-            "Terjadi kesalahan: Gagal menyimpan data alat/mesin."
-          );
-        } else {
-          SweetAlert("Sukses", "Data alat/mesin berhasil disimpan", "success");
-          onChangePage("index");
-        }
-      } catch (error) {
-        setIsError((prevError) => ({
-          ...prevError,
-          error: true,
-          message: error.message,
-        }));
-      } finally {
-        setIsLoading(false);
-      }
+        )
+          .then((data) => {
+            if (data === "ERROR") {
+              setIsError((prevError) => {
+                return {
+                  ...prevError,
+                  error: true,
+                  message:
+                    "Terjadi kesalahan: Gagal menyimpan data alat/mesin.",
+                };
+              });
+            } else {
+              SweetAlert(
+                "Sukses",
+                "Data alat/mesin berhasil disimpan",
+                "success"
+              );
+              onChangePage("index");
+            }
+          })
+          .then(() => setIsLoading(false));
+      });
     }
   };
 
@@ -177,9 +180,9 @@ export default function MasterAlatMesinAdd({ onChangePage }) {
               </div>
               <div className="col-lg-12">
                 <Input
-                  type="textarea"
+                  type="text"
                   forInput="deskripsi"
-                  label="Spesifikasi"
+                  label="Deskripsi"
                   value={formDataRef.current.deskripsi}
                   onChange={handleInputChange}
                   errorMessage={errors.deskripsi}

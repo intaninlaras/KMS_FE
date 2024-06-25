@@ -11,157 +11,23 @@ import Input from "../../part/Input";
 import FileUpload from "../../part/FileUpload";
 import Loading from "../../part/Loading";
 import Alert from "../../part/Alert";
+import { Stepper } from 'react-form-stepper';
 
 export default function MasterPelangganAdd({ onChangePage }) {
   const [errors, setErrors] = useState({});
   const [isError, setIsError] = useState({ error: false, message: "" });
   const [isLoading, setIsLoading] = useState(false);
-  const [listProvinsi, setListProvinsi] = useState({});
-  const [listKabupaten, setListKabupaten] = useState({});
-  const [listKecamatan, setListKecamatan] = useState({});
-  const [listKelurahan, setListKelurahan] = useState({});
 
   const formDataRef = useRef({
-    namaPelanggan: "",
-    alamatPelanggan: "",
-    provinsiPelanggan: "",
-    kabupatenPelanggan: "",
-    kecamatanPelanggan: "",
-    kelurahanPelanggan: "",
-    nomorTeleponPelanggan: "",
-    faxPelanggan: "",
-    emailPelanggan: "",
-    nomorNPWPPelanggan: "",
-    kontakPersonPenagihan: "",
-    emailPenagihan: "",
-    kontakPersonPajak: "",
-    emailPajak: "",
-    berkasNPWPPelanggan: "",
-    berkasSPPKPPelanggan: "",
-    berkasSKTPelanggan: "",
-    berkasLainPelanggan: "",
+    namaProduk: "",
+    jenisProduk: "",
+    gambarProduk: "",
+    spesifikasi: "",
   });
 
-  const fileNPWPRef = useRef(null);
-  const fileSPPKPRef = useRef(null);
-  const fileSKTRef = useRef(null);
-  const fileLainRef = useRef(null);
+  const fileGambarRef = useRef(null);
 
-  const userSchema = object({
-    namaPelanggan: string()
-      .max(100, "maksimum 100 karakter")
-      .required("harus diisi"),
-    alamatPelanggan: string().required("harus diisi"),
-    provinsiPelanggan: string(),
-    kabupatenPelanggan: string(),
-    kecamatanPelanggan: string(),
-    kelurahanPelanggan: string(),
-    nomorTeleponPelanggan: string()
-      .max(15, "maksimum 15 karakter")
-      .required("harus diisi"),
-    faxPelanggan: string().max(15, "maksimum 15 karakter"),
-    emailPelanggan: string()
-      .max(100, "maksimum 100 karakter")
-      .email("format email tidak valid")
-      .required("harus diisi"),
-    nomorNPWPPelanggan: string().max(30, "maksimum 30 karakter"),
-    kontakPersonPenagihan: string().max(100, "maksimum 100 karakter"),
-    emailPenagihan: string()
-      .max(100, "maksimum 100 karakter")
-      .email("format email tidak valid"),
-    kontakPersonPajak: string().max(100, "maksimum 100 karakter"),
-    emailPajak: string()
-      .max(100, "maksimum 100 karakter")
-      .email("format email tidak valid"),
-    berkasNPWPPelanggan: string(),
-    berkasSPPKPPelanggan: string(),
-    berkasSKTPelanggan: string(),
-    berkasLainPelanggan: string(),
-  });
 
-  const fetchDataByEndpointAndParams = async (
-    endpoint,
-    params,
-    setter,
-    errorMessage
-  ) => {
-    setIsError((prevError) => ({ ...prevError, error: false }));
-    try {
-      const data = await UseFetch(endpoint, params);
-      if (data === "ERROR") {
-        throw new Error(errorMessage);
-      } else {
-        setter(data);
-      }
-    } catch (error) {
-      setIsError((prevError) => ({
-        ...prevError,
-        error: true,
-        message: error.message,
-      }));
-      setter({});
-    }
-  };
-
-  // MENGAMBIL DAFTAR PROVINSI -- BEGIN
-  useEffect(() => {
-    fetchDataByEndpointAndParams(
-      API_LINK + "Utilities/GetListProvinsi",
-      {},
-      setListProvinsi,
-      "Terjadi kesalahan: Gagal mengambil daftar provinsi."
-    );
-  }, []);
-  // MENGAMBIL DAFTAR PROVINSI -- END
-
-  // MENGAMBIL DAFTAR KABUPATEN/KOTA -- BEGIN
-  useEffect(() => {
-    if (formDataRef.current["provinsiPelanggan"]) {
-      fetchDataByEndpointAndParams(
-        API_LINK + "Utilities/GetListKabupaten",
-        { provinsi: formDataRef.current["provinsiPelanggan"] },
-        setListKabupaten,
-        "Terjadi kesalahan: Gagal mengambil daftar kabupaten/kota."
-      );
-      setListKecamatan({});
-      setListKelurahan({});
-    }
-  }, [formDataRef.current["provinsiPelanggan"]]);
-  // MENGAMBIL DAFTAR KABUPATEN/KOTA -- END
-
-  // MENGAMBIL DAFTAR KECAMATAN -- BEGIN
-  useEffect(() => {
-    if (formDataRef.current["kabupatenPelanggan"]) {
-      fetchDataByEndpointAndParams(
-        API_LINK + "Utilities/GetListKecamatan",
-        {
-          provinsi: formDataRef.current["provinsiPelanggan"],
-          kabupaten: formDataRef.current["kabupatenPelanggan"],
-        },
-        setListKecamatan,
-        "Terjadi kesalahan: Gagal mengambil daftar kecamatan."
-      );
-      setListKelurahan({});
-    }
-  }, [formDataRef.current["kabupatenPelanggan"]]);
-  // MENGAMBIL DAFTAR KECAMATAN -- END
-
-  // MENGAMBIL DAFTAR KELURAHAN -- BEGIN
-  useEffect(() => {
-    if (formDataRef.current["kecamatanPelanggan"]) {
-      fetchDataByEndpointAndParams(
-        API_LINK + "Utilities/GetListKelurahan",
-        {
-          provinsi: formDataRef.current["provinsiPelanggan"],
-          kabupaten: formDataRef.current["kabupatenPelanggan"],
-          kecamatan: formDataRef.current["kecamatanPelanggan"],
-        },
-        setListKelurahan,
-        "Terjadi kesalahan: Gagal mengambil daftar kelurahan."
-      );
-    }
-  }, [formDataRef.current["kecamatanPelanggan"]]);
-  // MENGAMBIL DAFTAR KELURAHAN -- END
 
   const handleInputChange = async (e) => {
     const { name, value } = e.target;
@@ -205,51 +71,39 @@ export default function MasterPelangganAdd({ onChangePage }) {
 
     if (Object.values(validationErrors).every((error) => !error)) {
       setIsLoading(true);
-      setIsError((prevError) => ({ ...prevError, error: false }));
+      setIsError((prevError) => {
+        return { ...prevError, error: false };
+      });
       setErrors({});
 
       const uploadPromises = [];
 
-      const fileInputs = [
-        { ref: fileNPWPRef, key: "berkasNPWPPelanggan" },
-        { ref: fileSPPKPRef, key: "berkasSPPKPPelanggan" },
-        { ref: fileSKTRef, key: "berkasSKTPelanggan" },
-        { ref: fileLainRef, key: "berkasLainPelanggan" },
-      ];
-
-      fileInputs.forEach((fileInput) => {
-        if (fileInput.ref.current.files.length > 0) {
-          uploadPromises.push(
-            UploadFile(fileInput.ref.current).then(
-              (data) => (formDataRef.current[fileInput.key] = data.Hasil)
-            )
-          );
-        }
-      });
-
-      try {
-        await Promise.all(uploadPromises);
-
-        const data = await UseFetch(
-          API_LINK + "MasterPelanggan/CreatePelanggan",
-          formDataRef.current
+      if (fileGambarRef.current.files.length > 0) {
+        uploadPromises.push(
+          UploadFile(fileGambarRef.current).then(
+            (data) => (formDataRef.current["gambarProduk"] = data.Hasil)
+          )
         );
-
-        if (data === "ERROR") {
-          throw new Error("Terjadi kesalahan: Gagal menyimpan data pelanggan.");
-        } else {
-          SweetAlert("Sukses", "Data pelanggan berhasil disimpan", "success");
-          onChangePage("index");
-        }
-      } catch (error) {
-        setIsError((prevError) => ({
-          ...prevError,
-          error: true,
-          message: error.message,
-        }));
-      } finally {
-        setIsLoading(false);
       }
+
+      Promise.all(uploadPromises).then(() => {
+        UseFetch(API_LINK + "MasterProduk/CreateProduk", formDataRef.current)
+          .then((data) => {
+            if (data === "ERROR") {
+              setIsError((prevError) => {
+                return {
+                  ...prevError,
+                  error: true,
+                  message: "Terjadi kesalahan: Gagal menyimpan data produk.",
+                };
+              });
+            } else {
+              SweetAlert("Sukses", "Data produk berhasil disimpan", "success");
+              onChangePage("index");
+            }
+          })
+          .then(() => setIsLoading(false));
+      });
     }
   };
 
@@ -263,211 +117,87 @@ export default function MasterPelangganAdd({ onChangePage }) {
         </div>
       )}
       <form onSubmit={handleAdd}>
+        <div>
+        <Stepper
+                    
+            steps={[
+              { label: 'Materi' },
+              { label: 'Pretest' },
+              { label: 'Post Test' },
+              { label: 'Sharing Expert'},
+              { label: 'Forum'  }
+            ]}
+            activeStep={5} 
+            styleConfig={{
+              activeBgColor: '#67ACE9', // Warna latar belakang langkah aktif
+              activeTextColor: '#FFFFFF', // Warna teks langkah aktif
+              completedBgColor: '#67ACE9', // Warna latar belakang langkah selesai
+              completedTextColor: '#FFFFFF', // Warna teks langkah selesai
+              inactiveBgColor: '#E0E0E0', // Warna latar belakang langkah non-aktif
+              inactiveTextColor: '#000000', // Warna teks langkah non-aktif
+              size: '2em', // Ukuran langkah
+              circleFontSize: '1rem', // Ukuran font label langkah
+              labelFontSize: '0.875rem', // Ukuran font label langkah
+              borderRadius: '50%', // Radius sudut langkah
+              fontWeight: 500 // Ketebalan font label langkah
+            }}
+            connectorStyleConfig={{
+              completedColor: '#67ACE9', // Warna penghubung selesai
+              activeColor: '#67ACE9', // Warna penghubung aktif
+              disabledColor: '#BDBDBD', // Warna penghubung non-aktif
+              size: 1, // Ketebalan penghubung
+              stepSize: '2em', // Ukuran langkah, digunakan untuk menghitung ruang yang dipadatkan antara langkah dan awal penghubung
+              style: 'solid' // Gaya penghubung
+            }}
+          />
+        </div>
+
         <div className="card">
-          <div className="card-header bg-primary fw-medium text-white">
-            Tambah Data Pelanggan Baru
+          <div className="card-header bg-outline-primary fw-medium text-black">
+            Add Forum
           </div>
           <div className="card-body p-4">
             <div className="row">
-              <div className="col-lg-3">
+              
+            <div className="col-lg-12">
                 <Input
                   type="text"
-                  forInput="namaPelanggan"
-                  label="Nama Pelanggan"
-                  isRequired
-                  value={formDataRef.current.namaPelanggan}
-                  onChange={handleInputChange}
-                  errorMessage={errors.namaPelanggan}
+                  forInput="namaProduk"
+                  label="Judul Forum"
+          
                 />
               </div>
-              <div className="col-lg-9">
-                <Input
-                  type="text"
-                  forInput="alamatPelanggan"
-                  label="Alamat"
-                  isRequired
-                  value={formDataRef.current.alamatPelanggan}
-                  onChange={handleInputChange}
-                  errorMessage={errors.alamatPelanggan}
-                />
-              </div>
-              <div className="col-lg-3">
-                <DropDown
-                  forInput="provinsiPelanggan"
-                  label="Provinsi"
-                  arrData={listProvinsi}
-                  value={formDataRef.current.provinsiPelanggan}
-                  onChange={handleInputChange}
-                  errorMessage={errors.provinsiPelanggan}
-                />
-              </div>
-              <div className="col-lg-3">
-                <DropDown
-                  forInput="kabupatenPelanggan"
-                  label="Kabupaten/Kota"
-                  arrData={listKabupaten}
-                  value={formDataRef.current.kabupatenPelanggan}
-                  onChange={handleInputChange}
-                  errorMessage={errors.kabupatenPelanggan}
-                />
-              </div>
-              <div className="col-lg-3">
-                <DropDown
-                  forInput="kecamatanPelanggan"
-                  label="Kecamatan"
-                  arrData={listKecamatan}
-                  value={formDataRef.current.kecamatanPelanggan}
-                  onChange={handleInputChange}
-                  errorMessage={errors.kecamatanPelanggan}
-                />
-              </div>
-              <div className="col-lg-3">
-                <DropDown
-                  forInput="kelurahanPelanggan"
-                  label="Kelurahan/Desa"
-                  arrData={listKelurahan}
-                  value={formDataRef.current.kelurahanPelanggan}
-                  onChange={handleInputChange}
-                  errorMessage={errors.kelurahanPelanggan}
-                />
-              </div>
-              <div className="col-lg-3">
-                <Input
-                  type="text"
-                  forInput="nomorTeleponPelanggan"
-                  label="Nomor HP/Telepon"
-                  isRequired
-                  value={formDataRef.current.nomorTeleponPelanggan}
-                  onChange={handleInputChange}
-                  errorMessage={errors.nomorTeleponPelanggan}
-                />
-              </div>
-              <div className="col-lg-3">
-                <Input
-                  type="text"
-                  forInput="faxPelanggan"
-                  label="Nomor Fax"
-                  value={formDataRef.current.faxPelanggan}
-                  onChange={handleInputChange}
-                  errorMessage={errors.faxPelanggan}
-                />
-              </div>
-              <div className="col-lg-3">
-                <Input
-                  type="email"
-                  forInput="emailPelanggan"
-                  label="Email"
-                  isRequired
-                  value={formDataRef.current.emailPelanggan}
-                  onChange={handleInputChange}
-                  errorMessage={errors.emailPelanggan}
-                />
-              </div>
-              <div className="col-lg-3">
-                <Input
-                  type="text"
-                  forInput="nomorNPWPPelanggan"
-                  label="Nomor NPWP"
-                  value={formDataRef.current.nomorNPWPPelanggan}
-                  onChange={handleInputChange}
-                  errorMessage={errors.nomorNPWPPelanggan}
-                />
-              </div>
-              <div className="col-lg-3">
-                <Input
-                  type="text"
-                  forInput="kontakPersonPenagihan"
-                  label="Contact Person Penagihan"
-                  value={formDataRef.current.kontakPersonPenagihan}
-                  onChange={handleInputChange}
-                  errorMessage={errors.kontakPersonPenagihan}
-                />
-              </div>
-              <div className="col-lg-3">
-                <Input
-                  type="email"
-                  forInput="emailPenagihan"
-                  label="Email Penagihan"
-                  value={formDataRef.current.emailPenagihan}
-                  onChange={handleInputChange}
-                  errorMessage={errors.emailPenagihan}
-                />
-              </div>
-              <div className="col-lg-3">
-                <Input
-                  type="text"
-                  forInput="kontakPersonPajak"
-                  label="Contact Person Pajak"
-                  value={formDataRef.current.kontakPersonPajak}
-                  onChange={handleInputChange}
-                  errorMessage={errors.kontakPersonPajak}
-                />
-              </div>
-              <div className="col-lg-3">
-                <Input
-                  type="email"
-                  forInput="emailPajak"
-                  label="Email Pajak"
-                  value={formDataRef.current.emailPajak}
-                  onChange={handleInputChange}
-                  errorMessage={errors.emailPajak}
-                />
-              </div>
-              <div className="col-lg-3">
-                <FileUpload
-                  forInput="berkasNPWPPelanggan"
-                  label="Berkas NPWP (.pdf, .jpg, .png)"
-                  formatFile=".pdf,.jpg,.png"
-                  ref={fileNPWPRef}
-                  onChange={() => handleFileChange(fileNPWPRef, "pdf,jpg,png")}
-                  errorMessage={errors.berkasNPWPPelanggan}
-                />
-              </div>
-              <div className="col-lg-3">
-                <FileUpload
-                  forInput="berkasSPPKPPelanggan"
-                  label="Berkas SPPKP (.pdf, .jpg, .png)"
-                  formatFile=".pdf,.jpg,.png"
-                  ref={fileSPPKPRef}
-                  onChange={() => handleFileChange(fileSPPKPRef, "pdf,jpg,png")}
-                  errorMessage={errors.berkasSPPKPPelanggan}
-                />
-              </div>
-              <div className="col-lg-3">
-                <FileUpload
-                  forInput="berkasSKTPelanggan"
-                  label="Berkas SKT (.pdf, .jpg, .png)"
-                  formatFile=".pdf,.jpg,.png"
-                  ref={fileSKTRef}
-                  onChange={() => handleFileChange(fileSKTRef, "pdf,jpg,png")}
-                  errorMessage={errors.berkasSKTPelanggan}
-                />
-              </div>
-              <div className="col-lg-3">
-                <FileUpload
-                  forInput="berkasLainPelanggan"
-                  label="Berkas Lainnya (.pdf, .jpg, .png, .zip)"
-                  formatFile=".pdf,.jpg,.png,.zip"
-                  ref={fileLainRef}
-                  onChange={() =>
-                    handleFileChange(fileLainRef, "pdf,jpg,png,zip")
-                  }
-                  errorMessage={errors.berkasLainPelanggan}
-                />
+              <div className="col-lg-12">
+                <div className="form-group">
+                  <label htmlFor="deskripsiMateri" className="form-label fw-bold">
+                    Isi Forum
+                  </label>
+                  <textarea
+                    id="deskripsiMateri"
+                    name="deskripsiMateri"
+                    className={`form-control ${errors.deskripsiMateri ? 'is-invalid' : ''}`}
+                    value={formDataRef.current.deskripsiMateri}
+                    onChange={handleInputChange}
+                  />
+                  {errors.deskripsiMateri && (
+                    <div className="invalid-feedback">{errors.deskripsiMateri}</div>
+                  )}
+                </div>
               </div>
             </div>
           </div>
         </div>
-        <div className="float-end my-4 mx-1">
+        <div className="float my-4 mx-1">
           <Button
-            classType="secondary me-2 px-4 py-2"
-            label="BATAL"
-            onClick={() => onChangePage("index")}
+            classType="outline-secondary me-2 px-4 py-2"
+            label="Back"
+            onClick={() => onChangePage("sharingexpert")}
           />
           <Button
             classType="primary ms-2 px-4 py-2"
             type="submit"
-            label="SIMPAN"
+            label="Save"
+            onClick={() => onChangePage("index")}
           />
         </div>
       </form>
