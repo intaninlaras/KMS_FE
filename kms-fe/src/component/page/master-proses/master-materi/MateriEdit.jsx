@@ -13,9 +13,9 @@ import Loading from "../../../part/Loading";
 import Alert from "../../../part/Alert";
 import { Stepper } from 'react-form-stepper';
 import uploadFile from "../../../util/UploadFile";
-import AppContext_test from "../MasterContext";
+import AppContext_master from "../MasterContext";
 import { Editor } from '@tinymce/tinymce-react';
-
+import AppContext_test from "../../master-test/TestContext";
 export default function MasterCourseEdit({onChangePage}) {
   // console.log("ID: " + JSON.stringify(Materi));
   console.log("onChangePage prop:", onChangePage);

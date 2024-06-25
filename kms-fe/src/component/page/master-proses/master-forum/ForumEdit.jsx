@@ -10,8 +10,8 @@ import axios from "axios";
 import { API_LINK } from "../../../util/Constants";
 import UseFetch from "../../../util/UseFetch";
 import { Editor } from '@tinymce/tinymce-react';
-import AppContext_test from "../MasterContext";
-
+import AppContext_master from "../MasterContext";
+import AppContext_test from "../../master-test/TestContext";
 const userSchema = object({
   forumJudul: string().max(100, "Maksimum 100 karakter").required("Harus diisi"),
   forumIsi: string().required("Harus diisi"),
@@ -98,10 +98,10 @@ export default function MasterForumEdit({ onChangePage }) {
       });
 
       if (response.status === 200) {
-        SweetAlert("Success", "Forum data has been successfully saved", "success");
+        SweetAlert("Berhasil", "Data forum berhasil diubah!", "success");
         // onChangePage("forumEdit");
       } else {
-        throw new Error("Failed to save forum data");
+        throw new Error("Gagal untuk menyimpan data forum");
       }
     } catch (error) {
       setIsError(true);

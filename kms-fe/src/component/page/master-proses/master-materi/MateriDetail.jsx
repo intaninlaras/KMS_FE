@@ -10,6 +10,7 @@ export default function MasterMateriDetail({ onChangePage }) {
     const [isLoading, setIsLoading] = useState(true);
     const [pdfHeight, setPdfHeight] = useState("500px");
     const Materi = AppContext_test.DetailMateri;
+    console.log(Materi)
     useEffect(() => {
         // Simulate a loading effect
         setTimeout(() => setIsLoading(false), 1000);
@@ -40,12 +41,11 @@ export default function MasterMateriDetail({ onChangePage }) {
         return () => {
             window.removeEventListener("resize", calculatePdfHeight);
         };
-    }, [Materi.File_video]);
-
+    }, [Materi.File_video_url]);
     if (isLoading) return <Loading />;
 
     const hasPDF = Materi.File_pdf_url;
-    const hasVideo = Materi.File_video && isValidUrl(Materi.File_video);
+    const hasVideo = Materi.File_video_url && isValidUrl(Materi.File_video_url);
 
     return (
         <>
@@ -98,7 +98,7 @@ export default function MasterMateriDetail({ onChangePage }) {
                         <div className="row">
                             <div className="col-lg-3 d-flex align-items-center justify-content-center">
                                 <img
-                                    src={Materi.Gambar_url}
+                                    src={Materi.Gambar}
                                     alt="gambar"
                                     className="img-fluid"
                                     style={{ width: "100%", height: "auto", maxWidth: "300px", maxHeight: "300px" }}
@@ -134,7 +134,7 @@ export default function MasterMateriDetail({ onChangePage }) {
                         </div>
                         <div className="card-body">
                             <video id="video" controls width="100%" height="auto">
-                                <source src={Materi.File_video} type="video/mp4" />
+                                <source src={Materi.File_video_url} type="video/mp4" />
                                 Browser Anda tidak mendukung tag video.
                             </video>
                         </div>

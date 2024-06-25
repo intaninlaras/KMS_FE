@@ -76,7 +76,7 @@ function CardMateri({
                   }}
                 ></div>
                 <div style={{ paddingLeft: "25px" }}>
-                  <button className="btn btn-link p-0 text-decoration-none" onClick={() =>  onDetail("materiDetail", AppContext_test.DetailMateri = book)}>
+                  <button className="btn btn-link p-0 text-decoration-none" onClick={() =>  onDetail("materiDetail", AppContext_test.DetailMateri = book, AppContext_master.DetailMateri = book)}>
                     <h5 className="card-title mb-1">{book.Judul}</h5>
                   </button>
                   <div className="mb-1" style={{fontSize:"12px"}}>
@@ -130,7 +130,7 @@ function CardMateri({
                       <button
                         className="btn btn-sm text-primary"
                         title="Edit Materi"
-                        onClick={() => onEdit("materiEdit", AppContext_test.DetailMateriEdit = book)}
+                        onClick={() => onEdit("materiEdit", AppContext_test.DetailMateriEdit = book, AppContext_test.DetailMateri = book, AppContext_master.DetailMateri = book)}
                       >
                         <i className="fas fa-edit"></i>
                       </button>

@@ -56,8 +56,9 @@ export default function MasterProsesIndex({ onChangePage }) {
     order: "asc",
     kategori:AppContext_test.KategoriIdByKK,
   });
-  AppContext_test.kategoriId = withID;
-  const kategori = withID;
+  console.log(currentData)
+  // AppContext_test.kategoriId = withID;
+  // const kategori = withID;
   const searchQuery = useRef(null);
   const searchFilterSort = useRef(null);
   const searchFilterStatus = useRef(null);
@@ -172,7 +173,7 @@ export default function MasterProsesIndex({ onChangePage }) {
                             .then((blob) => {
                                 const url = URL.createObjectURL(blob);
                                 value.gbr = value.Gambar;
-                                value.Gambar_url = url;
+                                value.Gambar = url;
                                 return value;
                             })
                             .catch((error) => {

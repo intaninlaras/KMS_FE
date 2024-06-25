@@ -10,9 +10,11 @@ import { validateAllInputs, validateInput } from "../../../util/ValidateForm";
 import { API_LINK } from "../../../util/Constants";
 import FileUpload from "../../../part/FileUpload";
 import uploadFile from "../../../util/UploadImageQuiz";
-import AppContext_test from "../MasterContext";
+import { Editor } from '@tinymce/tinymce-react';
+import Swal from 'sweetalert2';
+import AppContext_test from "../../master-test/TestContext";
 
-export default function MasterPostTestEdit({ onChangePage, withID }) {
+export default function MasterPreTestEdit({ onChangePage, withID }) {
     const [formContent, setFormContent] = useState([]);
     const [selectedOptions, setSelectedOptions] = useState([]);
     const [errors, setErrors] = useState({});
@@ -480,13 +482,11 @@ export default function MasterPostTestEdit({ onChangePage, withID }) {
 
     const getDataQuiz = async () => {
         setIsLoading(true);
-
         try {
             while (true) {
                 const data = await axios.post(API_LINK + 'Quiz/GetQuizByID', {
-                    id: withID, tipe: "Posttest"
+                    id: AppContext_test.DetailMateriEdit?.Key, tipe: "Pretest"
                 });
-
                 if (data === "ERROR") {
                     throw new Error("Terjadi kesalahan: Gagal mengambil data quiz.");
                 } else if (data.length === 0) {
@@ -520,9 +520,8 @@ export default function MasterPostTestEdit({ onChangePage, withID }) {
         try {
             while (true) {
                 const { data } = await axios.post(API_LINK + 'Quiz/GetDataQuestion', {
-                    id: formData.quizId, status: 'Aktif'
+                    id: formData.materiId, status: 'Aktif', tipe:'Posttest'
                 });
-                console.log(data);
                 if (data === "ERROR") {
                     throw new Error("Terjadi kesalahan: Gagal mengambil data quiz.");
                 } else if (data.length === 0) {
@@ -644,14 +643,14 @@ export default function MasterPostTestEdit({ onChangePage, withID }) {
             <form id="myForm" onSubmit={handleAdd}>
                 <div>
                     <Stepper
-                        steps={[
-                            { label: 'Pretest', onClick: () => onChangePage("pretestAdd") },
-                            { label: 'Materi', onClick: () => onChangePage("courseAdd") },
-                            { label: 'Sharing Expert', onClick: () => onChangePage("sharingAdd") },
-                            { label: 'Forum', onClick: () => onChangePage("forumAdd") },
-                            { label: 'Post Test', onClick: () => onChangePage("posttestAdd") }
-                        ]}
-                        activeStep={0}
+                    steps={[
+                    { label: 'Materi', onClick: () => onChangePage("courseAdd") },
+                    { label: 'Pretest', onClick: () => onChangePage("pretestAdd") },
+                    { label: 'Sharing Expert', onClick: () => onChangePage("sharingAdd") },
+                    { label: 'Forum', onClick: () => onChangePage("forumAdd") },
+                    { label: 'Post Test', onClick: () => onChangePage("posttestAdd") }
+                    ]}
+                    activeStep={4}
                         styleConfig={{
                             activeBgColor: '#67ACE9',
                             activeTextColor: '#FFFFFF',
@@ -963,7 +962,6 @@ export default function MasterPostTestEdit({ onChangePage, withID }) {
                         type="submit"
                         label="Simpan"
                     />
-                    
                 </div>
             </form>
         </>

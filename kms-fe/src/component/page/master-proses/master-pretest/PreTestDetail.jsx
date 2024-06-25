@@ -186,13 +186,13 @@ export default function MasterPreTestDetail({ onChangePage,withID }) {
         <div>
           <Stepper
             steps={[
-              { label: 'Pretest', onClick: () => onChangePage("pretestAdd") },
-              { label: 'Materi', onClick: () => onChangePage("courseAdd") },
-              { label: 'Sharing Expert', onClick: () => onChangePage("sharingAdd") },
-              { label: 'Forum', onClick: () => onChangePage("forumAdd") },
-              { label: 'Post Test', onClick: () => onChangePage("posttestAdd") }
+                { label: 'Materi', onClick: () => onChangePage("courseAdd") },
+                { label: 'Pretest', onClick: () => onChangePage("pretestAdd") },
+                { label: 'Sharing Expert', onClick: () => onChangePage("sharingDetail") },
+                { label: 'Forum', onClick: () => onChangePage("forumDetail") },
+                { label: 'Post Test', onClick: () => onChangePage("posttestDetail") }
             ]}
-            activeStep={0}
+            activeStep={1}
             styleConfig={{
               activeBgColor: '#67ACE9',
               activeTextColor: '#FFFFFF',

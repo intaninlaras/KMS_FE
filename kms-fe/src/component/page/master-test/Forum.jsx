@@ -15,21 +15,21 @@ export default function Forum({ onChangePage, isOpen }) {
   const [replyMessage, setReplyMessage] = useState("");
   const [showReplyInput, setShowReplyInput] = useState(false);
   const formDataRef = useRef({
-    forumId:"001",
+    forumId:item.Key,
     karyawanId: "1", 
     isiDetailForum: "",
     statusDetailForum: "Aktif",
     createdBy: "I Made Dananjaya Adyatma",
-    detailId: "001",
+    detailId: item.DetailId,
   });
-
+  console.log(item)
   const handleReply = (item) => {
     formDataRef.current = {
-      forumId: "001",
+      forumId: item.Key,
       karyawanId: "1",
       isiDetailForum: "",
       statusDetailForum: "Aktif",
-      createdBy: "I Made Dananjaya Adyatma",
+      createdBy: "Fahriel Dwifaldi",
       detailId: item.DetailId,
     };
     setReplyMessage(`Membalas: ${item.IsiDetailForum}`); 
@@ -42,12 +42,12 @@ export default function Forum({ onChangePage, isOpen }) {
   const handleCancelReply = () => {
     setReplyMessage(""); 
     formDataRef.current = {
-      forumId: "001",
+      forumId: item.Key,
       karyawanId: "1",
       isiDetailForum: "",
       statusDetailForum: "Aktif",
-      createdBy: "I Made Dananjaya Adyatma",
-      detailId: "001",
+      createdBy: "Fahriel Dwifaldi",
+      detailId: item.DetailId,
     };
     setShowReplyInput(false); 
   };

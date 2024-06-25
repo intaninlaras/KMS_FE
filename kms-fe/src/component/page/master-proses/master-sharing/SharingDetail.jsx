@@ -2,7 +2,8 @@ import React, { useState, useEffect } from "react";
 import Button from "../../../part/Button";
 import Alert from "../../../part/Alert";
 import { Stepper } from "react-form-stepper";
-import AppContext_test from "../MasterContext";
+import AppContext_master from "../MasterContext";
+import AppContext_test from "../../master-test/TestContext";
 import Loading from "../../../part/Loading";
 
 export default function MasterSharingDetail({ onChangePage }) {

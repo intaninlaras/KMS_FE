@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import Icon from "./Icon";
-import AppContext_test from "../page/master-proses/MasterContext.jsx";
-
+import AppContext_master from "../page/master-proses/MasterContext.jsx";
+import AppContext_test from "../page/master-test/TestContext.jsx";
 const MAX_DESCRIPTION_LENGTH = 100;
 
 const CardKategoriProgram = ({ onChangePage, kategori }) => {
@@ -47,7 +47,7 @@ const CardKategoriProgram = ({ onChangePage, kategori }) => {
               <div className="d-flex justify-content-between">
                 <h6
                   className="card-title"
-                  onClick={() => onChangePage("index", AppContext_test.KategoriIdByKK = kategori.Key)}
+                  onClick={() => onChangePage("index", AppContext_test.KategoriIdByKK = kategori.Key, AppContext_master.KategoriIdByKK = kategori.Key)}
                 >
                   {kategori["Nama Kategori Program"]}
                 </h6>

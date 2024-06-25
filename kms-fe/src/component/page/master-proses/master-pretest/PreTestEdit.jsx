@@ -12,17 +12,19 @@ import FileUpload from "../../../part/FileUpload";
 import uploadFile from "../../../util/UploadImageQuiz";
 import { Editor } from '@tinymce/tinymce-react';
 import Swal from 'sweetalert2';
+import AppContext_test from "../../master-test/TestContext";
 
-export default function MasterPreTestEdit({ onChangePage,withID}) {
-  const [formContent, setFormContent] = useState([]);
-  const [selectedOptions, setSelectedOptions] = useState([]);
-  const [errors, setErrors] = useState({});
-  const [isLoading, setIsLoading] = useState(false);
-  const [correctAnswers, setCorrectAnswers] = useState({});
-  const [selectedFile, setSelectedFile] = useState(null);
-  const [timer, setTimer] = useState('');
-  const [minimumScore, setMinimumScore] = useState();
-  const gambarInputRef = useRef(null);
+export default function MasterPreTestEdit({ onChangePage, withID }) {
+    const [formContent, setFormContent] = useState([]);
+    const [selectedOptions, setSelectedOptions] = useState([]);
+    const [errors, setErrors] = useState({});
+    const [isError, setIsError] = useState({ error: false, message: "" });
+    const [isLoading, setIsLoading] = useState(false);
+    const [correctAnswers, setCorrectAnswers] = useState({});
+    const [selectedFile, setSelectedFile] = useState(null);
+    const [timer, setTimer] = useState('');
+    const [minimumScore, setMinimumScore] = useState();
+    const gambarInputRef = useRef(null);
 
     const [formData, setFormData] = useState({
         quizId: '',
@@ -480,17 +482,16 @@ export default function MasterPreTestEdit({ onChangePage,withID}) {
 
     const getDataQuiz = async () => {
         setIsLoading(true);
-
         try {
             while (true) {
                 const data = await axios.post(API_LINK + 'Quiz/GetQuizByID', {
-                    id: withID, tipe: "Pretest"
+                    id: AppContext_test.DetailMateriEdit?.Key, tipe: "Pretest"
                 });
-
                 if (data === "ERROR") {
                     throw new Error("Terjadi kesalahan: Gagal mengambil data quiz.");
                 } else if (data.length === 0) {
                     await new Promise((resolve) => setTimeout(resolve, 2000));
+                    console.log("halo2")
                 } else {
                     const convertedData = {
                         ...data.data[0],
@@ -500,6 +501,7 @@ export default function MasterPreTestEdit({ onChangePage,withID}) {
                     setTimer(data.data[0].timer ? convertSecondsToTimeFormat(data.data[0].timer) : '')
                     setFormData(convertedData);
                     setIsLoading(false);
+                    console.log("halo")
                     break;
                 }
             }
@@ -520,9 +522,8 @@ export default function MasterPreTestEdit({ onChangePage,withID}) {
         try {
             while (true) {
                 const { data } = await axios.post(API_LINK + 'Quiz/GetDataQuestion', {
-                    id: formData.quizId, status: 'Aktif'
+                    id: formData.materiId, status: 'Aktif', tipe:'Pretest'
                 });
-                console.log(data);
                 if (data === "ERROR") {
                     throw new Error("Terjadi kesalahan: Gagal mengambil data quiz.");
                 } else if (data.length === 0) {
@@ -644,14 +645,14 @@ export default function MasterPreTestEdit({ onChangePage,withID}) {
             <form id="myForm" onSubmit={handleAdd}>
                 <div>
                     <Stepper
-                        steps={[
-                            { label: 'Pretest', onClick: () => onChangePage("pretestAdd") },
-                            { label: 'Materi', onClick: () => onChangePage("courseAdd") },
-                            { label: 'Sharing Expert', onClick: () => onChangePage("sharingAdd") },
-                            { label: 'Forum', onClick: () => onChangePage("forumAdd") },
-                            { label: 'Post Test', onClick: () => onChangePage("posttestAdd") }
-                        ]}
-                        activeStep={0}
+                    steps={[
+                    { label: 'Materi', onClick: () => onChangePage("courseAdd") },
+                    { label: 'Pretest', onClick: () => onChangePage("pretestAdd") },
+                    { label: 'Sharing Expert', onClick: () => onChangePage("sharingAdd") },
+                    { label: 'Forum', onClick: () => onChangePage("forumAdd") },
+                    { label: 'Post Test', onClick: () => onChangePage("posttestAdd") }
+                    ]}
+                    activeStep={1}
                         styleConfig={{
                             activeBgColor: '#67ACE9',
                             activeTextColor: '#FFFFFF',

@@ -42,7 +42,7 @@ export default function MasterCourseAdd({ onChangePage }) {
     kry_id: "1",
     mat_kata_kunci: "",
     mat_gambar: "",
-    createBy: "dummy",
+    createBy: "Kristina Hutajulu",
   });
 
   // Validasi skema menggunakan Yup

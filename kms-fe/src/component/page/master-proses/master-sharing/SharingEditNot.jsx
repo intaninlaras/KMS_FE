@@ -9,7 +9,8 @@ import FileUpload from "../../../part/FileUpload";
 import Loading from "../../../part/Loading";
 import Alert from "../../../part/Alert";
 import { Stepper } from 'react-form-stepper';
-import AppContext_test from "../MasterContext";
+import AppContext_master from "../MasterContext";
+import AppContext_test from "../../master-test/TestContext";  
 import uploadFile from "../../../util/UploadFile";
 
 export default function MasterSharingEditNot({ onChangePage }) {

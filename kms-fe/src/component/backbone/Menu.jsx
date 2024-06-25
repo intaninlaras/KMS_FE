@@ -60,14 +60,14 @@ const arrMenu = [
     headkey: 3,
     link: "#",
     sub: [
-      // {
-      //   title: "Materi",
-      //   link: ROOT_LINK + "/master_proses",
-      // },
       {
-        title: "Baca Materi",
-        link: ROOT_LINK + "/master_test",
+        title: "Materi",
+        link: ROOT_LINK + "/master_proses",
       },
+      // {
+      //   title: "Baca Materi",
+      //   link: ROOT_LINK + "/master_test",
+      // },
       // {
       //   title: "Post-Test",
       //   link: ROOT_LINK + "/master_produk",
