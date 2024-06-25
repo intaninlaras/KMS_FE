@@ -1,5 +1,5 @@
 import { useState } from "react";
-import Icon from "../part/Icon.jsx";
+import Icon from "./Icon.jsx";
 import Button from "./Button.jsx";
 import AppContext_master from "../page/master-proses/MasterContext.jsx";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import Icon from "./Icon";
+import Icon from "./Icon.jsx";
 import AppContext_master from "../page/master-proses/MasterContext.jsx";
 import AppContext_test from "../page/master-test/TestContext.jsx";
 const MAX_DESCRIPTION_LENGTH = 100;
